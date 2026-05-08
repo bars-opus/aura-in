@@ -1,0 +1,240 @@
+// lib/features/dashboard/presentation/screens/analytics_screen.dart
+import 'package:nano_embryo/core/widgets/custom_universal_tabs.dart';
+import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/top_service.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/analytics_controller.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/analytics_loading_screen.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/quarterly_revenue_chart.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/quarterly_revenue_detail_screen.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/revenue_comparison_card.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/top_services_list.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/top_workers_list.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dashboard_providers.dart';
+
+class AnalyticsScreen extends ConsumerStatefulWidget {
+  final String shopId;
+
+  const AnalyticsScreen({super.key, required this.shopId});
+
+  @override
+  ConsumerState<AnalyticsScreen> createState() => _AnalyticsScreenState();
+}
+
+class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
+  AnalyticsTab _selectedTab = AnalyticsTab.revenue;
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(
+      analyticsControllerProviderFamily(AnalyticsParams(shopId: widget.shopId)),
+    );
+    return _buildContent(state);
+  }
+
+  Widget _buildContent(AnalyticsState state) {
+    if (state.isLoading) {
+      return const AnalyticsLoadingScreen();
+    }
+
+    if (state.hasError) {
+      return Center(
+        child: ErrorStateWidget(
+          subtitle: 'Failed to load analytics',
+          title: '',
+          onPrimaryAction:
+              () =>
+                  ref
+                      .read(
+                        analyticsControllerProviderFamily(
+                          AnalyticsParams(shopId: widget.shopId),
+                        ).notifier,
+                      )
+                      .refresh(),
+        ),
+      );
+    }
+
+    if (state.isEmpty) {
+      return Center(
+        child: EmptyStateWidget(
+          icon: Icons.analytics_outlined,
+          title: 'No data available for analytics.',
+          subtitle: 'Booking and revenue statistics would appear here',
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        await ref
+            .read(
+              analyticsControllerProviderFamily(
+                AnalyticsParams(shopId: widget.shopId),
+              ).notifier,
+            )
+            .refresh();
+      },
+      child: ListView(
+        children: [
+          CustomUniversalTabs(
+            tabs: [
+              TabItem(
+                label: 'Revenue',
+                icon: Icons.attach_money_outlined,
+                selectedIcon: Icons.attach_money,
+                value: AnalyticsTab.revenue,
+              ),
+              TabItem(
+                label: 'Services',
+                icon: Icons.cut_outlined,
+                selectedIcon: Icons.cut,
+                value: AnalyticsTab.services,
+              ),
+              TabItem(
+                label: 'Workers',
+                icon: Icons.person_outline,
+                selectedIcon: Icons.person,
+                value: AnalyticsTab.workers,
+              ),
+            ],
+            // Use local state approach
+            selectedIndex: _selectedTab.index,
+            onIndexChanged: (index) {
+              setState(() {
+                _selectedTab = AnalyticsTab.values[index];
+              });
+            },
+            height: 70.h,
+            iconSize: 20.sp,
+            fontSize: 12.sp,
+            showUnderline: true,
+            showLabels: true,
+            animateIconScale: true,
+            showBottomBorder: false,
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(Spacing.md.h),
+              child: _buildTabContent(state),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabContent(AnalyticsState state) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    switch (_selectedTab) {
+      case AnalyticsTab.revenue:
+        return Column(
+          children: [
+            Gap(Spacing.sm.h),
+            if (state.revenueComparisons != null) ...[
+              RevenueComparisonCard(
+                shopId: widget.shopId,
+                weeklyRevenue:
+                    state.revenueComparisons!['weekly_revenue']?.toDouble() ??
+                    0,
+                previousWeeklyRevenue:
+                    state.revenueComparisons!['previous_weekly_revenue']
+                        ?.toDouble() ??
+                    0,
+                monthlyRevenue:
+                    state.revenueComparisons!['monthly_revenue']?.toDouble() ??
+                    0,
+                previousMonthlyRevenue:
+                    state.revenueComparisons!['previous_monthly_revenue']
+                        ?.toDouble() ??
+                    0,
+              ),
+            ],
+            QuarterlyRevenueChart(
+              data: state.quarterlyRevenue,
+              maxRevenue: _getMaxRevenue(state),
+              onTap: () {
+                BottomSheetUtils.showDocumentationBottomSheet(
+                  context: context,
+                  widget: QuarterlyRevenueDetailScreen(
+                    shopId: widget.shopId,
+                    yearlyRevenue: state.quarterlyRevenue,
+                  ),
+                );
+              },
+            ),
+
+            SemanticContainerWidget(
+              content:
+                  'Kindly wait for the paypemt to finish processing and return to your app to generate your appointment',
+              icon: Icons.monetization_on,
+              title: '',
+              backgroundColor: colorScheme.primary.withOpacity(0.1),
+              borderColor: colorScheme.primary,
+              iconColor: colorScheme.primary,
+              textTheme: theme.textTheme,
+            ),
+          ],
+        );
+
+      case AnalyticsTab.services:
+        return Column(
+          children: [
+            Gap(Spacing.md.h),
+            if (state.weeklyServices.services.isNotEmpty)
+              TopServicesList(
+                data: state.weeklyServices,
+                shopId: widget.shopId,
+                peroid: AnalyticsPeriod.weekly,
+              ),
+            if (state.weeklyServices.services.isNotEmpty &&
+                state.monthlyServices.services.isNotEmpty)
+              Gap(Spacing.md.h),
+            if (state.monthlyServices.services.isNotEmpty)
+              TopServicesList(
+                data: state.monthlyServices,
+                shopId: widget.shopId,
+                peroid: AnalyticsPeriod.monthly,
+              ),
+          ],
+        );
+
+      case AnalyticsTab.workers:
+        return Column(
+          children: [
+            Gap(Spacing.md.h),
+            if (state.weeklyWorkers.workers.isNotEmpty)
+              TopWorkersList(data: state.weeklyWorkers),
+            if (state.weeklyWorkers.workers.isNotEmpty &&
+                state.monthlyWorkers.workers.isNotEmpty)
+              Gap(Spacing.md.h),
+            if (state.monthlyWorkers.workers.isNotEmpty)
+              TopWorkersList(data: state.monthlyWorkers),
+          ],
+        );
+    }
+  }
+
+  double _getMaxRevenue(AnalyticsState state) {
+    final quarters = state.quarterlyRevenue.quarters;
+    if (quarters.isEmpty) return 10000;
+    final max = quarters.map((q) => q.amount).reduce((a, b) => a > b ? a : b);
+    return max * 1.2;
+  }
+}
+
+// AnalyticsTab enum if not already defined
+enum AnalyticsTab { revenue, services, workers }
+
+extension AnalyticsTabExtension on AnalyticsTab {
+  String get label {
+    switch (this) {
+      case AnalyticsTab.revenue:
+        return 'Revenue';
+      case AnalyticsTab.services:
+        return 'Services';
+      case AnalyticsTab.workers:
+        return 'Workers';
+    }
+  }
+}

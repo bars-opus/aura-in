@@ -1,0 +1,1 @@
+/Users/user/nano_embryo/.claude/skills/gstack/open-gstack-browser/SKILL.md

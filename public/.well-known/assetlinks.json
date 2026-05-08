@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.barsOpus.aurain",
+      "sha256_cert_fingerprints": [
+        "YOUR_SHA256_DEBUG_FINGERPRINT",
+        "YOUR_SHA256_RELEASE_FINGERPRINT"
+      ]
+    }
+  }
+]

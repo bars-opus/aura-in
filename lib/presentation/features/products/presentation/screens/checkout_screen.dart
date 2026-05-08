@@ -1,0 +1,287 @@
+// lib/features/products/presentation/screens/checkout_screen.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:nano_embryo/core/widgets/app_text_form_field.dart';
+import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
+
+class CheckoutScreen extends ConsumerStatefulWidget {
+  const CheckoutScreen({super.key});
+
+  @override
+  ConsumerState<CheckoutScreen> createState() => _CheckoutScreenState();
+}
+
+class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _addressController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _notesController = TextEditingController();
+
+  bool _isPlacingOrder = false;
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    _phoneController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _placeOrder() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final cartState = ref.read(cartNotifierProvider);
+    if (cartState.isEmpty) return;
+
+    // Check if cart has items from multiple shops
+    if (cartState.hasMultipleShops) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please order from one shop at a time'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final shopId = cartState.items.first.shopId;
+    final items =
+        cartState.items
+            .map(
+              (item) => {
+                'product_id': item.productId,
+                'quantity': item.quantity,
+                'unit_price': item.price,
+              },
+            )
+            .toList();
+
+    setState(() => _isPlacingOrder = true);
+
+    try {
+      final orderNotifier = ref.read(orderNotifierProvider.notifier);
+      final orderId = await orderNotifier.createOrder(
+        shopId: shopId,
+        items: items,
+        totalAmount: cartState.totalAmount,
+        deliveryAddress: _addressController.text.trim(),
+        customerPhone: _phoneController.text.trim(),
+        customerNotes: _notesController.text.trim(),
+      );
+
+      if (mounted && orderId != null) {
+        // Clear cart and navigate to order confirmation
+        await ref.read(cartNotifierProvider.notifier).clearCart();
+
+        Navigator.pushReplacementNamed(
+          context,
+          '/order-confirmation',
+          arguments: orderId,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to place order: $e')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isPlacingOrder = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cartState = ref.watch(cartNotifierProvider);
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Checkout',
+          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
+      ),
+      body:
+          cartState.isEmpty
+              ? const Center(child: Text('Cart is empty'))
+              : Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(16.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Order summary
+                      Card(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.w),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Order Summary',
+                                style: textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(height: 12.h),
+                              ...cartState.items.map(
+                                (item) => Padding(
+                                  padding: EdgeInsets.only(bottom: 8.h),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          '${item.quantity}x ${item.productName}',
+                                          style: textTheme.bodyMedium,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Text(
+                                        '₦${item.subtotal.toStringAsFixed(2)}',
+                                        style: textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Divider(height: 24.h),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Total',
+                                    style: textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    '₦${cartState.totalAmount.toStringAsFixed(2)}',
+                                    style: textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 24.h),
+
+                      // Delivery address
+                      Text(
+                        'Delivery Information',
+                        style: textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 12.h),
+
+                      AppTextFormField(
+                        controller: _addressController,
+                        label: 'Delivery Address',
+                        hintText: 'Enter your full address',
+                        maxLines: 3,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter delivery address';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 16.h),
+
+                      AppTextFormField(
+                        controller: _phoneController,
+                        label: 'Phone Number',
+                        hintText: 'Enter your phone number',
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter phone number';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 16.h),
+
+                      AppTextFormField(
+                        controller: _notesController,
+                        label: 'Order Notes (Optional)',
+                        hintText: 'Special instructions for delivery',
+                        maxLines: 2,
+                      ),
+
+                      SizedBox(height: 24.h),
+
+                      // Payment info (COD)
+                      Container(
+                        padding: EdgeInsets.all(12.w),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primaryContainer.withOpacity(
+                            0.1,
+                          ),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.payments_outlined,
+                              color: theme.colorScheme.primary,
+                            ),
+                            SizedBox(width: 12.w),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Cash on Delivery',
+                                    style: textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Pay when you receive your order',
+                                    style: textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: 24.h),
+
+                      // Place order button
+                      AppButton(
+                        label:
+                            _isPlacingOrder
+                                ? 'Placing Order...'
+                                : 'Place Order',
+                        onPressed: _isPlacingOrder ? null : _placeOrder,
+                        width: double.infinity,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+    );
+  }
+}

@@ -1,0 +1,1 @@
+/Users/user/nano_embryo/.claude/skills/gstack/pair-agent/SKILL.md

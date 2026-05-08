@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/l/:slug",
+      "destination": "/api/link/[slug]"
+    },
+    {
+      "source": "/.well-known/apple-app-site-association",
+      "destination": "/api/aasa"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

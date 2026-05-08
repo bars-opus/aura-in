@@ -1,0 +1,454 @@
+{
+  "@@locale": "pt",
+  
+  "appName": "Nano Embryo",
+  "appDescription": "Seu aplicativo inovador",
+  
+  "commonContinue": "Continuar",
+  "commonCancel": "Cancelar",
+  "commonSave": "Salvar",
+  "commonLogin": "Entrar",
+  "commonLogout": "Sair",
+  "commonDone": "Concluído",
+  "commonRetry": "Tentar novamente",
+  "commonAccept": "Aceitar",
+  "commonReject": "Rejeitar",
+  "introGetStarted": "Começar",
+  
+  "actionsBlock": "Bloquear usuário",
+  "actionsReport": "Denunciar usuário",
+  "actionsSend": "Enviar para o chat",
+  "actionsShare": "Compartilhar",
+  "actionsCopy": "Copiar link",
+  
+  "appInfoVersion": "Versão",
+  "appInfoReleased": "Lançado",
+  "appInfoPackageName": "Nome do Pacote",
+  "appInfoDeveloper": "Nome do Desenvolvedor",
+  "appInfoSupportEmail": "Email de Suporte",
+  "appInfoTechnicalDetails": "Detalhes Técnicos",
+  "appInfoBundleID": "ID do Pacote",
+  "appInfoBuildVersion": "Versão da Compilação",
+  "appInfoBuildNumber": "Número da Compilação",
+  "appInfoReleaseDate": "Data de Lançamento",
+  "appInfoAppSize": "Tamanho do App",
+  "appInfoOverview": "{appName} é um aplicativo móvel moderno construído com segurança robusta e funcionalidade, projetado para fornecer uma experiência de usuário excepcional com arquitetura limpa e otimização de desempenho.",
+  "@appInfoOverview": {
+    "description": "Descrição geral do aplicativo com nome dinâmico do app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MeuApp"
+      }
+    }
+  },
+
+  "introTitle": "Bem-vindo ao {appName}",
+  "@introTitle": {
+    "description": "Título da tela de introdução com marcador de nome do app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MeuApp"
+      }
+    }
+  },
+  "introFeature1Title": "Veja Seu Progresso",
+  "introFeature1Description": "Acompanhe seus marcos de desenvolvimento com análises detalhadas e insights",
+  "introFeature2Title": "Explore Modelos",
+  "introFeature2Description": "Descubra componentes e telas pré-construídos para desenvolvimento rápido",
+  "introFeature3Title": "Comece Rapidamente",
+  "introFeature3Description": "Inicie seu projeto com configuração zero e melhores práticas",
+  "introGetStarted": "Começar",
+  
+  "appleSignIn": "Entrar com Apple",
+  "googleSignIn": "Entrar com Google",
+  "appleRegister": "Registrar com Apple",
+  "googleRegister": "Registrar com Google",
+  "emailAndPassword": "Digitar e-mail e senha",
+
+  "signInTitle": "Entrar",
+  "createAccount": "Criar conta",
+  "legalConsentPart1": "Por favor, leia os ",
+  "legalConsentPart2": "termos e condições",
+  "legalConsentPart3": " e outros documentos legais que regem o seu uso do {appName}.",
+  "@legalConsentPart3": {
+    "description": "Texto de consentimento legal com nome dinâmico do app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MeuApp"
+      }
+    }
+  },
+  
+  "emailTitle": "E-mail",
+  "passwordTitle": "Senha",
+  "loginEmailLabel": "Endereço de e-mail",
+  "loginEmailHint": "Digite seu e-mail",
+  "loginPasswordLabel": "Senha",
+  "loginPasswordHint": "Digite sua senha",
+  "loginForgotPasswordPart1": "Esqueceu sua senha? ",
+  "loginForgotPasswordPart2": "Toque aqui",
+  "loginForgotPasswordPart3": " para redefinir sua senha?",
+  
+  "validationRequired": "Este campo é obrigatório",
+  "validationEmailInvalid": "Digite um endereço de e-mail válido",
+  "validationPasswordLength": "A senha deve ter pelo menos {minLength} caracteres",
+  "validationPasswordUppercase": "A senha deve incluir pelo menos uma letra maiúscula",
+  
+  "loggingInIndicatorText": "Entrando...",
+  "loginSuccessful": "Login bem-sucedido!\nBem-vindo de volta",
+  "errorLoginFailed": "Falha no login. Verifique suas credenciais",
+  "errorNetwork": "Erro de rede. Verifique sua conexão",
+  
+  "homeTitle": "Início",
+  "profileTitle": "Perfil",
+  "chatTitle": "Chat",
+
+  "editProfileNameFieldTitle": "Nome",
+  "editProfileNameFieldLabel": "Nome completo",
+  "editProfileUserFieldNameTitle": "Nome de usuário",
+  "editProfileUsernameFieldLabel": "@nomedeusuario",
+  "editProfileBioFieldTitle": "Biografia",
+  "editProfileBioFieldLabel": "Conte-nos sobre você",
+  
+  "editProfileScreenTitle": "Editar perfil",
+  "editProfileSettingTitle": "Configurações da conta",
+  "editProfileSettingSubtitle": "Gerencie sua conta",
+  "editProfileScreenEditShopTitle": "Editar Loja",
+  "editProfileScreenEditShopSubtitle": "Altere as informações da sua loja",
+  
+  "languageScreenSubtitle": "Escolha seu idioma preferido para a interface do app. Isso não afetará as configurações do seu dispositivo.",
+  "languageScreenUseDeviceLang": "Usar Idioma do Dispositivo",
+  "languageScreenUseDeviceLangNote": "Isso será redefinido para corresponder ao idioma do sistema do seu dispositivo.",
+
+
+
+
+
+  "settingsScreenTitle": "Configurações",
+  
+  "accountSectionTitle": "Conta",
+  "accountSectionSubtitle": "",
+  
+  "profileItemTitle": "Perfil",
+  "profileItemSubtitle": "Gerencie seus dados pessoais",
+  
+  "locationItemTitle": "Alterar Localização",
+  "locationItemSubtitle": "Altere sua cidade atual",
+  
+  "saveItemTitle": "Conteúdos Salvos",
+  "saveItemSubtitle": "Conteúdos que você salvou",
+  
+  "notificationsItemTitle": "Notificações",
+  "notificationsItemSubtitle": "Gerencie notificações push e email",
+  
+  "blockedItemTitle": "Contas Bloqueadas",
+  "blockedItemSubtitle": "Contas que você bloqueou",
+  
+  "qrCodeItemTitle": "Compartilhar Código QR",
+  "qrCodeItemSubtitle": "Compartilhe seu código QR da conta",
+  
+  "shareProfileItemTitle": "Compartilhar Perfil",
+  "shareProfileItemSubtitle": "Compartilhe seu perfil com amigos",
+  
+  "appSettingsSectionTitle": "Configurações do App",
+  "appSettingsSectionSubtitle": "Personalize sua experiência",
+  
+  "themeItemTitle": "Tema",
+  "themeItemSubtitle": "Claro, Escuro ou Sistema",
+  
+  "languageItemTitle": "Idioma",
+  "languageItemSubtitle": "Altere o idioma do app",
+  
+  "biometricItemTitle": "Login Biométrico",
+  "biometricItemSubtitle": "Use Face ID ou Touch ID",
+  
+  "supportSectionTitle": "Suporte",
+  "supportSectionSubtitle": "",
+  
+  "guideItemTitle": "Guia do Usuário",
+  "guideItemSubtitle": "Documentação e tutoriais",
+  
+  "helpItemTitle": "Contatar Suporte",
+  "helpItemSubtitle": "Obtenha ajuda com o app",
+  
+  "feedbackItemTitle": "Enviar Feedback",
+  "feedbackItemSubtitle": "Compartilhe seus pensamentos",
+  
+  "rateItemTitle": "Avaliar o App",
+  "rateItemSubtitle": "Deixe uma avaliação",
+  
+  "appInfoItemTitle": "Sobre o {appName}",
+  "@appInfoItemTitle": {
+    "description": "Título Sobre o app com nome dinâmico do app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MeuApp"
+      }
+    }
+  },
+  "appInfoItemSubtitle": "Informações técnicas",
+  
+  "legalSectionTitle": "Legal",
+  "legalSectionSubtitle": "",
+  
+  "termsItemTitle": "Termos, Privacidade e Políticas",
+  "termsItemSubtitle": "Leia nossos termos",
+  
+  "licensesItemTitle": "Licenças de Código Aberto",
+  "licensesItemSubtitle": "Bibliotecas e licenças de terceiros",
+  
+  "accountActionsSectionTitle": "Ações da Conta",
+  "accountActionsSectionSubtitle": "",
+  
+  "deactivateItemTitle": "Desativar",
+  "deactivateItemSubtitle": "Desative sua conta",
+  
+  "deleteItemTitle": "Excluir Conta",
+  "deleteItemSubtitle": "Remova permanentemente sua conta",
+  
+  "logoutItemTitle": "Sair",
+  "logoutItemSubtitle": "Saia da sua conta",
+  
+
+   "loadingDefaultMessage": "Carregando...",
+
+  
+  "emptyStateNoDataTitle": "Nenhum(a) {dataType} ainda",
+  "@emptyStateNoDataTitle": {
+    "description": "Título exibido quando nenhum dado de um tipo específico está disponível",
+    "placeholders": {
+      "dataType": {
+        "type": "String",
+        "example": "usuários"
+      }
+    }
+  },
+  
+  "emptyStateNoDataSubtitle": "Quando {dataType} estiver disponível, aparecerão aqui.",
+  "@emptyStateNoDataSubtitle": {
+    "description": "Subtítulo explicando quando os dados aparecerão",
+    "placeholders": {
+      "dataType": {
+        "type": "String", 
+        "example": "usuários"
+      }
+    }
+  },
+  
+  "emptyStateNoResultsTitle": "Nenhum resultado encontrado",
+  "emptyStateNoResultsSubtitle": "Tente ajustar sua pesquisa ou filtros para encontrar {dataType}.",
+  "@emptyStateNoResultsSubtitle": {
+    "description": "Dica para encontrar um tipo de dado específico",
+    "placeholders": {
+      "dataType": {
+        "type": "String",
+        "example": "produtos"
+      }
+    }
+  },
+  
+  "emptyStateNoInternetTitle": "Sem conexão com a internet",
+  "emptyStateNoInternetSubtitle": "Verifique sua conexão e tente novamente.",
+  
+  "emptyStateNoFavoritesTitle": "Nenhum favorito ainda",
+  "emptyStateNoFavoritesSubtitle": "Comece adicionando itens à sua lista de favoritos.",
+  
+  "emptyStateNoMessagesTitle": "Nenhuma mensagem",
+  "emptyStateNoMessagesSubtitle": "Inicie uma conversa para ver mensagens aqui.",
+  
+  "emptyStateRefresh": "Atualizar",
+  "emptyStateClearFilters": "Limpar filtros",
+  "emptyStateRetry": "Tentar novamente",
+  "emptyStateExplore": "Explorar",
+  "emptyStateStartChat": "Iniciar chat",
+  
+
+
+  
+  "errorNetworkTitle": "Erro de conexão",
+  "errorNetworkSubtitle": "Não foi possível conectar ao servidor. Verifique sua conexão com a internet.",
+  
+  "errorServerTitle": "Erro do servidor",
+  "errorServerSubtitle": "Algo deu errado do nosso lado. Por favor, tente novamente mais tarde.",
+  
+  "errorClientTitle": "Erro na solicitação",
+  "errorClientSubtitle": "Houve um problema com sua solicitação. Por favor, verifique e tente novamente.",
+  
+  "errorParsingTitle": "Erro de dados",
+  "errorParsingSubtitle": "Não foi possível processar o(a) {dataType}. Isso pode ser um problema temporário.",
+  "@errorParsingSubtitle": {
+    "description": "Erro ao falhar na análise de um tipo de dado específico",
+    "placeholders": {
+      "dataType": {
+        "type": "String",
+        "example": "dados do usuário"
+      }
+    }
+  },
+  
+  "errorPermissionTitle": "Acesso negado",
+  "errorPermissionSubtitle": "Você não tem permissão para acessar este(a) {dataType}.",
+  "@errorPermissionSubtitle": {
+    "description": "Erro de negação de permissão em conteúdo específico",
+    "placeholders": {
+      "dataType": {
+        "type": "String",
+        "example": "documento"
+      }
+    }
+  },
+  
+  "errorGenericTitle": "Algo deu errado",
+  "errorGenericSubtitle": "Ocorreu um erro inesperado ao carregar {dataType}. Por favor, tente novamente.",
+  "@errorGenericSubtitle": {
+    "description": "Mensagem de erro genérica com contexto de tipo de dado",
+    "placeholders": {
+      "dataType": {
+        "type": "String",
+        "example": "perfil"
+      }
+    }
+  },
+  
+  "errorRetry": "Tentar novamente",
+  "errorCheckSettings": "Verificar configurações",
+  "errorReport": "Reportar problema",
+  "errorGoBack": "Voltar",
+  "errorRefresh": "Atualizar",
+  "errorRequestAccess": "Solicitar acesso",
+  "errorContactSupport": "Contatar suporte",
+  
+
+  
+  "dataTypeUsers": "usuários",
+  "dataTypeUser": "usuário",
+  "dataTypeProducts": "produtos",
+  "dataTypeProduct": "produto",
+  "dataTypeOrders": "pedidos",
+  "dataTypeOrder": "pedido",
+  "dataTypeMessages": "mensagens",
+  "dataTypeMessage": "mensagem",
+  "dataTypeFavorites": "favoritos",
+  "dataTypeFavorite": "favorito",
+  "dataTypeData": "dados",
+  "dataTypeContent": "conteúdo",
+  "dataTypeItems": "itens",
+  "dataTypeItem": "item",
+
+
+
+  "eulaTitle": "Contrato de Licença de Usuário Final",
+  "eulaContent": "Este Contrato de Licença de Usuário Final (\"EULA\") é um acordo legal entre você e a Bars Opus, Ltd. para {appName}.\n\nAo instalar, acessar ou usar {appName}, você concorda em ficar vinculado aos termos deste EULA. {appName} é licenciado, não vendido, para seu uso apenas sob os termos desta licença. A Bars Opus, Ltd. reserva-se todos os direitos não expressamente concedidos a você neste EULA.\n\nVocê não pode modificar, fazer engenharia reversa, descompilar ou desmontar {appName}. Esta licença é válida até ser rescindida por você ou pela Bars Opus, Ltd. Seus direitos sob esta licença terminarão automaticamente sem aviso se você não cumprir qualquer termo.\n\nTodos os direitos de propriedade intelectual sobre {appName} pertencem à Bars Opus, Ltd. Este EULA é regido pelas leis da Inglaterra e do País de Gales.\n\nPara perguntas sobre este EULA, entre em contato: {supportEmail}.",
+  "eulaFooter": "Ao concordar, você reconhece que leu e entendeu este Contrato de Licença de Usuário Final.",
+  
+  "privacyPolicyTitle": "Política de Privacidade",
+  "privacyPolicyContent": "Esta Política de Privacidade explica como a Bars Opus, Ltd. (\"nós\", \"nosso\") coleta, usa e protege suas informações quando você usa {appName}.\n\nColetamos informações que você fornece diretamente, como quando cria uma conta, completa seu perfil ou entra em contato com o suporte. Coletamos automaticamente certas informações sobre seu dispositivo e como você usa {appName}. Usamos cookies e tecnologias de rastreamento semelhantes para rastrear a atividade e armazenar determinadas informações.\n\nUsamos as informações que coletamos para fornecer, manter e melhorar {appName}. Podemos compartilhar suas informações com provedores de serviços terceirizados que realizam serviços em nosso nome. Podemos divulgar suas informações se exigido por lei ou para proteger nossos direitos e segurança.\n\nVocê tem o direito de acessar, corrigir ou excluir suas informações pessoais. Implementamos medidas técnicas e organizacionais adequadas para proteger suas informações. Podemos atualizar esta Política de Privacidade periodicamente. Iremos notificá-lo sobre quaisquer alterações.",
+  "privacyPolicyFooter": "Política de Privacidade do {appName} - Última atualização: {currentDate}",
+  
+  "termsTitle": "Termos de Serviço",
+  "termsContent": "Estes Termos de Serviço (\"Termos\") regem seu acesso e uso de {appName}. Ao acessar ou usar {appName}, você concorda em ficar vinculado a estes Termos.\n\nVocê deve ter pelo menos 13 anos para usar {appName}. Você é responsável por proteger suas credenciais de conta e por todas as atividades sob sua conta. Você não pode usar {appName} para qualquer finalidade ilegal ou não autorizada.\n\nReservamo-nos o direito de modificar, suspender ou descontinuar {appName} a qualquer momento. Todo o conteúdo incluído em {appName} é propriedade da Bars Opus, Ltd. ou de seus licenciadores.\n\nPodemos encerrar ou suspender seu acesso a {appName} imediatamente se você violar estes Termos. Estes Termos serão regidos e interpretados de acordo com as leis da Inglaterra e do País de Gales.\n\nPara quaisquer perguntas sobre estes Termos, entre em contato conosco em {supportEmail}.",
+  
+  "dataSharingTitle": "Acordo de Compartilhamento de Dados",
+  "dataSharingContent": "Este Acordo de Compartilhamento de Dados descreve como suas informações podem ser compartilhadas quando você usa os recursos sociais do {appName}.\n\nQuando você se conecta com amigos no {appName}, certos dados de atividade podem ser visíveis para eles. Os dados de atividade compartilhados podem incluir duração do treino, calorias queimadas, minutos de exercício e emblemas de conquistas. Suas informações de perfil (nome de exibição e foto do perfil) são visíveis para amigos com quem você se conecta.\n\nSeu endereço de e-mail e informações de contato permanecem privados e nunca são compartilhados com outros usuários. Você controla quais dados são compartilhados através das suas configurações de privacidade do {appName}. Você pode revogar as permissões de compartilhamento a qualquer momento nas configurações do aplicativo.\n\nOs dados compartilhados com amigos são criptografados durante a transmissão e armazenamento. Mantemos os dados compartilhados apenas pelo tempo necessário para fornecer a funcionalidade de compartilhamento. As integrações de terceiros podem ter suas próprias práticas de compartilhamento de dados, que recomendamos revisar.",
+  "dataSharingFooter": "O compartilhamento de dados no {appName} ajuda a criar uma comunidade de apoio, respeitando suas escolhas de privacidade.",
+  
+  "dashboardTitle": "Painel de Controle",
+  "dashboardSubtitle": "Gerencie as atividades da sua loja de forma eficiente",
+  "dashboardSectionTitle": "Painel de Controle",
+  "dashboardSectionSubtitle": "Visão geral do desempenho e métricas principais da sua loja",
+  "dashboardPayoutTitle": "Solicitar Pagamento",
+  "dashboardPayoutContent": "Proprietários de lojas podem solicitar pagamentos semanais. Navegue até a seção Ganhos, revise seu saldo e envie uma solicitação de pagamento. Os fundos geralmente são processados em 3-5 dias úteis.",
+  "dashboardAnalyticsTitle": "Painel Analítico",
+  "dashboardAnalyticsContent": "Acompanhe o desempenho da sua loja com análises em tempo real. Monitore tendências de vendas, engajamento do cliente e níveis de estoque por meio de gráficos interativos e relatórios.",
+  "dashboardScreenshotTitle": "Visão Geral do Painel",
+  "dashboardScreenshotContent": "O painel principal fornece uma visão abrangente das principais métricas da sua loja, atividades recentes e acesso rápido a recursos essenciais.",
+  
+  "categoryFeatures": "Recursos",
+  "categoryDashboard": "Painel de Controle",
+  
+  "faqDashboard1Question": "Quando posso solicitar um pagamento?",
+  "faqDashboard1Answer": "Você pode solicitar seu pagamento uma vez por semana, todo sábado. O corte semanal é sexta-feira às 23:59. Os pagamentos são processados em 3-5 dias úteis.",
+  "faqDashboard2Question": "Onde posso solicitar meu pagamento?",
+  "faqDashboard2Answer": "Navegue até seu painel de controle e clique na seção 'Ganhos'. De lá, você verá seu saldo atual e um botão 'Solicitar Pagamento'. Siga as instruções para completar sua solicitação.",
+  
+  "@eulaContent": {
+    "description": "Conteúdo EULA com marcadores de nome do app e email de suporte",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MeuApp"
+      },
+      "supportEmail": {
+        "type": "String",
+        "example": "suporte@exemplo.com"
+      }
+    }
+  },
+  "@privacyPolicyContent": {
+    "description": "Conteúdo da política de privacidade com marcador de nome do app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MeuApp"
+      }
+    }
+  },
+  "@privacyPolicyFooter": {
+    "description": "Rodapé da política de privacidade com nome do app e data atual",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MeuApp"
+      },
+      "currentDate": {
+        "type": "DateTime",
+        "format": "yMMMMd",
+        "example": "24 de janeiro de 2024"
+      }
+    }
+  },
+  "@termsContent": {
+    "description": "Conteúdo dos termos de serviço com nome do app e email de suporte",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MeuApp"
+      },
+      "supportEmail": {
+        "type": "String",
+        "example": "suporte@exemplo.com"
+      }
+    }
+  },
+  "@dataSharingContent": {
+    "description": "Conteúdo do acordo de compartilhamento de dados com marcador de nome do app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MeuApp"
+      }
+    }
+  },
+  "@dataSharingFooter": {
+    "description": "Rodapé do acordo de compartilhamento de dados com marcador de nome do app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MeuApp"
+      }
+    }
+  },
+  "@validationPasswordLength": {
+    "description": "Erro de validação de senha com parâmetro de comprimento mínimo",
+    "placeholders": {
+      "minLength": {
+        "type": "int",
+        "example": "8"
+      }
+    }
+  }
+}

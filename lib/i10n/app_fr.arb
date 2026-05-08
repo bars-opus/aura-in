@@ -1,0 +1,454 @@
+{
+  "@@locale": "fr",
+  
+  "appName": "Nano Embryo",
+  "appDescription": "Votre application innovante",
+  
+  "commonContinue": "Continuer",
+  "commonCancel": "Annuler",
+  "commonSave": "Enregistrer",
+  "commonLogin": "Connexion",
+  "commonLogout": "Déconnexion",
+  "commonDone": "Terminé",
+  "commonRetry": "Réessayer",
+  "commonAccept": "Accepter",
+  "commonReject": "Rejeter",
+  "introGetStarted": "Commencer",
+  
+  "actionsBlock": "Bloquer l'utilisateur",
+  "actionsReport": "Signaler l'utilisateur",
+  "actionsSend": "Envoyer au chat",
+  "actionsShare": "Partager",
+  "actionsCopy": "Copier le lien",
+  
+  "appInfoVersion": "Version",
+  "appInfoReleased": "Publié",
+  "appInfoPackageName": "Nom du Paquet",
+  "appInfoDeveloper": "Nom du Développeur",
+  "appInfoSupportEmail": "Email de Support",
+  "appInfoTechnicalDetails": "Détails Techniques",
+  "appInfoBundleID": "ID du Paquet",
+  "appInfoBuildVersion": "Version de Compilation",
+  "appInfoBuildNumber": "Numéro de Compilation",
+  "appInfoReleaseDate": "Date de Publication",
+  "appInfoAppSize": "Taille de l'Application",
+  "appInfoOverview": "{appName} est une application mobile moderne construite avec une sécurité robuste et une fonctionnalité, conçue pour fournir une expérience utilisateur exceptionnelle avec une architecture propre et une optimisation des performances.",
+  "@appInfoOverview": {
+    "description": "Description générale de l'application avec nom dynamique de l'app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MonApp"
+      }
+    }
+  },
+
+  "introTitle": "Bienvenue sur {appName}",
+  "@introTitle": {
+    "description": "Titre de l'écran d'introduction avec espace réservé pour le nom de l'app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MonApp"
+      }
+    }
+  },
+  "introFeature1Title": "Voir Votre Progrès",
+  "introFeature1Description": "Suivez vos jalons de développement avec des analyses détaillées et des insights",
+  "introFeature2Title": "Explorer les Modèles",
+  "introFeature2Description": "Découvrez des composants et écrans pré-construits pour un développement rapide",
+  "introFeature3Title": "Démarrez Rapidement",
+  "introFeature3Description": "Lancez votre projet avec une configuration zéro et les meilleures pratiques",
+  "introGetStarted": "Commencer",
+  
+  "appleSignIn": "Se connecter avec Apple",
+  "googleSignIn": "Se connecter avec Google",
+  "appleRegister": "S'inscrire avec Apple",
+  "googleRegister": "S'inscrire avec Google",
+  "emailAndPassword": "Entrer e-mail et mot de passe",
+
+  "signInTitle": "Se connecter",
+  "createAccount": "Créer un compte",
+  "legalConsentPart1": "Veuillez lire les ",
+  "legalConsentPart2": "conditions générales",
+  "legalConsentPart3": " et autres documents juridiques qui régissent votre utilisation de {appName}.",
+  "@legalConsentPart3": {
+    "description": "Texte de consentement légal avec nom dynamique de l'app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MonApp"
+      }
+    }
+  },
+  
+  "emailTitle": "E-mail",
+  "passwordTitle": "Mot de passe",
+  "loginEmailLabel": "Adresse e-mail",
+  "loginEmailHint": "Entrez votre e-mail",
+  "loginPasswordLabel": "Mot de passe",
+  "loginPasswordHint": "Entrez votre mot de passe",
+  "loginForgotPasswordPart1": "Avez-vous oublié votre mot de passe? ",
+  "loginForgotPasswordPart2": "Appuyez ici",
+  "loginForgotPasswordPart3": " pour réinitialiser votre mot de passe?",
+  
+  "validationRequired": "Ce champ est obligatoire",
+  "validationEmailInvalid": "Veuillez entrer une adresse e-mail valide",
+  "validationPasswordLength": "Le mot de passe doit comporter au moins {minLength} caractères",
+  "validationPasswordUppercase": "Le mot de passe doit inclure au moins une lettre majuscule",
+  
+  "loggingInIndicatorText": "Connexion en cours...",
+  "loginSuccessful": "Connexion réussie !\nBienvenue de retour",
+  "errorLoginFailed": "Échec de la connexion. Veuillez vérifier vos identifiants",
+  "errorNetwork": "Erreur réseau. Veuillez vérifier votre connexion",
+  
+  "homeTitle": "Accueil",
+  "profileTitle": "Profil",
+  "chatTitle": "Chat",
+
+  "editProfileNameFieldTitle": "Nom",
+  "editProfileNameFieldLabel": "Nom complet",
+  "editProfileUserFieldNameTitle": "Nom d'utilisateur",
+  "editProfileUsernameFieldLabel": "@nomdutilisateur",
+  "editProfileBioFieldTitle": "Biographie",
+  "editProfileBioFieldLabel": "Parlez-nous de vous",
+  
+  "editProfileScreenTitle": "Modifier le profil",
+  "editProfileSettingTitle": "Paramètres du compte",
+  "editProfileSettingSubtitle": "Gérez votre compte",
+  "editProfileScreenEditShopTitle": "Modifier la boutique",
+  "editProfileScreenEditShopSubtitle": "Modifiez les informations de votre boutique",
+ 
+  "languageScreenSubtitle": "Choisissez votre langue préférée pour l'interface de l'application. Cela n'affectera pas les paramètres de votre appareil.",
+  "languageScreenUseDeviceLang": "Utiliser la langue de l'appareil",
+  "languageScreenUseDeviceLangNote": "Cela se réinitialisera pour correspondre à la langue du système de votre appareil.",
+
+
+
+
+
+  "settingsScreenTitle": "Paramètres",
+  
+  "accountSectionTitle": "Compte",
+  "accountSectionSubtitle": "",
+  
+  "profileItemTitle": "Profil",
+  "profileItemSubtitle": "Gérez vos données personnelles",
+  
+  "locationItemTitle": "Changer l'emplacement",
+  "locationItemSubtitle": "Changez votre ville actuelle",
+  
+  "saveItemTitle": "Contenus sauvegardés",
+  "saveItemSubtitle": "Contenus que vous avez sauvegardés",
+  
+  "notificationsItemTitle": "Notifications",
+  "notificationsItemSubtitle": "Gérez les notifications push et email",
+  
+  "blockedItemTitle": "Comptes bloqués",
+  "blockedItemSubtitle": "Comptes que vous avez bloqués",
+  
+  "qrCodeItemTitle": "Partager le code QR",
+  "qrCodeItemSubtitle": "Partagez votre code QR de compte",
+  
+  "shareProfileItemTitle": "Partager le profil",
+  "shareProfileItemSubtitle": "Partagez votre profil avec des amis",
+  
+  "appSettingsSectionTitle": "Paramètres de l'application",
+  "appSettingsSectionSubtitle": "Personnalisez votre expérience",
+  
+  "themeItemTitle": "Thème",
+  "themeItemSubtitle": "Clair, Sombre ou Système",
+  
+  "languageItemTitle": "Langue",
+  "languageItemSubtitle": "Changez la langue de l'application",
+  
+  "biometricItemTitle": "Connexion biométrique",
+  "biometricItemSubtitle": "Utilisez Face ID ou Touch ID",
+  
+  "supportSectionTitle": "Support",
+  "supportSectionSubtitle": "",
+  
+  "guideItemTitle": "Guide d'utilisation",
+  "guideItemSubtitle": "Documentation et tutoriels",
+  
+  "helpItemTitle": "Contacter le support",
+  "helpItemSubtitle": "Obtenez de l'aide avec l'application",
+  
+  "feedbackItemTitle": "Envoyer des commentaires",
+  "feedbackItemSubtitle": "Partagez vos réflexions",
+  
+  "rateItemTitle": "Noter l'application",
+  "rateItemSubtitle": "Laissez un avis",
+  
+  "appInfoItemTitle": "À propos de {appName}",
+  "@appInfoItemTitle": {
+    "description": "Titre À propos de l'application avec nom dynamique de l'app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MonApp"
+      }
+    }
+  },
+  "appInfoItemSubtitle": "Informations techniques",
+  
+  "legalSectionTitle": "Juridique",
+  "legalSectionSubtitle": "",
+  
+  "termsItemTitle": "Conditions, confidentialité et politiques",
+  "termsItemSubtitle": "Lisez nos conditions",
+  
+  "licensesItemTitle": "Licences open source",
+  "licensesItemSubtitle": "Bibliothèques et licences tierces",
+  
+  "accountActionsSectionTitle": "Actions du compte",
+  "accountActionsSectionSubtitle": "",
+  
+  "deactivateItemTitle": "Désactiver",
+  "deactivateItemSubtitle": "Désactivez votre compte",
+  
+  "deleteItemTitle": "Supprimer le compte",
+  "deleteItemSubtitle": "Supprimez définitivement votre compte",
+  
+  "logoutItemTitle": "Déconnexion",
+  "logoutItemSubtitle": "Déconnectez-vous de votre compte",
+  
+
+  "loadingDefaultMessage": "Chargement...",
+  
+  "emptyStateNoDataTitle": "Aucun(e) {dataType} pour le moment",
+  "@emptyStateNoDataTitle": {
+    "description": "Titre affiché lorsqu'aucune donnée d'un type spécifique n'est disponible",
+    "placeholders": {
+      "dataType": {
+        "type": "String",
+        "example": "utilisateurs"
+      }
+    }
+  },
+  
+  "emptyStateNoDataSubtitle": "Lorsque {dataType} sera disponible, ils/elles apparaîtront ici.",
+  "@emptyStateNoDataSubtitle": {
+    "description": "Sous-titre expliquant quand les données apparaîtront",
+    "placeholders": {
+      "dataType": {
+        "type": "String", 
+        "example": "utilisateurs"
+      }
+    }
+  },
+  
+  "emptyStateNoResultsTitle": "Aucun résultat trouvé",
+  "emptyStateNoResultsSubtitle": "Essayez d'ajuster votre recherche ou vos filtres pour trouver {dataType}.",
+  "@emptyStateNoResultsSubtitle": {
+    "description": "Indice pour trouver un type de donnée spécifique",
+    "placeholders": {
+      "dataType": {
+        "type": "String",
+        "example": "produits"
+      }
+    }
+  },
+  
+  "emptyStateNoInternetTitle": "Pas de connexion internet",
+  "emptyStateNoInternetSubtitle": "Vérifiez votre connexion et réessayez.",
+  
+  "emptyStateNoFavoritesTitle": "Aucun favori pour le moment",
+  "emptyStateNoFavoritesSubtitle": "Commencez à ajouter des éléments à votre liste de favoris.",
+  
+  "emptyStateNoMessagesTitle": "Aucun message",
+  "emptyStateNoMessagesSubtitle": "Démarrez une conversation pour voir des messages ici.",
+  
+  "emptyStateRefresh": "Actualiser",
+  "emptyStateClearFilters": "Effacer les filtres",
+  "emptyStateRetry": "Réessayer",
+  "emptyStateExplore": "Explorer",
+  "emptyStateStartChat": "Démarrer le chat",
+  
+
+  
+  "errorNetworkTitle": "Erreur de connexion",
+  "errorNetworkSubtitle": "Impossible de se connecter au serveur. Vérifiez votre connexion internet.",
+  
+  "errorServerTitle": "Erreur serveur",
+  "errorServerSubtitle": "Quelque chose s'est mal passé de notre côté. Veuillez réessayer plus tard.",
+  
+  "errorClientTitle": "Erreur de requête",
+  "errorClientSubtitle": "Il y a eu un problème avec votre requête. Veuillez vérifier et réessayer.",
+  
+  "errorParsingTitle": "Erreur de données",
+  "errorParsingSubtitle": "Impossible de traiter le/la {dataType}. Cela pourrait être un problème temporaire.",
+  "@errorParsingSubtitle": {
+    "description": "Erreur lors de l'échec de l'analyse d'un type de donnée spécifique",
+    "placeholders": {
+      "dataType": {
+        "type": "String",
+        "example": "données utilisateur"
+      }
+    }
+  },
+  
+  "errorPermissionTitle": "Accès refusé",
+  "errorPermissionSubtitle": "Vous n'avez pas l'autorisation d'accéder à ce/cette {dataType}.",
+  "@errorPermissionSubtitle": {
+    "description": "Erreur de refus d'autorisation sur un contenu spécifique",
+    "placeholders": {
+      "dataType": {
+        "type": "String",
+        "example": "document"
+      }
+    }
+  },
+  
+  "errorGenericTitle": "Quelque chose s'est mal passé",
+  "errorGenericSubtitle": "Une erreur inattendue s'est produite lors du chargement de {dataType}. Veuillez réessayer.",
+  "@errorGenericSubtitle": {
+    "description": "Message d'erreur générique avec contexte de type de donnée",
+    "placeholders": {
+      "dataType": {
+        "type": "String",
+        "example": "profil"
+      }
+    }
+  },
+  
+  "errorRetry": "Réessayer",
+  "errorCheckSettings": "Vérifier les paramètres",
+  "errorReport": "Signaler un problème",
+  "errorGoBack": "Retour",
+  "errorRefresh": "Actualiser",
+  "errorRequestAccess": "Demander l'accès",
+  "errorContactSupport": "Contacter le support",
+  
+
+  
+  "dataTypeUsers": "utilisateurs",
+  "dataTypeUser": "utilisateur",
+  "dataTypeProducts": "produits",
+  "dataTypeProduct": "produit",
+  "dataTypeOrders": "commandes",
+  "dataTypeOrder": "commande",
+  "dataTypeMessages": "messages",
+  "dataTypeMessage": "message",
+  "dataTypeFavorites": "favoris",
+  "dataTypeFavorite": "favori",
+  "dataTypeData": "données",
+  "dataTypeContent": "contenu",
+  "dataTypeItems": "éléments",
+  "dataTypeItem": "élément",
+
+
+
+
+
+  "eulaTitle": "Contrat de Licence Utilisateur Final",
+  "eulaContent": "Ce Contrat de Licence Utilisateur Final (\"CLUF\") est un accord juridique entre vous et Bars Opus, Ltd. pour {appName}.\n\nEn installant, accédant ou utilisant {appName}, vous acceptez d'être lié par les termes de ce CLUF. {appName} est licencié, non vendu, à vous pour une utilisation uniquement sous les termes de cette licence. Bars Opus, Ltd. se réserve tous les droits non expressément accordés à vous dans ce CLUF.\n\nVous ne pouvez pas modifier, rétro-concevoir, décompiler ou désassembler {appName}. Cette licence est valable jusqu'à ce qu'elle soit résiliée par vous ou Bars Opus, Ltd. Vos droits en vertu de cette licence cesseront automatiquement sans préavis si vous ne respectez aucun terme.\n\nTous les droits de propriété intellectuelle sur {appName} appartiennent à Bars Opus, Ltd. Ce CLUF est régi par les lois de l'Angleterre et du Pays de Galles.\n\nPour toute question concernant ce CLUF, veuillez contacter : {supportEmail}.",
+  "eulaFooter": "En acceptant, vous reconnaissez avoir lu et compris ce Contrat de Licence Utilisateur Final.",
+  
+  "privacyPolicyTitle": "Politique de Confidentialité",
+  "privacyPolicyContent": "Cette Politique de Confidentialité explique comment Bars Opus, Ltd. (\"nous\", \"notre\") collecte, utilise et protège vos informations lorsque vous utilisez {appName}.\n\nNous collectons les informations que vous fournissez directement, comme lorsque vous créez un compte, complétez votre profil ou contactez le support. Nous collectons automatiquement certaines informations sur votre appareil et la façon dont vous utilisez {appName}. Nous utilisons des cookies et des technologies de suivi similaires pour suivre l'activité et conserver certaines informations.\n\nNous utilisons les informations que nous collectons pour fournir, maintenir et améliorer {appName}. Nous pouvons partager vos informations avec des prestataires de services tiers qui effectuent des services en notre nom. Nous pouvons divulguer vos informations si la loi l'exige ou pour protéger nos droits et notre sécurité.\n\nVous avez le droit d'accéder, de corriger ou de supprimer vos informations personnelles. Nous mettons en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos informations. Nous pouvons mettre à jour cette Politique de Confidentialité de temps à autre. Nous vous informerons de tout changement.",
+  "privacyPolicyFooter": "Politique de Confidentialité de {appName} - Dernière mise à jour : {currentDate}",
+  
+  "termsTitle": "Conditions d'Utilisation",
+  "termsContent": "Ces Conditions d'Utilisation (\"Conditions\") régissent votre accès et votre utilisation de {appName}. En accédant ou en utilisant {appName}, vous acceptez d'être lié par ces Conditions.\n\nVous devez avoir au moins 13 ans pour utiliser {appName}. Vous êtes responsable de la sécurité de vos identifiants de compte et de toutes les activités sous votre compte. Vous ne pouvez pas utiliser {appName} à des fins illégales ou non autorisées.\n\nNous nous réservons le droit de modifier, suspendre ou interrompre {appName} à tout moment. Tout le contenu inclus dans {appName} est la propriété de Bars Opus, Ltd. ou de ses concédants de licence.\n\nNous pouvons résilier ou suspendre votre accès à {appName} immédiatement si vous violez ces Conditions. Ces Conditions seront régies et interprétées conformément aux lois de l'Angleterre et du Pays de Galles.\n\nPour toute question concernant ces Conditions, veuillez nous contacter à {supportEmail}.",
+  
+  "dataSharingTitle": "Accord de Partage des Données",
+  "dataSharingContent": "Cet Accord de Partage des Données décrit comment vos informations peuvent être partagées lorsque vous utilisez les fonctionnalités sociales de {appName}.\n\nLorsque vous vous connectez avec des amis sur {appName}, certaines données d'activité peuvent leur être visibles. Les données d'activité partagées peuvent inclure la durée de l'entraînement, les calories brûlées, les minutes d'exercice et les badges de réussite. Vos informations de profil (nom d'affichage et photo de profil) sont visibles pour les amis avec lesquels vous vous connectez.\n\nVotre adresse e-mail et vos informations de contact restent privées et ne sont jamais partagées avec d'autres utilisateurs. Vous contrôlez quelles données sont partagées via vos paramètres de confidentialité de {appName}. Vous pouvez révoquer les autorisations de partage à tout moment dans les paramètres de l'application.\n\nLes données partagées avec des amis sont chiffrées pendant la transmission et le stockage. Nous conservons les données partagées uniquement aussi longtemps que nécessaire pour fournir la fonctionnalité de partage. Les intégrations tierces peuvent avoir leurs propres pratiques de partage de données, que nous recommandons de consulter.",
+  "dataSharingFooter": "Le partage de données dans {appName} aide à créer une communauté de soutien tout en respectant vos choix de confidentialité.",
+  
+  "dashboardTitle": "Tableau de Bord",
+  "dashboardSubtitle": "Gérez les activités de votre boutique efficacement",
+  "dashboardSectionTitle": "Tableau de Bord",
+  "dashboardSectionSubtitle": "Aperçu des performances et des indicateurs clés de votre boutique",
+  "dashboardPayoutTitle": "Demander un Paiement",
+  "dashboardPayoutContent": "Les propriétaires de boutique peuvent demander des paiements hebdomadaires. Naviguez vers la section Gains, vérifiez votre solde et soumettez une demande de paiement. Les fonds sont généralement traités dans un délai de 3 à 5 jours ouvrables.",
+  "dashboardAnalyticsTitle": "Tableau de Bord Analytique",
+  "dashboardAnalyticsContent": "Suivez les performances de votre boutique avec des analyses en temps réel. Surveillez les tendances des ventes, l'engagement des clients et les niveaux de stock grâce à des graphiques interactifs et des rapports.",
+  "dashboardScreenshotTitle": "Vue d'ensemble du Tableau de Bord",
+  "dashboardScreenshotContent": "Le tableau de bord principal offre une vue complète des indicateurs clés de votre boutique, des activités récentes et un accès rapide aux fonctionnalités essentielles.",
+  
+  "categoryFeatures": "Fonctionnalités",
+  "categoryDashboard": "Tableau de Bord",
+  
+  "faqDashboard1Question": "Quand puis-je demander un paiement?",
+  "faqDashboard1Answer": "Vous pouvez demander votre paiement une fois par semaine, chaque samedi. La coupure hebdomadaire est le vendredi à 23h59. Les paiements sont traités dans un délai de 3 à 5 jours ouvrables.",
+  "faqDashboard2Question": "Où puis-je demander mon paiement?",
+  "faqDashboard2Answer": "Naviguez vers votre tableau de bord et cliquez sur la section 'Gains'. De là, vous verrez votre solde actuel et un bouton 'Demander Paiement'. Suivez les invites pour compléter votre demande.",
+  
+  "@eulaContent": {
+    "description": "Contenu du CLUF avec marqueurs de nom d'app et d'email de support",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MonApp"
+      },
+      "supportEmail": {
+        "type": "String",
+        "example": "support@exemple.com"
+      }
+    }
+  },
+  "@privacyPolicyContent": {
+    "description": "Contenu de politique de confidentialité avec marqueur de nom d'app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MonApp"
+      }
+    }
+  },
+  "@privacyPolicyFooter": {
+    "description": "Pied de politique de confidentialité avec nom d'app et date actuelle",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MonApp"
+      },
+      "currentDate": {
+        "type": "DateTime",
+        "format": "yMMMMd",
+        "example": "24 janvier 2024"
+      }
+    }
+  },
+  "@termsContent": {
+    "description": "Contenu des conditions d'utilisation avec nom d'app et email de support",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MonApp"
+      },
+      "supportEmail": {
+        "type": "String",
+        "example": "support@exemple.com"
+      }
+    }
+  },
+  "@dataSharingContent": {
+    "description": "Contenu d'accord de partage des données avec marqueur de nom d'app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MonApp"
+      }
+    }
+  },
+  "@dataSharingFooter": {
+    "description": "Pied d'accord de partage des données avec marqueur de nom d'app",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "MonApp"
+      }
+    }
+  },
+  "@validationPasswordLength": {
+    "description": "Erreur de validation du mot de passe avec paramètre de longueur minimale",
+    "placeholders": {
+      "minLength": {
+        "type": "int",
+        "example": "8"
+      }
+    }
+  }
+}
