@@ -6,7 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/utils/image_cropper_stub.dart';
+import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/input_sanitizer.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
 
 import '../../../../../core/providers/media_ service_providers.dart';
@@ -34,6 +37,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
+  final _stockController = TextEditingController(text: '0');
 
   String? _selectedCategory;
   bool _isActive = true;
@@ -42,6 +46,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   final List<String> _existingImageUrls = [];
   final List<File> _newImageFiles = [];
   bool _isUploadingImages = false;
+  // Local guard against double-submit. The notifier's isLoading flips only
+  // after the first await; this covers the tap-twice race before then.
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -50,6 +57,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       _nameController.text = widget.product!.name;
       _descriptionController.text = widget.product!.description ?? '';
       _priceController.text = widget.product!.price.toString();
+      _stockController.text = widget.product!.stockQuantity.toString();
       _selectedCategory = widget.product!.category;
       _isActive = widget.product!.isActive;
       _existingImageUrls.addAll(widget.product!.images);
@@ -61,6 +69,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     _nameController.dispose();
     _descriptionController.dispose();
     _priceController.dispose();
+    _stockController.dispose();
     super.dispose();
   }
 
@@ -139,6 +148,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   }
 
   Future<void> _saveProduct() async {
+    if (_isSaving) return;
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategory == null) {
       ScaffoldMessenger.of(
@@ -150,76 +160,92 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final price = double.tryParse(_priceController.text);
     if (price == null) return;
 
+    final stock = int.tryParse(_stockController.text.trim()) ?? 0;
+
+    setState(() => _isSaving = true);
     final notifier = ref.read(productFormNotifierProvider.notifier);
 
-    // Combine existing image URLs with newly uploaded ones
     final allImageUrls = [..._existingImageUrls];
 
-    if (widget.mode == FormMode.create) {
-      // For create mode: Upload images first, then create product with URLs
-      if (_newImageFiles.isNotEmpty) {
-        setState(() => _isUploadingImages = true);
-        try {
-          final repository = ref.read(productRepositoryProvider);
-          for (final imageFile in _newImageFiles) {
-            // Use shopId only for now, productId will be assigned
-            final url = await repository.uploadProductImage(
-              shopId: widget.shopId,
-              productId: 'temp_${DateTime.now().millisecondsSinceEpoch}',
-              imageFile: imageFile,
-            );
-            allImageUrls.add(url);
+    try {
+      if (widget.mode == FormMode.create) {
+        if (_newImageFiles.isNotEmpty) {
+          setState(() => _isUploadingImages = true);
+          try {
+            final repository = ref.read(productRepositoryProvider);
+            for (final imageFile in _newImageFiles) {
+              final url = await repository.uploadProductImage(
+                shopId: widget.shopId,
+                productId: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+                imageFile: imageFile,
+              );
+              allImageUrls.add(url);
+            }
+          } on ProductImageUploadException catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(e.message)),
+              );
+            }
+            return;
+          } finally {
+            if (mounted) setState(() => _isUploadingImages = false);
           }
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to upload images: $e')),
-            );
-          }
-          setState(() => _isUploadingImages = false);
-          return;
         }
-        setState(() => _isUploadingImages = false);
+
+        final cleanedDescription =
+            InputSanitizer.clean(_descriptionController.text);
+        await notifier.createProduct(
+          shopId: widget.shopId,
+          name: InputSanitizer.clean(_nameController.text),
+          description:
+              cleanedDescription.isEmpty ? null : cleanedDescription,
+          price: price,
+          images: allImageUrls,
+          category: _selectedCategory!,
+          stockQuantity: stock,
+        );
+      } else {
+        if (_newImageFiles.isNotEmpty) {
+          try {
+            final newUrls = await _uploadNewImages();
+            allImageUrls.addAll(newUrls);
+          } on ProductImageUploadException catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(e.message)),
+              );
+            }
+            return;
+          }
+        }
+
+        final cleanedDescription =
+            InputSanitizer.clean(_descriptionController.text);
+        await notifier.updateProduct(
+          productId: widget.product!.id,
+          name: InputSanitizer.clean(_nameController.text),
+          description:
+              cleanedDescription.isEmpty ? null : cleanedDescription,
+          price: price,
+          images: allImageUrls,
+          category: _selectedCategory,
+          isActive: _isActive,
+          stockQuantity: stock,
+        );
       }
 
-      await notifier.createProduct(
-        shopId: widget.shopId,
-        name: _nameController.text.trim(),
-        description:
-            _descriptionController.text.trim().isEmpty
-                ? null
-                : _descriptionController.text.trim(),
-        price: price,
-        images: allImageUrls,
-        category: _selectedCategory!,
-      );
-    } else {
-      // For edit mode: Upload new images first
-      if (_newImageFiles.isNotEmpty) {
-        final newUrls = await _uploadNewImages();
-        allImageUrls.addAll(newUrls);
+      if (!mounted) return;
+      final result = ref.read(productFormNotifierProvider);
+      if (result.success) {
+        Navigator.pop(context, true);
+      } else if (result.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.error!)),
+        );
       }
-
-      await notifier.updateProduct(
-        productId: widget.product!.id,
-        name: _nameController.text.trim(),
-        description:
-            _descriptionController.text.trim().isEmpty
-                ? null
-                : _descriptionController.text.trim(),
-        price: price,
-        images: allImageUrls,
-        category: _selectedCategory,
-        isActive: _isActive,
-      );
-    }
-
-    if (mounted && notifier.state.success) {
-      Navigator.pop(context, true);
-    } else if (mounted && notifier.state.error != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(notifier.state.error!)));
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -295,12 +321,16 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                         controller: _nameController,
                         label: 'Product Name',
                         hintText: 'e.g., Premium Hair Pomade',
+                        maxLength: InputSanitizer.maxName,
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
+                          if (value == null || value.trim().isEmpty) {
                             return 'Please enter product name';
                           }
-                          if (value.length < 3) {
+                          if (value.trim().length < 3) {
                             return 'Name must be at least 3 characters';
+                          }
+                          if (value.length > InputSanitizer.maxName) {
+                            return 'Name cannot exceed ${InputSanitizer.maxName} characters';
                           }
                           return null;
                         },
@@ -313,13 +343,18 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                         label: 'Description',
                         hintText: 'Describe your product...',
                         maxLines: 4,
+                        maxLength: InputSanitizer.maxDescription,
+                        validator: InputSanitizer.optionalLength(
+                          InputSanitizer.maxDescription,
+                          fieldName: 'Description',
+                        ),
                       ),
                       SizedBox(height: 16.h),
 
                       // Price
                       AppTextFormField(
                         controller: _priceController,
-                        label: 'Price (₦)',
+                        label: 'Price (${Currency.symbol})',
                         hintText: '0.00',
                         keyboardType: TextInputType.number,
                         validator: (value) {
@@ -329,6 +364,28 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                           final price = double.tryParse(value);
                           if (price == null || price <= 0) {
                             return 'Please enter a valid price';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 16.h),
+
+                      // Stock Quantity — REQUIRED for checkout to succeed.
+                      // The DB sets stock_quantity NOT NULL DEFAULT 0, so a
+                      // product saved with 0 here will reject every order
+                      // attempt with "insufficient stock".
+                      AppTextFormField(
+                        controller: _stockController,
+                        label: 'Stock quantity',
+                        hintText: '0',
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please enter stock quantity';
+                          }
+                          final n = int.tryParse(value.trim());
+                          if (n == null || n < 0) {
+                            return 'Stock must be 0 or more';
                           }
                           return null;
                         },
@@ -371,9 +428,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                             'Inactive products won\'t appear in marketplace',
                             style: TextStyle(
                               fontSize: 12.sp,
-                              color: theme.colorScheme.onSurface.withOpacity(
-                                0.6,
-                              ),
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.6),
                             ),
                           ),
                           value: _isActive,
@@ -388,11 +444,12 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
                       // Save Button
                       AppButton(
-                        label:
-                            widget.mode == FormMode.create
+                        label: _isSaving
+                            ? 'Saving...'
+                            : (widget.mode == FormMode.create
                                 ? 'Create Product'
-                                : 'Save Changes',
-                        onPressed: _saveProduct,
+                                : 'Save Changes'),
+                        onPressed: _isSaving ? null : _saveProduct,
                         width: double.infinity,
                       ),
                     ],
@@ -480,7 +537,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 onTap: () => _removeImage(imageIndex, isExisting: isExisting),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
+                    color: Colors.black.withValues(alpha: 0.6),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.close, size: 20.w, color: Colors.white),
@@ -529,11 +586,11 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               TextButton(
                 onPressed: () async {
                   Navigator.pop(context);
-                  final notifier = ref.read(
-                    productFormNotifierProvider.notifier,
-                  );
-                  await notifier.deleteProduct(widget.product!.id);
-                  if (mounted && notifier.state.success) {
+                  await ref
+                      .read(productFormNotifierProvider.notifier)
+                      .deleteProduct(widget.product!.id);
+                  if (!mounted) return;
+                  if (ref.read(productFormNotifierProvider).success) {
                     Navigator.pop(context, true);
                   }
                 },

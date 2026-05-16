@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
+import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
@@ -26,8 +28,16 @@ class OrderDetailScreen extends ConsumerStatefulWidget {
 class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   bool _isUpdating = false;
 
+  /// Optimistic override — set immediately on tap so the badge flips
+  /// before the RPC returns. Cleared on success (the invalidate then
+  /// fetches the canonical state) or on failure (revert to server state).
+  OrderStatus? _optimisticStatus;
+
   Future<void> _updateStatus(String newStatus) async {
-    setState(() => _isUpdating = true);
+    setState(() {
+      _isUpdating = true;
+      _optimisticStatus = OrderStatusExtension.fromString(newStatus);
+    });
 
     try {
       final repository = ref.read(orderRepositoryProvider);
@@ -36,7 +46,8 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         newStatus: newStatus,
       );
 
-      // Refresh order details
+      // Refresh order details — canonical server state will overwrite
+      // the optimistic override on the next build.
       ref.invalidate(orderWithItemsProvider(widget.orderId));
       ref.invalidate(shopOrdersProvider(widget.shopId));
 
@@ -45,18 +56,36 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
           SnackBar(content: Text('Order ${_getStatusAction(newStatus)}')),
         );
       }
+    } on MarketplaceException catch (e) {
+      if (mounted) {
+        setState(() => _optimisticStatus = null); // revert
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } catch (e) {
       if (mounted) {
+        setState(() => _optimisticStatus = null); // revert
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Failed to update: $e')));
       }
     } finally {
       if (mounted) {
-        setState(() => _isUpdating = false);
+        setState(() {
+          _isUpdating = false;
+          // Successful path: keep optimistic until the refetch lands; if
+          // the refetched data agrees, no visual flicker. If it disagrees
+          // (rare), the next build uses the real value.
+        });
       }
     }
   }
+
+  /// Effective status for rendering — optimistic wins until the RPC
+  /// resolves and the cache refetches.
+  OrderStatus _effectiveStatus(OrderModel order) =>
+      _optimisticStatus ?? order.status;
 
   String _getStatusAction(String status) {
     switch (status) {
@@ -111,8 +140,8 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
               SliverToBoxAdapter(child: _buildAddressSection(order, theme)),
 
               // Status update buttons (if not delivered or cancelled)
-              if (order.status != OrderStatus.delivered &&
-                  order.status != OrderStatus.cancelled)
+              if (_effectiveStatus(order) != OrderStatus.delivered &&
+                  _effectiveStatus(order) != OrderStatus.cancelled)
                 SliverPadding(
                   padding: EdgeInsets.all(16.w),
                   sliver: SliverToBoxAdapter(
@@ -150,7 +179,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
           _isUpdating
               ? Container(
                 height: 50.h,
-                color: Colors.black.withOpacity(0.7),
+                color: Colors.black.withValues(alpha: 0.7),
                 child: const Center(child: CircularProgressIndicator()),
               )
               : null,
@@ -298,7 +327,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    '${item.quantity} x ₦${item.unitPrice.toStringAsFixed(2)}',
+                    '${item.quantity} x ${Currency.formatCompact(item.unitPrice)}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: Colors.grey.shade600,
                     ),
@@ -307,7 +336,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
               ),
             ),
             Text(
-              '₦${item.subtotal.toStringAsFixed(2)}',
+              Currency.formatCompact(item.subtotal),
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.primary,
@@ -368,7 +397,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     final List<Widget> buttons = [];
 
     // Show different buttons based on current status
-    switch (order.status) {
+    switch (_effectiveStatus(order)) {
       case OrderStatus.pending_confirmation:
         buttons.add(
           Expanded(

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/cart_item_model.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
-import 'package:nano_embryo/presentation/features/products/presentation/screens/checkout_screen.dart';
 
 
 class CartScreen extends ConsumerWidget {
@@ -43,6 +44,33 @@ class CartScreen extends ConsumerWidget {
           ? _buildEmptyCart(context)
           : Column(
               children: [
+                if (cartState.error != null)
+                  Container(
+                    width: double.infinity,
+                    color: theme.colorScheme.errorContainer,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 8.h,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 20.w,
+                          color: theme.colorScheme.onErrorContainer,
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Text(
+                            cartState.error!,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onErrorContainer,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 // Cart items list
                 Expanded(
                   child: ListView.builder(
@@ -66,7 +94,7 @@ class CartScreen extends ConsumerWidget {
                     color: theme.scaffoldBackgroundColor,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 8.r,
                         offset: Offset(0, -2.h),
                       ),
@@ -82,7 +110,7 @@ class CartScreen extends ConsumerWidget {
                             style: textTheme.titleMedium,
                           ),
                           Text(
-                            '₦${cartState.totalAmount.toStringAsFixed(2)}',
+                            Currency.format(cartState.totalAmount),
                             style: textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: theme.colorScheme.primary,
@@ -94,20 +122,13 @@ class CartScreen extends ConsumerWidget {
                       Text(
                         '${cartState.itemCount} item(s)',
                         style: textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                       SizedBox(height: 16.h),
                       AppButton(
                         label: 'Proceed to Checkout',
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const CheckoutScreen(),
-                            ),
-                          );
-                        },
+                        onPressed: () => context.pushNamed('checkout'),
                         width: double.infinity,
                       ),
                     ],
@@ -131,7 +152,7 @@ class CartScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4.r,
           ),
         ],
@@ -183,7 +204,7 @@ class CartScreen extends ConsumerWidget {
                 Text(
                   item.shopName,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -191,7 +212,7 @@ class CartScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '₦${item.price.toStringAsFixed(2)}',
+                      Currency.formatCompact(item.price),
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.primary,
@@ -266,7 +287,7 @@ class CartScreen extends ConsumerWidget {
           Icon(
             Icons.shopping_cart_outlined,
             size: 80.w,
-            color: theme.colorScheme.primary.withOpacity(0.5),
+            color: theme.colorScheme.primary.withValues(alpha: 0.5),
           ),
           SizedBox(height: 16.h),
           Text(
@@ -279,7 +300,7 @@ class CartScreen extends ConsumerWidget {
           Text(
             'Add items from the marketplace to get started',
             style: textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             ),
             textAlign: TextAlign.center,
           ),
@@ -287,7 +308,9 @@ class CartScreen extends ConsumerWidget {
           AppButton(
             label: 'Browse Products',
             onPressed: () {
-              Navigator.pop(context);
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
             },
             width: 200.w,
           ),

@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/data/models/product_review_model.dart';
+import 'package:nano_embryo/presentation/features/shops/reviews/data/repositories/product_review_repository.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/data/repositories/supabase_product_review_repository.dart';
 
-// Repository provider
+// Returns the abstract interface so consumers depend on the contract,
+// not the Supabase impl.
 final productReviewRepositoryProvider =
-    Provider<SupabaseProductReviewRepository>((ref) {
+    Provider<ProductReviewRepository>((ref) {
       final supabase = ref.watch(supabaseClientProvider);
       return SupabaseProductReviewRepository(supabase);
     });

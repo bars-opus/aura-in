@@ -1,39 +1,31 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
+import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
+import 'package:nano_embryo/presentation/features/products/data/repositories/order_repository.dart';
 import 'package:nano_embryo/presentation/features/products/data/repositories/supabase_order_repository.dart';
 
-// ============================================
-// Order Repository Provider
-// ============================================
-final orderRepositoryProvider = Provider<SupabaseOrderRepository>((ref) {
+// Abstract interface so consumers don't depend on the Supabase impl.
+final orderRepositoryProvider = Provider<OrderRepository>((ref) {
   final supabase = ref.watch(supabaseClientProvider);
   return SupabaseOrderRepository(supabase);
 });
 
-// ============================================
-// Shop Orders Provider
-// ============================================
-final shopOrdersProvider = FutureProvider.family<List<OrderModel>, String>((
-  ref,
-  shopId,
-) async {
-  final repository = ref.read(orderRepositoryProvider);
-  return repository.getShopOrders(shopId);
-});
+/// Shop-side order list. Default page size 30 (pagination ready in the
+/// repository if a UI needs to drive it).
+final shopOrdersProvider = FutureProvider.family<List<OrderModel>, String>(
+  (ref, shopId) async {
+    final repository = ref.read(orderRepositoryProvider);
+    return repository.getShopOrders(shopId);
+  },
+);
 
-// ============================================
-// Order with Items Provider
-// ============================================
 final orderWithItemsProvider =
     FutureProvider.family<Map<String, dynamic>, String>((ref, orderId) async {
-      final repository = ref.read(orderRepositoryProvider);
-      return repository.getOrderWithItems(orderId);
-    });
+  final repository = ref.read(orderRepositoryProvider);
+  return repository.getOrderWithItems(orderId);
+});
 
-// ============================================
-// Order State
-// ============================================
 class OrderState {
   final bool isLoading;
   final String? error;
@@ -50,9 +42,6 @@ class OrderState {
   }
 }
 
-// ============================================
-// Order Notifier (for creating orders)
-// ============================================
 class OrderNotifier extends StateNotifier<OrderState> {
   final Ref _ref;
 
@@ -65,66 +54,74 @@ class OrderNotifier extends StateNotifier<OrderState> {
     required String deliveryAddress,
     required String customerPhone,
     required String customerNotes,
+    String? idempotencyKey,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
-
     try {
       final user = _ref.read(currentUserProvider);
       if (user == null) {
-        throw Exception('User not logged in');
+        throw OrderUnauthorizedException();
       }
 
-      final repository = _ref.read(orderRepositoryProvider);
-      final orderId = await repository.createOrder(
-        userId: user.id,
-        shopId: shopId,
-        items: items,
-        totalAmount: totalAmount,
-        deliveryAddress: deliveryAddress,
-        customerPhone: customerPhone,
-        customerNotes: customerNotes,
-      );
+      final orderId =
+          await _ref.read(orderRepositoryProvider).createOrder(
+                userId: user.id,
+                shopId: shopId,
+                items: items,
+                totalAmount: totalAmount,
+                deliveryAddress: deliveryAddress,
+                customerPhone: customerPhone,
+                customerNotes: customerNotes,
+                idempotencyKey: idempotencyKey,
+              );
 
       state = state.copyWith(isLoading: false, lastOrderId: orderId);
       return orderId;
+    } on MarketplaceException catch (e) {
+      state = state.copyWith(isLoading: false, error: e.message);
+      return null;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       return null;
     }
   }
 
-  void reset() {
-    state = const OrderState();
+  Future<void> raiseDispute({
+    required String orderId,
+    required String reason,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      await _ref.read(orderRepositoryProvider).raiseDispute(
+            orderId: orderId,
+            reason: reason,
+          );
+      state = state.copyWith(isLoading: false);
+    } on MarketplaceException catch (e) {
+      state = state.copyWith(isLoading: false, error: e.message);
+      rethrow;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      rethrow;
+    }
   }
+
+  void reset() => state = const OrderState();
 }
 
-// ============================================
-// Order Notifier Provider
-// ============================================
-final orderNotifierProvider = StateNotifierProvider<OrderNotifier, OrderState>((
-  ref,
-) {
+final orderNotifierProvider =
+    StateNotifierProvider<OrderNotifier, OrderState>((ref) {
   return OrderNotifier(ref);
 });
 
-// ============================================
-// Customer Orders Provider (Add this)
-// ============================================
-final customerOrdersProvider = FutureProvider.family<List<OrderModel>, String>((
-  ref,
-  userId,
-) async {
+final customerOrdersProvider =
+    FutureProvider.family<List<OrderModel>, String>((ref, userId) async {
   final repository = ref.read(orderRepositoryProvider);
   return repository.getCustomerOrders(userId);
 });
 
-// ============================================
-// Cancel Order Provider (Add this)
-// ============================================
-final cancelOrderProvider = FutureProvider.family<bool, String>((
-  ref,
-  orderId,
-) async {
+final cancelOrderProvider =
+    FutureProvider.family<bool, String>((ref, orderId) async {
   final repository = ref.read(orderRepositoryProvider);
   return repository.cancelOrderByCustomer(orderId);
 });

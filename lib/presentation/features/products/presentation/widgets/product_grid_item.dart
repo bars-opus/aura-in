@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 
 class ProductGridItem extends StatelessWidget {
   final ProductModel product;
@@ -19,15 +20,20 @@ class ProductGridItem extends StatelessWidget {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
+    return Semantics(
+      button: true,
+      label: 'Product: ${product.name}, ${Currency.format(product.price)}'
+          '${product.stockQuantity == 0 ? ', out of stock' : ''}'
+          '${product.shopVerified == true ? ', from a verified shop' : ''}',
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
         decoration: BoxDecoration(
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(12.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8.r,
               offset: Offset(0, 2.h),
             ),
@@ -37,35 +43,61 @@ class ProductGridItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Product Image
-            ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-              child: AspectRatio(
-                aspectRatio: 1,
-                child:
-                    product.images.isNotEmpty
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(12.r)),
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: product.images.isNotEmpty
                         ? Image.network(
-                          product.images.first,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey.shade200,
-                              child: Icon(
-                                Icons.image_outlined,
-                                size: 48.w,
-                                color: Colors.grey.shade400,
-                              ),
-                            );
-                          },
-                        )
-                        : Container(
-                          color: Colors.grey.shade200,
-                          child: Icon(
-                            Icons.image_outlined,
-                            size: 48.w,
-                            color: Colors.grey.shade400,
-                          ),
+                            product.images.first,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _imageFallback(),
+                          )
+                        : _imageFallback(),
+                  ),
+                ),
+                if (product.shopVerified == true)
+                  Positioned(
+                    top: 6.w,
+                    right: 6.w,
+                    child: Container(
+                      padding: EdgeInsets.all(4.w),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.verified,
+                        size: 14.w,
+                        color: theme.colorScheme.onPrimary,
+                      ),
+                    ),
+                  ),
+                if (!product.isActive || product.stockQuantity == 0)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.45),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(12.r),
                         ),
-              ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        product.isActive ? 'Out of stock' : 'Unavailable',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
 
             Padding(
@@ -86,7 +118,7 @@ class ProductGridItem extends StatelessWidget {
 
                   // Price
                   Text(
-                    '₦${product.price.toStringAsFixed(2)}',
+                    Currency.format(product.price),
                     style: textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.primary,
@@ -119,6 +151,17 @@ class ProductGridItem extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
+
+  Widget _imageFallback() => Container(
+        color: Colors.grey.shade200,
+        alignment: Alignment.center,
+        child: Icon(
+          Icons.image_outlined,
+          size: 48.w,
+          color: Colors.grey.shade400,
+        ),
+      );
 }

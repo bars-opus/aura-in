@@ -51,8 +51,21 @@ import 'package:nano_embryo/presentation/features/shops/query/presentation/scree
 import 'package:nano_embryo/presentation/features/shops/query/presentation/screens/premium_shops_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/screens/shop_details_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/screens/top_rated_shops_screen.dart';
+import 'package:nano_embryo/presentation/features/auth/log_in/presentation/screens/update_password_screen.dart';
 import 'package:nano_embryo/presentation/features/auth/verify_email/verify_email_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/screens/shop_reviews_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/marketplace_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/product_detail_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/cart_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/checkout_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/order_confirmation_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/customer_orders_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/customer_order_detail_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/shop_orders_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/order_detail_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/shop_products_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/product_form_screen.dart';
+import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 
 /// Route names for type-safe navigation
 class RouteNames {
@@ -118,6 +131,19 @@ class RouteNames {
 
   static const String passwordResetSentScreen = '/passwordResetSentScreen';
 
+  // Marketplace / orders / cart
+  static const String marketplace = '/marketplace';
+  static const String productDetail = '/productDetail';
+  static const String cart = '/cart';
+  static const String checkout = '/checkout';
+  static const String orderConfirmation = '/orderConfirmation';
+  static const String customerOrders = '/customerOrders';
+  static const String customerOrderDetail = '/customerOrderDetail';
+  static const String shopOrders = '/shopOrders';
+  static const String shopOrderDetail = '/shopOrderDetail';
+  static const String shopProducts = '/shopProducts';
+  static const String productForm = '/productForm';
+
   // static const String bookingDetailScreen = '/bookingDetailScreen';
 }
 
@@ -140,10 +166,13 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         return '/_invisible';
       }
 
-      // While the user is resetting their password, freeze routing entirely.
-      // UpdatePasswordScreen is shown as a bottom sheet by _AppState; any
-      // redirect here would navigate away and dismiss the sheet.
-      if (routingNotifier.isRecoveryMode) return null;
+      // Password-recovery deep link — send the user to the update screen and
+      // stay there until they complete the flow (isRecoveryMode cleared on success).
+      if (routingNotifier.isRecoveryMode) {
+        if (state.matchedLocation == RouteNames.updatePasswordScreen)
+          return null;
+        return RouteNames.updatePasswordScreen;
+      }
 
       // Handle the invisible initial route first
       if (state.matchedLocation == '/_invisible') {
@@ -190,8 +219,9 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         return RouteNames.intro;
       }
 
-      // 2. NOT FIRST LAUNCH - if on intro, go to home
-      if (state.matchedLocation == RouteNames.intro) {
+      // 2. NOT FIRST LAUNCH - authenticated user on intro → transition to home.
+      // Unauthenticated users (e.g. after logout) are allowed to stay on intro.
+      if (state.matchedLocation == RouteNames.intro && user != null) {
         return '${RouteNames.splash}?transition=true';
       }
 
@@ -215,6 +245,12 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
       }
 
       // 4. LOGGED IN but NO USERNAME
+      // Guard: profile is null when still loading — don't redirect yet.
+      // setUser() fires immediately on sign-in before the profile fetch
+      // completes; without this guard an authenticated user would be
+      // incorrectly redirected to createUsername on every login.
+      if (profile == null) return null;
+
       if (!hasUsername) {
         if (state.matchedLocation == RouteNames.createUsername) return null;
         // After email confirmation the user lands on createUsername, not verifyEmail
@@ -675,6 +711,7 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
           final params = state.extra as Map<String, String?>;
           return FreelancerDetailsScreen(
             freelancerId: params['freelancerId'] ?? '',
+            freelancurrency: params['freelancurrency'] ?? '',
             coverImageUrl:
                 params['coverImageUrl'] ?? '', // Provide default for null
           );
@@ -712,7 +749,10 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
       GoRoute(
         path: RouteNames.forgotPassword,
         name: 'forgotPassword',
-        builder: (context, state) => const ForgotPasswordScreen(),
+        builder: (context, state) {
+          final email = state.extra as String?;
+          return ForgotPasswordScreen(initialEmail: email);
+        },
       ),
 
       GoRoute(
@@ -721,6 +761,93 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         builder: (context, state) {
           final email = state.extra as String? ?? '';
           return PasswordResetEmailSentScreen(email: email);
+        },
+      ),
+
+      GoRoute(
+        path: RouteNames.updatePasswordScreen,
+        name: 'updatePasswordScreen',
+        builder: (context, state) => const UpdatePasswordScreen(),
+      ),
+
+      // ── Marketplace / orders / cart ──────────────────────────
+      GoRoute(
+        path: RouteNames.marketplace,
+        name: 'marketplace',
+        builder: (context, state) => const MarketplaceScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.productDetail,
+        name: 'productDetail',
+        builder:
+            (context, state) =>
+                ProductDetailScreen(productId: state.extra as String? ?? ''),
+      ),
+      GoRoute(
+        path: RouteNames.cart,
+        name: 'cart',
+        builder: (context, state) => const CartScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.checkout,
+        name: 'checkout',
+        builder: (context, state) => const CheckoutScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.orderConfirmation,
+        name: 'orderConfirmation',
+        builder:
+            (context, state) =>
+                OrderConfirmationScreen(orderId: state.extra as String? ?? ''),
+      ),
+      GoRoute(
+        path: RouteNames.customerOrders,
+        name: 'customerOrders',
+        builder: (context, state) => const CustomerOrdersScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.customerOrderDetail,
+        name: 'customerOrderDetail',
+        builder:
+            (context, state) => CustomerOrderDetailScreen(
+              orderId: state.extra as String? ?? '',
+            ),
+      ),
+      GoRoute(
+        path: RouteNames.shopOrders,
+        name: 'shopOrders',
+        builder:
+            (context, state) =>
+                ShopOrdersScreen(shopId: state.extra as String? ?? ''),
+      ),
+      GoRoute(
+        path: RouteNames.shopOrderDetail,
+        name: 'shopOrderDetail',
+        builder: (context, state) {
+          final params = state.extra as Map<String, String>;
+          return OrderDetailScreen(
+            orderId: params['orderId'] ?? '',
+            shopId: params['shopId'] ?? '',
+          );
+        },
+      ),
+      GoRoute(
+        path: RouteNames.shopProducts,
+        name: 'shopProducts',
+        builder:
+            (context, state) =>
+                ShopProductsScreen(shopId: state.extra as String? ?? ''),
+      ),
+      GoRoute(
+        path: RouteNames.productForm,
+        name: 'productForm',
+        builder: (context, state) {
+          final params = state.extra as Map<String, dynamic>;
+          return ProductFormScreen(
+            shopId: params['shopId'] as String? ?? '',
+            mode: params['mode'] as FormMode? ?? FormMode.create,
+            product: params['product'] as ProductModel?,
+          );
         },
       ),
     ],

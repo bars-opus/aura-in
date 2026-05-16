@@ -29,18 +29,10 @@ class ShopProductsScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (_) => ProductFormScreen(
-                        shopId: shopId,
-                        mode: FormMode.create,
-                      ),
-                ),
-              );
-            },
+            onPressed: () => context.pushNamed(
+              'productForm',
+              extra: {'shopId': shopId, 'mode': FormMode.create},
+            ),
           ),
         ],
       ),
@@ -61,19 +53,14 @@ class ShopProductsScreen extends ConsumerWidget {
                 final product = products[index];
                 return ProductCard(
                   product: product,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (_) => ProductFormScreen(
-                              shopId: shopId,
-                              mode: FormMode.edit,
-                              product: product,
-                            ),
-                      ),
-                    );
-                  },
+                  onTap: () => context.pushNamed(
+                    'productForm',
+                    extra: {
+                      'shopId': shopId,
+                      'mode': FormMode.edit,
+                      'product': product,
+                    },
+                  ),
                 );
               },
             ),
@@ -124,7 +111,7 @@ class ShopProductsScreen extends ConsumerWidget {
           Icon(
             Icons.storefront_outlined,
             size: 80.w,
-            color: theme.colorScheme.primary.withOpacity(0.5),
+            color: theme.colorScheme.primary.withValues(alpha: 0.5),
           ),
           SizedBox(height: 16.h),
           Text(
@@ -135,25 +122,17 @@ class ShopProductsScreen extends ConsumerWidget {
           Text(
             'Start selling your products by adding your first item',
             style: textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             ),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 24.h),
           AppButton(
             label: 'Add Product',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (_) => ProductFormScreen(
-                        shopId: shopId,
-                        mode: FormMode.create,
-                      ),
-                ),
-              );
-            },
+            onPressed: () => context.pushNamed(
+              'productForm',
+              extra: {'shopId': shopId, 'mode': FormMode.create},
+            ),
             width: 200.w,
           ),
         ],

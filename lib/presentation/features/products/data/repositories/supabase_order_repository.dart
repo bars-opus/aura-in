@@ -1,14 +1,14 @@
-// Update lib/features/orders/data/repositories/supabase_order_repository.dart
-
+import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
+import 'package:nano_embryo/presentation/features/products/data/repositories/order_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class SupabaseOrderRepository {
+class SupabaseOrderRepository implements OrderRepository {
   final SupabaseClient _supabase;
 
   SupabaseOrderRepository(this._supabase);
 
-  // Create order (existing)
+  @override
   Future<String> createOrder({
     required String userId,
     required String shopId,
@@ -17,6 +17,7 @@ class SupabaseOrderRepository {
     required String deliveryAddress,
     required String customerPhone,
     required String customerNotes,
+    String? idempotencyKey,
   }) async {
     try {
       final response = await _supabase.rpc(
@@ -29,18 +30,24 @@ class SupabaseOrderRepository {
           'p_delivery_address': deliveryAddress,
           'p_customer_phone': customerPhone,
           'p_customer_notes': customerNotes,
+          if (idempotencyKey != null) 'p_idempotency_key': idempotencyKey,
         },
       );
       return response.toString();
     } catch (e) {
-      throw AuthException('Failed to create order: $e');
+      throw mapToMarketplaceException(e, 'Failed to create order');
     }
   }
 
-  // Get orders for a shop
-  Future<List<OrderModel>> getShopOrders(String shopId) async {
+  @override
+  Future<List<OrderModel>> getShopOrders(
+    String shopId, {
+    int limit = 30,
+    int page = 0,
+    String? statusFilter,
+  }) async {
     try {
-      final response = await _supabase
+      var query = _supabase
           .from('orders')
           .select('''
             *,
@@ -50,42 +57,51 @@ class SupabaseOrderRepository {
               avatar_url
             )
           ''')
-          .eq('shop_id', shopId)
-          .order('created_at', ascending: false);
+          .eq('shop_id', shopId);
 
-      return (response as List).map((json) {
-        final profile = json['profiles'] as Map<String, dynamic>?;
-        return OrderModel.fromJson({
-          ...json,
-          'customer_name': profile?['full_name'],
-          'customer_email': profile?['email'],
-          'customer_avatar_url': profile?['avatar_url'],
-        });
-      }).toList();
+      if (statusFilter != null && statusFilter.isNotEmpty) {
+        query = query.eq('status', statusFilter);
+      }
+
+      final from = page * limit;
+      final response = await query
+          .order('created_at', ascending: false)
+          .range(from, from + limit - 1);
+
+      return (response as List)
+          .map((json) => OrderModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
-      throw AuthException('Failed to load shop orders: $e');
+      throw mapToMarketplaceException(e, 'Failed to load shop orders');
     }
   }
 
-  // Get single order with items
+  @override
   Future<Map<String, dynamic>> getOrderWithItems(String orderId) async {
     try {
-      // Get order details
-      final orderResponse =
-          await _supabase
-              .from('orders')
-              .select('''
+      final orderResponse = await _supabase
+          .from('orders')
+          .select('''
             *,
             profiles!user_id (
               full_name,
               email,
               avatar_url
+            ),
+            shops!inner (
+              id,
+              shop_name,
+              verified,
+              shop_logo_url
             )
           ''')
-              .eq('id', orderId)
-              .single();
+          .eq('id', orderId)
+          .maybeSingle();
 
-      // Get order items
+      if (orderResponse == null) {
+        throw OrderNotFoundException(orderId);
+      }
+
       final itemsResponse = await _supabase
           .from('order_items')
           .select('''
@@ -97,31 +113,20 @@ class SupabaseOrderRepository {
           ''')
           .eq('order_id', orderId);
 
-      final profile = orderResponse['profiles'] as Map<String, dynamic>?;
-      final order = OrderModel.fromJson({
-        ...orderResponse,
-        'customer_name': profile?['full_name'],
-        'customer_email': profile?['email'],
-        'customer_avatar_url': profile?['avatar_url'],
-      });
-
-      final items =
-          (itemsResponse as List).map((json) {
-            final product = json['products'] as Map<String, dynamic>;
-            return OrderItemModel.fromJson({
-              ...json,
-              'product_name': product['name'],
-              'product_image': (product['images'] as List?)?.firstOrNull,
-            });
-          }).toList();
+      final order = OrderModel.fromJson(orderResponse);
+      final items = (itemsResponse as List)
+          .map((json) => OrderItemModel.fromJson(json as Map<String, dynamic>))
+          .toList();
 
       return {'order': order, 'items': items};
+    } on OrderNotFoundException {
+      rethrow;
     } catch (e) {
-      throw AuthException('Failed to load order details: $e');
+      throw mapToMarketplaceException(e, 'Failed to load order details');
     }
   }
 
-  // Update order status
+  @override
   Future<void> updateOrderStatus({
     required String orderId,
     required String newStatus,
@@ -137,97 +142,121 @@ class SupabaseOrderRepository {
         },
       );
     } catch (e) {
-      throw AuthException('Failed to update order status: $e');
+      throw mapToMarketplaceException(e, 'Failed to update order status');
     }
   }
 
-  // Cancel order (shop side) - Renamed for clarity
+  @override
   Future<void> cancelOrderByShop({
     required String orderId,
     required String reason,
   }) async {
-    try {
-      await updateOrderStatus(
-        orderId: orderId,
-        newStatus: 'cancelled',
-        shopNotes: reason,
-      );
-    } catch (e) {
-      throw AuthException('Failed to cancel order: $e');
-    }
+    await updateOrderStatus(
+      orderId: orderId,
+      newStatus: 'cancelled',
+      shopNotes: reason,
+    );
   }
 
-  // Cancel order (customer side) - Renamed for clarity
+  @override
   Future<bool> cancelOrderByCustomer(String orderId) async {
     try {
       await _supabase.rpc('cancel_order', params: {'p_order_id': orderId});
       return true;
     } catch (e) {
-      throw AuthException('Failed to cancel order: $e');
+      throw mapToMarketplaceException(e, 'Failed to cancel order');
     }
   }
 
-  // Get orders for a customer
-  Future<List<OrderModel>> getCustomerOrders(String userId) async {
+  @override
+  Future<List<OrderModel>> getCustomerOrders(
+    String userId, {
+    int limit = 30,
+    int page = 0,
+  }) async {
     try {
+      final from = page * limit;
       final response = await _supabase
           .from('orders')
           .select('''
-          *,
-          shops!inner (
-            id,
-            shop_name,
-            verified,
-            logo_url
-          )
-        ''')
+            *,
+            shops!inner (
+              id,
+              shop_name,
+              verified,
+              shop_logo_url
+            )
+          ''')
           .eq('user_id', userId)
-          .order('created_at', ascending: false);
+          .order('created_at', ascending: false)
+          .range(from, from + limit - 1);
 
-      return (response as List).map((json) {
-        final shop = json['shops'] as Map<String, dynamic>;
-        return OrderModel.fromJson({
-          ...json,
-          'shop_name': shop['shop_name'],
-          'shop_verified': shop['verified'],
-          'shop_logo': shop['logo_url'],
-        });
-      }).toList();
+      return (response as List)
+          .map((json) => OrderModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
-      throw AuthException('Failed to load your orders: $e');
+      throw mapToMarketplaceException(e, 'Failed to load your orders');
     }
   }
 
-  // Reorder (get cart items from previous order)
+  @override
   Future<List<Map<String, dynamic>>> getReorderItems(String orderId) async {
     try {
       final response = await _supabase
           .from('order_items')
           .select('''
-          product_id,
-          quantity,
-          products (
-            name,
-            price,
-            images,
-            shop_id
-          )
-        ''')
+            product_id,
+            quantity,
+            products (
+              name,
+              price,
+              images,
+              shop_id,
+              is_active,
+              stock_quantity,
+              shops!inner (
+                shop_name
+              )
+            )
+          ''')
           .eq('order_id', orderId);
 
       return (response as List).map((item) {
         final product = item['products'] as Map<String, dynamic>;
+        final shop = product['shops'] as Map<String, dynamic>?;
         return {
           'product_id': item['product_id'],
           'product_name': product['name'],
-          'price': product['price'],
-          'image_url': (product['images'] as List?)?.firstOrNull,
+          'price': (product['price'] as num).toDouble(),
+          'image_url': (product['images'] as List?)?.cast<String>().firstOrNull,
           'quantity': item['quantity'],
           'shop_id': product['shop_id'],
+          'shop_name': shop?['shop_name'] ?? '',
+          'is_active': product['is_active'] ?? false,
+          'stock_quantity': product['stock_quantity'] ?? 0,
         };
       }).toList();
     } catch (e) {
-      throw AuthException('Failed to get reorder items: $e');
+      throw mapToMarketplaceException(e, 'Failed to get reorder items');
+    }
+  }
+
+  @override
+  Future<void> raiseDispute({
+    required String orderId,
+    required String reason,
+  }) async {
+    try {
+      // Hardening migration introduces a SECURITY DEFINER RPC that
+      // rate-limits, validates, audits, and atomically inserts the
+      // dispute row + flips the order to 'disputed' in one call.
+      await _supabase.rpc('raise_dispute', params: {
+        'p_order_id': orderId,
+        'p_reason': reason,
+      });
+    } catch (e) {
+      if (e is OrderException) rethrow;
+      throw mapToMarketplaceException(e, 'Failed to raise dispute');
     }
   }
 }

@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/utils/location/widgets/location_display_widget.dart';
 import 'package:nano_embryo/core/widgets/card_inkwell.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/freelancer_grid_sliver.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/near_you_freelancers_horizontal.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/top_rated_freelancers_horizontal.dart';
@@ -92,9 +93,12 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
                             color: colorScheme.onBackground,
                           ),
                         ),
-                        const Align(
-                          alignment: Alignment.topRight,
-                          child: LocationDisplayWidget(),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const LocationDisplayWidget(),
+                            _CartIconButton(),
+                          ],
                         ),
                       ],
                     ),
@@ -169,7 +173,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
                     ? 'All shops in your region'
                     : selectedType == ProviderType.freelancers
                     ? 'All freelancers near you'
-                    : 'Coming soon',
+                    : 'Marketplace',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: colorScheme.onBackground,
                   fontWeight: FontWeight.bold,
@@ -188,40 +192,54 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
           else if (selectedType == ProviderType.freelancers)
             const FreelancerGridSliver()
           else
-            SliverFillRemaining(child: _buildPlaceholder(selectedType)),
+            SliverFillRemaining(child: _buildMarketplaceCTA(context)),
         ],
       ),
     );
   }
 
-  Widget _buildPlaceholder(ProviderType type) {
+  Widget _buildMarketplaceCTA(BuildContext context) {
+    final theme = Theme.of(context);
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            type == ProviderType.freelancers
-                ? Icons.person_outline
-                : Icons.shop,
-            size: 64.sp,
-            color: Colors.grey,
-          ),
-          Gap(Spacing.md.h),
-          Text(
-            '${type.label} coming soon',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(color: Colors.grey),
-          ),
-          Gap(Spacing.sm.h),
-          Text(
-            "We're working on bringing you amazing ${type.label.toLowerCase()}",
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
-            textAlign: TextAlign.center,
-          ),
-        ],
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: Spacing.lg.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.shopping_bag_outlined,
+              size: 80.sp,
+              color: theme.colorScheme.primary.withValues(alpha: 0.6),
+            ),
+            Gap(Spacing.md.h),
+            Text(
+              'Marketplace',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Gap(Spacing.sm.h),
+            Text(
+              'Shop beauty products with cash on delivery',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Gap(Spacing.lg.h),
+            FilledButton.icon(
+              icon: const Icon(Icons.storefront_outlined),
+              label: const Text('Browse products'),
+              onPressed: () => context.pushNamed('marketplace'),
+            ),
+            Gap(Spacing.sm.h),
+            TextButton.icon(
+              icon: const Icon(Icons.receipt_long_outlined),
+              label: const Text('My orders'),
+              onPressed: () => context.pushNamed('customerOrders'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -231,5 +249,23 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
+  }
+}
+
+class _CartIconButton extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final itemCount = ref.watch(cartNotifierProvider).itemCount;
+    final icon = IconButton(
+      icon: const Icon(Icons.shopping_cart_outlined),
+      tooltip: 'Cart',
+      onPressed: () => context.pushNamed('cart'),
+    );
+    if (itemCount == 0) return icon;
+    return Badge(
+      label: Text('$itemCount'),
+      offset: const Offset(-4, 4),
+      child: icon,
+    );
   }
 }

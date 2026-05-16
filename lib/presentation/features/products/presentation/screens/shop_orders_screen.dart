@@ -5,11 +5,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
 import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
-import 'package:nano_embryo/presentation/features/products/presentation/screens/order_detail_screen.dart';
 
 class ShopOrdersScreen extends ConsumerStatefulWidget {
   final String shopId;
@@ -139,7 +140,7 @@ class _ShopOrdersScreenState extends ConsumerState<ShopOrdersScreen> {
             backgroundColor: Colors.grey.shade100,
             selectedColor: status
                 .getColor(Theme.of(context).colorScheme)
-                .withOpacity(0.2),
+                .withValues(alpha: 0.2),
             labelStyle: TextStyle(
               color:
                   _selectedStatusFilter == status
@@ -159,15 +160,9 @@ class _ShopOrdersScreenState extends ConsumerState<ShopOrdersScreen> {
       margin: EdgeInsets.only(bottom: 12.h),
       child: InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (_) => OrderDetailScreen(
-                    orderId: order.id,
-                    shopId: widget.shopId,
-                  ),
-            ),
+          context.pushNamed(
+            'shopOrderDetail',
+            extra: {'orderId': order.id, 'shopId': widget.shopId},
           );
         },
         borderRadius: BorderRadius.circular(12.r),
@@ -191,7 +186,7 @@ class _ShopOrdersScreenState extends ConsumerState<ShopOrdersScreen> {
                       vertical: 4.h,
                     ),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
+                      color: statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                     child: Text(
@@ -227,7 +222,7 @@ class _ShopOrdersScreenState extends ConsumerState<ShopOrdersScreen> {
                     ),
                   ),
                   Text(
-                    '₦${order.totalAmount.toStringAsFixed(2)}',
+                    Currency.format(order.totalAmount),
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.primary,

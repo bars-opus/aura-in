@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
+import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
+import 'package:nano_embryo/presentation/features/products/data/models/cart_item_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/providers/product_review_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/widgets/product_review_display_widget.dart';
@@ -20,6 +25,113 @@ class ProductDetailScreen extends ConsumerStatefulWidget {
 
 class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   int _quantity = 1;
+  bool _isAddingToCart = false;
+
+  Future<void> _addToCart(ProductModel product) async {
+    if (_isAddingToCart) return;
+
+    if (!product.isActive) {
+      _toast('This product is no longer available.');
+      return;
+    }
+    if (product.stockQuantity < _quantity) {
+      _toast(
+        product.stockQuantity == 0
+            ? 'Out of stock'
+            : 'Only ${product.stockQuantity} left in stock',
+      );
+      return;
+    }
+
+    setState(() => _isAddingToCart = true);
+
+    try {
+      final shopName = product.shopName ??
+          (await ref.read(shopNameByIdProvider(product.shopId).future));
+
+      final item = CartItemModel(
+        productId: product.id,
+        productName: product.name,
+        price: product.price,
+        imageUrl: product.images.isNotEmpty ? product.images.first : null,
+        quantity: _quantity,
+        shopId: product.shopId,
+        shopName: shopName ?? 'Unknown shop',
+      );
+
+      await ref.read(cartNotifierProvider.notifier).addItem(item);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Added to cart'),
+          action: SnackBarAction(
+            label: 'View Cart',
+            onPressed: () => context.pushNamed('cart'),
+          ),
+        ),
+      );
+    } on MultiShopCartException catch (_) {
+      if (!mounted) return;
+      final confirmed = await _confirmReplaceCart();
+      if (confirmed == true && mounted) {
+        await ref.read(cartNotifierProvider.notifier).clearCart();
+        // Retry once now that the cart is empty.
+        if (!mounted) return;
+        await _addToCart(product);
+        return;
+      }
+    } on MarketplaceException catch (e) {
+      _toast(e.message);
+    } catch (e) {
+      _toast('Failed to add to cart');
+    } finally {
+      if (mounted) setState(() => _isAddingToCart = false);
+    }
+  }
+
+  void _toast(String msg) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  Widget _imagePlaceholder() => Container(
+        color: Colors.grey.shade200,
+        alignment: Alignment.center,
+        child: Icon(
+          Icons.image_outlined,
+          size: 80.w,
+          color: Colors.grey.shade400,
+        ),
+      );
+
+  String _buttonLabel(ProductModel product) {
+    if (_isAddingToCart) return 'Adding...';
+    if (!product.isActive) return 'Unavailable';
+    if (product.stockQuantity == 0) return 'Out of stock';
+    return 'Add to Cart (${Currency.formatCompact(product.price * _quantity)})';
+  }
+
+  Future<bool?> _confirmReplaceCart() => showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Replace cart?'),
+          content: const Text(
+            'Your cart already contains items from another shop. '
+            'Clear that cart and add this product instead?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Keep cart'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Replace'),
+            ),
+          ],
+        ),
+      );
 
   // Add this method to your ProductDetailScreen
   Widget _buildReviewsSection(String productId) {
@@ -153,20 +265,21 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 expandedHeight: 300.h,
                 pinned: true,
                 flexibleSpace: FlexibleSpaceBar(
-                  background:
-                      product.images.isNotEmpty
-                          ? Image.network(
-                            product.images.first,
-                            fit: BoxFit.cover,
-                          )
-                          : Container(
-                            color: Colors.grey.shade200,
-                            child: Icon(
-                              Icons.image_outlined,
-                              size: 80.w,
-                              color: Colors.grey.shade400,
-                            ),
-                          ),
+                  background: product.images.isNotEmpty
+                      ? Image.network(
+                          product.images.first,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _imagePlaceholder(),
+                          loadingBuilder: (_, child, progress) =>
+                              progress == null
+                                  ? child
+                                  : Container(
+                                      color: Colors.grey.shade200,
+                                      alignment: Alignment.center,
+                                      child: const CircularProgressIndicator(),
+                                    ),
+                        )
+                      : _imagePlaceholder(),
                 ),
               ),
 
@@ -188,7 +301,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
                       // Price
                       Text(
-                        '₦${product.price.toStringAsFixed(2)}',
+                        Currency.format(product.price),
                         style: theme.textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: theme.colorScheme.primary,
@@ -301,21 +414,17 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               color: theme.scaffoldBackgroundColor,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 8.r,
                   offset: Offset(0, -2.h),
                 ),
               ],
             ),
             child: AppButton(
-              label:
-                  'Add to Cart (₦${(product.price * _quantity).toStringAsFixed(2)})',
-              onPressed: () {
-                // TODO: Add to cart logic (Phase 3)
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Added to cart!')));
-              },
+              label: _buttonLabel(product),
+              onPressed: _isAddingToCart || !product.isActive || product.stockQuantity == 0
+                  ? null
+                  : () => _addToCart(product),
               width: double.infinity,
             ),
           );

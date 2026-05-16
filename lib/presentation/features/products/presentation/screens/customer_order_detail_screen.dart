@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
+import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/cart_item_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/input_sanitizer.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/providers/product_review_providers.dart';
@@ -25,47 +29,151 @@ class _CustomerOrderDetailScreenState
   bool _isReordering = false;
 
   Future<void> _reorder() async {
+    if (_isReordering) return;
     setState(() => _isReordering = true);
 
     try {
       final repository = ref.read(orderRepositoryProvider);
       final items = await repository.getReorderItems(widget.orderId);
-
       final cartNotifier = ref.read(cartNotifierProvider.notifier);
 
-      // Add each item to cart
+      int added = 0;
+      int skipped = 0;
       for (final item in items) {
-        await cartNotifier.addItem(
-          CartItemModel(
-            productId: item['product_id'],
-            productName: item['product_name'],
-            price: item['price'],
-            imageUrl: item['image_url'],
-            quantity: item['quantity'],
-            shopId: item['shop_id'],
-            shopName: '', // Will be fetched, but we can update later
-          ),
-        );
+        final isActive = item['is_active'] as bool? ?? false;
+        final stock = (item['stock_quantity'] as num?)?.toInt() ?? 0;
+        final qty = (item['quantity'] as num).toInt();
+
+        if (!isActive || stock < qty) {
+          skipped++;
+          continue;
+        }
+
+        try {
+          await cartNotifier.addItem(
+            CartItemModel(
+              productId: item['product_id'] as String,
+              productName: item['product_name'] as String,
+              price: (item['price'] as num).toDouble(),
+              imageUrl: item['image_url'] as String?,
+              quantity: qty,
+              shopId: item['shop_id'] as String,
+              shopName: item['shop_name'] as String? ?? '',
+            ),
+          );
+          added++;
+        } on MultiShopCartException {
+          // First item from a different shop was added in a prior add;
+          // subsequent items would all reject. Stop and inform.
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Some items are from a different shop than your current cart',
+              ),
+            ),
+          );
+          return;
+        }
       }
 
+      if (!mounted) return;
+      final msg = skipped == 0
+          ? '$added item${added == 1 ? '' : 's'} added to cart'
+          : '$added added · $skipped unavailable';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      if (added > 0) context.pushNamed('cart');
+    } on MarketplaceException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Items added to cart')));
-        Navigator.pushNamed(context, '/cart');
+        ).showSnackBar(SnackBar(content: Text(e.message)));
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Failed to reorder: $e')));
+        ).showSnackBar(const SnackBar(content: Text('Failed to reorder')));
       }
     } finally {
+      if (mounted) setState(() => _isReordering = false);
+    }
+  }
+
+  Future<void> _reportIssue(OrderModel order) async {
+    final reasonController = TextEditingController();
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Report an issue'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Briefly describe what went wrong. The shop will be notified.',
+            ),
+            SizedBox(height: 12.h),
+            TextField(
+              controller: reasonController,
+              maxLines: 4,
+              maxLength: InputSanitizer.maxDisputeReason,
+              decoration: const InputDecoration(
+                hintText: 'e.g. wrong product delivered',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final v = InputSanitizer.clean(reasonController.text);
+              if (v.isEmpty) return;
+              if (v.length > InputSanitizer.maxDisputeReason) return;
+              Navigator.pop(ctx, v);
+            },
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
+
+    if (reason == null || !mounted) return;
+
+    try {
+      await ref.read(orderNotifierProvider.notifier).raiseDispute(
+            orderId: order.id,
+            reason: reason,
+          );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Issue reported. The shop will respond.')),
+      );
+      ref.invalidate(orderWithItemsProvider(widget.orderId));
+    } on MarketplaceException catch (e) {
       if (mounted) {
-        setState(() => _isReordering = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to report issue')),
+        );
       }
     }
   }
+
+  bool _canReport(OrderModel order) =>
+      order.status == OrderStatus.confirmed ||
+      order.status == OrderStatus.out_for_delivery ||
+      order.status == OrderStatus.delivered;
 
   // Add this method
   Widget _buildReviewSection(OrderModel order, List<OrderItemModel> items) {
@@ -198,6 +306,20 @@ class _CustomerOrderDetailScreenState
                   ),
                 ),
 
+              // Report issue (once the order is in motion)
+              if (_canReport(order) && order.status != OrderStatus.disputed)
+                SliverPadding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+                  sliver: SliverToBoxAdapter(
+                    child: TextButton.icon(
+                      icon: const Icon(Icons.flag_outlined),
+                      label: const Text('Report an issue'),
+                      onPressed: () => _reportIssue(order),
+                    ),
+                  ),
+                ),
+
               SliverToBoxAdapter(child: SizedBox(height: 80.h)),
 
               SliverToBoxAdapter(child: _buildReviewSection(order, items)),
@@ -256,7 +378,7 @@ class _CustomerOrderDetailScreenState
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8.r),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8.r),
         ],
       ),
       child: Column(
@@ -276,7 +398,7 @@ class _CustomerOrderDetailScreenState
                 decoration: BoxDecoration(
                   color: order.status
                       .getColor(theme.colorScheme)
-                      .withOpacity(0.1),
+                      .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4.r),
                 ),
                 child: Text(
@@ -444,7 +566,7 @@ class _CustomerOrderDetailScreenState
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    '${item.quantity} x ₦${item.unitPrice.toStringAsFixed(2)}',
+                    '${item.quantity} x ${Currency.formatCompact(item.unitPrice)}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: Colors.grey.shade600,
                     ),
@@ -453,7 +575,7 @@ class _CustomerOrderDetailScreenState
               ),
             ),
             Text(
-              '₦${item.subtotal.toStringAsFixed(2)}',
+              Currency.formatCompact(item.subtotal),
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.primary,

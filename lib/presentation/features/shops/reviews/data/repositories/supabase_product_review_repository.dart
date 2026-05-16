@@ -1,14 +1,14 @@
-// lib/features/products/data/repositories/product_review_repository.dart
-
+import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/data/models/product_review_model.dart';
+import 'package:nano_embryo/presentation/features/shops/reviews/data/repositories/product_review_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class SupabaseProductReviewRepository {
+class SupabaseProductReviewRepository implements ProductReviewRepository {
   final SupabaseClient _supabase;
 
   SupabaseProductReviewRepository(this._supabase);
 
-  // Get reviews for a product
+  @override
   Future<List<ProductReview>> getProductReviews(String productId) async {
     try {
       final response = await _supabase
@@ -28,41 +28,41 @@ class SupabaseProductReviewRepository {
           .order('created_at', ascending: false);
 
       return (response as List)
-          .map((json) => ProductReview.fromJson(json))
+          .map((json) => ProductReview.fromJson(json as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      throw AuthException('Failed to load reviews: $e');
+      throw mapToMarketplaceException(e, 'Failed to load reviews');
     }
   }
 
-  // Check if user can review a product (has delivered order with this product)
+  @override
   Future<bool> canUserReviewProduct(String productId) async {
     try {
       final user = _supabase.auth.currentUser;
       if (user == null) return false;
 
-      final response =
-          await _supabase
-              .from('order_items')
-              .select('''
+      final response = await _supabase
+          .from('order_items')
+          .select('''
             order_id,
             orders!inner (
               user_id,
               status
             )
           ''')
-              .eq('product_id', productId)
-              .eq('orders.user_id', user.id)
-              .eq('orders.status', 'delivered')
-              .maybeSingle();
+          .eq('product_id', productId)
+          .eq('orders.user_id', user.id)
+          .eq('orders.status', 'delivered')
+          .maybeSingle();
 
       return response != null;
-    } catch (e) {
+    } catch (_) {
+      // canUser… is a non-fatal gate; false on error so the UI hides the CTA.
       return false;
     }
   }
 
-  // Create a review
+  @override
   Future<void> createReview({
     required String orderId,
     required String productId,
@@ -71,7 +71,9 @@ class SupabaseProductReviewRepository {
   }) async {
     try {
       final user = _supabase.auth.currentUser;
-      if (user == null) throw Exception('Not logged in');
+      if (user == null) {
+        throw NotEligibleToReviewException();
+      }
 
       await _supabase.from('product_reviews').insert({
         'order_id': orderId,
@@ -80,12 +82,14 @@ class SupabaseProductReviewRepository {
         'rating': rating,
         'comment': review,
       });
+    } on ProductReviewException {
+      rethrow;
     } catch (e) {
-      throw AuthException('Failed to submit review: $e');
+      throw mapToMarketplaceException(e, 'Failed to submit review');
     }
   }
 
-  // Shop response to review
+  @override
   Future<void> respondToReview({
     required String reviewId,
     required String response,
@@ -99,7 +103,7 @@ class SupabaseProductReviewRepository {
           })
           .eq('id', reviewId);
     } catch (e) {
-      throw AuthException('Failed to respond to review: $e');
+      throw mapToMarketplaceException(e, 'Failed to respond to review');
     }
   }
 }

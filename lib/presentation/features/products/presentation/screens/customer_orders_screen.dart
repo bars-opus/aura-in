@@ -3,12 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
 import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
-import 'package:nano_embryo/presentation/features/products/presentation/screens/customer_order_detail_screen.dart';
 
 class CustomerOrdersScreen extends ConsumerStatefulWidget {
   const CustomerOrdersScreen({super.key});
@@ -78,7 +79,7 @@ class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
                       : 'No ${_selectedStatusFilter!.displayName.toLowerCase()} orders',
               actionLabel: 'Start Shopping',
               onAction: () {
-                Navigator.pushNamed(context, '/marketplace');
+                context.pushNamed('marketplace');
               },
             );
           }
@@ -162,7 +163,7 @@ class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
             backgroundColor: Colors.grey.shade100,
             selectedColor: status
                 .getColor(Theme.of(context).colorScheme)
-                .withOpacity(0.2),
+                .withValues(alpha: 0.2),
             labelStyle: TextStyle(
               color:
                   _selectedStatusFilter == status
@@ -182,12 +183,7 @@ class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
       margin: EdgeInsets.only(bottom: 12.h),
       child: InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => CustomerOrderDetailScreen(orderId: order.id),
-            ),
-          );
+          context.pushNamed('customerOrderDetail', extra: order.id);
         },
         borderRadius: BorderRadius.circular(12.r),
         child: Padding(
@@ -210,7 +206,7 @@ class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
                       vertical: 4.h,
                     ),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
+                      color: statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                     child: Text(
@@ -251,7 +247,7 @@ class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
                     ),
                   ),
                   Text(
-                    '₦${order.totalAmount.toStringAsFixed(2)}',
+                    Currency.format(order.totalAmount),
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.primary,

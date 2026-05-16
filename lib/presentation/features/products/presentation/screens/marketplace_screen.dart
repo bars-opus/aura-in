@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nano_embryo/core/widgets/app_text_form_field.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/marketplace_providers.dart';
-import 'package:nano_embryo/presentation/features/products/presentation/screens/product_detail_screen.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/filter_chip_row.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/product_grid_item.dart';
 
@@ -74,17 +74,11 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                       final product = products[index];
                       return ProductGridItem(
                         product: product,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (_) => ProductDetailScreen(
-                                    productId: product.id,
-                                  ),
+                        onTap:
+                            () => context.pushNamed(
+                              'productDetail',
+                              extra: product.id,
                             ),
-                          );
-                        },
                       );
                     },
                   ),
@@ -189,7 +183,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           Icon(
             Icons.storefront_outlined,
             size: 80.w,
-            color: theme.colorScheme.primary.withOpacity(0.5),
+            color: theme.colorScheme.primary.withValues(alpha: 0.5),
           ),
           SizedBox(height: 16.h),
           Text(
@@ -202,7 +196,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           Text(
             'Try adjusting your filters or search terms',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             ),
             textAlign: TextAlign.center,
           ),

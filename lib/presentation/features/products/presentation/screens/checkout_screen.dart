@@ -3,10 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nano_embryo/core/widgets/app_text_form_field.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/input_sanitizer.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
+import 'package:uuid/uuid.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
@@ -22,6 +26,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final _notesController = TextEditingController();
 
   bool _isPlacingOrder = false;
+
+  /// Stable for the lifetime of this checkout screen — a tap-twice or
+  /// network-retry within the same screen replays the same key so the
+  /// server-side idempotency check returns the existing order_id
+  /// instead of creating a duplicate.
+  late final String _idempotencyKey = const Uuid().v4();
 
   @override
   void dispose() {
@@ -68,20 +78,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         shopId: shopId,
         items: items,
         totalAmount: cartState.totalAmount,
-        deliveryAddress: _addressController.text.trim(),
-        customerPhone: _phoneController.text.trim(),
-        customerNotes: _notesController.text.trim(),
+        deliveryAddress: InputSanitizer.clean(_addressController.text),
+        customerPhone: InputSanitizer.clean(_phoneController.text),
+        customerNotes: InputSanitizer.clean(_notesController.text),
+        idempotencyKey: _idempotencyKey,
       );
 
       if (mounted && orderId != null) {
         // Clear cart and navigate to order confirmation
         await ref.read(cartNotifierProvider.notifier).clearCart();
-
-        Navigator.pushReplacementNamed(
-          context,
-          '/order-confirmation',
-          arguments: orderId,
-        );
+        if (!mounted) return;
+        context.pushReplacementNamed('orderConfirmation', extra: orderId);
       }
     } catch (e) {
       if (mounted) {
@@ -148,7 +155,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                         ),
                                       ),
                                       Text(
-                                        '₦${item.subtotal.toStringAsFixed(2)}',
+                                        Currency.formatCompact(item.subtotal),
                                         style: textTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.w500,
                                         ),
@@ -169,7 +176,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                     ),
                                   ),
                                   Text(
-                                    '₦${cartState.totalAmount.toStringAsFixed(2)}',
+                                    Currency.format(cartState.totalAmount),
                                     style: textTheme.titleLarge?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: theme.colorScheme.primary,
@@ -198,12 +205,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         label: 'Delivery Address',
                         hintText: 'Enter your full address',
                         maxLines: 3,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter delivery address';
-                          }
-                          return null;
-                        },
+                        maxLength: InputSanitizer.maxDeliveryAddress,
+                        validator: InputSanitizer.requiredLength(
+                          InputSanitizer.maxDeliveryAddress,
+                          fieldName: 'Delivery address',
+                        ),
                       ),
                       SizedBox(height: 16.h),
 
@@ -212,12 +218,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         label: 'Phone Number',
                         hintText: 'Enter your phone number',
                         keyboardType: TextInputType.phone,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter phone number';
-                          }
-                          return null;
-                        },
+                        maxLength: InputSanitizer.maxCustomerPhone,
+                        validator: InputSanitizer.validatePhone,
                       ),
                       SizedBox(height: 16.h),
 
@@ -226,6 +228,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         label: 'Order Notes (Optional)',
                         hintText: 'Special instructions for delivery',
                         maxLines: 2,
+                        maxLength: InputSanitizer.maxOrderNotes,
+                        validator: InputSanitizer.optionalLength(
+                          InputSanitizer.maxOrderNotes,
+                          fieldName: 'Order notes',
+                        ),
                       ),
 
                       SizedBox(height: 24.h),
@@ -234,9 +241,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       Container(
                         padding: EdgeInsets.all(12.w),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primaryContainer.withOpacity(
-                            0.1,
-                          ),
+                          color: theme.colorScheme.primaryContainer
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: Row(

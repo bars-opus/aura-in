@@ -1,155 +1,155 @@
 import 'dart:convert';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
+import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/cart_item_model.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'cart_provider.g.dart';
 
-// Cart state class
 class CartState {
   final List<CartItemModel> items;
   final bool isLoading;
+  final String? error;
 
-  const CartState({this.items = const [], this.isLoading = false});
+  const CartState({
+    this.items = const [],
+    this.isLoading = false,
+    this.error,
+  });
 
   double get totalAmount => items.fold(0, (sum, item) => sum + item.subtotal);
-
   int get itemCount => items.fold(0, (sum, item) => sum + item.quantity);
-
   bool get isEmpty => items.isEmpty;
 
-  // Add this getter
-  bool get hasMultipleShops {
-    final uniqueShops = items.map((item) => item.shopId).toSet();
-    return uniqueShops.length > 1;
-  }
+  /// The shop the cart belongs to. Cart is enforced single-shop on `addItem`
+  /// so this is always meaningful when [items] is non-empty.
+  String? get singleShopId => items.isEmpty ? null : items.first.shopId;
 
-  // Add this method to get unique shop IDs
-  List<String> getUniqueShopIds() {
-    return items.map((item) => item.shopId).toSet().toList();
-  }
+  bool get hasMultipleShops =>
+      items.map((item) => item.shopId).toSet().length > 1;
 
-  CartState copyWith({List<CartItemModel>? items, bool? isLoading}) {
+  List<String> getUniqueShopIds() =>
+      items.map((item) => item.shopId).toSet().toList();
+
+  CartState copyWith({
+    List<CartItemModel>? items,
+    bool? isLoading,
+    String? error,
+    bool clearError = false,
+  }) {
     return CartState(
       items: items ?? this.items,
       isLoading: isLoading ?? this.isLoading,
+      error: clearError ? null : (error ?? this.error),
     );
   }
 }
 
-// Cart notifier
+/// Cart is **per-user**. Storage key is namespaced by `auth.uid()` so
+/// signing out and back in as a different user on the same device does
+/// not surface the previous user's cart. Sign-out triggers a rebuild
+/// (via ref.watch on currentUserProvider) that re-loads from the new
+/// (or guest) bucket.
 @riverpod
 class CartNotifier extends _$CartNotifier {
-  static const String _cartStorageKey = 'shopping_cart';
+  String? _userId;
+
+  String get _storageKey => 'shopping_cart:${_userId ?? 'guest'}';
 
   @override
   CartState build() {
+    final user = ref.watch(currentUserProvider);
+    _userId = user?.id;
+    // Async load; updates state once SharedPreferences resolves.
     _loadCartFromStorage();
     return const CartState();
   }
 
-
-
-  // Load cart from local storage
   Future<void> _loadCartFromStorage() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final cartJson = prefs.getString(_cartStorageKey);
-
+      final cartJson = prefs.getString(_storageKey);
       if (cartJson != null) {
         final List<dynamic> decoded = json.decode(cartJson);
-        final items =
-            decoded
-                .map(
-                  (item) =>
-                      CartItemModel.fromJson(item as Map<String, dynamic>),
-                )
-                .toList();
-
-        state = state.copyWith(items: items);
+        final items = decoded
+            .map((e) => CartItemModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+        state = state.copyWith(items: items, clearError: true);
+      } else {
+        state = const CartState();
       }
-    } catch (e) {
-      print('Error loading cart: $e');
+    } catch (e, stack) {
+      MarketplaceLogger.warn('cart load failed', error: e, stack: stack);
+      state = state.copyWith(error: 'Failed to load saved cart');
     }
   }
 
-  // Save cart to local storage
   Future<void> _saveCartToStorage() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final cartJson = json.encode(
-        state.items.map((item) => item.toJson()).toList(),
-      );
-      await prefs.setString(_cartStorageKey, cartJson);
-    } catch (e) {
-      print('Error saving cart: $e');
+      final cartJson =
+          json.encode(state.items.map((i) => i.toJson()).toList());
+      await prefs.setString(_storageKey, cartJson);
+    } catch (e, stack) {
+      MarketplaceLogger.warn('cart save failed', error: e, stack: stack);
     }
   }
 
-  // Add item to cart
+  /// Adds an item. Throws [MultiShopCartException] if the cart already
+  /// contains items from a different shop — the UI should catch this and
+  /// offer to clear the cart before re-adding.
   Future<void> addItem(CartItemModel newItem) async {
-    final existingIndex = state.items.indexWhere(
-      (item) => item.productId == newItem.productId,
-    );
+    if (state.items.isNotEmpty &&
+        state.items.first.shopId != newItem.shopId) {
+      throw MultiShopCartException();
+    }
+
+    final existingIndex = state.items
+        .indexWhere((item) => item.productId == newItem.productId);
 
     List<CartItemModel> updatedItems;
-
     if (existingIndex != -1) {
-      // Update existing item
       updatedItems = List.from(state.items);
-      final existingItem = updatedItems[existingIndex];
-      updatedItems[existingIndex] = existingItem.copyWith(
-        quantity: existingItem.quantity + newItem.quantity,
+      final existing = updatedItems[existingIndex];
+      updatedItems[existingIndex] = existing.copyWith(
+        quantity: existing.quantity + newItem.quantity,
       );
     } else {
-      // Add new item
       updatedItems = [...state.items, newItem];
     }
 
-    state = state.copyWith(items: updatedItems);
+    state = state.copyWith(items: updatedItems, clearError: true);
     await _saveCartToStorage();
   }
 
-  // Update item quantity
   Future<void> updateQuantity(String productId, int quantity) async {
     if (quantity <= 0) {
       await removeItem(productId);
       return;
     }
-
-    final updatedItems =
-        state.items.map((item) {
-          if (item.productId == productId) {
-            return item.copyWith(quantity: quantity);
-          }
-          return item;
-        }).toList();
-
-    state = state.copyWith(items: updatedItems);
+    final updated = state.items
+        .map((i) =>
+            i.productId == productId ? i.copyWith(quantity: quantity) : i)
+        .toList();
+    state = state.copyWith(items: updated);
     await _saveCartToStorage();
   }
 
-  // Remove item from cart
   Future<void> removeItem(String productId) async {
-    final updatedItems =
-        state.items.where((item) => item.productId != productId).toList();
-
-    state = state.copyWith(items: updatedItems);
+    final updated =
+        state.items.where((i) => i.productId != productId).toList();
+    state = state.copyWith(items: updated);
     await _saveCartToStorage();
   }
 
-  // Clear entire cart
   Future<void> clearCart() async {
-    state = state.copyWith(items: []);
+    state = state.copyWith(items: [], clearError: true);
     await _saveCartToStorage();
   }
 
-  // Get unique shops in cart (for checkout)
-  List<String> getUniqueShopIds() {
-    return state.items.map((item) => item.shopId).toSet().toList();
-  }
-
-  // Check if cart has items from multiple shops
-  bool get hasMultipleShops => getUniqueShopIds().length > 1;
+  List<String> getUniqueShopIds() => state.getUniqueShopIds();
+  bool get hasMultipleShops => state.hasMultipleShops;
 }
