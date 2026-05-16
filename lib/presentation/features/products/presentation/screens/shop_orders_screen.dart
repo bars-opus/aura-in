@@ -11,6 +11,7 @@ import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/paginated_list_notifier.dart';
 
 class ShopOrdersScreen extends ConsumerStatefulWidget {
   final String shopId;
@@ -26,7 +27,8 @@ class _ShopOrdersScreenState extends ConsumerState<ShopOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ordersAsync = ref.watch(shopOrdersProvider(widget.shopId));
+    final state = ref.watch(shopOrdersPagedProvider(widget.shopId));
+    final notifier = ref.read(shopOrdersPagedProvider(widget.shopId).notifier);
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
@@ -41,65 +43,78 @@ class _ShopOrdersScreenState extends ConsumerState<ShopOrdersScreen> {
           child: _buildStatusFilter(),
         ),
       ),
-      body: ordersAsync.when(
-        data: (orders) {
-          final filteredOrders =
-              _selectedStatusFilter == null
-                  ? orders
-                  : orders
-                      .where((o) => o.status == _selectedStatusFilter)
-                      .toList();
+      body: _buildBody(state, notifier, theme, textTheme),
+    );
+  }
 
-          if (filteredOrders.isEmpty) {
-            return EmptyStateWidget(
-              icon: Icons.inbox_outlined,
-              title: 'No orders',
-              subtitle:
-                  _selectedStatusFilter == null
-                      ? 'No orders yet'
-                      : 'No ${_selectedStatusFilter!.displayName.toLowerCase()} orders',
-            );
+  Widget _buildBody(
+    PagedListState<OrderModel> state,
+    ShopOrdersPagedNotifier notifier,
+    ThemeData theme,
+    TextTheme textTheme,
+  ) {
+    if (state.isInitialLoading) {
+      return const Center(child: CircularLoadingIndicator());
+    }
+    if (state.error != null && state.items.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 48.w),
+            SizedBox(height: 16.h),
+            const Text('Failed to load orders'),
+            SizedBox(height: 8.h),
+            Text(state.error!,
+                style: textTheme.bodySmall, textAlign: TextAlign.center),
+            SizedBox(height: 16.h),
+            ElevatedButton(
+              onPressed: notifier.refresh,
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final filtered = _selectedStatusFilter == null
+        ? state.items
+        : state.items
+            .where((o) => o.status == _selectedStatusFilter)
+            .toList();
+
+    if (filtered.isEmpty && !state.hasMore) {
+      return EmptyStateWidget(
+        icon: Icons.inbox_outlined,
+        title: 'No orders',
+        subtitle: _selectedStatusFilter == null
+            ? 'No orders yet'
+            : 'No ${_selectedStatusFilter!.displayName.toLowerCase()} orders',
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: notifier.refresh,
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (n) {
+          if (n.metrics.pixels >= n.metrics.maxScrollExtent - 200) {
+            notifier.loadNext();
           }
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              ref.invalidate(shopOrdersProvider(widget.shopId));
-            },
-            child: ListView.builder(
-              padding: EdgeInsets.all(12.w),
-              itemCount: filteredOrders.length,
-              itemBuilder: (context, index) {
-                final order = filteredOrders[index];
-                return _buildOrderCard(order, theme);
-              },
-            ),
-          );
+          return false;
         },
-        loading: () => Center(child: const CircularLoadingIndicator()),
-        error:
-            (error, stack) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 48.w),
-                  SizedBox(height: 16.h),
-                  Text('Failed to load orders'),
-                  SizedBox(height: 8.h),
-                  Text(
-                    error.toString(),
-                    style: textTheme.bodySmall,
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 16.h),
-                  ElevatedButton(
-                    onPressed: () {
-                      ref.invalidate(shopOrdersProvider(widget.shopId));
-                    },
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
+        child: ListView.builder(
+          padding: EdgeInsets.all(12.w),
+          itemCount: filtered.length + (state.hasMore ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index >= filtered.length) {
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: 24.h),
+                child: const Center(child: CircularProgressIndicator()),
+              );
+            }
+            return _buildOrderCard(filtered[index], theme);
+          },
+        ),
       ),
     );
   }

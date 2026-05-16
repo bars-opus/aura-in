@@ -8,7 +8,9 @@ import 'package:nano_embryo/core/widgets/app_text_form_field.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/input_sanitizer.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/connectivity_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
 import 'package:uuid/uuid.dart';
 
@@ -109,10 +111,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
+    final isOnline = ref.watch(isOnlineProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Checkout',
+          MarketplaceStrings.checkoutTitle,
           style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
       ),
@@ -138,6 +142,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                 style: textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
+                                semanticsLabel: 'Order summary',
                               ),
                               SizedBox(height: 12.h),
                               ...cartState.items.map(
@@ -257,13 +262,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Cash on Delivery',
+                                    MarketplaceStrings.codTitle,
                                     style: textTheme.bodyMedium?.copyWith(
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   Text(
-                                    'Pay when you receive your order',
+                                    MarketplaceStrings.codSubtitle,
                                     style: textTheme.bodySmall,
                                   ),
                                 ],
@@ -275,14 +280,50 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
                       SizedBox(height: 24.h),
 
+                      // Offline banner — blocks Place Order with a clear reason.
+                      if (!isOnline)
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12.w, vertical: 8.h),
+                          margin: EdgeInsets.only(bottom: 12.h),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.errorContainer,
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.wifi_off,
+                                  size: 18.w,
+                                  color: theme.colorScheme.onErrorContainer),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: Text(
+                                  MarketplaceStrings.youreOffline,
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color:
+                                        theme.colorScheme.onErrorContainer,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
                       // Place order button
-                      AppButton(
-                        label:
-                            _isPlacingOrder
-                                ? 'Placing Order...'
-                                : 'Place Order',
-                        onPressed: _isPlacingOrder ? null : _placeOrder,
-                        width: double.infinity,
+                      Semantics(
+                        button: true,
+                        label: MarketplaceStrings.placeOrder,
+                        enabled: !_isPlacingOrder && isOnline,
+                        child: AppButton(
+                          label: _isPlacingOrder
+                              ? MarketplaceStrings.placingOrder
+                              : MarketplaceStrings.placeOrder,
+                          onPressed: (_isPlacingOrder || !isOnline)
+                              ? null
+                              : _placeOrder,
+                          width: double.infinity,
+                        ),
                       ),
                     ],
                   ),

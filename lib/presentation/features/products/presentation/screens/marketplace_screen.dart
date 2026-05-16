@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nano_embryo/core/widgets/app_text_form_field.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/marketplace_providers.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/filter_chip_row.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/product_grid_item.dart';
@@ -30,95 +31,95 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   @override
   Widget build(BuildContext context) {
     final filter = ref.watch(marketplaceFilterProvider);
-    final productsAsync = ref.watch(marketplaceProductsProvider);
+    final state = ref.watch(marketplaceProductsPagedProvider);
+    final notifier = ref.read(marketplaceProductsPagedProvider.notifier);
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: _isSearching ? _buildSearchAppBar() : _buildMainAppBar(),
       body: Column(
         children: [
-          // Filter chips
           if (!_isSearching)
             FilterChipRow(
               selectedCategory: filter.category,
-              onCategorySelected: (category) {
-                ref
-                    .read(marketplaceFilterProvider.notifier)
-                    .setCategory(category);
-              },
+              onCategorySelected: (category) => ref
+                  .read(marketplaceFilterProvider.notifier)
+                  .setCategory(category),
               onFilterPressed: () => _showFilterBottomSheet(),
             ),
-
-          // Products grid
-          Expanded(
-            child: productsAsync.when(
-              data: (products) {
-                if (products.isEmpty) {
-                  return _buildEmptyState();
-                }
-
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    ref.invalidate(marketplaceProductsProvider);
-                  },
-                  child: GridView.builder(
-                    padding: EdgeInsets.all(12.w),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12.w,
-                      mainAxisSpacing: 12.h,
-                      childAspectRatio: 0.75,
-                    ),
-                    itemCount: products.length,
-                    itemBuilder: (context, index) {
-                      final product = products[index];
-                      return ProductGridItem(
-                        product: product,
-                        onTap:
-                            () => context.pushNamed(
-                              'productDetail',
-                              extra: product.id,
-                            ),
-                      );
-                    },
-                  ),
-                );
-              },
-              loading: () => const Center(child: CircularLoadingIndicator()),
-              error:
-                  (error, stack) => Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 48.w,
-                          color: theme.colorScheme.error,
-                        ),
-                        SizedBox(height: 16.h),
-                        Text(
-                          'Failed to load products',
-                          style: theme.textTheme.titleMedium,
-                        ),
-                        SizedBox(height: 8.h),
-                        Text(
-                          error.toString(),
-                          style: theme.textTheme.bodySmall,
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: 16.h),
-                        ElevatedButton(
-                          onPressed: () {
-                            ref.invalidate(marketplaceProductsProvider);
-                          },
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  ),
-            ),
-          ),
+          Expanded(child: _buildGrid(state, notifier, theme)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildGrid(
+    dynamic state,
+    dynamic notifier,
+    ThemeData theme,
+  ) {
+    if (state.isInitialLoading) {
+      return const Center(child: CircularLoadingIndicator());
+    }
+    if (state.error != null && state.items.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline,
+                size: 48.w, color: theme.colorScheme.error),
+            SizedBox(height: 16.h),
+            Text(MarketplaceStrings.failedToLoad,
+                style: theme.textTheme.titleMedium),
+            SizedBox(height: 8.h),
+            Text(state.error!,
+                style: theme.textTheme.bodySmall,
+                textAlign: TextAlign.center),
+            SizedBox(height: 16.h),
+            ElevatedButton(
+              onPressed: notifier.refresh,
+              child: Text(MarketplaceStrings.retry),
+            ),
+          ],
+        ),
+      );
+    }
+    if (state.items.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return RefreshIndicator(
+      onRefresh: notifier.refresh,
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (n) {
+          if (n.metrics.pixels >= n.metrics.maxScrollExtent - 200) {
+            notifier.loadNext();
+          }
+          return false;
+        },
+        child: GridView.builder(
+          padding: EdgeInsets.all(12.w),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12.w,
+            mainAxisSpacing: 12.h,
+            childAspectRatio: 0.75,
+          ),
+          itemCount: state.items.length + (state.hasMore ? 2 : 0),
+          itemBuilder: (context, index) {
+            if (index >= state.items.length) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final product = state.items[index];
+            return ProductGridItem(
+              product: product,
+              onTap: () => context.pushNamed(
+                'productDetail',
+                extra: product.id,
+              ),
+            );
+          },
+        ),
       ),
     );
   }

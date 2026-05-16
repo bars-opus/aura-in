@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/cart_item_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 
 
@@ -21,7 +22,7 @@ class CartScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'My Cart',
+          MarketplaceStrings.cartTitle,
           style: textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
           ),
@@ -106,11 +107,13 @@ class CartScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Total:',
+                            '${MarketplaceStrings.total}:',
                             style: textTheme.titleMedium,
                           ),
                           Text(
                             Currency.format(cartState.totalAmount),
+                            semanticsLabel:
+                                'Total ${Currency.format(cartState.totalAmount)}',
                             style: textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: theme.colorScheme.primary,
@@ -126,10 +129,14 @@ class CartScreen extends ConsumerWidget {
                         ),
                       ),
                       SizedBox(height: 16.h),
-                      AppButton(
-                        label: 'Proceed to Checkout',
-                        onPressed: () => context.pushNamed('checkout'),
-                        width: double.infinity,
+                      Semantics(
+                        button: true,
+                        label: MarketplaceStrings.proceedToCheckout,
+                        child: AppButton(
+                          label: MarketplaceStrings.proceedToCheckout,
+                          onPressed: () => context.pushNamed('checkout'),
+                          width: double.infinity,
+                        ),
                       ),
                     ],
                   ),
@@ -291,14 +298,14 @@ class CartScreen extends ConsumerWidget {
           ),
           SizedBox(height: 16.h),
           Text(
-            'Your cart is empty',
+            MarketplaceStrings.cartEmpty,
             style: textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(height: 8.h),
           Text(
-            'Add items from the marketplace to get started',
+            MarketplaceStrings.cartEmptySubtitle,
             style: textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             ),

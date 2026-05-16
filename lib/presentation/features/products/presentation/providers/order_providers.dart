@@ -4,6 +4,7 @@ import 'package:nano_embryo/presentation/features/products/data/exceptions/marke
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/repositories/order_repository.dart';
 import 'package:nano_embryo/presentation/features/products/data/repositories/supabase_order_repository.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/paginated_list_notifier.dart';
 
 // Abstract interface so consumers don't depend on the Supabase impl.
 final orderRepositoryProvider = Provider<OrderRepository>((ref) {
@@ -119,6 +120,46 @@ final customerOrdersProvider =
   final repository = ref.read(orderRepositoryProvider);
   return repository.getCustomerOrders(userId);
 });
+
+// ── Paginated providers (infinite scroll) ────────────────────
+
+class CustomerOrdersPagedNotifier extends PagedListNotifier<OrderModel> {
+  final Ref _ref;
+  final String _userId;
+  CustomerOrdersPagedNotifier(this._ref, this._userId);
+
+  @override
+  Future<List<OrderModel>> fetchPage(int page, int limit) =>
+      _ref.read(orderRepositoryProvider).getCustomerOrders(
+            _userId,
+            limit: limit,
+            page: page,
+          );
+}
+
+final customerOrdersPagedProvider = StateNotifierProvider.autoDispose
+    .family<CustomerOrdersPagedNotifier, PagedListState<OrderModel>, String>(
+  (ref, userId) => CustomerOrdersPagedNotifier(ref, userId),
+);
+
+class ShopOrdersPagedNotifier extends PagedListNotifier<OrderModel> {
+  final Ref _ref;
+  final String _shopId;
+  ShopOrdersPagedNotifier(this._ref, this._shopId);
+
+  @override
+  Future<List<OrderModel>> fetchPage(int page, int limit) =>
+      _ref.read(orderRepositoryProvider).getShopOrders(
+            _shopId,
+            limit: limit,
+            page: page,
+          );
+}
+
+final shopOrdersPagedProvider = StateNotifierProvider.autoDispose
+    .family<ShopOrdersPagedNotifier, PagedListState<OrderModel>, String>(
+  (ref, shopId) => ShopOrdersPagedNotifier(ref, shopId),
+);
 
 final cancelOrderProvider =
     FutureProvider.family<bool, String>((ref, orderId) async {

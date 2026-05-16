@@ -8,6 +8,7 @@ import 'package:nano_embryo/presentation/features/products/data/exceptions/marke
 import 'package:nano_embryo/presentation/features/products/data/models/cart_item_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/providers/product_review_providers.dart';
@@ -64,9 +65,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Added to cart'),
+          content: const Text(MarketplaceStrings.addedToCart),
           action: SnackBarAction(
-            label: 'View Cart',
+            label: MarketplaceStrings.viewCart,
             onPressed: () => context.pushNamed('cart'),
           ),
         ),
@@ -106,28 +107,26 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       );
 
   String _buttonLabel(ProductModel product) {
-    if (_isAddingToCart) return 'Adding...';
-    if (!product.isActive) return 'Unavailable';
-    if (product.stockQuantity == 0) return 'Out of stock';
-    return 'Add to Cart (${Currency.formatCompact(product.price * _quantity)})';
+    if (_isAddingToCart) return MarketplaceStrings.addingToCart;
+    if (!product.isActive) return MarketplaceStrings.unavailable;
+    if (product.stockQuantity == 0) return MarketplaceStrings.outOfStock;
+    return '${MarketplaceStrings.addToCart} '
+        '(${Currency.formatCompact(product.price * _quantity)})';
   }
 
   Future<bool?> _confirmReplaceCart() => showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Replace cart?'),
-          content: const Text(
-            'Your cart already contains items from another shop. '
-            'Clear that cart and add this product instead?',
-          ),
+          title: const Text(MarketplaceStrings.replaceCartTitle),
+          content: const Text(MarketplaceStrings.replaceCartBody),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Keep cart'),
+              child: const Text(MarketplaceStrings.keepCart),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Replace'),
+              child: const Text(MarketplaceStrings.replace),
             ),
           ],
         ),
@@ -420,12 +419,21 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 ),
               ],
             ),
-            child: AppButton(
+            child: Semantics(
+              button: true,
               label: _buttonLabel(product),
-              onPressed: _isAddingToCart || !product.isActive || product.stockQuantity == 0
-                  ? null
-                  : () => _addToCart(product),
-              width: double.infinity,
+              enabled: !(_isAddingToCart ||
+                  !product.isActive ||
+                  product.stockQuantity == 0),
+              child: AppButton(
+                label: _buttonLabel(product),
+                onPressed: _isAddingToCart ||
+                        !product.isActive ||
+                        product.stockQuantity == 0
+                    ? null
+                    : () => _addToCart(product),
+                width: double.infinity,
+              ),
             ),
           );
         },

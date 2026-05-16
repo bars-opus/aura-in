@@ -1,7 +1,9 @@
 // lib/presentation/features/products/presentation/providers/marketplace_providers.dart
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/paginated_list_notifier.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -73,10 +75,10 @@ class MarketplaceFilter extends _$MarketplaceFilter {
 }
 
 // ============================================
-// Marketplace Products Provider
+// Marketplace Products Provider (single-page, kept for compatibility)
 // ============================================
 @riverpod
-Future<List<ProductModel>> marketplaceProducts(MarketplaceProductsRef ref) {
+Future<List<ProductModel>> marketplaceProducts(Ref ref) {
   final filter = ref.watch(marketplaceFilterProvider);
   final repository = ref.watch(productRepositoryProvider);
 
@@ -90,3 +92,34 @@ Future<List<ProductModel>> marketplaceProducts(MarketplaceProductsRef ref) {
     page: filter.page,
   );
 }
+
+// ============================================
+// Paginated Marketplace (infinite scroll)
+// ============================================
+
+class MarketplaceProductsPagedNotifier extends PagedListNotifier<ProductModel> {
+  final Ref _ref;
+  MarketplaceProductsPagedNotifier(this._ref) {
+    // Filter changes reset and refetch from page 0.
+    _ref.listen(marketplaceFilterProvider, (_, __) => refresh());
+  }
+
+  @override
+  Future<List<ProductModel>> fetchPage(int page, int limit) {
+    final filter = _ref.read(marketplaceFilterProvider);
+    return _ref.read(productRepositoryProvider).getMarketplaceProducts(
+          category: filter.category,
+          sortBy: filter.sortBy,
+          minPrice: filter.minPrice,
+          maxPrice: filter.maxPrice,
+          showVerifiedOnly: filter.showVerifiedOnly,
+          limit: limit,
+          page: page,
+        );
+  }
+}
+
+final marketplaceProductsPagedProvider = StateNotifierProvider.autoDispose<
+    MarketplaceProductsPagedNotifier, PagedListState<ProductModel>>(
+  (ref) => MarketplaceProductsPagedNotifier(ref),
+);

@@ -8,7 +8,11 @@ import 'package:nano_embryo/presentation/features/products/data/models/product_m
 import 'package:nano_embryo/presentation/features/products/presentation/providers/marketplace_providers.dart';
 
 abstract class ProductRepository {
-  Future<List<ProductModel>> getShopProducts(String shopId);
+  Future<List<ProductModel>> getShopProducts(
+    String shopId, {
+    int limit = 30,
+    int page = 0,
+  });
 
   Future<List<ProductModel>> getMarketplaceProducts({
     String? category,

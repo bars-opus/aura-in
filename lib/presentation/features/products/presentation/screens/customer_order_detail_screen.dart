@@ -9,6 +9,7 @@ import 'package:nano_embryo/presentation/features/products/data/models/cart_item
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/input_sanitizer.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/providers/product_review_providers.dart';
@@ -312,10 +313,14 @@ class _CustomerOrderDetailScreenState
                   padding:
                       EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
                   sliver: SliverToBoxAdapter(
-                    child: TextButton.icon(
-                      icon: const Icon(Icons.flag_outlined),
-                      label: const Text('Report an issue'),
-                      onPressed: () => _reportIssue(order),
+                    child: Semantics(
+                      button: true,
+                      label: MarketplaceStrings.reportIssue,
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.flag_outlined),
+                        label: const Text(MarketplaceStrings.reportIssue),
+                        onPressed: () => _reportIssue(order),
+                      ),
                     ),
                   ),
                 ),

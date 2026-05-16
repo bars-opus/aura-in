@@ -4,6 +4,7 @@ import 'package:nano_embryo/presentation/features/products/data/exceptions/marke
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/repositories/product_repository.dart';
 import 'package:nano_embryo/presentation/features/products/data/repositories/supabase_product_repository.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/paginated_list_notifier.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -38,6 +39,25 @@ Future<List<ProductModel>> shopProducts(Ref ref, String shopId) {
   final repository = ref.watch(productRepositoryProvider);
   return repository.getShopProducts(shopId);
 }
+
+class ShopProductsPagedNotifier extends PagedListNotifier<ProductModel> {
+  final Ref _ref;
+  final String _shopId;
+  ShopProductsPagedNotifier(this._ref, this._shopId);
+
+  @override
+  Future<List<ProductModel>> fetchPage(int page, int limit) =>
+      _ref.read(productRepositoryProvider).getShopProducts(
+            _shopId,
+            limit: limit,
+            page: page,
+          );
+}
+
+final shopProductsPagedProvider = StateNotifierProvider.autoDispose
+    .family<ShopProductsPagedNotifier, PagedListState<ProductModel>, String>(
+  (ref, shopId) => ShopProductsPagedNotifier(ref, shopId),
+);
 
 @riverpod
 Future<ProductModel> product(Ref ref, String productId) {

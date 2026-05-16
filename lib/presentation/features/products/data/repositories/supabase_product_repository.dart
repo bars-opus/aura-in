@@ -38,13 +38,19 @@ class SupabaseProductRepository implements ProductRepository {
   }
 
   @override
-  Future<List<ProductModel>> getShopProducts(String shopId) async {
+  Future<List<ProductModel>> getShopProducts(
+    String shopId, {
+    int limit = 30,
+    int page = 0,
+  }) async {
     try {
+      final from = page * limit;
       final response = await _supabase
           .from('products')
           .select()
           .eq('shop_id', shopId)
-          .order('created_at', ascending: false);
+          .order('created_at', ascending: false)
+          .range(from, from + limit - 1);
 
       return (response as List)
           .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))

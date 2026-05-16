@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
 
 class OrderConfirmationScreen extends ConsumerWidget {
@@ -36,7 +37,7 @@ class OrderConfirmationScreen extends ConsumerWidget {
                 ),
                 SizedBox(height: 24.h),
                 Text(
-                  'Order placed',
+                  MarketplaceStrings.orderPlaced,
                   textAlign: TextAlign.center,
                   style: textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
