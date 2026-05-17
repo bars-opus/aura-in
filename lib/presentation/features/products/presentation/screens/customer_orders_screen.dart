@@ -7,6 +7,7 @@ import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dar
 import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/paginated_list_notifier.dart';
@@ -296,7 +297,9 @@ class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Order cancelled')),
                 );
-              } catch (e) {
+              } catch (e, stack) {
+                MarketplaceLogger.error('cancelOrderByCustomer failed',
+                    error: e, stack: stack);
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Failed to cancel: $e')),

@@ -4,6 +4,7 @@ import 'package:nano_embryo/presentation/features/products/data/exceptions/marke
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/repositories/order_repository.dart';
 import 'package:nano_embryo/presentation/features/products/data/repositories/supabase_order_repository.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/paginated_list_notifier.dart';
 
 // Abstract interface so consumers don't depend on the Supabase impl.
@@ -78,10 +79,14 @@ class OrderNotifier extends StateNotifier<OrderState> {
 
       state = state.copyWith(isLoading: false, lastOrderId: orderId);
       return orderId;
-    } on MarketplaceException catch (e) {
+    } on MarketplaceException catch (e, stack) {
+      MarketplaceLogger.warn('OrderNotifier.createOrder rejected',
+          error: e, stack: stack);
       state = state.copyWith(isLoading: false, error: e.message);
       return null;
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('OrderNotifier.createOrder failed',
+          error: e, stack: stack);
       state = state.copyWith(isLoading: false, error: e.toString());
       return null;
     }
@@ -98,10 +103,14 @@ class OrderNotifier extends StateNotifier<OrderState> {
             reason: reason,
           );
       state = state.copyWith(isLoading: false);
-    } on MarketplaceException catch (e) {
+    } on MarketplaceException catch (e, stack) {
+      MarketplaceLogger.warn('OrderNotifier.raiseDispute rejected',
+          error: e, stack: stack);
       state = state.copyWith(isLoading: false, error: e.message);
       rethrow;
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('OrderNotifier.raiseDispute failed',
+          error: e, stack: stack);
       state = state.copyWith(isLoading: false, error: e.toString());
       rethrow;
     }

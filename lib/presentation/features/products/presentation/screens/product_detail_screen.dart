@@ -8,6 +8,7 @@ import 'package:nano_embryo/presentation/features/products/data/exceptions/marke
 import 'package:nano_embryo/presentation/features/products/data/models/cart_item_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
@@ -82,9 +83,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         await _addToCart(product);
         return;
       }
-    } on MarketplaceException catch (e) {
+    } on MarketplaceException catch (e, stack) {
+      MarketplaceLogger.warn('add to cart rejected',
+          error: e, stack: stack);
       _toast(e.message);
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('add to cart failed',
+          error: e, stack: stack);
       _toast('Failed to add to cart');
     } finally {
       if (mounted) setState(() => _isAddingToCart = false);

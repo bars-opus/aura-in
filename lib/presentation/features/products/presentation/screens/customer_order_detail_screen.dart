@@ -9,6 +9,7 @@ import 'package:nano_embryo/presentation/features/products/data/models/cart_item
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/input_sanitizer.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
@@ -84,13 +85,15 @@ class _CustomerOrderDetailScreenState
           : '$added added · $skipped unavailable';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       if (added > 0) context.pushNamed('cart');
-    } on MarketplaceException catch (e) {
+    } on MarketplaceException catch (e, stack) {
+      MarketplaceLogger.warn('reorder rejected', error: e, stack: stack);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(e.message)));
       }
-    } catch (_) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('reorder failed', error: e, stack: stack);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -156,13 +159,17 @@ class _CustomerOrderDetailScreenState
         const SnackBar(content: Text('Issue reported. The shop will respond.')),
       );
       ref.invalidate(orderWithItemsProvider(widget.orderId));
-    } on MarketplaceException catch (e) {
+    } on MarketplaceException catch (e, stack) {
+      MarketplaceLogger.warn('reportIssue rejected',
+          error: e, stack: stack);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.message)),
         );
       }
-    } catch (_) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('reportIssue failed',
+          error: e, stack: stack);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to report issue')),
@@ -675,7 +682,10 @@ class _CustomerOrderDetailScreenState
                       );
                       Navigator.pop(context);
                     }
-                  } catch (e) {
+                  } catch (e, stack) {
+                    MarketplaceLogger.error(
+                        'cancel order (from detail) failed',
+                        error: e, stack: stack);
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Failed to cancel: $e')),

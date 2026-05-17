@@ -8,6 +8,7 @@ import 'package:nano_embryo/core/widgets/app_text_form_field.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/input_sanitizer.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/connectivity_provider.dart';
@@ -92,7 +93,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         if (!mounted) return;
         context.pushReplacementNamed('orderConfirmation', extra: orderId);
       }
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('placeOrder failed', error: e, stack: stack);
       if (mounted) {
         ScaffoldMessenger.of(
           context,

@@ -4,6 +4,7 @@ import 'package:nano_embryo/presentation/features/products/data/exceptions/marke
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/repositories/product_repository.dart';
 import 'package:nano_embryo/presentation/features/products/data/repositories/supabase_product_repository.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/paginated_list_notifier.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -109,9 +110,13 @@ class ProductFormNotifier extends _$ProductFormNotifier {
         success: true,
         createdProduct: product,
       );
-    } on MarketplaceException catch (e) {
+    } on MarketplaceException catch (e, stack) {
+      MarketplaceLogger.warn('ProductFormNotifier rejected',
+          error: e, stack: stack);
       state = state.copyWith(isLoading: false, error: e.message);
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('ProductFormNotifier failed',
+          error: e, stack: stack);
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
@@ -144,9 +149,13 @@ class ProductFormNotifier extends _$ProductFormNotifier {
         success: true,
         updatedProduct: product,
       );
-    } on MarketplaceException catch (e) {
+    } on MarketplaceException catch (e, stack) {
+      MarketplaceLogger.warn('ProductFormNotifier rejected',
+          error: e, stack: stack);
       state = state.copyWith(isLoading: false, error: e.message);
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('ProductFormNotifier failed',
+          error: e, stack: stack);
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
@@ -156,9 +165,13 @@ class ProductFormNotifier extends _$ProductFormNotifier {
     try {
       await ref.read(productRepositoryProvider).deleteProduct(productId);
       state = state.copyWith(isLoading: false, success: true);
-    } on MarketplaceException catch (e) {
+    } on MarketplaceException catch (e, stack) {
+      MarketplaceLogger.warn('ProductFormNotifier rejected',
+          error: e, stack: stack);
       state = state.copyWith(isLoading: false, error: e.message);
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('ProductFormNotifier failed',
+          error: e, stack: stack);
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }

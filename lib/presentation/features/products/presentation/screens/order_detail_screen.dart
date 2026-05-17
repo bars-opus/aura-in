@@ -9,6 +9,7 @@ import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dar
 import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
@@ -56,14 +57,18 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
           SnackBar(content: Text('Order ${_getStatusAction(newStatus)}')),
         );
       }
-    } on MarketplaceException catch (e) {
+    } on MarketplaceException catch (e, stack) {
+      MarketplaceLogger.warn('updateStatus rejected',
+          error: e, stack: stack);
       if (mounted) {
         setState(() => _optimisticStatus = null); // revert
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(e.message)));
       }
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('updateStatus failed',
+          error: e, stack: stack);
       if (mounted) {
         setState(() => _optimisticStatus = null); // revert
         ScaffoldMessenger.of(

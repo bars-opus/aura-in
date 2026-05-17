@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/repositories/product_repository.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/retry_policy.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/marketplace_providers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -45,17 +47,21 @@ class SupabaseProductRepository implements ProductRepository {
   }) async {
     try {
       final from = page * limit;
-      final response = await _supabase
-          .from('products')
-          .select()
-          .eq('shop_id', shopId)
-          .order('created_at', ascending: false)
-          .range(from, from + limit - 1);
+      final response = await RetryPolicy.run(
+        () => _supabase
+            .from('products')
+            .select()
+            .eq('shop_id', shopId)
+            .order('created_at', ascending: false)
+            .range(from, from + limit - 1),
+        operationName: 'getShopProducts',
+      );
 
       return (response as List)
           .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
           .toList();
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('getShopProducts failed', error: e, stack: stack);
       throw mapToMarketplaceException(e, 'Failed to load products');
     }
   }
@@ -71,50 +77,60 @@ class SupabaseProductRepository implements ProductRepository {
     required int page,
   }) async {
     try {
-      var query = _supabase
-          .from('products')
-          .select('''
-            *,
-            shops!inner (
-              id,
-              shop_name,
-              verified,
-              luxury_level,
-              average_rating
-            )
-          ''')
-          .eq('is_active', true);
+      // Rebuild the query inside the retry lambda — each attempt gets a
+      // fresh FilterBuilder and a fresh network request.
+      final response = await RetryPolicy.run(
+        () {
+          var query = _supabase
+              .from('products')
+              .select('''
+                *,
+                shops!inner (
+                  id,
+                  shop_name,
+                  verified,
+                  luxury_level,
+                  average_rating
+                )
+              ''')
+              .eq('is_active', true);
 
-      if (category != null && category.isNotEmpty) {
-        query = query.eq('category', category);
-      }
-      if (minPrice != null) query = query.gte('price', minPrice);
-      if (maxPrice != null) query = query.lte('price', maxPrice);
-      if (showVerifiedOnly) query = query.eq('shops.verified', true);
+          if (category != null && category.isNotEmpty) {
+            query = query.eq('category', category);
+          }
+          if (minPrice != null) query = query.gte('price', minPrice);
+          if (maxPrice != null) query = query.lte('price', maxPrice);
+          if (showVerifiedOnly) query = query.eq('shops.verified', true);
 
-      PostgrestTransformBuilder filteredQuery;
-      switch (sortBy ?? SortOption.recent) {
-        case SortOption.recent:
-          filteredQuery = query.order('created_at', ascending: false);
-          break;
-        case SortOption.priceLowHigh:
-          filteredQuery = query.order('price', ascending: true);
-          break;
-        case SortOption.priceHighLow:
-          filteredQuery = query.order('price', ascending: false);
-          break;
-        case SortOption.popular:
-          filteredQuery = query.order('total_orders_count', ascending: false);
-          break;
-      }
+          PostgrestTransformBuilder filteredQuery;
+          switch (sortBy ?? SortOption.recent) {
+            case SortOption.recent:
+              filteredQuery = query.order('created_at', ascending: false);
+              break;
+            case SortOption.priceLowHigh:
+              filteredQuery = query.order('price', ascending: true);
+              break;
+            case SortOption.priceHighLow:
+              filteredQuery = query.order('price', ascending: false);
+              break;
+            case SortOption.popular:
+              filteredQuery =
+                  query.order('total_orders_count', ascending: false);
+              break;
+          }
 
-      final from = page * limit;
-      final response = await filteredQuery.range(from, from + limit - 1);
+          final from = page * limit;
+          return filteredQuery.range(from, from + limit - 1);
+        },
+        operationName: 'getMarketplaceProducts',
+      );
 
       return (response as List)
           .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
           .toList();
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('getMarketplaceProducts failed',
+          error: e, stack: stack);
       throw mapToMarketplaceException(e, 'Failed to load marketplace');
     }
   }
@@ -125,25 +141,30 @@ class SupabaseProductRepository implements ProductRepository {
     int limit = 20,
   }) async {
     try {
-      final response = await _supabase
-          .from('products')
-          .select('''
-            *,
-            shops!inner (
-              id,
-              shop_name,
-              verified,
-              average_rating
-            )
-          ''')
-          .eq('is_active', true)
-          .textSearch('search_vector', query)
-          .limit(limit);
+      final response = await RetryPolicy.run(
+        () => _supabase
+            .from('products')
+            .select('''
+              *,
+              shops!inner (
+                id,
+                shop_name,
+                verified,
+                average_rating
+              )
+            ''')
+            .eq('is_active', true)
+            .textSearch('search_vector', query)
+            .limit(limit),
+        operationName: 'searchProducts',
+      );
 
       return (response as List)
           .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
           .toList();
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('searchProducts failed',
+          error: e, stack: stack);
       throw mapToMarketplaceException(e, 'Failed to search products');
     }
   }
@@ -151,17 +172,22 @@ class SupabaseProductRepository implements ProductRepository {
   @override
   Future<List<ProductModel>> getShopProductsForCustomer(String shopId) async {
     try {
-      final response = await _supabase
-          .from('products')
-          .select()
-          .eq('shop_id', shopId)
-          .eq('is_active', true)
-          .order('created_at', ascending: false);
+      final response = await RetryPolicy.run(
+        () => _supabase
+            .from('products')
+            .select()
+            .eq('shop_id', shopId)
+            .eq('is_active', true)
+            .order('created_at', ascending: false),
+        operationName: 'getShopProductsForCustomer',
+      );
 
       return (response as List)
           .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
           .toList();
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('getShopProductsForCustomer failed',
+          error: e, stack: stack);
       throw mapToMarketplaceException(e, 'Failed to load shop products');
     }
   }
@@ -169,18 +195,21 @@ class SupabaseProductRepository implements ProductRepository {
   @override
   Future<ProductModel> getProduct(String productId) async {
     try {
-      final response = await _supabase
-          .from('products')
-          .select('''
-            *,
-            shops!inner (
-              id,
-              shop_name,
-              verified
-            )
-          ''')
-          .eq('id', productId)
-          .maybeSingle();
+      final response = await RetryPolicy.run(
+        () => _supabase
+            .from('products')
+            .select('''
+              *,
+              shops!inner (
+                id,
+                shop_name,
+                verified
+              )
+            ''')
+            .eq('id', productId)
+            .maybeSingle(),
+        operationName: 'getProduct',
+      );
 
       if (response == null) {
         throw ProductNotFoundException(productId);
@@ -188,7 +217,8 @@ class SupabaseProductRepository implements ProductRepository {
       return ProductModel.fromJson(response);
     } on ProductNotFoundException {
       rethrow;
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('getProduct failed', error: e, stack: stack);
       throw mapToMarketplaceException(e, 'Failed to load product');
     }
   }
@@ -220,7 +250,8 @@ class SupabaseProductRepository implements ProductRepository {
           .single();
 
       return ProductModel.fromJson(response);
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('createProduct failed', error: e, stack: stack);
       throw mapToMarketplaceException(e, 'Failed to create product');
     }
   }
@@ -256,7 +287,8 @@ class SupabaseProductRepository implements ProductRepository {
           .single();
 
       return ProductModel.fromJson(response);
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('updateProduct failed', error: e, stack: stack);
       throw mapToMarketplaceException(e, 'Failed to update product');
     }
   }
@@ -265,7 +297,8 @@ class SupabaseProductRepository implements ProductRepository {
   Future<void> deleteProduct(String productId) async {
     try {
       await _supabase.from('products').delete().eq('id', productId);
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('deleteProduct failed', error: e, stack: stack);
       throw mapToMarketplaceException(e, 'Failed to delete product');
     }
   }
@@ -283,14 +316,18 @@ class SupabaseProductRepository implements ProductRepository {
           '$shopId/$productId/${DateTime.now().millisecondsSinceEpoch}.$ext';
       final storagePath = 'products/$fileName';
 
-      await _supabase.storage
-          .from('product-images')
-          .upload(storagePath, imageFile);
+      await RetryPolicy.run(
+        () => _supabase.storage
+            .from('product-images')
+            .upload(storagePath, imageFile),
+        operationName: 'uploadProductImage',
+      );
 
       return _supabase.storage.from('product-images').getPublicUrl(storagePath);
     } on ProductImageUploadException {
       rethrow;
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('image upload failed', error: e, stack: stack);
       throw ProductImageUploadException(e.toString());
     }
   }
@@ -325,14 +362,18 @@ class SupabaseProductRepository implements ProductRepository {
           '$shopId/$tempId/${DateTime.now().millisecondsSinceEpoch}.$ext';
       final storagePath = 'products/$fileName';
 
-      await _supabase.storage
-          .from('product-images')
-          .upload(storagePath, imageFile);
+      await RetryPolicy.run(
+        () => _supabase.storage
+            .from('product-images')
+            .upload(storagePath, imageFile),
+        operationName: 'uploadProductImage',
+      );
 
       return _supabase.storage.from('product-images').getPublicUrl(storagePath);
     } on ProductImageUploadException {
       rethrow;
-    } catch (e) {
+    } catch (e, stack) {
+      MarketplaceLogger.error('image upload failed', error: e, stack: stack);
       throw ProductImageUploadException(e.toString());
     }
   }
