@@ -1,6 +1,8 @@
 // lib/features/booking/presentation/controllers/booking_creation_controller.dart
 
 import 'package:nano_embryo/presentation/features/freelancer/presentation/providers/freelancer_details_provider.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_logger.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_sanitizer.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/providers/is_freelancer_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/services/notification_service.dart';
 import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_transaction_model.dart';
@@ -13,15 +15,23 @@ import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_
 
 part 'booking_creation_controller.g.dart';
 
-// Add a helper provider for notification service
+/// Provided by the app bootstrap. Throws if unwired so a missing
+/// integration surfaces during development instead of at runtime.
 final notificationServiceProvider = Provider<NotificationService>((ref) {
-  // This will be provided by your notification module
   throw UnimplementedError(
-    'Make sure notificationServiceProvider is available',
+    'notificationServiceProvider must be overridden at app bootstrap',
   );
 });
 
-/// State class for booking creation
+/// Deposit percentage of the total amount. Pinned to 30 % to match the
+/// server-side default; if shops gain per-shop deposit configuration
+/// later, this constant moves into the shop model.
+const double _kDepositPercent = 0.30;
+
+/// Platform fee charged per booking. Currently flat; will move to a
+/// configurable column on `shops` once payments wire that up.
+const double _kPlatformFee = 2.0;
+
 class BookingCreationState {
   final bool isSubmitting;
   final bool isSuccess;
@@ -69,34 +79,21 @@ class BookingCreationState {
 
 /// Controller responsible for creating bookings after payment.
 ///
-/// Handles the final booking submission with proper error handling,
-/// idempotency, and race condition management.
-///
-/// ## Features
-/// - Idempotency key generation to prevent duplicate bookings
-/// - Comprehensive error handling for all booking exceptions
-/// - Multi-service booking support
-/// - Post-submission state management
-///
-/// ## Usage
-/// ```dart
-/// // After successful payment
-/// ref.read(bookingCreationControllerProvider.notifier)
-///    .createBooking(userId, shopId);
-/// ```
+/// Pre-validates the draft client-side (services selected, time slots
+/// assigned, group quantities within max_clients), then posts to the
+/// server through a single idempotency key. The key is generated once
+/// in `build()` and reused across retries; the underlying RPC dedupes
+/// on it.
 @riverpod
 class BookingCreationController extends _$BookingCreationController {
   @override
   BookingCreationState build() {
-    // Generate idempotency key at start
-    final idempotencyKey = const Uuid().v4();
-
     return BookingCreationState.initial().copyWith(
-      idempotencyKey: idempotencyKey,
+      idempotencyKey: const Uuid().v4(),
     );
   }
 
-  /// Creates a booking after successful payment
+  /// Creates a booking after successful payment.
   Future<BookingModel?> createBooking({
     required String userId,
     required String shopId,
@@ -107,83 +104,48 @@ class BookingCreationController extends _$BookingCreationController {
     required String clientName,
     required String shopName,
   }) async {
-    // Prevent double submission
-    if (state.isSubmitting || state.isSuccess) {
-      return state.createdBooking;
-    }
-
+    if (state.isSubmitting || state.isSuccess) return state.createdBooking;
     state = state.copyWith(isSubmitting: true, error: null);
 
     try {
-      // Gather all selections
-      // Gather all selections
       final services = ref.read(selectedServicesProvider);
       final workers = ref.read(selectedWorkersProvider);
       final date = ref.read(selectedDateProvider);
       final quantities = ref.read(serviceQuantityProvider);
-
-      // NEW: Get time slots map and view mode
       final timeSlots = ref.read(selectedTimeSlotsProvider);
       final isCombinedView = ref.read(isCombinedViewProvider);
 
-      // Validate that all services have time slots
-      if (isCombinedView) {
-        // In combined view, we need at least one slot
-        if (timeSlots.isEmpty) {
-          throw BookingValidationException({
-            'timeSlot': 'No time slot selected',
-          });
-        }
-      } else {
-        // In regular view, each service needs its own slot
-        for (var service in services) {
-          if (!timeSlots.containsKey(service.id)) {
-            throw BookingValidationException({
-              service.id: 'No time slot selected for ${service.serviceName}',
-            });
-          }
-        }
-      }
+      _validateSelections(services, timeSlots, quantities, isCombinedView);
+      _validateNoDuplicateWorkers(workers);
 
-      // Calculate totals with quantities
       final totalAmount = _calculateTotalAmount(services, quantities);
-      final depositAmount = totalAmount * 0.3;
+      final depositAmount = totalAmount * _kDepositPercent;
 
-      // We'll create multiple bookings or a single booking with multiple services
-      // For now, we'll create one booking with all services
+      // start_time = earliest selected; end_time = latest selected.
+      // The previous version used `timeSlots.values.first` which broke
+      // for non-overlapping multi-service bookings — the earliest slot
+      // by start_time is the right anchor.
+      final sortedSlots = timeSlots.values.toList()
+        ..sort((a, b) => a.startTime.compareTo(b.startTime));
+      final firstSlot = sortedSlots.first;
+      final actualEndTime = _latestActualEnd(sortedSlots);
+      final endTime = _latestEnd(sortedSlots);
 
-      // Use the first time slot as reference for the booking times
-      // (In reality, you might need to handle overlapping times)
-      final firstSlot = timeSlots.values.first;
-
-      // Calculate actual end time with buffer (using the longest slot if multiple)
-      final actualEndTime = _calculateActualEndTimeForMultipleSlots(
-        timeSlots.values.toList(),
-        services,
-        quantities,
-      );
-
-      // Create booking model
       final booking = BookingModel(
         id: const Uuid().v4(),
         userId: userId,
         shopId: shopId,
         bookingDate: date,
-        startTime: firstSlot.startTime, // Use earliest start time
-        endTime: _getLatestEndTime(
-          timeSlots.values.toList(),
-        ), // Use latest end time
+        startTime: firstSlot.startTime,
+        endTime: endTime,
         actualEndTime: actualEndTime,
         status: BookingStatus.confirmed,
-        // paymentIntentId != null
-        //     ? BookingStatus.confirmed
-        //     : BookingStatus.pending,
         totalAmount: totalAmount,
         paymentStatus:
             paymentIntentId != null ? PaymentStatus.paid : PaymentStatus.unpaid,
         paymentIntentId: paymentIntentId,
-        depositAmount: depositAmount ?? 0,
-        platformFee: 2,
+        depositAmount: depositAmount,
+        platformFee: _kPlatformFee,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         latitude: latitude,
@@ -191,16 +153,14 @@ class BookingCreationController extends _$BookingCreationController {
         shopAddress: shopAddress,
       );
 
-      // Create booking services (this already handles per-service data)
       final bookingServices = _createBookingServices(
         booking.id,
         services,
         workers,
         quantities,
-        timeSlots, // PASS THE TIME SLOTS!
+        timeSlots,
       );
 
-      // Submit to repository
       final repository = ref.read(bookingRepositoryProvider);
       final createdBooking = await repository.createBooking(
         booking: booking,
@@ -208,7 +168,6 @@ class BookingCreationController extends _$BookingCreationController {
         idempotencyKey: state.idempotencyKey,
       );
 
-      //  SEND NOTIFICATIONS
       await _sendBookingNotifications(
         createdBooking,
         services,
@@ -218,285 +177,34 @@ class BookingCreationController extends _$BookingCreationController {
         shopName,
       );
 
-      // Update state on success
       state = state.copyWith(
         isSubmitting: false,
         isSuccess: true,
         createdBooking: createdBooking,
       );
 
-      // Invalidate relevant providers
       _invalidateProviders();
       await _addWalletTransaction(createdBooking);
 
       return createdBooking;
-    } on SlotUnavailableException catch (e) {
+    } on BookingException catch (e) {
       state = state.copyWith(
         isSubmitting: false,
-        error:
-            'The selected time slot is no longer available. Please choose another.',
+        error: _userFacingMessage(e),
       );
+      BookingLogger.warn('createBooking domain error', error: e);
       return null;
-    } on WorkerUnavailableException catch (e) {
+    } catch (e, stack) {
       state = state.copyWith(
         isSubmitting: false,
-        error: 'The selected worker is no longer available at this time.',
+        error: 'We could not create your booking. Please try again.',
       );
-      return null;
-    } on SlotFullException catch (e) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: 'This time slot has reached maximum capacity.',
-      );
-      return null;
-    } on OutsideBusinessHoursException catch (e) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: 'This time is outside the shop\'s business hours.',
-      );
-      return null;
-    } on BookingConflictException catch (e) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: 'This booking conflicted with another. Please try again.',
-      );
-      return null;
-    } catch (e, stackTrace) {
-      if (e is DatabaseBookingException) {
-      } else {}
-      state = state.copyWith(
-        isSubmitting: false,
-        error: 'Failed to create booking: ${e.toString()}',
-      );
+      BookingLogger.error('createBooking unexpected error', error: e, stack: stack);
       return null;
     }
   }
 
-  // ============================================
-  // NEW METHOD: Send notifications for booking
-  // ============================================
-
-  /// Send notifications for a newly created booking
-  Future<void> _sendBookingNotifications(
-    BookingModel booking,
-    List<AppointmentSlotDTO> services,
-    String userId,
-    String shopOwnerId,
-    String clientName,
-    String shopName,
-  ) async {
-    try {
-      final notificationService = ref.read(notificationServiceProvider);
-
-      // Get shop owner ID (you may need to fetch this)
-
-      // Get client name (you may need to fetch this)
-
-      // Get service names
-      final serviceNames = services.map((s) => s.serviceName).join(', ');
-
-      // 1. Send immediate notification to shop
-      await notificationService.notifyShopNewBooking(
-        shopOwnerId: shopOwnerId,
-        userName: clientName,
-        serviceNames: serviceNames,
-        bookingId: booking.id,
-        shopId: booking.shopId,
-        startTime: booking.startTime,
-      );
-
-      // 2. Schedule reminders for client and shop
-      final appointmentDateTime = NotificationDateTimeUtils.combineDateAndTime(
-        booking.bookingDate,
-        booking.startTime,
-      );
-
-      // Calculate total duration from services
-      final totalDuration = _calculateTotalDuration(services);
-
-      final reminderParams = ScheduleBookingRemindersParams(
-        bookingId: booking.id,
-        userId: userId,
-        shopId: booking.shopId,
-        shopOwnerId: shopOwnerId,
-        userName: clientName,
-        shopName: shopName,
-        serviceNames: [serviceNames],
-        bookingDate: booking.bookingDate,
-        startTime: booking.startTime,
-        duration: totalDuration,
-      );
-
-      await notificationService.scheduleBookingReminders(reminderParams);
-
-      // print('✅ Notifications sent for booking: ${booking.id}');
-    } catch (e) {
-      // Don't rethrow - notification failure shouldn't break booking flow
-      print('❌ Failed to send notifications: $e');
-    }
-  }
-
-  /// Calculate total duration from services
-  Duration _calculateTotalDuration(List<AppointmentSlotDTO> services) {
-    Duration total = Duration.zero;
-    for (final service in services) {
-      total += DurationUtils.parse(service.duration);
-    }
-    return total;
-  }
-
-  // After booking is successfully created and confirmed
-  // After booking is successfully created and confirmed
-  Future<void> _addWalletTransaction(BookingModel booking) async {
-    try {
-      final walletRepository = ref.read(walletRepositoryProvider);
-
-      // Add deposit transaction
-      await walletRepository.addTransaction(
-        shopId: booking.shopId,
-        amount: booking.depositAmount,
-        type: TransactionType.deposit,
-        bookingId: booking.id,
-        description: 'Deposit for booking #${booking.id.substring(0, 8)}',
-      );
-
-      print('Wallet transaction added for booking ${booking.id}');
-    } catch (e) {
-      // Log error but don't fail the booking
-
-      // You might want to send this to a monitoring service
-    }
-  }
-
-  // Helper method to get the latest end time from multiple slots
-  DateTime _getLatestEndTime(List<TimeSlotModel> slots) {
-    if (slots.isEmpty) return DateTime.now();
-    return slots.reduce((a, b) => a.endTime.isAfter(b.endTime) ? a : b).endTime;
-  }
-
-  // Helper to calculate actual end time for multiple slots
-  DateTime _calculateActualEndTimeForMultipleSlots(
-    List<TimeSlotModel> slots,
-    List<AppointmentSlotDTO> services,
-    Map<String, int> quantities,
-  ) {
-    if (slots.isEmpty) return DateTime.now();
-    // Use the latest actualEndTime from all slots
-    return slots
-        .reduce((a, b) => a.actualEndTime.isAfter(b.actualEndTime) ? a : b)
-        .actualEndTime;
-  }
-
-  double _calculateTotalAmount(
-    List<AppointmentSlotDTO> services,
-    Map<String, int> quantities,
-  ) {
-    return services.fold<double>(
-      0,
-      (sum, service) => sum + (service.price * (quantities[service.id] ?? 1)),
-    );
-  }
-
-  /// Validates that all necessary selections are made
-  void _validateSelections(
-    List<AppointmentSlotDTO> services,
-    TimeSlotModel? timeSlot,
-    Map<String, int> quantities,
-  ) {
-    if (services.isEmpty) {
-      throw BookingValidationException({'services': 'No services selected'});
-    }
-
-    if (timeSlot == null) {
-      throw BookingValidationException({'timeSlot': 'No time slot selected'});
-    }
-
-    // Validate quantities don't exceed max clients
-    for (var service in services) {
-      final quantity = quantities[service.id] ?? 1;
-      if (quantity > service.maxClients) {
-        throw BookingValidationException({
-          service.id:
-              'Quantity exceeds maximum allowed (${service.maxClients})',
-        });
-      }
-    }
-  }
-
-  /// Creates booking service models from selections
-
-  List<BookingServiceModel> _createBookingServices(
-    String bookingId,
-    List<AppointmentSlotDTO> services,
-    Map<String, List<Map<String, String?>>> workers,
-    Map<String, int> quantities,
-    Map<String, TimeSlotModel> timeSlots, // NEW PARAMETER
-  ) {
-    final List<BookingServiceModel> allServices = [];
-
-    for (var service in services) {
-      final quantity = quantities[service.id] ?? 1;
-      final workerEntries =
-          workers[service.id] ??
-          List.generate(quantity, (_) => {'id': null, 'name': null});
-      final duration = DurationUtils.parse(service.duration);
-      final timeSlot = timeSlots[service.id]; // Get the slot for this service
-
-      for (int i = 0; i < quantity; i++) {
-        final workerEntry =
-            workerEntries.length > i
-                ? workerEntries[i]
-                : {'id': null, 'name': null};
-
-        allServices.add(
-          BookingServiceModel(
-            id: const Uuid().v4(),
-            bookingId: bookingId,
-            slotId: service.id,
-            workerId: workerEntry['id'],
-            priceAtBooking: service.price,
-            durationMinutes: duration.inMinutes,
-            createdAt: DateTime.now(),
-            serviceName: service.serviceName,
-            workerName: workerEntry['name'],
-            // You might want to store the actual time per service
-            startTime: timeSlot?.startTime ?? null,
-            // endTime: timeSlot?.endTime,
-          ),
-        );
-      }
-    }
-
-    return allServices;
-  }
-
-  /// Invalidates providers after successful booking
-  void _invalidateProviders() {
-    ref.invalidate(selectedServicesProvider);
-    ref.invalidate(selectedWorkersProvider);
-    ref.invalidate(selectedDateProvider);
-    ref.invalidate(selectedTimeSlotsProvider);
-    ref.invalidate(slotGenerationControllerProvider);
-    // Also invalidate user's booking list if needed
-    // ref.invalidate(userBookingsProvider);
-  }
-
-  /// Resets the controller for a new booking
-  void reset() {
-    // Generate new idempotency key
-    final newKey = const Uuid().v4();
-
-    state = BookingCreationState.initial().copyWith(idempotencyKey: newKey);
-  }
-
-  /// Clears any error state
-  void clearError() {
-    state = state.copyWith(error: null);
-  }
-
-  // Add this method to the existing BookingCreationController class
-
-  /// Creates a booking for a freelancer after successful payment
+  /// Creates a booking for a freelancer after successful payment.
   Future<BookingModel?> createFreelancerBooking({
     required String userId,
     required String freelancerId,
@@ -506,15 +214,10 @@ class BookingCreationController extends _$BookingCreationController {
     required int travelRadiusKm,
     required String clientName,
   }) async {
-    // Prevent double submission
-    if (state.isSubmitting || state.isSuccess) {
-      return state.createdBooking;
-    }
-
+    if (state.isSubmitting || state.isSuccess) return state.createdBooking;
     state = state.copyWith(isSubmitting: true, error: null);
 
     try {
-      // Gather selections
       final services = ref.read(selectedServicesProvider);
       final date = ref.read(selectedDateProvider);
       final quantities = ref.read(serviceQuantityProvider);
@@ -522,41 +225,23 @@ class BookingCreationController extends _$BookingCreationController {
       final isCombinedView = ref.read(isCombinedViewProvider);
       final serviceAddress = ref.read(selectedAddressProvider);
 
-      // Validate selections
-      if (services.isEmpty) {
-        throw BookingValidationException({'services': 'No services selected'});
-      }
+      _validateSelections(services, timeSlots, quantities, isCombinedView);
 
-      if (isCombinedView) {
-        if (timeSlots.isEmpty) {
-          throw BookingValidationException({
-            'timeSlot': 'No time slot selected',
-          });
-        }
-      } else {
-        for (var service in services) {
-          if (!timeSlots.containsKey(service.id)) {
-            throw BookingValidationException({
-              service.id: 'No time slot selected for ${service.serviceName}',
-            });
-          }
-        }
-      }
-
-      // Validate address for traveling freelancers
-      final freelancerDetails = await ref.read(
-        freelancerDetailsProvider(freelancerId).future,
-      );
+      final freelancerDetails =
+          await ref.read(freelancerDetailsProvider(freelancerId).future);
       if (freelancerDetails?.canTravel == true && serviceAddress == null) {
-        throw BookingValidationException({
-          'address': 'Service address required',
-        });
+        throw BookingValidationException({'address': 'Service address required'});
       }
 
-      // Validate distance if address provided
       if (serviceAddress != null &&
           serviceAddress.latitude != null &&
           serviceAddress.longitude != null) {
+        if (!BookingSanitizer.isValidCoordinate(
+          serviceAddress.latitude,
+          serviceAddress.longitude,
+        )) {
+          throw BookingValidationException({'address': 'Invalid service location'});
+        }
         final locationService = ref.read(locationServiceProvider);
         final distance = locationService.calculateDistance(
           freelancerLat,
@@ -564,7 +249,6 @@ class BookingCreationController extends _$BookingCreationController {
           serviceAddress.latitude!,
           serviceAddress.longitude!,
         );
-
         if (distance > travelRadiusKm) {
           throw BookingValidationException({
             'address':
@@ -573,34 +257,27 @@ class BookingCreationController extends _$BookingCreationController {
         }
       }
 
-      // Calculate totals
       final totalAmount = _calculateTotalAmount(services, quantities);
-      final depositAmount = totalAmount * 0.3;
+      final depositAmount = totalAmount * _kDepositPercent;
 
-      // Get the first time slot as reference
-      final firstSlot = timeSlots.values.first;
+      final sortedSlots = timeSlots.values.toList()
+        ..sort((a, b) => a.startTime.compareTo(b.startTime));
+      final firstSlot = sortedSlots.first;
+      final actualEndTime = _latestActualEnd(sortedSlots);
 
-      // Calculate actual end time with buffer
-      final actualEndTime = _calculateActualEndTimeForMultipleSlots(
-        timeSlots.values.toList(),
-        services,
-        quantities,
-      );
-
-      // Create booking model with freelancer as shop_id
       final booking = BookingModel(
         id: const Uuid().v4(),
         userId: userId,
-        shopId: freelancerId, // Freelancer ID stored in shop_id
+        shopId: freelancerId,
         bookingDate: date,
         startTime: firstSlot.startTime,
-        endTime: _getLatestEndTime(timeSlots.values.toList()),
+        endTime: _latestEnd(sortedSlots),
         actualEndTime: actualEndTime,
         status: BookingStatus.confirmed,
         totalAmount: totalAmount,
         paymentStatus: PaymentStatus.paid,
         depositAmount: depositAmount,
-        platformFee: 2,
+        platformFee: _kPlatformFee,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         latitude: serviceAddress?.latitude ?? freelancerLat,
@@ -608,7 +285,6 @@ class BookingCreationController extends _$BookingCreationController {
         shopAddress: serviceAddress?.fullAddress ?? '',
       );
 
-      // Create booking services (worker_id = null for freelancers)
       final bookingServices = _createFreelancerBookingServices(
         booking.id,
         services,
@@ -616,7 +292,6 @@ class BookingCreationController extends _$BookingCreationController {
         timeSlots,
       );
 
-      // Submit to repository
       final repository = ref.read(bookingRepositoryProvider);
       final createdBooking = await repository.createFreelancerBooking(
         booking: booking,
@@ -633,60 +308,281 @@ class BookingCreationController extends _$BookingCreationController {
         freelancerName,
       );
 
-      // Update state
       state = state.copyWith(
         isSubmitting: false,
         isSuccess: true,
         createdBooking: createdBooking,
       );
-
-      // Invalidate providers
       _invalidateProviders();
-
       return createdBooking;
-    } on SlotUnavailableException catch (e) {
+    } on BookingException catch (e) {
       state = state.copyWith(
         isSubmitting: false,
-        error:
-            'The selected time slot is no longer available. Please choose another.',
+        error: _userFacingMessage(e),
       );
+      BookingLogger.warn('createFreelancerBooking domain error', error: e);
       return null;
-    } on BookingConflictException catch (e) {
+    } catch (e, stack) {
       state = state.copyWith(
         isSubmitting: false,
-        error: 'This booking conflicted with another. Please try again.',
+        error: 'We could not create your booking. Please try again.',
       );
-      return null;
-    } catch (e) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: 'Failed to create booking: ${e.toString()}',
+      BookingLogger.error(
+        'createFreelancerBooking unexpected error',
+        error: e,
+        stack: stack,
       );
       return null;
     }
   }
 
-  /// Creates booking service models for freelancer (no worker assignment)
+  /// Re-throws a BookingValidationException if anything in the draft
+  /// would make the RPC unhappy. Called from both create paths so they
+  /// agree on what "valid" means.
+  void _validateSelections(
+    List<AppointmentSlotDTO> services,
+    Map<String, TimeSlotModel> timeSlots,
+    Map<String, int> quantities,
+    bool isCombinedView,
+  ) {
+    if (services.isEmpty) {
+      throw BookingValidationException({'services': 'No services selected'});
+    }
+    if (isCombinedView) {
+      if (timeSlots.isEmpty) {
+        throw BookingValidationException({'timeSlot': 'No time slot selected'});
+      }
+    } else {
+      for (final service in services) {
+        if (!timeSlots.containsKey(service.id)) {
+          throw BookingValidationException({
+            service.id: 'No time slot selected for ${service.serviceName}',
+          });
+        }
+      }
+    }
+    for (final service in services) {
+      final qty = quantities[service.id] ?? 1;
+      if (qty < 1) {
+        throw BookingValidationException({
+          service.id: 'Invalid quantity for ${service.serviceName}',
+        });
+      }
+      if (qty > service.maxClients) {
+        throw BookingValidationException({
+          service.id:
+              'Quantity exceeds maximum allowed (${service.maxClients})',
+        });
+      }
+    }
+  }
+
+  /// Distinct-worker check inside a single booking. The server enforces
+  /// this too via a partial unique index, but failing early avoids
+  /// burning the rate-limit budget on a doomed submission.
+  void _validateNoDuplicateWorkers(
+    Map<String, List<Map<String, String?>>> workers,
+  ) {
+    for (final entry in workers.entries) {
+      final seen = <String>{};
+      for (final w in entry.value) {
+        final id = w['id'];
+        if (id == null) continue;
+        if (!seen.add(id)) {
+          throw BookingValidationException({
+            entry.key: 'The same worker cannot be assigned to multiple seats',
+          });
+        }
+      }
+    }
+  }
+
+  /// Translates a domain exception into a single-line message safe to
+  /// show to the user. Never leaks raw exception text.
+  String _userFacingMessage(BookingException e) {
+    if (e is SlotUnavailableException) {
+      return 'The selected time slot is no longer available. Please choose another.';
+    }
+    if (e is WorkerUnavailableException) {
+      return 'The selected worker is no longer available at this time.';
+    }
+    if (e is SlotFullException) {
+      return 'This time slot has reached maximum capacity.';
+    }
+    if (e is OutsideBusinessHoursException) {
+      return 'This time is outside the shop\'s business hours.';
+    }
+    if (e is BookingConflictException) {
+      return 'This booking conflicted with another. Please review and try again.';
+    }
+    if (e is BookingValidationException) {
+      return e.validationErrors.values.first;
+    }
+    return 'Booking failed. Please try again.';
+  }
+
+  Future<void> _sendBookingNotifications(
+    BookingModel booking,
+    List<AppointmentSlotDTO> services,
+    String userId,
+    String shopOwnerId,
+    String clientName,
+    String shopName,
+  ) async {
+    try {
+      final notificationService = ref.read(notificationServiceProvider);
+      final serviceNames = services.map((s) => s.serviceName).join(', ');
+
+      await notificationService.notifyShopNewBooking(
+        shopOwnerId: shopOwnerId,
+        userName: clientName,
+        serviceNames: serviceNames,
+        bookingId: booking.id,
+        shopId: booking.shopId,
+        startTime: booking.startTime,
+      );
+
+      NotificationDateTimeUtils.combineDateAndTime(
+        booking.bookingDate,
+        booking.startTime,
+      );
+
+      final totalDuration = _calculateTotalDuration(services);
+
+      final reminderParams = ScheduleBookingRemindersParams(
+        bookingId: booking.id,
+        userId: userId,
+        shopId: booking.shopId,
+        shopOwnerId: shopOwnerId,
+        userName: clientName,
+        shopName: shopName,
+        serviceNames: [serviceNames],
+        bookingDate: booking.bookingDate,
+        startTime: booking.startTime,
+        duration: totalDuration,
+      );
+
+      await notificationService.scheduleBookingReminders(reminderParams);
+    } catch (e, stack) {
+      BookingLogger.warn(
+        'failed to send booking notifications (booking still succeeded)',
+        error: e,
+        stack: stack,
+      );
+    }
+  }
+
+  Duration _calculateTotalDuration(List<AppointmentSlotDTO> services) {
+    return services.fold<Duration>(
+      Duration.zero,
+      (acc, s) => acc + DurationUtils.parse(s.duration),
+    );
+  }
+
+  Future<void> _addWalletTransaction(BookingModel booking) async {
+    try {
+      final walletRepository = ref.read(walletRepositoryProvider);
+      await walletRepository.addTransaction(
+        shopId: booking.shopId,
+        amount: booking.depositAmount,
+        type: TransactionType.deposit,
+        bookingId: booking.id,
+        description: 'Deposit for booking #${booking.id.substring(0, 8)}',
+      );
+    } catch (e, stack) {
+      BookingLogger.warn(
+        'wallet deposit transaction failed (booking still succeeded)',
+        error: e,
+        stack: stack,
+      );
+    }
+  }
+
+  DateTime _latestEnd(List<TimeSlotModel> slots) {
+    return slots
+        .reduce((a, b) => a.endTime.isAfter(b.endTime) ? a : b)
+        .endTime;
+  }
+
+  DateTime _latestActualEnd(List<TimeSlotModel> slots) {
+    return slots
+        .reduce(
+          (a, b) => a.actualEndTime.isAfter(b.actualEndTime) ? a : b,
+        )
+        .actualEndTime;
+  }
+
+  double _calculateTotalAmount(
+    List<AppointmentSlotDTO> services,
+    Map<String, int> quantities,
+  ) {
+    return services.fold<double>(
+      0,
+      (sum, service) => sum + (service.price * (quantities[service.id] ?? 1)),
+    );
+  }
+
+  List<BookingServiceModel> _createBookingServices(
+    String bookingId,
+    List<AppointmentSlotDTO> services,
+    Map<String, List<Map<String, String?>>> workers,
+    Map<String, int> quantities,
+    Map<String, TimeSlotModel> timeSlots,
+  ) {
+    final all = <BookingServiceModel>[];
+
+    for (final service in services) {
+      final quantity = quantities[service.id] ?? 1;
+      final workerEntries = workers[service.id] ??
+          List.generate(quantity, (_) => {'id': null, 'name': null});
+      final duration = DurationUtils.parse(service.duration);
+      final timeSlot = timeSlots[service.id];
+
+      for (var i = 0; i < quantity; i++) {
+        final entry = workerEntries.length > i
+            ? workerEntries[i]
+            : {'id': null, 'name': null};
+
+        all.add(
+          BookingServiceModel(
+            id: const Uuid().v4(),
+            bookingId: bookingId,
+            slotId: service.id,
+            workerId: entry['id'],
+            priceAtBooking: service.price,
+            durationMinutes: duration.inMinutes,
+            createdAt: DateTime.now(),
+            serviceName: service.serviceName,
+            workerName: entry['name'],
+            startTime: timeSlot?.startTime,
+          ),
+        );
+      }
+    }
+
+    return all;
+  }
+
   List<BookingServiceModel> _createFreelancerBookingServices(
     String bookingId,
     List<AppointmentSlotDTO> services,
     Map<String, int> quantities,
     Map<String, TimeSlotModel> timeSlots,
   ) {
-    final List<BookingServiceModel> allServices = [];
+    final all = <BookingServiceModel>[];
 
-    for (var service in services) {
+    for (final service in services) {
       final quantity = quantities[service.id] ?? 1;
       final timeSlot = timeSlots[service.id];
       final duration = DurationUtils.parse(service.duration);
 
-      for (int i = 0; i < quantity; i++) {
-        allServices.add(
+      for (var i = 0; i < quantity; i++) {
+        all.add(
           BookingServiceModel(
             id: const Uuid().v4(),
             bookingId: bookingId,
             slotId: service.id,
-            workerId: null, // No worker for freelancer
+            workerId: null,
             priceAtBooking: service.price,
             durationMinutes: duration.inMinutes,
             createdAt: DateTime.now(),
@@ -698,6 +594,27 @@ class BookingCreationController extends _$BookingCreationController {
       }
     }
 
-    return allServices;
+    return all;
+  }
+
+  void _invalidateProviders() {
+    ref.invalidate(selectedServicesProvider);
+    ref.invalidate(selectedWorkersProvider);
+    ref.invalidate(selectedDateProvider);
+    ref.invalidate(selectedTimeSlotsProvider);
+    ref.invalidate(slotGenerationControllerProvider);
+  }
+
+  /// Resets the controller for a new booking. The new idempotency key
+  /// means the next submission cannot be replayed against the previous
+  /// booking — call this only after the user explicitly starts over.
+  void reset() {
+    state = BookingCreationState.initial().copyWith(
+      idempotencyKey: const Uuid().v4(),
+    );
+  }
+
+  void clearError() {
+    state = state.copyWith(error: null);
   }
 }

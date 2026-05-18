@@ -1,11 +1,12 @@
 // lib/features/booking/data/repositories/supabase/supabase_booking_repository.dart
+import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_logger.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_retry_policy.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_sanitizer.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/contact_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/social_link_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/services/notification_service.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/data/models/booking_review.dart';
-import 'package:nano_embryo/core/notifications/domain/usecases/send_immediate_notification.dart';
-import 'package:uuid/uuid.dart';
 
 /// Supabase implementation of [BookingRepository].
 ///
@@ -26,12 +27,11 @@ import 'package:uuid/uuid.dart';
 /// - Real-time availability checks
 class SupabaseBookingRepository implements BookingRepository {
   final SupabaseClient _client;
-  final String _bookingsTable = 'bookings';
-  final String _bookingServicesTable = 'booking_services';
-  final String _appointmentSlotsTable = 'appointment_slots';
-  final String _shopWorkersTable = 'workers';
-  final String _slotWorkerAssignmentsTable = 'slot_worker_assignments';
-  final String _idempotencyTable = 'booking_idempotency_keys';
+  // Table-name constants kept as fields so test doubles can override if
+  // we ever want to point at a *_test mirror schema.
+  static const String _bookingServicesTable = 'booking_services';
+  static const String _appointmentSlotsTable = 'appointment_slots';
+  static const String _shopWorkersTable = 'workers';
   final NotificationService? _notificationService;
 
   SupabaseBookingRepository(this._client, [this._notificationService]);
@@ -44,80 +44,89 @@ class SupabaseBookingRepository implements BookingRepository {
     required List<BookingServiceModel> services,
     String? idempotencyKey,
   }) async {
-    try {
-      // Check idempotency first if key provided
-      if (idempotencyKey != null) {
-        final existing = await _checkIdempotency(idempotencyKey);
-        if (existing != null) return existing;
-      }
-
-      // Use RPC for atomic transaction
-      final result = await _client.rpc(
-        'create_booking_transaction',
-        params: {
-          'p_booking': booking.toJson(),
-          'p_services': services.map((s) => s.toJson()).toList(),
-          'p_idempotency_key': idempotencyKey,
-        },
-      );
-
-      final createdBooking = BookingModel.fromJson(result);
-
-      // Store idempotency key if provided
-      if (idempotencyKey != null) {
-        await _storeIdempotencyKey(idempotencyKey, createdBooking.id);
-      }
-
-      return createdBooking;
-    } on PostgrestException catch (e) {
-      // Map database errors to domain exceptions
-      if (e.code == '23505') {
-        // Unique violation
-        if (e.message.contains('no_overlap_worker')) {
-          throw WorkerUnavailableException(
-            workerId: _extractWorkerIdFromError(e.message),
-            requestedTime: _extractTimeFromError(e.message),
+    // The server-side create_booking_transaction RPC handles idempotency
+    // replay internally (matches by key + expiry window), so the client
+    // doesn't need a pre-flight check anymore. Retry the whole call —
+    // safe because the idempotency key dedupes replays.
+    return BookingRetryPolicy.run(
+      operationName: 'create_booking_transaction',
+      () async {
+        try {
+          final result = await _client.rpc(
+            'create_booking_transaction',
+            params: {
+              'p_booking': booking.toJson(),
+              'p_services': services.map((s) => s.toJson()).toList(),
+              'p_idempotency_key': idempotencyKey,
+            },
           );
+          return BookingModel.fromJson(result as Map<String, dynamic>);
+        } on PostgrestException catch (e) {
+          throw _mapBookingRpcError(e);
         }
-        throw SlotUnavailableException();
-      } else if (e.code == 'P0001') {
-        // Raise exception
-        if (e.message.contains('slot_full')) {
-          throw SlotFullException(
-            slotId: _extractSlotIdFromError(e.message),
-            slotTime: _extractTimeFromError(e.message),
-            maxCapacity: _extractCapacityFromError(e.message),
-          );
-        } else if (e.message.contains('outside_hours')) {
-          throw OutsideBusinessHoursException(
-            requestedTime: _extractTimeFromError(e.message),
-            shopHours: _extractShopHoursFromError(e.message),
-          );
-        } else if (e.message.contains('validation_failed')) {
-          throw BookingValidationException({});
-        }
-      }
-      throw DatabaseBookingException(
-        'Database error: ${e.message}',
-        code: e.code,
-      );
-    } catch (e, stack) {
-      String errorMessage = 'Failed to create booking';
+      },
+    );
+  }
 
-      if (e is PostgrestException) {
-        errorMessage = e.message ?? errorMessage;
-        throw DatabaseBookingException(
-          e.message ?? 'Database error',
-          code: e.code,
-        );
-      } else if (e is DatabaseBookingException) {
-        // This is our wrapper - the real error is inside
-        errorMessage = e.toString();
-      }
-      throw DatabaseBookingException('Unexpected error: $e');
+  /// Maps a Postgrest error from a booking-creation RPC to the right
+  /// domain exception. Uses SQLSTATE codes (not message substrings) so
+  /// the mapping is stable when error wording changes server-side.
+  BookingException _mapBookingRpcError(PostgrestException e) {
+    final code = e.code;
+    final msg = e.message;
 
-      // state = state.copyWith(isSubmitting: false, error: errorMessage);
+    // 53400 = configuration_limit_exceeded — our rate_limit signal.
+    if (code == '53400') {
+      return BookingValidationException({
+        'rate': 'Too many requests. Please wait a moment and try again.',
+      });
     }
+    // 42501 = insufficient_privilege — auth mismatch.
+    if (code == '42501') {
+      return BookingValidationException({'auth': 'Not authorized'});
+    }
+    // 23505 = unique_violation — worker overlap, idempotency clash, or
+    // the distinct-worker constraint inside the booking.
+    if (code == '23505') {
+      if (msg.contains('worker_id') || msg.contains('SLOT_CONFLICT')) {
+        return WorkerUnavailableException(
+          workerId: _extractWorkerIdFromError(msg),
+          requestedTime: _extractTimeFromError(msg),
+        );
+      }
+      return SlotUnavailableException();
+    }
+    // P0001 = raise_exception — domain RAISE EXCEPTION from our RPCs.
+    if (code == 'P0001') {
+      if (msg.contains('slot_full')) {
+        return SlotFullException(
+          slotId: _extractSlotIdFromError(msg),
+          slotTime: _extractTimeFromError(msg),
+          maxCapacity: _extractCapacityFromError(msg),
+        );
+      }
+      if (msg.contains('outside_hours') || msg.contains('shop hours')) {
+        return OutsideBusinessHoursException(
+          requestedTime: _extractTimeFromError(msg),
+          shopHours: _extractShopHoursFromError(msg),
+        );
+      }
+      if (msg.contains('illegal transition') ||
+          msg.contains('cannot cancel') ||
+          msg.contains('cannot complete') ||
+          msg.contains('cannot no-show')) {
+        return BookingConflictException();
+      }
+    }
+    // 22023 = invalid_parameter_value — bad input from the client.
+    if (code == '22023') {
+      return BookingValidationException({'input': msg});
+    }
+    // P0002 = no_data_found.
+    if (code == 'P0002') {
+      return BookingValidationException({'notFound': msg});
+    }
+    return DatabaseBookingException(msg, code: code);
   }
 
   @override
@@ -131,119 +140,109 @@ class SupabaseBookingRepository implements BookingRepository {
     DateTime? fromDate,
     DateTime? toDate,
   }) async {
-    try {
-      print('🔵 getClientBookings - userId: $userId');
+    return BookingRetryPolicy.run(
+      operationName: 'getClientBookings',
+      () async {
+        try {
+          dynamic countQuery = _client
+              .from('booking_simple')
+              .select('booking_id')
+              .eq('user_id', userId);
 
-      // First, get total count using a separate query
-      dynamic countQuery = _client
-          .from('booking_simple')
-          .select('booking_id')
-          .eq('user_id', userId);
+          if (status != null) {
+            countQuery = countQuery.eq('status', status.value);
+          }
+          if (fromDate != null) {
+            countQuery = countQuery.gte('booking_date', fromDate.toIso8601String());
+          }
+          if (toDate != null) {
+            countQuery = countQuery.lte('booking_date', toDate.toIso8601String());
+          }
 
-      // Apply filters to count query
-      if (status != null) {
-        countQuery = countQuery.eq('status', status.value);
-      }
-      if (fromDate != null) {
-        countQuery = countQuery.gte('booking_date', fromDate.toIso8601String());
-      }
-      if (toDate != null) {
-        countQuery = countQuery.lte('booking_date', toDate.toIso8601String());
-      }
+          final countResponse = await countQuery;
+          final uniqueBookingIds = <String>{};
+          for (final row in countResponse) {
+            uniqueBookingIds.add(row['booking_id']);
+          }
+          final totalCount = uniqueBookingIds.length;
 
-      final countResponse = await countQuery;
-      // Get unique booking IDs for count
-      final uniqueBookingIds = <String>{};
-      for (final row in countResponse) {
-        uniqueBookingIds.add(row['booking_id']);
-      }
-      final totalCount = uniqueBookingIds.length;
-      print('🔵 Total distinct bookings: $totalCount');
+          dynamic query = _client
+              .from('booking_simple')
+              .select()
+              .eq('user_id', userId);
 
-      // Now get the paginated data
-      dynamic query = _client
-          .from('booking_simple')
-          .select()
-          .eq('user_id', userId);
+          if (status != null) {
+            query = query.eq('status', status.value);
+          }
+          if (fromDate != null) {
+            query = query.gte('booking_date', fromDate.toIso8601String());
+          }
+          if (toDate != null) {
+            query = query.lte('booking_date', toDate.toIso8601String());
+          }
 
-      // Apply filters
-      if (status != null) {
-        query = query.eq('status', status.value);
-      }
-      if (fromDate != null) {
-        query = query.gte('booking_date', fromDate.toIso8601String());
-      }
-      if (toDate != null) {
-        query = query.lte('booking_date', toDate.toIso8601String());
-      }
+          query = query.order(sortBy ?? 'start_time', ascending: sortAscending);
 
-      // Apply sorting
-      query = query.order(sortBy ?? 'start_time', ascending: sortAscending);
+          final from = (page! - 1) * pageSize!;
+          final response = await query.range(from, from + pageSize - 1);
 
-      // Apply pagination
-      final from = (page! - 1) * pageSize!;
-      final response = await query.range(from, from + pageSize - 1);
-      print('🔵 Raw response length: ${response.length}');
+          final Map<String, Map<String, dynamic>> bookingMap = {};
 
-      // Group by booking_id to create unique bookings
-      final Map<String, Map<String, dynamic>> bookingMap = {};
+          for (final row in response) {
+            final bookingId = row['booking_id'];
+            if (!bookingMap.containsKey(bookingId)) {
+              bookingMap[bookingId] = {
+                'id': bookingId,
+                'start_time': row['start_time'],
+                'end_time': row['end_time'],
+                'status': row['status'],
+                'total_amount': row['total_amount'],
+                'shop': {
+                  'shop_name': row['shop_name'],
+                  'shop_type': row['shop_type'],
+                  'currency': row['currency'],
+                  'shop_logo_url': row['shop_logo_url'],
+                },
+                'booking_services': [],
+              };
+            }
+            if (row['service_id'] != null && row['service_name'] != null) {
+              bookingMap[bookingId]!['booking_services'].add({
+                'slot': {'service_name': row['service_name']},
+              });
+            }
+          }
 
-      for (final row in response) {
-        final bookingId = row['booking_id'];
-        if (!bookingMap.containsKey(bookingId)) {
-          bookingMap[bookingId] = {
-            'id': bookingId,
-            'start_time': row['start_time'],
-            'end_time': row['end_time'],
-            'status': row['status'],
-            'total_amount': row['total_amount'],
-            'shop': {
-              'shop_name': row['shop_name'],
-              'shop_type': row['shop_type'],
-              'currency': row['currency'],
-              'shop_logo_url': row['shop_logo_url'],
-            },
-            'booking_services': [],
-          };
+          final data = bookingMap.values.toList();
+
+          final params = BookingParams(
+            userId: userId,
+            page: page,
+            pageSize: pageSize,
+            sortBy: sortBy,
+            sortAscending: sortAscending,
+            status: status,
+            fromDate: fromDate,
+            toDate: toDate,
+          );
+
+          return PaginatedBookings<ClientCalendarBooking>.fromSupabase(
+            data,
+            totalCount,
+            params,
+            ClientCalendarBooking.fromJson,
+          );
+        } on PostgrestException catch (e) {
+          BookingLogger.error('getClientBookings failed', error: e);
+          throw DatabaseBookingException(e.message, code: e.code);
         }
-
-        // Add service if exists
-        if (row['service_id'] != null && row['service_name'] != null) {
-          bookingMap[bookingId]!['booking_services'].add({
-            'slot': {'service_name': row['service_name']},
-          });
-        }
-      }
-
-      final data = bookingMap.values.toList();
-      print('✅ Grouped into ${data.length} unique bookings');
-
-      final params = BookingParams(
-        userId: userId,
-        page: page,
-        pageSize: pageSize,
-        sortBy: sortBy,
-        sortAscending: sortAscending,
-        status: status,
-        fromDate: fromDate,
-        toDate: toDate,
-      );
-
-      return PaginatedBookings<ClientCalendarBooking>.fromSupabase(
-        data,
-        totalCount,
-        params,
-        ClientCalendarBooking.fromJson,
-      );
-    } catch (e, stack) {
-      print('❌ Error in getClientBookings: $e');
-      print('Stack trace: $stack');
-      throw Exception('Failed to fetch client bookings: $e');
-    }
+      },
+    );
   }
 
   /// Fetch appointments for a specific shop on a specific date
   /// This is a convenience method that uses getShopBookings with a single day range
+  @override
   Future<PaginatedBookings<ShopCalendarBooking>> getAppointmentsForDate({
     required String shopId,
     required DateTime date,
@@ -265,6 +264,7 @@ class SupabaseBookingRepository implements BookingRepository {
   }
 
   /// Fetch appointments for a date range (used for prefetching)
+  @override
   Future<PaginatedBookings<ShopCalendarBooking>> getAppointmentsForDateRange({
     required String shopId,
     required DateTime startDate,
@@ -293,164 +293,151 @@ class SupabaseBookingRepository implements BookingRepository {
     DateTime? toDate,
     String? workerId,
   }) async {
-    try {
-      // First, get total count using a separate query
-      dynamic countQuery = _client
-          .from('booking_simple')
-          .select('booking_id')
-          .eq('shop_id', shopId);
+    return BookingRetryPolicy.run(
+      operationName: 'getShopBookings',
+      () async {
+        try {
+          dynamic countQuery = _client
+              .from('booking_simple')
+              .select('booking_id')
+              .eq('shop_id', shopId);
 
-      // Apply filters to count query
-      if (status != null) {
-        countQuery = countQuery.eq('status', status.value);
-      }
-      if (fromDate != null) {
-        countQuery = countQuery.gte('booking_date', fromDate.toIso8601String());
-      }
-      if (toDate != null) {
-        countQuery = countQuery.lte('booking_date', toDate.toIso8601String());
-      }
+          if (status != null) {
+            countQuery = countQuery.eq('status', status.value);
+          }
+          if (fromDate != null) {
+            countQuery = countQuery.gte('booking_date', fromDate.toIso8601String());
+          }
+          if (toDate != null) {
+            countQuery = countQuery.lte('booking_date', toDate.toIso8601String());
+          }
 
-      final countResponse = await countQuery;
-      // Get unique booking IDs for count
-      final uniqueBookingIds = <String>{};
-      for (final row in countResponse) {
-        uniqueBookingIds.add(row['booking_id']);
-      }
-      final totalCount = uniqueBookingIds.length;
+          final countResponse = await countQuery;
+          final uniqueBookingIds = <String>{};
+          for (final row in countResponse) {
+            uniqueBookingIds.add(row['booking_id']);
+          }
+          final totalCount = uniqueBookingIds.length;
 
-      // Now get the paginated data
-      dynamic query = _client
-          .from('booking_simple')
-          .select()
-          .eq('shop_id', shopId);
+          dynamic query = _client
+              .from('booking_simple')
+              .select()
+              .eq('shop_id', shopId);
 
-      // Apply filters
-      if (status != null) {
-        query = query.eq('status', status.value);
-      }
-      if (fromDate != null) {
-        query = query.gte('booking_date', fromDate.toIso8601String());
-      }
-      if (toDate != null) {
-        query = query.lte('booking_date', toDate.toIso8601String());
-      }
+          if (status != null) {
+            query = query.eq('status', status.value);
+          }
+          if (fromDate != null) {
+            query = query.gte('booking_date', fromDate.toIso8601String());
+          }
+          if (toDate != null) {
+            query = query.lte('booking_date', toDate.toIso8601String());
+          }
 
-      // Apply sorting
-      query = query.order(sortBy ?? 'start_time', ascending: sortAscending);
+          query = query.order(sortBy ?? 'start_time', ascending: sortAscending);
 
-      // Apply pagination
-      final from = (page! - 1) * pageSize!;
-      final response = await query.range(from, from + pageSize - 1);
+          final from = (page! - 1) * pageSize!;
+          final response = await query.range(from, from + pageSize - 1);
 
-      // Group by booking_id to create unique bookings
-      final Map<String, Map<String, dynamic>> bookingMap = {};
+          final Map<String, Map<String, dynamic>> bookingMap = {};
 
-      for (final row in response) {
-        final bookingId = row['booking_id'];
-        if (!bookingMap.containsKey(bookingId)) {
-          bookingMap[bookingId] = {
-            'id': bookingId,
-            'start_time': row['start_time'],
-            'end_time': row['end_time'],
-            'status': row['status'],
-            'total_amount': row['total_amount'],
-            'client': {
-              'display_name': row['client_display_name'],
-              'username': row['client_username'],
-              'avatar_url': row['client_avatar_url'],
-            },
-            'booking_services': [],
-          };
+          for (final row in response) {
+            final bookingId = row['booking_id'];
+            if (!bookingMap.containsKey(bookingId)) {
+              bookingMap[bookingId] = {
+                'id': bookingId,
+                'start_time': row['start_time'],
+                'end_time': row['end_time'],
+                'status': row['status'],
+                'total_amount': row['total_amount'],
+                'client': {
+                  'display_name': row['client_display_name'],
+                  'username': row['client_username'],
+                  'avatar_url': row['client_avatar_url'],
+                },
+                'booking_services': [],
+              };
+            }
+            if (row['service_id'] != null && row['service_name'] != null) {
+              bookingMap[bookingId]!['booking_services'].add({
+                'slot': {'service_name': row['service_name']},
+              });
+            }
+          }
+
+          final data = bookingMap.values.toList();
+
+          final params = BookingParams(
+            shopId: shopId,
+            page: page,
+            pageSize: pageSize,
+            sortBy: sortBy,
+            sortAscending: sortAscending,
+            status: status,
+            fromDate: fromDate,
+            toDate: toDate,
+            workerId: workerId,
+          );
+
+          return PaginatedBookings<ShopCalendarBooking>.fromSupabase(
+            data,
+            totalCount,
+            params,
+            ShopCalendarBooking.fromJson,
+          );
+        } on PostgrestException catch (e) {
+          BookingLogger.error('getShopBookings failed', error: e);
+          throw DatabaseBookingException(e.message, code: e.code);
         }
-
-        // Add service if exists
-        if (row['service_id'] != null && row['service_name'] != null) {
-          bookingMap[bookingId]!['booking_services'].add({
-            'slot': {'service_name': row['service_name']},
-          });
-        }
-      }
-
-      final data = bookingMap.values.toList();
-
-      final params = BookingParams(
-        shopId: shopId,
-        page: page,
-        pageSize: pageSize,
-        sortBy: sortBy,
-        sortAscending: sortAscending,
-        status: status,
-        fromDate: fromDate,
-        toDate: toDate,
-        workerId: workerId,
-      );
-
-      return PaginatedBookings<ShopCalendarBooking>.fromSupabase(
-        data,
-        totalCount,
-        params,
-        ShopCalendarBooking.fromJson,
-      );
-    } catch (e, stack) {
-      // print('❌ Error in getShopBookings: $e');
-      // print('Stack trace: $stack');
-      throw Exception('Failed to fetch shop bookings: $e');
-    }
+      },
+    );
   }
 
   @override
   Future<BookingModel> markAsNoShow(String bookingId) async {
-    try {
-      final response =
-          await _client
-              .from(_bookingsTable)
-              .update({
-                'status': 'no_show',
-                'updated_at': DateTime.now().toIso8601String(),
-              })
-              .eq('id', bookingId)
-              .select()
-              .single();
-
-      return BookingModel.fromJson(response);
-    } on PostgrestException catch (e) {
-      throw DatabaseBookingException(
-        'Failed to mark as no-show: ${e.message}',
-        code: e.code,
-      );
-    } catch (e) {
-      throw DatabaseBookingException('Unexpected error: $e');
-    }
+    return BookingRetryPolicy.run(
+      operationName: 'mark_booking_no_show',
+      () async {
+        try {
+          final result = await _client.rpc(
+            'mark_booking_no_show',
+            params: {'p_booking_id': bookingId},
+          );
+          return BookingModel.fromJson(result as Map<String, dynamic>);
+        } on PostgrestException catch (e) {
+          throw _mapBookingRpcError(e);
+        }
+      },
+    );
   }
 
   @override
   Future<BookingModel> markAsComplete(String bookingId) async {
-    try {
-      final response =
-          await _client
-              .from(_bookingsTable)
-              .update({
-                'status': 'completed',
-                'updated_at': DateTime.now().toIso8601String(),
-              })
-              .eq('id', bookingId)
-              .select()
-              .single();
-
-      return BookingModel.fromJson(response);
-    } on PostgrestException catch (e) {
-      throw DatabaseBookingException(
-        'Failed to mark as no-show: ${e.message}',
-        code: e.code,
-      );
-    } catch (e) {
-      throw DatabaseBookingException('Unexpected error: $e');
-    }
+    return BookingRetryPolicy.run(
+      operationName: 'mark_booking_complete',
+      () async {
+        try {
+          final result = await _client.rpc(
+            'mark_booking_complete',
+            params: {'p_booking_id': bookingId},
+          );
+          return BookingModel.fromJson(result as Map<String, dynamic>);
+        } on PostgrestException catch (e) {
+          throw _mapBookingRpcError(e);
+        }
+      },
+    );
   }
 
   @override
   Future<BookingModel> getBookingById(String bookingId) async {
+    return BookingRetryPolicy.run(
+      operationName: 'getBookingById',
+      () => _getBookingByIdOnce(bookingId),
+    );
+  }
+
+  Future<BookingModel> _getBookingByIdOnce(String bookingId) async {
     try {
       // 1. Fetch the booking data from booking_simple
       final bookingResponse = await _client
@@ -615,10 +602,12 @@ class SupabaseBookingRepository implements BookingRepository {
       };
 
       return BookingModel.fromJson(combinedData);
+    } on PostgrestException catch (e, stack) {
+      BookingLogger.error('getBookingById failed', error: e, stack: stack);
+      throw DatabaseBookingException(e.message, code: e.code);
     } catch (e, stack) {
-      print('Error in getBookingById: $e');
-      print('Stack trace: $stack');
-      throw Exception('Failed to fetch booking: $e');
+      BookingLogger.error('getBookingById unexpected error', error: e, stack: stack);
+      throw DatabaseBookingException('Failed to fetch booking: $e');
     }
   }
 
@@ -715,18 +704,26 @@ class SupabaseBookingRepository implements BookingRepository {
     required String bookingServiceId,
     required String requirements,
   }) async {
-    try {
-      final updateData = {
-        'special_requirements': requirements.isEmpty ? null : requirements,
-      };
-
-      await _client
-          .from('booking_services')
-          .update(updateData)
-          .eq('id', bookingServiceId);
-    } catch (e) {
-      throw Exception('Failed to update special requirements: $e');
-    }
+    final cleaned = BookingSanitizer.cleanAndCap(
+      requirements,
+      BookingSanitizer.maxSpecialRequirements,
+    );
+    return BookingRetryPolicy.run(
+      operationName: 'update_special_requirements',
+      () async {
+        try {
+          await _client.rpc(
+            'update_special_requirements',
+            params: {
+              'p_booking_service_id': bookingServiceId,
+              'p_requirements': cleaned,
+            },
+          );
+        } on PostgrestException catch (e) {
+          throw _mapBookingRpcError(e);
+        }
+      },
+    );
   }
 
   @override
@@ -806,26 +803,23 @@ class SupabaseBookingRepository implements BookingRepository {
     required String shopId,
     required String userName,
   }) async {
-    if (_notificationService == null) {
-      print(
-        '⚠️ Notification service not available, skipping review notification',
-      );
+    final service = _notificationService;
+    if (service == null) {
+      BookingLogger.debug('notification service not wired; skipping review notification');
       return;
     }
 
     try {
-      // Create star rating string (e.g., "★★★★☆")
       final starRating = _getStarRating(rating);
-
-      // Prepare notification message
       final title = 'New Review Received! ⭐';
-      final body =
-          review != null && review.isNotEmpty
-              ? '$userName gave you $starRating ($rating/5): "${review.length > 50 ? review.substring(0, 50) + '...' : review}"'
-              : '$userName gave you $starRating ($rating/5)';
+      final snippet = review != null && review.length > 50
+          ? '${review.substring(0, 50)}...'
+          : review;
+      final body = snippet != null && snippet.isNotEmpty
+          ? '$userName gave you $starRating ($rating/5): "$snippet"'
+          : '$userName gave you $starRating ($rating/5)';
 
-      // Use the generic method
-      await _notificationService!.sendImmediateNotification(
+      await service.sendImmediateNotification(
         userId: shopOwnerId,
         title: title,
         body: body,
@@ -840,9 +834,9 @@ class SupabaseBookingRepository implements BookingRepository {
         priority: 'high',
       );
 
-      print('✅ Sent review notification to shop: $shopOwnerId');
-    } catch (e) {
-      print('❌ Failed to send review notification: $e');
+      BookingLogger.debug('sent review notification to shop $shopOwnerId');
+    } catch (e, stack) {
+      BookingLogger.warn('failed to send review notification', error: e, stack: stack);
     }
   }
 
@@ -879,8 +873,8 @@ class SupabaseBookingRepository implements BookingRepository {
       };
 
       return BookingReview.fromJson(transformedJson);
-    } catch (e) {
-      print('❌ Failed to get review: $e');
+    } catch (e, stack) {
+      BookingLogger.warn('failed to load review', error: e, stack: stack);
       return null;
     }
   }
@@ -950,28 +944,27 @@ class SupabaseBookingRepository implements BookingRepository {
 
   @override
   Future<BookingModel> cancelBooking(String bookingId, {String? reason}) async {
-    try {
-      final response =
-          await _client
-              .from(_bookingsTable)
-              .update({
-                'status': BookingStatus.cancelled.value,
-                'cancellation_reason': reason,
-                'cancelled_at': DateTime.now().toIso8601String(),
-              })
-              .eq('id', bookingId)
-              .select()
-              .single();
-
-      return BookingModel.fromJson(response);
-    } on PostgrestException catch (e) {
-      throw DatabaseBookingException(
-        'Failed to cancel booking: ${e.message}',
-        code: e.code,
-      );
-    } catch (e) {
-      throw DatabaseBookingException('Unexpected error: $e');
-    }
+    final cleanReason = BookingSanitizer.cleanAndCap(
+      reason,
+      BookingSanitizer.maxCancellationReason,
+    );
+    return BookingRetryPolicy.run(
+      operationName: 'cancel_booking',
+      () async {
+        try {
+          final result = await _client.rpc(
+            'cancel_booking',
+            params: {
+              'p_booking_id': bookingId,
+              'p_reason': cleanReason,
+            },
+          );
+          return BookingModel.fromJson(result as Map<String, dynamic>);
+        } on PostgrestException catch (e) {
+          throw _mapBookingRpcError(e);
+        }
+      },
+    );
   }
 
   // ==================== Availability Operations ====================
@@ -984,22 +977,32 @@ class SupabaseBookingRepository implements BookingRepository {
     required DateTime startTime,
     required DateTime endTime,
   }) async {
-    try {
-      final result = await _client.rpc(
-        'check_slot_availability',
-        params: {
-          'p_shop_id': shopId,
-          'p_slot_id': slotId,
-          'p_worker_id': workerId,
-          'p_start_time': startTime.toIso8601String(),
-          'p_end_time': endTime.toIso8601String(),
-        },
-      );
-
-      return result['available'] as bool;
-    } catch (e) {
-      throw DatabaseBookingException('Failed to check availability: $e');
-    }
+    return BookingRetryPolicy.run(
+      operationName: 'check_slot_availability',
+      () async {
+        try {
+          final result = await _client.rpc(
+            'check_slot_availability',
+            params: {
+              'p_shop_id': shopId,
+              'p_slot_id': slotId,
+              'p_worker_id': workerId,
+              'p_start_time': startTime.toIso8601String(),
+              'p_end_time': endTime.toIso8601String(),
+            },
+          );
+          // The server now returns {available, reason}. Older deployments
+          // might still return a plain boolean — handle both.
+          if (result is Map<String, dynamic>) {
+            return result['available'] == true;
+          }
+          if (result is bool) return result;
+          return false;
+        } on PostgrestException catch (e) {
+          throw _mapBookingRpcError(e);
+        }
+      },
+    );
   }
 
   // In supabase_shop_repository.dart
@@ -1032,49 +1035,37 @@ class SupabaseBookingRepository implements BookingRepository {
     Map<String, List<String>>? selectedWorkerIds,
     int? defaultBufferMinutes,
   }) async {
-    try {
-      final params = <String, dynamic>{
-        'p_shop_id': shopId,
-        'p_date': date.toIso8601String().split('T')[0],
-        'p_service_ids': services.map((s) => s.id).toList(),
-        'p_quantities': services.map((s) => quantities[s.id] ?? 1).toList(),
-      };
+    final params = <String, dynamic>{
+      'p_shop_id': shopId,
+      'p_date': date.toIso8601String().split('T')[0],
+      'p_service_ids': services.map((s) => s.id).toList(),
+      'p_quantities': services.map((s) => quantities[s.id] ?? 1).toList(),
+      'p_selected_worker_ids': null,
+      'p_default_buffer_minutes': defaultBufferMinutes,
+    };
 
-      // Add selected worker IDs if provided (flattened list for parallel booking)
-      if (selectedWorkerIds != null && selectedWorkerIds.isNotEmpty) {
-        final allSelectedWorkers =
-            selectedWorkerIds.values
-                .expand((list) => list)
-                .where((id) => id.isNotEmpty)
-                .toList();
-
-        if (allSelectedWorkers.isNotEmpty) {
-          params['p_selected_worker_ids'] = allSelectedWorkers;
-        } else {
-          params['p_selected_worker_ids'] = null;
-        }
-      } else {
-        params['p_selected_worker_ids'] = null;
+    if (selectedWorkerIds != null && selectedWorkerIds.isNotEmpty) {
+      final allSelectedWorkers = selectedWorkerIds.values
+          .expand((list) => list)
+          .where((id) => id.isNotEmpty)
+          .toList();
+      if (allSelectedWorkers.isNotEmpty) {
+        params['p_selected_worker_ids'] = allSelectedWorkers;
       }
+    }
 
-      // Add default buffer if provided
-      if (defaultBufferMinutes != null) {
-        params['p_default_buffer_minutes'] = defaultBufferMinutes;
-      } else {
-        params['p_default_buffer_minutes'] = null;
-      }
+    return BookingRetryPolicy.run(
+      operationName: 'generate_available_slots',
+      () async {
+        try {
+          final result = await _client.rpc(
+            'generate_available_slots',
+            params: params,
+          );
 
-      final result = await _client.rpc(
-        'generate_available_slots',
-        params: params,
-      );
-
-      // Safely map the results with null checks
-      return (result as List).map((json) {
-        // Handle available_workers with null safety
-        final availableWorkersJson = json['available_workers'] as List? ?? [];
-        final availableWorkers =
-            availableWorkersJson.map((wJson) {
+          return (result as List).map((json) {
+            final availableWorkersJson = json['available_workers'] as List? ?? [];
+            final availableWorkers = availableWorkersJson.map((wJson) {
               return WorkerDTO(
                 id: wJson['id'] as String? ?? '',
                 shopId: shopId,
@@ -1089,34 +1080,31 @@ class SupabaseBookingRepository implements BookingRepository {
               );
             }).toList();
 
-        // Handle actualEndTime with null safety
-        DateTime? actualEndTime;
-        if (json['actual_end_time'] != null) {
-          actualEndTime = DateTime.parse(json['actual_end_time'] as String);
-        }
+            DateTime? actualEndTime;
+            if (json['actual_end_time'] != null) {
+              actualEndTime = DateTime.parse(json['actual_end_time'] as String);
+            }
 
-        return TimeSlotModel(
-          startTime: DateTime.parse(json['start_time'] as String),
-          endTime: DateTime.parse(json['end_time'] as String),
-          actualEndTime:
-              actualEndTime ?? DateTime.parse(json['end_time'] as String),
-          slotId: json['slot_id'] as String? ?? '',
-          serviceName: json['service_name'] as String? ?? '',
-          price: (json['price'] as num?)?.toDouble() ?? 0.0,
-          availableWorkers: availableWorkers,
-          remainingSpots: json['remaining_spots'] as int?,
-          requiresWorkerSelection:
-              json['requires_worker_selection'] as bool? ?? false,
-          bufferMinutes: json['buffer_minutes'] as int? ?? 0,
-        );
-      }).toList();
-    } on PostgrestException catch (e) {
-      throw DatabaseBookingException(
-        e.message ?? 'Database error generating slots',
-      );
-    } catch (e, stack) {
-      throw DatabaseBookingException('Unexpected error: $e');
-    }
+            return TimeSlotModel(
+              startTime: DateTime.parse(json['start_time'] as String),
+              endTime: DateTime.parse(json['end_time'] as String),
+              actualEndTime:
+                  actualEndTime ?? DateTime.parse(json['end_time'] as String),
+              slotId: json['slot_id'] as String? ?? '',
+              serviceName: json['service_name'] as String? ?? '',
+              price: (json['price'] as num?)?.toDouble() ?? 0.0,
+              availableWorkers: availableWorkers,
+              remainingSpots: json['remaining_spots'] as int?,
+              requiresWorkerSelection:
+                  json['requires_worker_selection'] as bool? ?? false,
+              bufferMinutes: json['buffer_minutes'] as int? ?? 0,
+            );
+          }).toList();
+        } on PostgrestException catch (e) {
+          throw _mapBookingRpcError(e);
+        }
+      },
+    );
   }
 
   @override
@@ -1125,44 +1113,38 @@ class SupabaseBookingRepository implements BookingRepository {
     required DateTime startTime,
     required DateTime endTime,
   }) async {
-    try {
-      // First, get all workers assigned to this slot
-      final assignedWorkers = await _client
-          .from('slot_worker_assignments')
-          .select('worker_id')
-          .eq('slot_id', slotId);
+    return BookingRetryPolicy.run(
+      operationName: 'get_available_workers',
+      () async {
+        try {
+          final assignedWorkers = await _client
+              .from('slot_worker_assignments')
+              .select('worker_id')
+              .eq('slot_id', slotId);
 
-      final workerIds =
-          assignedWorkers
+          final workerIds = assignedWorkers
               .map<String>((row) => row['worker_id'] as String)
               .toList();
 
-      // Now call the RPC with the exact same parameters that worked in SQL
-      final result = await _client.rpc(
-        'get_available_workers',
-        params: {
-          'p_worker_ids': workerIds,
-          'p_start_time': startTime.toIso8601String(),
-          'p_end_time': endTime.toIso8601String(),
-        },
-      );
+          if (workerIds.isEmpty) return <WorkerDTO>[];
 
-      // Try to map and see where it fails
-      final workers =
-          (result as List).map((json) {
-            print('🔄 Mapping worker JSON: $json');
-            return WorkerDTO.fromJson(json);
-          }).toList();
+          final result = await _client.rpc(
+            'get_available_workers',
+            params: {
+              'p_worker_ids': workerIds,
+              'p_start_time': startTime.toIso8601String(),
+              'p_end_time': endTime.toIso8601String(),
+            },
+          );
 
-      return workers;
-    } on PostgrestException catch (e) {
-      throw DatabaseBookingException(
-        'Failed to get available workers: ${e.message}',
-      );
-    } catch (e) {
-      print('🔥 Unexpected error: $e');
-      throw DatabaseBookingException('Failed to get available workers: $e');
-    }
+          return (result as List)
+              .map((json) => WorkerDTO.fromJson(json as Map<String, dynamic>))
+              .toList();
+        } on PostgrestException catch (e) {
+          throw _mapBookingRpcError(e);
+        }
+      },
+    );
   }
 
   // Add this method to SupabaseBookingRepository
@@ -1173,74 +1155,93 @@ class SupabaseBookingRepository implements BookingRepository {
     required List<BookingServiceModel> services,
     String? idempotencyKey,
   }) async {
-    // Check idempotency
+    // Client-side idempotency check via the same key table the server
+    // uses. The freelancer RPC doesn't take an idempotency_key parameter
+    // yet, so we keep the read-side dedupe here for retried POSTs.
     if (idempotencyKey != null) {
       final existing = await _checkIdempotency(idempotencyKey);
       if (existing != null) return existing;
     }
 
-    try {
-      // Use the existing RPC function with worker_id = null
-      final result = await _client.rpc(
-        'create_booking_with_conflict_check',
-        params: {
-          'p_user_id': booking.userId,
-          'p_shop_id': booking.shopId, // freelancer_id
-          'p_slot_id': services.first.slotId,
-          'p_worker_id': null, // No worker for freelancer
-          'p_booking_date':
-              booking.bookingDate.toIso8601String().split('T').first,
-          'p_start_time': booking.startTime.toIso8601String(),
-          'p_end_time': booking.endTime.toIso8601String(),
-          'p_total_amount': booking.totalAmount,
-          'p_deposit_amount': booking.depositAmount,
-          'p_service_address': booking.shopAddress,
-          'p_service_latitude': booking.latitude,
-          'p_service_longitude': booking.longitude,
-        },
-      );
+    final cleanAddress = BookingSanitizer.cleanAndCap(
+      booking.shopAddress,
+      BookingSanitizer.maxAddress,
+    );
 
-      final bookingId = result as String;
-      final createdBooking = booking.copyWith(id: bookingId);
+    return BookingRetryPolicy.run(
+      operationName: 'create_booking_with_conflict_check',
+      () async {
+        try {
+          final result = await _client.rpc(
+            'create_booking_with_conflict_check',
+            params: {
+              'p_user_id': booking.userId,
+              'p_shop_id': booking.shopId,
+              'p_slot_id': services.first.slotId,
+              'p_worker_id': null,
+              'p_booking_date':
+                  booking.bookingDate.toIso8601String().split('T').first,
+              'p_start_time': booking.startTime.toIso8601String(),
+              'p_end_time': booking.endTime.toIso8601String(),
+              'p_total_amount': booking.totalAmount,
+              'p_deposit_amount': booking.depositAmount,
+              'p_service_address': cleanAddress,
+              'p_service_latitude': booking.latitude,
+              'p_service_longitude': booking.longitude,
+            },
+          );
 
-      // Store idempotency key
-      if (idempotencyKey != null) {
-        await _storeIdempotencyKey(idempotencyKey, bookingId);
-      }
+          final bookingId = result as String;
+          final createdBooking = booking.copyWith(id: bookingId);
 
-      return createdBooking;
-    } catch (e) {
-      if (e.toString().contains('SLOT_CONFLICT')) {
-        throw BookingConflictException();
-      }
-      throw DatabaseBookingException('Failed to create freelancer booking: $e');
-    }
+          if (idempotencyKey != null) {
+            await _storeIdempotencyKey(idempotencyKey, bookingId);
+          }
+
+          return createdBooking;
+        } on PostgrestException catch (e) {
+          if (e.message.contains('SLOT_CONFLICT')) {
+            throw BookingConflictException();
+          }
+          throw _mapBookingRpcError(e);
+        }
+      },
+    );
   }
 
   Future<BookingModel?> _checkIdempotency(String idempotencyKey) async {
     try {
-      final response =
-          await _client
-              .from('idempotency_keys')
-              .select('booking_id')
-              .eq('key', idempotencyKey)
-              .maybeSingle();
+      final response = await _client
+          .from('idempotency_keys')
+          .select('booking_id')
+          .eq('key', idempotencyKey)
+          .maybeSingle();
 
       if (response != null && response['booking_id'] != null) {
         return await getBookingById(response['booking_id']);
       }
       return null;
     } catch (e) {
+      BookingLogger.debug('idempotency lookup failed (treating as miss)', error: e);
       return null;
     }
   }
 
   Future<void> _storeIdempotencyKey(String key, String bookingId) async {
-    await _client.from('idempotency_keys').insert({
-      'key': key,
-      'booking_id': bookingId,
-      'created_at': DateTime.now().toIso8601String(),
-    });
+    try {
+      await _client.from('idempotency_keys').insert({
+        'key': key,
+        'booking_id': bookingId,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+    } on PostgrestException catch (e) {
+      // Unique-violation here means the server already recorded the key
+      // (e.g. via create_booking_transaction). That's fine — replay
+      // semantics are preserved.
+      if (e.code != '23505') {
+        BookingLogger.warn('failed to store idempotency key', error: e);
+      }
+    }
   }
 
   // ==================== Validation Operations ====================

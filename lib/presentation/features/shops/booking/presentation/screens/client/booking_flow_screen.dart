@@ -4,42 +4,7 @@ import 'package:nano_embryo/presentation/features/shops/booking/presentation/pro
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/client/service_address_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 
-/// Main booking flow screen that manages the 4-step booking process.
-///
-/// This screen acts as a container that:
-/// 1. Shows the step indicator
-/// 2. Displays the appropriate step screen based on current step
-/// 3. Handles navigation between steps
-/// 4. Maintains consistent layout and theming
-///
-/// ## Usage
-/// ```dart
-/// // Navigate to booking flow with shop ID
-/// context.push('/booking');
-///
-/// ```
-
-// lib/features/booking/presentation/screens/booking_flow_screen.dart
-import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
-
-/// Main booking flow screen that manages the 4-step booking process.
-///
-/// This screen acts as a container that:
-/// 1. Shows the step indicator
-/// 2. Displays the appropriate step screen based on current step
-/// 3. Handles navigation between steps
-/// 4. Maintains consistent layout and theming
-///
-/// ## Usage
-/// ```dart
-/// // Navigate to booking flow with shop ID
-/// context.push('/booking');
-/// ```
-
-// lib/features/booking/presentation/screens/booking_flow_screen.dart
-import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
-
-/// Main booking flow screen that manages the 4-step booking process.
+/// Main booking flow screen that manages the multi-step booking process.
 class BookingFlowScreen extends ConsumerStatefulWidget {
   final String shopId;
   final String shopType;
@@ -78,20 +43,30 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
   bool _shouldForceTabChange = false;
   Key _tabsKey = UniqueKey();
   bool _isProcessing = false;
-
+ 
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
-      if (mounted) {
-        ref.read(selectedShopIdProvider.notifier).setShopId(widget.shopId);
-        ref.read(isFreelancerProvider.notifier).state = widget.isFreelancer;
+      if (!mounted) return;
+      ref.read(selectedShopIdProvider.notifier).setShopId(widget.shopId);
+      ref.read(isFreelancerProvider.notifier).state = widget.isFreelancer;
 
-        // Reset booking state when starting new booking
-        ref.read(selectedServicesProvider.notifier).state = [];
-        ref.read(selectedWorkersProvider.notifier).clear();
-        ref.read(selectedTimeSlotsProvider.notifier).clear();
-        ref.read(selectedAddressProvider.notifier).state = null;
+      // Reset booking state on entry so a stale draft from a previous
+      // session doesn't bleed into the new one.
+      ref.read(selectedServicesProvider.notifier).state = [];
+      ref.read(selectedWorkersProvider.notifier).clear();
+      ref.read(selectedTimeSlotsProvider.notifier).clear();
+      ref.read(selectedAddressProvider.notifier).state = null;
+
+      // Default selected date to today, never the past. If the date
+      // provider was left over from a previous session and is now
+      // historical, snap it forward.
+      final currentDate = ref.read(selectedDateProvider);
+      final today = DateTime.now();
+      final todayDate = DateTime(today.year, today.month, today.day);
+      if (currentDate.isBefore(todayDate)) {
+        ref.read(selectedDateProvider.notifier).state = todayDate;
       }
     });
   }
@@ -202,7 +177,16 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
         (hasWorkersStep
             ? (hasAddressStep ? 4 : 3)
             : (hasAddressStep ? 3 : 2))) {
-      _processBooking();
+      if (widget.isFreelancer) {
+        _processBooking();
+      } else {
+        // Signal BookingConfirmationScreen to open the payment dialog.
+        // _processBooking() calls the old payment-free flow and must not be
+        // used for regular shops, which require Paystack/Stripe payment.
+        ref
+            .read(bookingPaymentTriggerProvider.notifier)
+            .update((v) => v + 1);
+      }
     }
   }
 
@@ -249,53 +233,47 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
 
       if (userId == null) {
         if (mounted) {
-          context.showErrorSnackbar('Please login to continue');
+          context.showErrorSnackbar('Please log in to continue');
           context.push('/login');
         }
         return;
       }
 
-      final bookingController = ref.read(
-        bookingCreationControllerProvider.notifier,
-      );
+      final bookingController =
+          ref.read(bookingCreationControllerProvider.notifier);
 
-      BookingModel? booking;
+      final booking = widget.isFreelancer
+          ? await bookingController.createFreelancerBooking(
+              userId: userId,
+              freelancerId: widget.shopId,
+              freelancerName: widget.shopName,
+              freelancerLat: widget.latitude,
+              freelancerLng: widget.longitude,
+              travelRadiusKm: widget.travelRadiusKm ?? 10,
+              clientName: clientName,
+            )
+          : await bookingController.createBooking(
+              userId: userId,
+              shopId: widget.shopId,
+              latitude: widget.latitude,
+              longitude: widget.longitude,
+              shopAddress: widget.shopAddress,
+              clientName: clientName,
+              shopName: widget.shopName,
+            );
 
-      if (widget.isFreelancer) {
-        // Use freelancer booking method
-        booking = await bookingController.createFreelancerBooking(
-          userId: userId,
-          freelancerId: widget.shopId,
-          freelancerName: widget.shopName,
-          freelancerLat: widget.latitude,
-          freelancerLng: widget.longitude,
-          travelRadiusKm: widget.travelRadiusKm ?? 10,
-          clientName: clientName,
-        );
-      } else {
-        // Use existing shop booking method
-        booking = await bookingController.createBooking(
-          userId: userId,
-          shopId: widget.shopId,
-          latitude: widget.latitude,
-          longitude: widget.longitude,
-          shopAddress: widget.shopAddress,
-          // userEmail: ref.read(currentUserProvider)?.email ?? '',
-          clientName: clientName,
-          shopName: widget.shopName,
-        );
-      }
-
-      if (booking != null && mounted) {
+      if (!mounted) return;
+      if (booking != null) {
         Navigator.pushReplacementNamed(
           context,
           '/booking/confirmation',
           arguments: {'bookingId': booking.id},
         );
-      }
-    } catch (e) {
-      if (mounted) {
-        context.showErrorSnackbar('Booking failed: ${e.toString()}');
+      } else {
+        // The controller populated `state.error` with a user-safe
+        // message; surface that instead of a stringified exception.
+        final err = ref.read(bookingCreationControllerProvider).error;
+        context.showErrorSnackbar(err ?? 'Booking failed. Please try again.');
       }
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -340,7 +318,10 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
     final List<AppTabItem> tabs = [
       AppTabItem(
         label: 'Services',
-        content: ServiceSelectionScreen(shopId: widget.shopId),
+        content: ServiceSelectionScreen(
+          shopId: widget.shopId,
+          shopCurrency: widget.shopCurrency,
+        ),
       ),
     ];
 
@@ -355,7 +336,10 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
     tabs.add(
       AppTabItem(
         label: 'Time',
-        content: TimeSlotSelectionScreen(isFreelancer: widget.isFreelancer),
+        content: TimeSlotSelectionScreen(
+          isFreelancer: widget.isFreelancer,
+          shopCurrency: widget.shopCurrency,
+        ),
       ),
     );
 
