@@ -9,26 +9,78 @@ import type {
   VerifyTransactionResult,
   VerifyWebhookSignatureInput,
 } from "./port.ts";
+import { PaymentProviderError } from "./port.ts";
+import { retryFetch } from "../retry.ts";
+
+const PAYSTACK_BASE_URL = "https://api.paystack.co";
 
 export class PaystackProvider implements PaymentProviderPort {
   readonly name = "paystack" as const;
 
   private readonly webhookSecret: string;
+  private readonly secretKey: string;
 
   constructor() {
     // Read at construction so a missing secret fails fast on instantiation,
     // not during signature verify.
     this.webhookSecret = Deno.env.get("PAYSTACK_WEBHOOK_SECRET") ?? "";
+    this.secretKey = Deno.env.get("PAYSTACK_SECRET_KEY") ?? "";
   }
 
   initCheckout(_input: InitCheckoutInput): Promise<InitCheckoutResult> {
     throw new Error("PaystackProvider.initCheckout: not implemented yet");
   }
 
-  verifyTransaction(
-    _input: VerifyTransactionInput,
+  async verifyTransaction(
+    input: VerifyTransactionInput,
   ): Promise<VerifyTransactionResult> {
-    throw new Error("PaystackProvider.verifyTransaction: not implemented yet");
+    if (!this.secretKey) {
+      throw new PaymentProviderError(
+        "Paystack secret key not configured",
+        "unavailable",
+        false,
+      );
+    }
+    let resp: Response;
+    try {
+      resp = await retryFetch(
+        `${PAYSTACK_BASE_URL}/transaction/verify/${encodeURIComponent(input.reference)}`,
+        { headers: { Authorization: `Bearer ${this.secretKey}` } },
+        { attempts: 3, baseDelayMs: 500, label: "paystack.verify" },
+      );
+    } catch (e) {
+      // retryFetch throws Error on 4xx (terminal) or Response on 5xx after retries.
+      throw new PaymentProviderError(
+        `Paystack verify failed: ${(e as Error).message}`,
+        "unavailable",
+        false,
+        undefined,
+        e,
+      );
+    }
+    const body = await resp.json();
+    if (!body.status) {
+      throw new PaymentProviderError(
+        body.message ?? "Paystack verify returned status=false",
+        "invalid_request",
+        false,
+        undefined,
+        body,
+      );
+    }
+    const d = body.data;
+    const status: VerifyTransactionResult["status"] =
+      d.status === "success" ? "success" :
+      d.status === "abandoned" ? "abandoned" :
+      d.status === "failed" ? "failed" : "pending";
+
+    return {
+      status,
+      amount: (d.amount ?? 0) / 100,
+      currency: (d.currency ?? "").toUpperCase(),
+      paidAt: d.paid_at,
+      providerTransactionId: String(d.id ?? d.reference ?? input.reference),
+    };
   }
 
   processPayout(_input: ProcessPayoutInput): Promise<ProcessPayoutResult> {
