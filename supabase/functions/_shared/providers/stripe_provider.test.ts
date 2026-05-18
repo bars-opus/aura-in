@@ -46,3 +46,69 @@ Deno.test("StripeProvider.verifyWebhookSignature: missing header → false", asy
   });
   assertEquals(ok, false);
 });
+
+import { assertRejects } from "https://deno.land/std@0.224.0/assert/mod.ts";
+import { PaymentProviderError } from "./port.ts";
+
+// Stub fetch — duplicated from paystack_provider.test.ts to keep test files independent.
+function stubFetch(handler: (url: string, init?: RequestInit) => Response | Promise<Response>) {
+  const original = globalThis.fetch;
+  globalThis.fetch = (input, init) =>
+    Promise.resolve(handler(input.toString(), init as RequestInit));
+  return () => { globalThis.fetch = original; };
+}
+
+Deno.test("StripeProvider.verifyTransaction: paid session → success", async () => {
+  const restore = stubFetch((url) => {
+    if (url.includes("/checkout/sessions/cs_test_1")) {
+      return new Response(JSON.stringify({
+        id: "cs_test_1",
+        payment_status: "paid",
+        amount_total: 5000,
+        currency: "usd",
+        created: 1715000000,
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    return new Response("not found", { status: 404 });
+  });
+  try {
+    const provider = new StripeProvider();
+    const result = await provider.verifyTransaction({ reference: "cs_test_1" });
+    assertEquals(result.status, "success");
+    assertEquals(result.amount, 50);
+    assertEquals(result.currency, "USD");
+    assertEquals(result.providerTransactionId, "cs_test_1");
+  } finally { restore(); }
+});
+
+Deno.test("StripeProvider.verifyTransaction: unpaid session → pending", async () => {
+  const restore = stubFetch(() =>
+    new Response(JSON.stringify({
+      id: "cs_test_2",
+      payment_status: "unpaid",
+      amount_total: 5000,
+      currency: "usd",
+      created: 1715000000,
+    }), { status: 200, headers: { "content-type": "application/json" } })
+  );
+  try {
+    const provider = new StripeProvider();
+    const result = await provider.verifyTransaction({ reference: "cs_test_2" });
+    assertEquals(result.status, "pending");
+  } finally { restore(); }
+});
+
+Deno.test("StripeProvider.verifyTransaction: 404 → throws invalid_request", async () => {
+  const restore = stubFetch(() =>
+    new Response(JSON.stringify({
+      error: { type: "invalid_request_error", message: "No such session" },
+    }), { status: 404, headers: { "content-type": "application/json" } })
+  );
+  try {
+    const provider = new StripeProvider();
+    await assertRejects(
+      () => provider.verifyTransaction({ reference: "cs_missing" }),
+      PaymentProviderError,
+    );
+  } finally { restore(); }
+});

@@ -1,5 +1,6 @@
 // supabase/functions/_shared/providers/stripe_provider.ts
 import Stripe from "https://esm.sh/stripe@13.6.0";
+import { PaymentProviderError } from "./port.ts";
 import type {
   InitCheckoutInput,
   InitCheckoutResult,
@@ -27,10 +28,48 @@ export class StripeProvider implements PaymentProviderPort {
     throw new Error("StripeProvider.initCheckout: not implemented yet");
   }
 
-  verifyTransaction(
-    _input: VerifyTransactionInput,
+  async verifyTransaction(
+    input: VerifyTransactionInput,
   ): Promise<VerifyTransactionResult> {
-    throw new Error("StripeProvider.verifyTransaction: not implemented yet");
+    if (!this.stripe) {
+      throw new PaymentProviderError(
+        "Stripe not configured",
+        "unavailable",
+        false,
+      );
+    }
+    let session: Stripe.Checkout.Session;
+    try {
+      session = await this.stripe.checkout.sessions.retrieve(input.reference);
+    } catch (e) {
+      const err = e as { type?: string; message?: string; raw?: unknown };
+      const category = err.type === "StripeInvalidRequestError"
+        ? "invalid_request"
+        : err.type === "StripeRateLimitError"
+        ? "rate_limit"
+        : "unavailable";
+      throw new PaymentProviderError(
+        err.message ?? "Stripe session retrieve failed",
+        category,
+        category === "rate_limit",
+        err.type,
+        err.raw ?? err,
+      );
+    }
+    const status: VerifyTransactionResult["status"] =
+      session.payment_status === "paid" ? "success" :
+      session.status === "expired" ? "abandoned" :
+      session.payment_status === "no_payment_required" ? "success" : "pending";
+
+    return {
+      status,
+      amount: (session.amount_total ?? 0) / 100,
+      currency: (session.currency ?? "").toUpperCase(),
+      paidAt: session.created
+        ? new Date(session.created * 1000).toISOString()
+        : undefined,
+      providerTransactionId: session.id,
+    };
   }
 
   processPayout(_input: ProcessPayoutInput): Promise<ProcessPayoutResult> {
