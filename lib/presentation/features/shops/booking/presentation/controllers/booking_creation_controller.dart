@@ -3,6 +3,7 @@
 import 'package:nano_embryo/presentation/features/freelancer/presentation/providers/freelancer_details_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_sanitizer.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_validators.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/providers/is_freelancer_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/services/notification_service.dart';
 import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_transaction_model.dart';
@@ -115,8 +116,13 @@ class BookingCreationController extends _$BookingCreationController {
       final timeSlots = ref.read(selectedTimeSlotsProvider);
       final isCombinedView = ref.read(isCombinedViewProvider);
 
-      _validateSelections(services, timeSlots, quantities, isCombinedView);
-      _validateNoDuplicateWorkers(workers);
+      BookingValidators.validateSelections(
+        services: services,
+        timeSlots: timeSlots,
+        quantities: quantities,
+        isCombinedView: isCombinedView,
+      );
+      BookingValidators.validateNoDuplicateWorkers(workers);
 
       final totalAmount = _calculateTotalAmount(services, quantities);
       final depositAmount = totalAmount * _kDepositPercent;
@@ -125,11 +131,10 @@ class BookingCreationController extends _$BookingCreationController {
       // The previous version used `timeSlots.values.first` which broke
       // for non-overlapping multi-service bookings — the earliest slot
       // by start_time is the right anchor.
-      final sortedSlots = timeSlots.values.toList()
-        ..sort((a, b) => a.startTime.compareTo(b.startTime));
+      final sortedSlots = BookingValidators.sortedByStart(timeSlots.values);
       final firstSlot = sortedSlots.first;
-      final actualEndTime = _latestActualEnd(sortedSlots);
-      final endTime = _latestEnd(sortedSlots);
+      final actualEndTime = BookingValidators.latestActualEnd(sortedSlots);
+      final endTime = BookingValidators.latestEnd(sortedSlots);
 
       final booking = BookingModel(
         id: const Uuid().v4(),
@@ -190,7 +195,7 @@ class BookingCreationController extends _$BookingCreationController {
     } on BookingException catch (e) {
       state = state.copyWith(
         isSubmitting: false,
-        error: _userFacingMessage(e),
+        error: BookingValidators.userFacingMessage(e),
       );
       BookingLogger.warn('createBooking domain error', error: e);
       return null;
@@ -225,7 +230,12 @@ class BookingCreationController extends _$BookingCreationController {
       final isCombinedView = ref.read(isCombinedViewProvider);
       final serviceAddress = ref.read(selectedAddressProvider);
 
-      _validateSelections(services, timeSlots, quantities, isCombinedView);
+      BookingValidators.validateSelections(
+        services: services,
+        timeSlots: timeSlots,
+        quantities: quantities,
+        isCombinedView: isCombinedView,
+      );
 
       final freelancerDetails =
           await ref.read(freelancerDetailsProvider(freelancerId).future);
@@ -260,10 +270,9 @@ class BookingCreationController extends _$BookingCreationController {
       final totalAmount = _calculateTotalAmount(services, quantities);
       final depositAmount = totalAmount * _kDepositPercent;
 
-      final sortedSlots = timeSlots.values.toList()
-        ..sort((a, b) => a.startTime.compareTo(b.startTime));
+      final sortedSlots = BookingValidators.sortedByStart(timeSlots.values);
       final firstSlot = sortedSlots.first;
-      final actualEndTime = _latestActualEnd(sortedSlots);
+      final actualEndTime = BookingValidators.latestActualEnd(sortedSlots);
 
       final booking = BookingModel(
         id: const Uuid().v4(),
@@ -271,7 +280,7 @@ class BookingCreationController extends _$BookingCreationController {
         shopId: freelancerId,
         bookingDate: date,
         startTime: firstSlot.startTime,
-        endTime: _latestEnd(sortedSlots),
+        endTime: BookingValidators.latestEnd(sortedSlots),
         actualEndTime: actualEndTime,
         status: BookingStatus.confirmed,
         totalAmount: totalAmount,
@@ -318,7 +327,7 @@ class BookingCreationController extends _$BookingCreationController {
     } on BookingException catch (e) {
       state = state.copyWith(
         isSubmitting: false,
-        error: _userFacingMessage(e),
+        error: BookingValidators.userFacingMessage(e),
       );
       BookingLogger.warn('createFreelancerBooking domain error', error: e);
       return null;
@@ -334,91 +343,6 @@ class BookingCreationController extends _$BookingCreationController {
       );
       return null;
     }
-  }
-
-  /// Re-throws a BookingValidationException if anything in the draft
-  /// would make the RPC unhappy. Called from both create paths so they
-  /// agree on what "valid" means.
-  void _validateSelections(
-    List<AppointmentSlotDTO> services,
-    Map<String, TimeSlotModel> timeSlots,
-    Map<String, int> quantities,
-    bool isCombinedView,
-  ) {
-    if (services.isEmpty) {
-      throw BookingValidationException({'services': 'No services selected'});
-    }
-    if (isCombinedView) {
-      if (timeSlots.isEmpty) {
-        throw BookingValidationException({'timeSlot': 'No time slot selected'});
-      }
-    } else {
-      for (final service in services) {
-        if (!timeSlots.containsKey(service.id)) {
-          throw BookingValidationException({
-            service.id: 'No time slot selected for ${service.serviceName}',
-          });
-        }
-      }
-    }
-    for (final service in services) {
-      final qty = quantities[service.id] ?? 1;
-      if (qty < 1) {
-        throw BookingValidationException({
-          service.id: 'Invalid quantity for ${service.serviceName}',
-        });
-      }
-      if (qty > service.maxClients) {
-        throw BookingValidationException({
-          service.id:
-              'Quantity exceeds maximum allowed (${service.maxClients})',
-        });
-      }
-    }
-  }
-
-  /// Distinct-worker check inside a single booking. The server enforces
-  /// this too via a partial unique index, but failing early avoids
-  /// burning the rate-limit budget on a doomed submission.
-  void _validateNoDuplicateWorkers(
-    Map<String, List<Map<String, String?>>> workers,
-  ) {
-    for (final entry in workers.entries) {
-      final seen = <String>{};
-      for (final w in entry.value) {
-        final id = w['id'];
-        if (id == null) continue;
-        if (!seen.add(id)) {
-          throw BookingValidationException({
-            entry.key: 'The same worker cannot be assigned to multiple seats',
-          });
-        }
-      }
-    }
-  }
-
-  /// Translates a domain exception into a single-line message safe to
-  /// show to the user. Never leaks raw exception text.
-  String _userFacingMessage(BookingException e) {
-    if (e is SlotUnavailableException) {
-      return 'The selected time slot is no longer available. Please choose another.';
-    }
-    if (e is WorkerUnavailableException) {
-      return 'The selected worker is no longer available at this time.';
-    }
-    if (e is SlotFullException) {
-      return 'This time slot has reached maximum capacity.';
-    }
-    if (e is OutsideBusinessHoursException) {
-      return 'This time is outside the shop\'s business hours.';
-    }
-    if (e is BookingConflictException) {
-      return 'This booking conflicted with another. Please review and try again.';
-    }
-    if (e is BookingValidationException) {
-      return e.validationErrors.values.first;
-    }
-    return 'Booking failed. Please try again.';
   }
 
   Future<void> _sendBookingNotifications(
@@ -496,20 +420,6 @@ class BookingCreationController extends _$BookingCreationController {
         stack: stack,
       );
     }
-  }
-
-  DateTime _latestEnd(List<TimeSlotModel> slots) {
-    return slots
-        .reduce((a, b) => a.endTime.isAfter(b.endTime) ? a : b)
-        .endTime;
-  }
-
-  DateTime _latestActualEnd(List<TimeSlotModel> slots) {
-    return slots
-        .reduce(
-          (a, b) => a.actualEndTime.isAfter(b.actualEndTime) ? a : b,
-        )
-        .actualEndTime;
   }
 
   double _calculateTotalAmount(
