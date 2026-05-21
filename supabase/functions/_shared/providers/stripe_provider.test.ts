@@ -112,3 +112,56 @@ Deno.test("StripeProvider.verifyTransaction: 404 → throws invalid_request", as
     );
   } finally { restore(); }
 });
+
+Deno.test("StripeProvider.initCheckout: creates session with major→minor conversion", async () => {
+  const restore = stubFetch((url, init) => {
+    if (url.endsWith("/checkout/sessions")) {
+      const body = new URLSearchParams(init?.body as string);
+      // Stripe SDK serializes as form-urlencoded
+      assertEquals(body.get("line_items[0][price_data][unit_amount]"), "5000");
+      assertEquals(body.get("line_items[0][price_data][currency]"), "usd");
+      return new Response(JSON.stringify({
+        id: "cs_test_3",
+        url: "https://checkout.stripe.com/x",
+        payment_status: "unpaid",
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    return new Response("nf", { status: 404 });
+  });
+  try {
+    const provider = new StripeProvider();
+    const result = await provider.initCheckout({
+      amount: 50,
+      currency: "USD",
+      reference: "ref_x",
+      customerEmail: "buyer@example.com",
+      callbackUrl: "nanoembryo://payment-success",
+    });
+    assertEquals(result.checkoutUrl, "https://checkout.stripe.com/x");
+    assertEquals(result.providerReference, "cs_test_3");
+  } finally { restore(); }
+});
+
+Deno.test("StripeProvider.initCheckout: adds transfer_data when destinationAccountId set", async () => {
+  let received: URLSearchParams | undefined;
+  const restore = stubFetch((url, init) => {
+    if (url.endsWith("/checkout/sessions")) {
+      received = new URLSearchParams(init?.body as string);
+      return new Response(JSON.stringify({
+        id: "cs_x", url: "u", payment_status: "unpaid",
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    return new Response("nf", { status: 404 });
+  });
+  try {
+    const provider = new StripeProvider();
+    await provider.initCheckout({
+      amount: 100, currency: "USD", reference: "r",
+      customerEmail: "x@y.z", callbackUrl: "x://y",
+      destinationAccountId: "acct_1Xxx",
+      platformFeeAmount: 2.9,
+    });
+    assertEquals(received?.get("payment_intent_data[transfer_data][destination]"), "acct_1Xxx");
+    assertEquals(received?.get("payment_intent_data[application_fee_amount]"), "290");
+  } finally { restore(); }
+});

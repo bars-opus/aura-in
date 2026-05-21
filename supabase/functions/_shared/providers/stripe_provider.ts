@@ -24,8 +24,67 @@ export class StripeProvider implements PaymentProviderPort {
     this.webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET") ?? "";
   }
 
-  initCheckout(_input: InitCheckoutInput): Promise<InitCheckoutResult> {
-    throw new Error("StripeProvider.initCheckout: not implemented yet");
+  async initCheckout(
+    input: InitCheckoutInput,
+  ): Promise<InitCheckoutResult> {
+    if (!this.stripe) {
+      throw new PaymentProviderError("Stripe not configured", "unavailable", false);
+    }
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
+      payment_method_types: ["card"],
+      mode: "payment",
+      customer_email: input.customerEmail,
+      line_items: [{
+        price_data: {
+          currency: input.currency.toLowerCase(),
+          product_data: {
+            name: "Booking Deposit",
+          },
+          unit_amount: Math.round(input.amount * 100),
+        },
+        quantity: 1,
+      }],
+      success_url: input.callbackUrl,
+      cancel_url: input.callbackUrl.replace("payment-success", "payment-cancelled"),
+      metadata: {
+        ...input.metadata,
+        reference: input.reference,
+      },
+    };
+    if (input.destinationAccountId) {
+      sessionParams.payment_intent_data = {
+        transfer_data: { destination: input.destinationAccountId },
+      };
+      if (input.platformFeeAmount !== undefined) {
+        sessionParams.payment_intent_data.application_fee_amount =
+          Math.round(input.platformFeeAmount * 100);
+      }
+    }
+
+    let session: Stripe.Checkout.Session;
+    try {
+      session = await this.stripe.checkout.sessions.create(sessionParams, {
+        idempotencyKey: input.reference,
+      });
+    } catch (e) {
+      const err = e as { type?: string; message?: string; raw?: unknown };
+      const category = err.type === "StripeInvalidRequestError"
+        ? "invalid_request"
+        : err.type === "StripeRateLimitError"
+        ? "rate_limit"
+        : "unavailable";
+      throw new PaymentProviderError(
+        err.message ?? "Stripe session create failed",
+        category,
+        category === "rate_limit",
+        err.type,
+        err.raw ?? err,
+      );
+    }
+    return {
+      checkoutUrl: session.url ?? "",
+      providerReference: session.id,
+    };
   }
 
   async verifyTransaction(
