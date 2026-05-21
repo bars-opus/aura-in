@@ -149,8 +149,57 @@ export class PaystackProvider implements PaymentProviderPort {
     };
   }
 
-  processPayout(_input: ProcessPayoutInput): Promise<ProcessPayoutResult> {
-    throw new Error("PaystackProvider.processPayout: not implemented yet");
+  async processPayout(
+    input: ProcessPayoutInput,
+  ): Promise<ProcessPayoutResult> {
+    if (!this.secretKey) {
+      throw new PaymentProviderError("Paystack not configured", "unavailable", false);
+    }
+    const amountKobo = Math.round(input.amount * 100);
+    let resp: Response;
+    try {
+      resp = await retryFetch(
+        `${PAYSTACK_BASE_URL}/transfer`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.secretKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            source: "balance",
+            amount: amountKobo,
+            recipient: input.destinationAccountId,
+            reference: input.reference,    // Paystack's native idempotency primitive
+            reason: input.reason ?? "Withdrawal",
+          }),
+        },
+        { attempts: 3, baseDelayMs: 1000, label: "paystack.transfer" },
+      );
+    } catch (e) {
+      throw new PaymentProviderError(
+        `Paystack transfer failed: ${(e as Error).message}`,
+        "unavailable",
+        false,
+        undefined,
+        e,
+      );
+    }
+    const body = await resp.json();
+    if (!body.status) {
+      throw new PaymentProviderError(
+        body.message ?? "Paystack transfer returned status=false",
+        "invalid_request",
+        false,
+        undefined,
+        body,
+      );
+    }
+    const d = body.data;
+    return {
+      status: d.status === "success" ? "success" : d.status === "failed" ? "failed" : "pending",
+      providerTransferId: d.transfer_code,
+    };
   }
 
   async verifyWebhookSignature(

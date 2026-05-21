@@ -212,3 +212,49 @@ Deno.test("PaystackProvider.initCheckout: provider 400 → throws PaymentProvide
     );
   } finally { restore(); }
 });
+
+Deno.test("PaystackProvider.processPayout: kobo conversion + reference idempotency", async () => {
+  let received: any;
+  const restore = stubFetch((url, init) => {
+    if (url.endsWith("/transfer")) {
+      received = JSON.parse(init?.body as string);
+      return new Response(JSON.stringify({
+        status: true,
+        data: { transfer_code: "trf_xyz", status: "pending", reference: received.reference },
+      }), { status: 200 });
+    }
+    return new Response("nf", { status: 404 });
+  });
+  try {
+    const provider = new PaystackProvider();
+    const result = await provider.processPayout({
+      amount: 100,
+      currency: "GHS",
+      destinationAccountId: "RCP_abc",
+      reference: "wd_idempotency_1",
+      reason: "Withdrawal",
+    });
+    assertEquals(received.amount, 10000);
+    assertEquals(received.recipient, "RCP_abc");
+    assertEquals(received.reference, "wd_idempotency_1");
+    assertEquals(received.reason, "Withdrawal");
+    assertEquals(result.providerTransferId, "trf_xyz");
+    assertEquals(result.status, "pending");
+  } finally { restore(); }
+});
+
+Deno.test("PaystackProvider.processPayout: status=false → invalid_request", async () => {
+  const restore = stubFetch(() =>
+    new Response(JSON.stringify({ status: false, message: "Insufficient balance" }), { status: 200 })
+  );
+  try {
+    const provider = new PaystackProvider();
+    await assertRejects(
+      () => provider.processPayout({
+        amount: 50, currency: "GHS", destinationAccountId: "RCP_x",
+        reference: "wd_x",
+      }),
+      PaymentProviderError,
+    );
+  } finally { restore(); }
+});
