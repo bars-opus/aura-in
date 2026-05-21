@@ -66,6 +66,7 @@ class WithdrawalRequestModel extends Equatable {
   final String idempotencyKey;
   final DateTime? processedAt;
   final String? failedReason;
+  final String? deadLetterReason;
   final String? requestedByIp;
   final double feeAmount;
   final double netAmount;
@@ -83,6 +84,7 @@ class WithdrawalRequestModel extends Equatable {
     this.providerTransferId,
     this.processedAt,
     this.failedReason,
+    this.deadLetterReason,
     this.requestedByIp,
     required this.feeAmount,
     required this.netAmount,
@@ -104,6 +106,7 @@ class WithdrawalRequestModel extends Equatable {
           ? DateTime.parse(json['processed_at'] as String)
           : null,
       failedReason: json['failed_reason'] as String?,
+      deadLetterReason: json['dead_letter_reason'] as String?,
       requestedByIp: json['requested_by_ip'] as String?,
       feeAmount: (json['fee_amount'] as num?)?.toDouble() ?? 0,
       netAmount: (json['net_amount'] as num?)?.toDouble() ?? 0,
@@ -124,6 +127,7 @@ class WithdrawalRequestModel extends Equatable {
       'idempotency_key': idempotencyKey,
       'processed_at': processedAt?.toIso8601String(),
       'failed_reason': failedReason,
+      'dead_letter_reason': deadLetterReason,
       'requested_by_ip': requestedByIp,
       'fee_amount': feeAmount,
       'net_amount': netAmount,
@@ -140,6 +144,7 @@ class WithdrawalRequestModel extends Equatable {
         status,
         paymentProvider,
         providerTransferId,
+        deadLetterReason,
         createdAt,
         updatedAt,
       ];
