@@ -8,6 +8,17 @@ import 'package:nano_embryo/payment/config/payment_config.dart';
 import 'package:nano_embryo/payment/presentation/widgets/payment_webview.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+/// Typedef for the function that launches the payment WebView and returns
+/// whether the user reached the success deep-link. Injected into
+/// [PaymentController] so tests can substitute a fake without going through
+/// Navigator.push.
+typedef WebViewLauncher = Future<bool> Function({
+  required BuildContext context,
+  required String authorizationUrl,
+  required String reference,
+  required String provider,
+});
+
 /// Immutable snapshot of the args passed to [PaymentController.processPayment]
 /// so [PaymentController.retryLast] can re-invoke it without the caller
 /// having to remember the values.
@@ -43,10 +54,38 @@ class PaymentController
     extends StateNotifier<AsyncValue<Map<String, dynamic>?>> {
   final SupabaseClient _supabase;
   final PaymentConfig _config;
+  final WebViewLauncher _webViewLauncher;
   _PaymentIntent? _lastIntent;
 
-  PaymentController(this._supabase, this._config)
-      : super(const AsyncValue.data(null));
+  PaymentController(
+    this._supabase,
+    this._config, {
+    WebViewLauncher? webViewLauncher,
+  })  : _webViewLauncher = webViewLauncher ?? _defaultWebViewLauncher,
+        super(const AsyncValue.data(null));
+
+  static Future<bool> _defaultWebViewLauncher({
+    required BuildContext context,
+    required String authorizationUrl,
+    required String reference,
+    required String provider,
+  }) async {
+    final completer = Completer<bool>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentWebView(
+          url: authorizationUrl,
+          reference: reference,
+          provider: provider,
+          onComplete: (success) {
+            if (!completer.isCompleted) completer.complete(success);
+          },
+        ),
+      ),
+    );
+    return completer.future;
+  }
 
   Future<Map<String, dynamic>?> processPayment({
     required String shopId,
@@ -232,24 +271,13 @@ class PaymentController
     required String authorizationUrl,
     required String reference,
     required String provider,
-  }) async {
-    final completer = Completer<bool>();
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PaymentWebView(
-          url: authorizationUrl,
-          reference: reference,
-          provider: provider,
-          onComplete: (success) {
-            if (!completer.isCompleted) completer.complete(success);
-          },
-        ),
-      ),
+  }) {
+    return _webViewLauncher(
+      context: context,
+      authorizationUrl: authorizationUrl,
+      reference: reference,
+      provider: provider,
     );
-
-    return completer.future;
   }
 
   /// Polls the `bookings` table for a row matching the reference.
