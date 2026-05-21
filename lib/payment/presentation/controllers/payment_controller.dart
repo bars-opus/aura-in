@@ -8,10 +8,42 @@ import 'package:nano_embryo/payment/config/payment_config.dart';
 import 'package:nano_embryo/payment/presentation/widgets/payment_webview.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+/// Immutable snapshot of the args passed to [PaymentController.processPayment]
+/// so [PaymentController.retryLast] can re-invoke it without the caller
+/// having to remember the values.
+class _PaymentIntent {
+  const _PaymentIntent({
+    required this.shopId,
+    required this.userId,
+    required this.userEmail,
+    required this.services,
+    required this.startTime,
+    required this.endTime,
+    required this.actualEndTime,
+    required this.totalAmount,
+    required this.depositAmount,
+    required this.platformFee,
+    required this.paymentProvider,
+  });
+
+  final String shopId;
+  final String userId;
+  final String userEmail;
+  final List<Map<String, dynamic>> services;
+  final DateTime startTime;
+  final DateTime endTime;
+  final DateTime actualEndTime;
+  final double totalAmount;
+  final double depositAmount;
+  final double platformFee;
+  final String paymentProvider;
+}
+
 class PaymentController
     extends StateNotifier<AsyncValue<Map<String, dynamic>?>> {
   final SupabaseClient _supabase;
   final PaymentConfig _config;
+  _PaymentIntent? _lastIntent;
 
   PaymentController(this._supabase, this._config)
       : super(const AsyncValue.data(null));
@@ -30,6 +62,19 @@ class PaymentController
     required String paymentProvider,
     required BuildContext context,
   }) async {
+    _lastIntent = _PaymentIntent(
+      shopId: shopId,
+      userId: userId,
+      userEmail: userEmail,
+      services: services,
+      startTime: startTime,
+      endTime: endTime,
+      actualEndTime: actualEndTime,
+      totalAmount: totalAmount,
+      depositAmount: depositAmount,
+      platformFee: platformFee,
+      paymentProvider: paymentProvider,
+    );
     state = const AsyncValue.loading();
 
     try {
@@ -67,6 +112,7 @@ class PaymentController
         await _fireFailure(
           message: 'Could not initialize payment.',
           category: PaymentErrorCategory.serverError,
+          context: context,
         );
         state = AsyncValue.data(null);
         return null;
@@ -78,6 +124,7 @@ class PaymentController
         await _fireFailure(
           message: err,
           category: _classifyServerError(err),
+          context: context,
         );
         state = AsyncValue.data(null);
         return null;
@@ -94,6 +141,7 @@ class PaymentController
         await _fireFailure(
           message: 'Could not initialize payment.',
           category: PaymentErrorCategory.serverError,
+          context: context,
         );
         state = AsyncValue.data(null);
         return null;
@@ -138,6 +186,7 @@ class PaymentController
         category: webViewSuccess
             ? PaymentErrorCategory.network
             : PaymentErrorCategory.cancelled,
+        context: context,
       );
       state = AsyncValue.data(null);
       return null;
@@ -146,10 +195,36 @@ class PaymentController
       await _fireFailure(
         message: e.toString(),
         category: PaymentErrorCategory.unknown,
+        context: context,
       );
       state = AsyncValue.error(e, st);
       return null;
     }
+  }
+
+  /// Re-invokes the last [processPayment] call with the same args.
+  /// No-op if no intent is cached (e.g., user opened the failure screen
+  /// after app restart).
+  Future<Map<String, dynamic>?> retryLast(BuildContext context) async {
+    final intent = _lastIntent;
+    if (intent == null) {
+      debugPrint('retryLast called with no cached intent');
+      return null;
+    }
+    return processPayment(
+      shopId: intent.shopId,
+      userId: intent.userId,
+      userEmail: intent.userEmail,
+      services: intent.services,
+      startTime: intent.startTime,
+      endTime: intent.endTime,
+      actualEndTime: intent.actualEndTime,
+      totalAmount: intent.totalAmount,
+      depositAmount: intent.depositAmount,
+      platformFee: intent.platformFee,
+      paymentProvider: intent.paymentProvider,
+      context: context,
+    );
   }
 
   Future<bool> _showPaymentWebView({
@@ -283,19 +358,28 @@ class PaymentController
     String? reference,
     required String message,
     required PaymentErrorCategory category,
+    BuildContext? context,
   }) async {
+    final info = PaymentErrorInfo(
+      reference: reference,
+      message: message,
+      category: category,
+    );
+
     final hook = _config.onPaymentFailure;
-    if (hook == null) return;
-    try {
-      await hook(
-        PaymentErrorInfo(
-          reference: reference,
-          message: message,
-          category: category,
-        ),
+    if (hook != null) {
+      try {
+        await hook(info);
+      } catch (e) {
+        debugPrint('onPaymentFailure hook threw: $e');
+      }
+    }
+
+    final builder = _config.paymentErrorBuilder;
+    if (builder != null && context != null && context.mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (ctx) => builder(ctx, info)),
       );
-    } catch (e) {
-      debugPrint('onPaymentFailure hook threw: $e');
     }
   }
 }
