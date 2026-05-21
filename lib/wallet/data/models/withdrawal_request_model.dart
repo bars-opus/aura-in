@@ -8,17 +8,40 @@ enum WithdrawalStatus {
   processing,
   completed,
   failed,
-  refunded;
+  refunded,
+  retrying,
+  deadLetter;
 
-  String get value => name.toLowerCase();
-  
-  static WithdrawalStatus fromString(String value) {
-    return WithdrawalStatus.values.firstWhere(
-      (e) => e.value == value,
-      orElse: () => WithdrawalStatus.pending,
-    );
+  String get value {
+    switch (this) {
+      case WithdrawalStatus.deadLetter:
+        return 'dead_letter';
+      default:
+        return name.toLowerCase();
+    }
   }
-  
+
+  static WithdrawalStatus fromString(String value) {
+    switch (value) {
+      case 'pending':
+        return WithdrawalStatus.pending;
+      case 'processing':
+        return WithdrawalStatus.processing;
+      case 'completed':
+        return WithdrawalStatus.completed;
+      case 'failed':
+        return WithdrawalStatus.failed;
+      case 'refunded':
+        return WithdrawalStatus.refunded;
+      case 'retrying':
+        return WithdrawalStatus.retrying;
+      case 'dead_letter':
+        return WithdrawalStatus.deadLetter;
+      default:
+        return WithdrawalStatus.pending;
+    }
+  }
+
   String get displayName {
     switch (this) {
       case WithdrawalStatus.pending:
@@ -31,9 +54,13 @@ enum WithdrawalStatus {
         return 'Failed';
       case WithdrawalStatus.refunded:
         return 'Refunded';
+      case WithdrawalStatus.retrying:
+        return 'Retrying';
+      case WithdrawalStatus.deadLetter:
+        return 'Needs Review';
     }
   }
-  
+
   Color get statusColor {
     switch (this) {
       case WithdrawalStatus.pending:
@@ -46,13 +73,12 @@ enum WithdrawalStatus {
         return Colors.red;
       case WithdrawalStatus.refunded:
         return Colors.grey;
+      case WithdrawalStatus.retrying:
+        return Colors.amber;
+      case WithdrawalStatus.deadLetter:
+        return Colors.deepOrange;
     }
-    
   }
-
-
-
-  
 }
 
 class WithdrawalRequestModel extends Equatable {

@@ -5,10 +5,12 @@ import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/todays_view.dart';
 import 'package:nano_embryo/payment/presentation/widgets/payment_setup_banner.dart';
 import 'package:nano_embryo/wallet/presentation/providers/payment_setup_provider.dart';
+import 'package:nano_embryo/wallet/presentation/widgets/dead_letter_banner.dart';
 import 'package:nano_embryo/wallet/presentation/widgets/transaction_list_item.dart';
 import 'package:nano_embryo/wallet/presentation/widgets/wallet_balance_card.dart';
 import 'package:nano_embryo/wallet/presentation/widgets/withdrawal_sheet.dart';
 import 'package:nano_embryo/wallet/providers/wallet_providers.dart';
+import 'package:nano_embryo/wallet/providers/wallet_transactions_paginated_provider.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   final String shopId;
@@ -31,6 +33,32 @@ class WalletScreen extends ConsumerStatefulWidget {
 }
 
 class _WalletScreenState extends ConsumerState<WalletScreen> {
+  final ScrollController _scroll = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(_maybeLoadMore);
+  }
+
+  void _maybeLoadMore() {
+    if (!_scroll.hasClients) return;
+    if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 200) {
+      ref
+          .read(
+            walletTransactionsPaginatedProvider(widget.shopId).notifier,
+          )
+          .loadNext();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scroll.removeListener(_maybeLoadMore);
+    _scroll.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -39,7 +67,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     // Watch wallet data
     final walletAsync = ref.watch(shopWalletProvider(widget.shopId));
     final transactionsAsync = ref.watch(
-      walletTransactionsProvider(shopId: widget.shopId, limit: 20),
+      walletTransactionsPaginatedProvider(widget.shopId),
     );
 
     // Watch real-time payment setup status
@@ -53,10 +81,15 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         child: RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(shopWalletProvider(widget.shopId));
-            ref.invalidate(walletTransactionsProvider(shopId: widget.shopId));
+            await ref
+                .read(
+                  walletTransactionsPaginatedProvider(widget.shopId).notifier,
+                )
+                .refresh();
             ref.invalidate(paymentSetupStatusProvider(widget.shopId));
           },
           child: CustomScrollView(
+            controller: _scroll,
             slivers: [
               // Payment Setup Banner - Shows/Hides in real-time
               SliverToBoxAdapter(
@@ -135,11 +168,13 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                 ref.invalidate(
                                   shopWalletProvider(widget.shopId),
                                 );
-                                ref.invalidate(
-                                  walletTransactionsProvider(
-                                    shopId: widget.shopId,
-                                  ),
-                                );
+                                ref
+                                    .read(
+                                      walletTransactionsPaginatedProvider(
+                                        widget.shopId,
+                                      ).notifier,
+                                    )
+                                    .refresh();
                                 ref.invalidate(
                                   paymentSetupStatusProvider(widget.shopId),
                                 );
@@ -169,6 +204,11 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 ),
               ),
 
+              // Dead-letter (stuck withdrawals) banner
+              SliverToBoxAdapter(
+                child: DeadLetterBanner(shopId: widget.shopId),
+              ),
+
               // Quick Stats Section
               SliverToBoxAdapter(child: TodaysView(shopId: widget.shopId)),
 
@@ -194,9 +234,25 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 data:
                     (transactions) => SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
+                        if (index == transactions.length) {
+                          final notifier = ref.read(
+                            walletTransactionsPaginatedProvider(
+                              widget.shopId,
+                            ).notifier,
+                          );
+                          if (!notifier.hasMore) {
+                            return const SizedBox.shrink();
+                          }
+                          return const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Center(
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          );
+                        }
                         final transaction = transactions[index];
                         return TransactionListItem(transaction: transaction);
-                      }, childCount: transactions.length),
+                      }, childCount: transactions.length + 1),
                     ),
                 loading:
                     () => const SliverFillRemaining(
