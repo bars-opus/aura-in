@@ -2,6 +2,14 @@
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import {
+  isDebugLogging,
+  redactForLog,
+  sanitizeIdentifier,
+} from "../_shared/sanitize.ts";
+import { audit } from "../_shared/audit.ts";
+import { getProvider } from "../_shared/providers/registry.ts";
+import { PaymentProviderError, type PaymentProviderName } from "../_shared/providers/port.ts";
 
 // ============================================================================
 // Configuration
@@ -12,49 +20,58 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 );
 
-const PAYSTACK_SECRET_KEY = Deno.env.get('PAYSTACK_SECRET_KEY')!;
-const PAYSTACK_BASE_URL = 'https://api.paystack.co';
-
-const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY');
-const STRIPE_BASE_URL = 'https://api.stripe.com/v1';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+// Internal callers (DB webhook trigger) must include this secret in the Authorization header
+const INTERNAL_WEBHOOK_SECRET = Deno.env.get('INTERNAL_WEBHOOK_SECRET');
 
 // ============================================================================
 // Main Handler
 // ============================================================================
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+  // Verify internal caller secret — this endpoint is not user-facing
+  if (!INTERNAL_WEBHOOK_SECRET) {
+    console.error('❌ INTERNAL_WEBHOOK_SECRET not configured');
+    return new Response(JSON.stringify({ error: 'Server misconfiguration' }), { status: 500 });
+  }
+
+  const authHeader = req.headers.get('Authorization');
+  if (authHeader !== `Bearer ${INTERNAL_WEBHOOK_SECRET}`) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
   try {
     const body = await req.json();
-    const { withdrawal_id } = body;
-
-    if (!withdrawal_id) {
+    let withdrawalId: string;
+    try {
+      withdrawalId = sanitizeIdentifier(body.withdrawal_id, 64);
+    } catch (sanErr) {
       return new Response(
-        JSON.stringify({ error: 'withdrawal_id required' }),
-        { status: 400, headers: corsHeaders }
+        JSON.stringify({ error: (sanErr as Error).message }),
+        { status: 400 },
       );
     }
 
-    const result = await processWithdrawal(withdrawal_id);
-    
+    if (!withdrawalId) {
+      return new Response(
+        JSON.stringify({ error: 'withdrawal_id required' }),
+        { status: 400 }
+      );
+    }
+
+    const result = await processWithdrawal(withdrawalId);
+
     return new Response(
       JSON.stringify(result),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Error processing withdrawal:', error);
+    console.error('Error processing withdrawal:', (error as Error).message);
+    if (isDebugLogging()) {
+      console.error('full error:', redactForLog(error));
+    }
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: (error as Error).message }),
+      { status: 500 }
     );
   }
 });
@@ -104,33 +121,51 @@ async function processWithdrawal(withdrawalId: string) {
 
   try {
     let transferResult;
-
-    // 4. Process based on provider
-    if (withdrawal.payment_provider === 'paystack') {
-      transferResult = await processPaystackWithdrawal(
-        withdrawal.amount,
-        withdrawal.transfer_recipient_id,
-        withdrawal.idempotency_key
-      );
-    } else if (withdrawal.payment_provider === 'stripe' && STRIPE_SECRET_KEY) {
-      transferResult = await processStripeWithdrawal(
-        withdrawal.amount,
-        withdrawal.transfer_recipient_id,
-        withdrawal.net_amount || withdrawal.amount
-      );
-    } else {
-      throw new Error(`Unknown payment provider: ${withdrawal.payment_provider}`);
+    try {
+      const provider = getProvider(withdrawal.payment_provider as PaymentProviderName);
+      transferResult = await provider.processPayout({
+        amount: withdrawal.net_amount ?? withdrawal.amount,
+        currency: await getWalletCurrency(withdrawal.shops.id),
+        destinationAccountId: withdrawal.transfer_recipient_id,
+        reference: withdrawal.idempotency_key,
+        reason: "Withdrawal",
+      });
+    } catch (e) {
+      if (e instanceof PaymentProviderError) {
+        throw new Error(e.message);
+      }
+      throw e;
     }
 
-    // 5. Complete withdrawal
-    await completeWithdrawal(withdrawalId, transferResult.id);
+    // The port returns providerTransferId in the same field shape as before.
+    const transferIdForCompletion = transferResult.providerTransferId;
 
-    // 6. Send success notification
+    // 5. Complete withdrawal
+    await completeWithdrawal(withdrawalId, transferIdForCompletion);
+
+    await audit(supabase, {
+      action: 'withdrawal.complete',
+      actorUserId: withdrawal.shops.user_id,
+      shopId: withdrawal.shops.id,
+      targetId: withdrawalId,
+      outcome: 'success',
+      context: {
+        provider: withdrawal.payment_provider,
+        amount: withdrawal.amount,
+        net_amount: withdrawal.net_amount,
+        transfer_id: transferIdForCompletion,
+      },
+    });
+
+    // 6. Send success notification (resolve currency from wallet, not hardcoded)
+    const currency = await getWalletCurrency(withdrawal.shops.id);
     await sendNotification(
       withdrawal.shops.user_id,
       'success',
       withdrawal.amount,
-      withdrawal.net_amount || withdrawal.amount
+      withdrawal.net_amount || withdrawal.amount,
+      undefined,
+      currency,
     );
 
     console.log(`✅ Withdrawal completed: ${withdrawalId}`);
@@ -140,98 +175,34 @@ async function processWithdrawal(withdrawalId: string) {
     console.error(`❌ Withdrawal failed for ${withdrawalId}:`, error);
 
     // 7. Mark as failed and refund
-    await failWithdrawal(withdrawalId, error.message);
+    await failWithdrawal(withdrawalId, (error as Error).message);
 
-    // 8. Send failure notification
+    await audit(supabase, {
+      action: 'withdrawal.fail',
+      actorUserId: withdrawal.shops.user_id,
+      shopId: withdrawal.shops.id,
+      targetId: withdrawalId,
+      outcome: 'failure',
+      context: {
+        provider: withdrawal.payment_provider,
+        amount: withdrawal.amount,
+        error: (error as Error).message,
+      },
+    });
+
+    // 8. Send failure notification (resolve currency from wallet)
+    const currency = await getWalletCurrency(withdrawal.shops.id);
     await sendNotification(
       withdrawal.shops.user_id,
       'failure',
       withdrawal.amount,
       withdrawal.net_amount || withdrawal.amount,
-      error.message
+      (error as Error).message,
+      currency,
     );
 
     return { success: false, error: error.message };
   }
-}
-
-// ============================================================================
-// Paystack Withdrawal
-// ============================================================================
-
-async function processPaystackWithdrawal(amount: number, recipientId: string, idempotencyKey: string) {
-  const amountInKobo = Math.round(amount * 100);
-  
-  console.log(`💰 Processing Paystack withdrawal: ${amountInKobo} kobo to recipient ${recipientId}`);
-
-  const response = await fetch(`${PAYSTACK_BASE_URL}/transfer`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      source: 'balance',
-      amount: amountInKobo,
-      recipient: recipientId,
-      reference: idempotencyKey,
-      reason: 'Withdrawal from NanoEmbryo',
-    }),
-  });
-
-  const data = await response.json();
-
-  if (!data.status) {
-    console.error('Paystack transfer failed:', data);
-    throw new Error(data.message || 'Paystack transfer failed');
-  }
-
-  console.log(`✅ Paystack transfer created: ${data.data.transfer_code}`);
-  
-  return {
-    id: data.data.transfer_code,
-    status: data.data.status,
-    reference: data.data.reference
-  };
-}
-
-// ============================================================================
-// Stripe Withdrawal
-// ============================================================================
-
-async function processStripeWithdrawal(amount: number, accountId: string, netAmount: number) {
-  const amountInCents = Math.round(netAmount * 100);
-  
-  console.log(`💰 Processing Stripe withdrawal: ${amountInCents} cents to account ${accountId}`);
-
-  const response = await fetch(`${STRIPE_BASE_URL}/payouts`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${STRIPE_SECRET_KEY}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      amount: amountInCents.toString(),
-      currency: 'usd',
-      destination: accountId,
-      description: 'Withdrawal from NanoEmbryo',
-    }).toString(),
-  });
-
-  const data = await response.json();
-
-  if (!response.ok || data.error) {
-    console.error('Stripe payout failed:', data);
-    throw new Error(data.error?.message || 'Stripe payout failed');
-  }
-
-  console.log(`✅ Stripe payout created: ${data.id}`);
-  
-  return {
-    id: data.id,
-    status: data.status,
-    reference: data.idempotency_key
-  };
 }
 
 // ============================================================================
@@ -271,19 +242,21 @@ async function sendNotification(
   type: 'success' | 'failure',
   amount: number,
   netAmount: number,
-  error?: string
+  error?: string,
+  currency: string = 'GHS',
 ) {
   try {
     const notification = {
       user_id: userId,
       type: `withdrawal_${type}`,
       title: type === 'success' ? 'Withdrawal Completed' : 'Withdrawal Failed',
-      body: type === 'success' 
-        ? `GHS ${amount.toFixed(2)} has been sent to your account. Net amount: GHS ${netAmount.toFixed(2)}`
-        : `Withdrawal of GHS ${amount.toFixed(2)} failed: ${error?.substring(0, 200) ?? 'Unknown error'}`,
+      body: type === 'success'
+        ? `${currency} ${amount.toFixed(2)} has been sent to your account. Net amount: ${currency} ${netAmount.toFixed(2)}`
+        : `Withdrawal of ${currency} ${amount.toFixed(2)} failed: ${error?.substring(0, 200) ?? 'Unknown error'}`,
       metadata: {
         withdrawal_amount: amount,
         net_amount: netAmount,
+        currency,
         error: error,
       },
       created_at: new Date().toISOString(),
@@ -292,6 +265,19 @@ async function sendNotification(
     await supabase.from('notifications').insert(notification);
     console.log(`📧 Notification sent to user ${userId}`);
   } catch (e) {
-    console.error('Failed to send notification:', e);
+    console.error('Failed to send notification:', (e as Error).message);
+  }
+}
+
+async function getWalletCurrency(shopId: string): Promise<string> {
+  try {
+    const { data } = await supabase
+      .from('wallets')
+      .select('currency')
+      .eq('shop_id', shopId)
+      .maybeSingle();
+    return (data?.currency as string | undefined) ?? 'GHS';
+  } catch {
+    return 'GHS';
   }
 }
