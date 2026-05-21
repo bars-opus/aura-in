@@ -165,3 +165,31 @@ Deno.test("StripeProvider.initCheckout: adds transfer_data when destinationAccou
     assertEquals(received?.get("payment_intent_data[application_fee_amount]"), "290");
   } finally { restore(); }
 });
+
+Deno.test("StripeProvider.processPayout: sends Idempotency-Key header + form body", async () => {
+  let receivedInit: RequestInit | undefined;
+  const restore = stubFetch((url, init) => {
+    if (url.endsWith("/payouts")) {
+      receivedInit = init;
+      return new Response(JSON.stringify({
+        id: "po_test_1", status: "pending", amount: 5000, currency: "usd",
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    return new Response("nf", { status: 404 });
+  });
+  try {
+    const provider = new StripeProvider();
+    const result = await provider.processPayout({
+      amount: 50, currency: "USD", destinationAccountId: "acct_1abc",
+      reference: "wd_stripe_1",
+    });
+    const headers = new Headers(receivedInit?.headers);
+    assertEquals(headers.get("idempotency-key"), "wd_stripe_1");
+    const body = new URLSearchParams(receivedInit?.body as string);
+    assertEquals(body.get("amount"), "5000");
+    assertEquals(body.get("currency"), "usd");
+    assertEquals(body.get("destination"), "acct_1abc");
+    assertEquals(result.providerTransferId, "po_test_1");
+    assertEquals(result.status, "pending");
+  } finally { restore(); }
+});

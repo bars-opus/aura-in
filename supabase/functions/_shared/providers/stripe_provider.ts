@@ -1,6 +1,7 @@
 // supabase/functions/_shared/providers/stripe_provider.ts
 import Stripe from "https://esm.sh/stripe@13.6.0";
 import { PaymentProviderError } from "./port.ts";
+import { retryFetch } from "../retry.ts";
 import type {
   InitCheckoutInput,
   InitCheckoutResult,
@@ -17,9 +18,11 @@ export class StripeProvider implements PaymentProviderPort {
 
   private readonly stripe: Stripe | null;
   private readonly webhookSecret: string;
+  private readonly secretKey: string;
 
   constructor() {
     const key = Deno.env.get("STRIPE_SECRET_KEY");
+    this.secretKey = key ?? "";
     this.stripe = key ? new Stripe(key, { apiVersion: "2023-10-16" }) : null;
     this.webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET") ?? "";
   }
@@ -131,8 +134,56 @@ export class StripeProvider implements PaymentProviderPort {
     };
   }
 
-  processPayout(_input: ProcessPayoutInput): Promise<ProcessPayoutResult> {
-    throw new Error("StripeProvider.processPayout: not implemented yet");
+  async processPayout(
+    input: ProcessPayoutInput,
+  ): Promise<ProcessPayoutResult> {
+    if (!this.secretKey) {
+      throw new PaymentProviderError("Stripe not configured", "unavailable", false);
+    }
+    const amountCents = Math.round(input.amount * 100);
+    let resp: Response;
+    try {
+      resp = await retryFetch(
+        "https://api.stripe.com/v1/payouts",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.secretKey}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Idempotency-Key": input.reference,
+          },
+          body: new URLSearchParams({
+            amount: amountCents.toString(),
+            currency: input.currency.toLowerCase(),
+            destination: input.destinationAccountId,
+            description: input.reason ?? "Withdrawal",
+          }).toString(),
+        },
+        { attempts: 3, baseDelayMs: 1000, label: "stripe.payout" },
+      );
+    } catch (e) {
+      throw new PaymentProviderError(
+        `Stripe payout failed: ${(e as Error).message}`,
+        "unavailable",
+        false,
+        undefined,
+        e,
+      );
+    }
+    const data = await resp.json();
+    if (data.error) {
+      throw new PaymentProviderError(
+        data.error.message ?? "Stripe payout returned error",
+        "invalid_request",
+        false,
+        data.error.code,
+        data.error,
+      );
+    }
+    return {
+      status: data.status === "paid" ? "success" : data.status === "failed" ? "failed" : "pending",
+      providerTransferId: data.id,
+    };
   }
 
   async verifyWebhookSignature(
