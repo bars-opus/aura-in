@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/todays_view.dart';
 import 'package:nano_embryo/payment/presentation/widgets/payment_setup_banner.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/presentation/providers/payment_setup_provider.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/presentation/widgets/transaction_list_item.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/presentation/widgets/wallet_balance_card.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/presentation/widgets/withdrawal_sheet.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/providers/wallet_providers.dart';
+import 'package:nano_embryo/wallet/presentation/providers/payment_setup_provider.dart';
+import 'package:nano_embryo/wallet/presentation/widgets/transaction_list_item.dart';
+import 'package:nano_embryo/wallet/presentation/widgets/wallet_balance_card.dart';
+import 'package:nano_embryo/wallet/presentation/widgets/withdrawal_sheet.dart';
+import 'package:nano_embryo/wallet/providers/wallet_providers.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   final String shopId;

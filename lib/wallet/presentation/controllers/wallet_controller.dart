@@ -1,6 +1,6 @@
 // lib/features/wallet/presentation/controllers/wallet_controller.dart
-import 'package:nano_embryo/presentation/features/shops/wallet/data/exceptions/wallet_exceptions.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/providers/wallet_providers.dart';
+import 'package:nano_embryo/wallet/data/exceptions/wallet_exceptions.dart';
+import 'package:nano_embryo/wallet/providers/wallet_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'wallet_controller.g.dart';

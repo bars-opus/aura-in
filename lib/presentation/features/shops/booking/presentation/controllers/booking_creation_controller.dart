@@ -6,8 +6,8 @@ import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booki
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_validators.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/providers/is_freelancer_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/services/notification_service.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_transaction_model.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/providers/wallet_providers.dart';
+import 'package:nano_embryo/wallet/data/models/wallet_transaction_model.dart';
+import 'package:nano_embryo/wallet/providers/wallet_providers.dart';
 import 'package:nano_embryo/core/notifications/domain/usecases/schedule_booking_reminders.dart';
 import 'package:nano_embryo/core/notifications/utils/notification_date_time_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

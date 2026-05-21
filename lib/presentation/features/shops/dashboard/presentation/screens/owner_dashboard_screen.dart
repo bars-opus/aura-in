@@ -12,7 +12,7 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/w
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/today_schedule_list.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dashboard_providers.dart';
 import 'package:nano_embryo/payment/presentation/widgets/payment_setup_banner.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/presentation/screens/wallet_screen.dart';
+import 'package:nano_embryo/wallet/presentation/screens/wallet_screen.dart';
 
 class OwnerDashboardScreen extends ConsumerStatefulWidget {
   final String shopId;

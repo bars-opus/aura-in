@@ -1,8 +1,8 @@
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/tools/kpi_card.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dashboard_providers.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/presentation/screens/wallet_screen.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/presentation/widgets/wallet_balance_card.dart';
+import 'package:nano_embryo/wallet/presentation/screens/wallet_screen.dart';
+import 'package:nano_embryo/wallet/presentation/widgets/wallet_balance_card.dart';
 
 class TodaysView extends ConsumerWidget {
   final String shopId;

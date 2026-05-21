@@ -2,8 +2,8 @@
 
 import 'package:nano_embryo/payment/presentation/widgets/info_row.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/presentation/controllers/wallet_controller.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/presentation/providers/payment_setup_provider.dart';
+import 'package:nano_embryo/wallet/presentation/controllers/wallet_controller.dart';
+import 'package:nano_embryo/wallet/presentation/providers/payment_setup_provider.dart';
 
 class WithdrawalSheet extends ConsumerStatefulWidget {
   final String shopId;

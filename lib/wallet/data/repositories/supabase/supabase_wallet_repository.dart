@@ -1,11 +1,11 @@
 // lib/features/wallet/data/repositories/supabase/supabase_wallet_repository.dart
 
 import 'package:nano_embryo/payment/config/payment_config.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/data/exceptions/wallet_exceptions.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_model.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_transaction_model.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/data/models/withdrawal_request_model.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/data/repositories/wallet_repository.dart';
+import 'package:nano_embryo/wallet/data/exceptions/wallet_exceptions.dart';
+import 'package:nano_embryo/wallet/data/models/wallet_model.dart';
+import 'package:nano_embryo/wallet/data/models/wallet_transaction_model.dart';
+import 'package:nano_embryo/wallet/data/models/withdrawal_request_model.dart';
+import 'package:nano_embryo/wallet/data/repositories/wallet_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseWalletRepository implements WalletRepository {

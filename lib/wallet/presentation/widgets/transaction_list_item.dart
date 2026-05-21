@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_transaction_model.dart';
+import 'package:nano_embryo/wallet/data/models/wallet_transaction_model.dart';
 
 
 class TransactionListItem extends StatelessWidget {

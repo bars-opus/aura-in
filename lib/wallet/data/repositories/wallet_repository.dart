@@ -1,8 +1,8 @@
 // lib/features/wallet/data/repositories/wallet_repository.dart
 
-import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_model.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_transaction_model.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/data/models/withdrawal_request_model.dart';
+import 'package:nano_embryo/wallet/data/models/wallet_model.dart';
+import 'package:nano_embryo/wallet/data/models/wallet_transaction_model.dart';
+import 'package:nano_embryo/wallet/data/models/withdrawal_request_model.dart';
 
 abstract class WalletRepository {
   /// Get wallet for a shop

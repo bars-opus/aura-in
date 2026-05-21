@@ -2,10 +2,10 @@
 
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/payment/config/payment_config.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_model.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_transaction_model.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/data/repositories/supabase/supabase_wallet_repository.dart';
-import 'package:nano_embryo/presentation/features/shops/wallet/data/repositories/wallet_repository.dart';
+import 'package:nano_embryo/wallet/data/models/wallet_model.dart';
+import 'package:nano_embryo/wallet/data/models/wallet_transaction_model.dart';
+import 'package:nano_embryo/wallet/data/repositories/supabase/supabase_wallet_repository.dart';
+import 'package:nano_embryo/wallet/data/repositories/wallet_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'wallet_providers.g.dart';
