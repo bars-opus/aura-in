@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/screens/payment_settings_screen.dart';
+import 'package:nano_embryo/payment/presentation/screens/payment_settings_screen.dart';
 import 'package:nano_embryo/presentation/home/widgets/semantic_container_widget.dart';
 
 class PaymentSetupBanner extends ConsumerWidget {

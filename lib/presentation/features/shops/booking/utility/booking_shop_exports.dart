@@ -18,6 +18,7 @@ export 'package:nano_embryo/presentation/features/shops/booking/presentation/wid
 export 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/client/client_service_table.dart';
 export 'package:nano_embryo/core/utils/date_formatter.dart';
 export 'package:nano_embryo/presentation/features/shops/booking/presentation/providers/booking_data_providers.dart';
+export 'package:nano_embryo/presentation/features/shops/booking/presentation/providers/booking_flow_state_provider.dart';
 export 'package:nano_embryo/presentation/features/shops/booking/presentation/providers/selected_workers_provider.dart';
 export 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/worker_selection/worker_avatar_chip.dart';
 export 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/worker_selection/worker_selection_sheet.dart';

@@ -10,27 +10,20 @@ class WalletController extends _$WalletController {
   @override
   Future<void> build() async {}
 
-  Future<bool> requestWithdrawal({
+  /// Returns normally on success. Throws [WalletException] or
+  /// [InsufficientBalanceException] on failure so the UI can show a
+  /// meaningful message instead of a silent false return.
+  Future<void> requestWithdrawal({
     required String shopId,
     required double amount,
   }) async {
-    try {
-      final repository = ref.read(walletRepositoryProvider);
+    final repository = ref.read(walletRepositoryProvider);
 
-      // Create withdrawal request (this will trigger Edge Function automatically)
-      await repository.requestWithdrawal(shopId: shopId, amount: amount);
+    await repository.requestWithdrawal(shopId: shopId, amount: amount);
 
-      // Refresh wallet and transaction data
-      ref.invalidate(shopWalletProvider(shopId));
-      ref.invalidate(walletTransactionsProvider(shopId: shopId));
-
-      return true;
-    } on InsufficientBalanceException catch (e) {
-      print('Insufficient balance: ${e.message}');
-      return false;
-    } catch (e) {
-      print('Withdrawal failed: $e');
-      return false;
-    }
+    // Invalidate after successful creation so the UI reflects the new
+    // pending_withdrawals deduction immediately.
+    ref.invalidate(shopWalletProvider(shopId));
+    ref.invalidate(walletTransactionsProvider(shopId: shopId));
   }
 }

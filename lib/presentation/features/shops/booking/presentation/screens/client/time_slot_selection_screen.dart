@@ -3,8 +3,10 @@ import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_
 
 class TimeSlotSelectionScreen extends ConsumerStatefulWidget {
   final bool isFreelancer;
+    final String shopCurrency;
 
-  const TimeSlotSelectionScreen({Key? key, this.isFreelancer = false})
+
+  const TimeSlotSelectionScreen({Key? key, this.isFreelancer = false,  required this.shopCurrency,})
     : super(key: key);
 
   @override
@@ -232,7 +234,7 @@ class _TimeSlotSelectionScreenState
               .read(selectedTimeSlotsProvider.notifier)
               .selectSlotForService(serviceId, slot);
         },
-        currency: 'GHS',
+        currency:widget.shopCurrency,
         selectedServices: selectedServices,
       );
     }

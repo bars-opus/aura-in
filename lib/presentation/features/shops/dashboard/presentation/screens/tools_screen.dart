@@ -8,7 +8,7 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/s
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/promotions_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/reminder_settings_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/tools/kpi_card.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/screens/payment_settings_screen.dart';
+import 'package:nano_embryo/payment/presentation/screens/payment_settings_screen.dart';
 
 class ToolsScreen extends ConsumerWidget {
   final String shopId;

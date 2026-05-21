@@ -1,7 +1,7 @@
 // lib/features/shop/creation/presentation/widgets/award_card.dart
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/award_draft.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/widgets/info_row.dart';
+import 'package:nano_embryo/payment/presentation/widgets/info_row.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/award_dto.dart';
 
 class AwardCard extends StatelessWidget {

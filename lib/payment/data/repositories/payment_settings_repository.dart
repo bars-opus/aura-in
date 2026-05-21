@@ -1,5 +1,5 @@
 // lib/features/dashboard/data/repositories/payment_settings_repository.dart
-import 'package:nano_embryo/presentation/features/shops/payment/data/models/payment_settings_model.dart';
+import 'package:nano_embryo/payment/data/models/payment_settings_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PaymentSettingsRepository {

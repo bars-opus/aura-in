@@ -1,7 +1,6 @@
 // lib/features/wallet/data/repositories/supabase/supabase_wallet_repository.dart
 
-import 'dart:io';
-
+import 'package:nano_embryo/payment/config/payment_config.dart';
 import 'package:nano_embryo/presentation/features/shops/wallet/data/exceptions/wallet_exceptions.dart';
 import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_model.dart';
 import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_transaction_model.dart';
@@ -11,15 +10,16 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseWalletRepository implements WalletRepository {
   final SupabaseClient _client;
+  final PaymentConfig _config;
 
-  SupabaseWalletRepository(this._client);
+  SupabaseWalletRepository(this._client, this._config);
 
   @override
   Future<WalletModel> getWallet(String shopId) async {
     try {
       final response =
           await _client
-              .from('shop_wallets')
+              .from('wallets')
               .select()
               .eq('shop_id', shopId)
               .maybeSingle();
@@ -29,7 +29,7 @@ class SupabaseWalletRepository implements WalletRepository {
         try {
           final newWallet =
               await _client
-                  .from('shop_wallets')
+                  .from('wallets')
                   .insert({'shop_id': shopId})
                   .select()
                   .single();
@@ -38,7 +38,7 @@ class SupabaseWalletRepository implements WalletRepository {
           // If insert fails (RLS), try one more select (wallet might have been created by trigger)
           final retryResponse =
               await _client
-                  .from('shop_wallets')
+                  .from('wallets')
                   .select()
                   .eq('shop_id', shopId)
                   .maybeSingle();
@@ -125,7 +125,6 @@ class SupabaseWalletRepository implements WalletRepository {
           'p_booking_id': bookingId,
           'p_description': description,
           'p_reference': reference,
-          'p_metadata': metadata ?? {},
         },
       );
 
@@ -146,13 +145,18 @@ class SupabaseWalletRepository implements WalletRepository {
     required double amount,
   }) async {
     try {
-      // 1. Validate amount
-      if (amount < 50) {
-        throw WalletException('Minimum withdrawal amount is GHS 50');
-      }
-      if (amount > 5000) {
+      // 1. Validate amount against configured bounds
+      final min = _config.minWithdrawalAmount;
+      final max = _config.maxWithdrawalAmount;
+      final currency = _config.defaultCurrency;
+      if (amount < min) {
         throw WalletException(
-          'Maximum withdrawal per transaction is GHS 5,000',
+          'Minimum withdrawal amount is $currency ${min.toStringAsFixed(0)}',
+        );
+      }
+      if (amount > max) {
+        throw WalletException(
+          'Maximum withdrawal per transaction is $currency ${max.toStringAsFixed(0)}',
         );
       }
 
@@ -179,15 +183,15 @@ class SupabaseWalletRepository implements WalletRepository {
         throw InsufficientBalanceException(availableBalance, amount);
       }
 
-      // 4. Generate idempotency key
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final idempotencyKey = 'wd_${shopId}_${timestamp}_${amount.toInt()}';
+      // 4. Date-scoped idempotency key — one withdrawal per shop per day at this
+      //    amount, naturally enforcing the daily limit and preventing retries from
+      //    creating duplicate requests.
+      final today = DateTime.now().toUtc();
+      final dateStamp =
+          '${today.year}${today.month.toString().padLeft(2, '0')}${today.day.toString().padLeft(2, '0')}';
+      final idempotencyKey = 'wd_${shopId}_${dateStamp}_${amount.toInt()}';
 
-      // 5. Get IP address and user agent
-      final ipAddress = await _getClientIp();
-      final userAgent = Platform.operatingSystem;
-
-      // 6. Call database function to create withdrawal request
+      // 5. Call database function to create withdrawal request
       final result = await _client.rpc(
         'create_withdrawal_request',
         params: {
@@ -196,8 +200,6 @@ class SupabaseWalletRepository implements WalletRepository {
           'p_payment_provider': paymentInfo['provider'],
           'p_transfer_recipient_id': paymentInfo['recipient_id'],
           'p_idempotency_key': idempotencyKey,
-          'p_ip_address': ipAddress,
-          'p_user_agent': userAgent,
         },
       );
 
@@ -218,7 +220,7 @@ class SupabaseWalletRepository implements WalletRepository {
       }
       if (e.message?.contains('Daily withdrawal limit') ?? false) {
         throw WalletException(
-          'Daily withdrawal limit of GHS 5,000 exceeded. You can only make one withdrawal per day.',
+          'Daily withdrawal limit of ${_config.defaultCurrency} ${_config.maxWithdrawalAmount.toStringAsFixed(0)} exceeded. You can only make one withdrawal per day.',
         );
       }
       if (e.message?.contains('duplicate key') ?? false) {
@@ -244,16 +246,15 @@ class SupabaseWalletRepository implements WalletRepository {
 
       if (response == null) return null;
 
-      // Check Paystack first
-      if (response['paystack_subaccount_code'] != null &&
-          response['paystack_verified'] == true &&
+      // Check Paystack — recipient_id alone is sufficient (subaccount_code is
+      // intentionally null for mobile money shops).
+      if (response['paystack_verified'] == true &&
           response['paystack_recipient_id'] != null &&
-          response['paystack_recipient_id'].toString().isNotEmpty) {
+          (response['paystack_recipient_id'] as String).isNotEmpty) {
         return {
           'provider': 'paystack',
           'recipient_id': response['paystack_recipient_id'],
-          'recipient_verified':
-              response['paystack_recipient_verified'] ?? false,
+          'recipient_verified': true,
         };
       }
 
@@ -272,21 +273,6 @@ class SupabaseWalletRepository implements WalletRepository {
     } catch (e) {
       print('Error fetching payment info: $e');
       return null;
-    }
-  }
-
-  Future<String> _getClientIp() async {
-    try {
-      // Try to get IP from Supabase Edge Function
-      final response = await _client.functions.invoke('get-ip');
-      final data = response.data;
-      if (data is Map<String, dynamic> && data['ip'] != null) {
-        return data['ip'].toString();
-      }
-      return 'unknown';
-    } catch (e) {
-      // Fallback to local IP or unknown
-      return 'unknown';
     }
   }
 

@@ -922,6 +922,7 @@ class SupabaseShopRepository implements ShopRepository {
 
       return activeWorkers.map((json) => WorkerDTO.fromJson(json)).toList();
     } catch (e) {
+      print(e.toString());
       throw Exception('Failed to fetch workers: $e');
     }
   }

@@ -38,7 +38,9 @@ class SupabaseShopCreationRepository {
         'verified': false,
         'average_rating': 0,
         'number_clients_worked': 0,
-        'currency_code': draft.currencyCode ?? 'USD',
+        // Fallback to USD when currency wasn't set (country not in mapper
+        // or user skipped the location screen without selecting a currency).
+        'currency': draft.currencyCode ?? 'USD',
         'currency_symbol': draft.currencySymbol ?? '\$',
         'amenities': draft.amenityIds,
         if (logoUrl != null) 'shop_logo_url': logoUrl,
@@ -304,8 +306,8 @@ class SupabaseShopCreationRepository {
             'luxury_level': draft.luxuryLevel,
             'overview': draft.overview,
             'terms': draft.terms,
-            'currency_code': draft.currencyCode,
-            'currency_symbol': draft.currencySymbol,
+            'currency': draft.currencyCode ?? 'USD',
+            'currency_symbol': draft.currencySymbol ?? '\$',
             'amenities': draft.amenityIds,
             if (resolvedLogoUrl != null) 'shop_logo_url': resolvedLogoUrl,
             'updated_at': DateTime.now().toIso8601String(),

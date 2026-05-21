@@ -302,6 +302,10 @@ Duration _calculateTotalDuration(
   });
 }
 
+/// Incremented by BookingFlowScreen when the user presses "Book" on the
+/// Confirm tab. BookingConfirmationScreen listens and opens the payment dialog.
+final bookingPaymentTriggerProvider = StateProvider<int>((ref) => 0);
+
 /// Provider that gives just the total number of people
 final totalPeopleProvider = Provider<int>((ref) {
   final services = ref.watch(selectedServicesProvider);

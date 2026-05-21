@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/data/models/paystack_subaacount_result.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/data/repositories/payment_settings_repository.dart';
+import 'package:nano_embryo/payment/data/models/paystack_subaacount_result.dart';
+import 'package:nano_embryo/payment/data/repositories/payment_settings_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum PaymentMethodType { bank, mobileMoney }

@@ -1,7 +1,8 @@
 // lib/features/booking/presentation/screens/booking_confirmation_screen.dart
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/controllers/booking_creation_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/controllers/payment_controller.dart';
+import 'package:nano_embryo/payment/config/payment_config.dart';
+import 'package:nano_embryo/payment/presentation/controllers/payment_controller.dart';
 
 class BookingConfirmationScreen extends ConsumerStatefulWidget {
   final String shopType;
@@ -44,6 +45,13 @@ class _BookingConfirmationScreenState
     final bookingState = ref.watch(bookingCreationControllerProvider);
     final shopId = ref.read(selectedShopIdProvider);
 
+    // Listen for the app-bar "Book" button signal from BookingFlowScreen.
+    ref.listen(bookingPaymentTriggerProvider, (prev, next) {
+      if ((prev ?? 0) < next && !_isProcessing) {
+        _showPaymentDialog();
+      }
+    });
+
     // Convert workers to IDs only (keep as is)
     final selectedWorkerIdsOnly = <String, List<String?>>{};
     selectedWorkersData.forEach((serviceId, workerEntries) {
@@ -52,8 +60,12 @@ class _BookingConfirmationScreenState
     });
 
     // Calculate totals
+    final selectedQuantities = ref.watch(serviceQuantityProvider);
     final totalDuration = _calculateTotalDuration(selectedServices);
-    final totalPrice = _calculateTotalPrice(selectedServices);
+    final totalPrice = _calculateTotalPrice(
+      selectedServices,
+      selectedQuantities,
+    );
 
     // Check if anything is missing - UPDATED LOGIC
     bool isValid = false;
@@ -94,8 +106,6 @@ class _BookingConfirmationScreenState
               ), // ← Updated
     );
   }
-
-
 
   Widget _buildConfirmationContent(
     ThemeData theme,
@@ -158,24 +168,7 @@ class _BookingConfirmationScreenState
                   return BookingSummaryCard(
                     services: services,
                     workers: workers ?? {},
-                    payOnPressed: () {
-                      BottomSheetUtils.showDocumentationBottomSheet(
-                        context: context,
-                        maxHeight: 350.h,
-                        widget: ConfirmationDialog(
-                          noIcon: true,
-                          type: ConfirmationType.info,
-                          title:
-                              'You are required to make a 30% deposit to secure this appointment',
-                          confirmText: 'Continue',
-                          message:
-                              'We Continue to the bext page and see what is there all day al nught',
-                          onConfirm: () {
-                            _confirmBooking();
-                          },
-                        ),
-                      );
-                    },
+                    payOnPressed: _showPaymentDialog,
                     allWorkers: allWorkers,
                     date: date,
                     timeSlots: timeSlots,
@@ -272,8 +265,14 @@ class _BookingConfirmationScreenState
     );
   }
 
-  double _calculateTotalPrice(List<AppointmentSlotDTO> services) {
-    return services.fold<double>(0, (sum, service) => sum + service.price);
+  double _calculateTotalPrice(
+    List<AppointmentSlotDTO> services,
+    Map<String, int> quantities,
+  ) {
+    return services.fold<double>(
+      0,
+      (sum, service) => sum + service.price * (quantities[service.id] ?? 1),
+    );
   }
 
   Future<void> _confirmBooking() async {
@@ -288,33 +287,38 @@ class _BookingConfirmationScreenState
 
     setState(() => _isProcessing = true);
 
+    final config = ref.read(paymentConfigProvider);
+
     try {
       final services = ref.read(selectedServicesProvider);
       final workers = ref.read(selectedWorkersProvider);
       final quantities = ref.read(serviceQuantityProvider);
       final timeSlots = ref.read(selectedTimeSlotsProvider);
-      final totalPrice = _calculateTotalPrice(services);
+      final totalPrice = _calculateTotalPrice(services, quantities);
       final firstSlot = timeSlots.values.first;
 
-      // Prepare services data - worker name comes directly from workers map
-      final servicesData =
-          services.map((service) {
+      // Expand services by quantity so the server-side amount validation
+      // (sum(priceAtBooking) == totalAmount) holds for group bookings.
+      final servicesData = services
+          .expand<Map<String, dynamic>>((service) {
+            final qty = quantities[service.id] ?? 1;
             final workerEntries = workers[service.id] ?? [];
-            final firstWorker =
-                workerEntries.isNotEmpty ? workerEntries.first : null;
+            return List.generate(qty, (i) {
+              final worker = i < workerEntries.length ? workerEntries[i] : null;
+              return {
+                'slotId': service.id,
+                'workerId': worker?['id'],
+                'priceAtBooking': service.price,
+                'durationMinutes':
+                    DurationUtils.parse(service.duration).inMinutes,
+                'serviceName': service.serviceName,
+                'workerName': worker?['name'] ?? '',
+              };
+            });
+          })
+          .toList();
 
-            return {
-              'slotId': service.id,
-              'workerId': firstWorker?['id'],
-              'priceAtBooking': service.price,
-              'durationMinutes':
-                  DurationUtils.parse(service.duration).inMinutes,
-              'serviceName': service.serviceName,
-              'workerName': firstWorker?['name'] ?? '',
-            };
-          }).toList();
-
-      final paymentProvider = _getPaymentProvider(widget.shopCurrency ?? 'GH');
+      final paymentProvider = _getPaymentProvider(widget.shopCurrency);
 
       final paymentController = ref.read(paymentControllerProvider.notifier);
       final result = await paymentController.processPayment(
@@ -326,9 +330,8 @@ class _BookingConfirmationScreenState
         endTime: firstSlot.endTime,
         actualEndTime: firstSlot.actualEndTime,
         totalAmount: totalPrice,
-        depositAmount: 2.0,
-        //  totalPrice * 0.3,
-        platformFee: 2.0,
+        depositAmount: totalPrice * config.depositFraction,
+        platformFee: totalPrice * config.platformFeeFraction,
         paymentProvider: paymentProvider,
         context: context,
       );
@@ -345,25 +348,31 @@ class _BookingConfirmationScreenState
     }
   }
 
-  String _getPaymentProvider(String countryCode) {
-    const africanCountries = [
-      'NG',
-      'GH',
-      'KE',
-      'ZA',
-      'UG',
-      'TZ',
-      'RW',
-      'ZM',
-      'BW',
-    ];
-    return africanCountries.contains(countryCode.toUpperCase())
+  String _getPaymentProvider(String shopCurrency) {
+    // Matches both currency codes (what the DB stores) and country codes
+    // (defensive, in case the caller ever passes a country instead).
+    const paystackIdentifiers = {
+      // Currency codes
+      'GHS', 'GHC', // Ghana
+      'NGN', // Nigeria
+      'KES', // Kenya
+      'ZAR', // South Africa
+      'UGX', // Uganda
+      'TZS', // Tanzania
+      'RWF', // Rwanda
+      'ZMW', // Zambia
+      'BWP', // Botswana
+      // Country code fallbacks
+      'GH', 'NG', 'KE', 'ZA', 'UG', 'TZ', 'RW', 'ZM', 'BW',
+    };
+    final key = shopCurrency.trim().toUpperCase();
+    return (key.isNotEmpty && paystackIdentifiers.contains(key))
         ? 'paystack'
         : 'stripe';
   }
 
   Future<void> _showBookingSuccess(Map<String, dynamic> result) async {
-    final booking = BookingModel.fromJson(result['booking']);
+    final booking = BookingModel.fromJson(result);
 
     await BottomSheetUtils.showDocumentationBottomSheet(
       maxHeight: 500.h,
@@ -398,6 +407,27 @@ class _BookingConfirmationScreenState
         },
         onDone: () {
           Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
+  void _showPaymentDialog() {
+    final config = ref.read(paymentConfigProvider);
+    final depositPct = (config.depositFraction * 100).round();
+    BottomSheetUtils.showDocumentationBottomSheet(
+      context: context,
+      maxHeight: 350.h,
+      widget: ConfirmationDialog(
+        noIcon: true,
+        type: ConfirmationType.info,
+        title:
+            'You are required to make a $depositPct% deposit to secure this appointment',
+        confirmText: 'Continue',
+        message:
+            'A $depositPct% deposit is required to confirm your booking. The remaining balance is paid after your appointment.',
+        onConfirm: () {
+          _confirmBooking();
         },
       ),
     );

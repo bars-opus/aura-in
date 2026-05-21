@@ -1,6 +1,7 @@
 // lib/features/wallet/shared/providers/wallet_providers.dart
 
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
+import 'package:nano_embryo/payment/config/payment_config.dart';
 import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_model.dart';
 import 'package:nano_embryo/presentation/features/shops/wallet/data/models/wallet_transaction_model.dart';
 import 'package:nano_embryo/presentation/features/shops/wallet/data/repositories/supabase/supabase_wallet_repository.dart';
@@ -12,7 +13,8 @@ part 'wallet_providers.g.dart';
 @riverpod
 WalletRepository walletRepository(WalletRepositoryRef ref) {
   final supabaseClient = ref.watch(supabaseClientProvider);
-  return SupabaseWalletRepository(supabaseClient);
+  final paymentConfig = ref.watch(paymentConfigProvider);
+  return SupabaseWalletRepository(supabaseClient, paymentConfig);
 }
 
 @riverpod

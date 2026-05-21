@@ -2,15 +2,15 @@
 import 'dart:async';
 
 import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dashboard_providers.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/data/models/payment_settings_model.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/data/models/paystack_subaacount_result.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/data/repositories/payment_settings_repository.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/controllers/payment_settings_controller.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/widgets/fee_info_card.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/widgets/payout_settings_card.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/widgets/paystack_connection_card.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/widgets/region_info_card.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/widgets/stripe_oauth_popup.dart';
+import 'package:nano_embryo/payment/data/models/payment_settings_model.dart';
+import 'package:nano_embryo/payment/data/models/paystack_subaacount_result.dart';
+import 'package:nano_embryo/payment/data/repositories/payment_settings_repository.dart';
+import 'package:nano_embryo/payment/presentation/controllers/payment_settings_controller.dart';
+import 'package:nano_embryo/payment/presentation/widgets/fee_info_card.dart';
+import 'package:nano_embryo/payment/presentation/widgets/payout_settings_card.dart';
+import 'package:nano_embryo/payment/presentation/widgets/paystack_connection_card.dart';
+import 'package:nano_embryo/payment/presentation/widgets/region_info_card.dart';
+import 'package:nano_embryo/payment/presentation/widgets/stripe_oauth_popup.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

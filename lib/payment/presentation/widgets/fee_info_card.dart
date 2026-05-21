@@ -1,6 +1,6 @@
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/data/models/payment_settings_model.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/widgets/info_row.dart';
+import 'package:nano_embryo/payment/data/models/payment_settings_model.dart';
+import 'package:nano_embryo/payment/presentation/widgets/info_row.dart';
 
 class FeeInfoCard extends StatelessWidget {
   final String provider;

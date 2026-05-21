@@ -1,4 +1,4 @@
-// lib/features/shops/payment/providers/payment_setup_provider.dart
+// lib/payment/providers/payment_setup_provider.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

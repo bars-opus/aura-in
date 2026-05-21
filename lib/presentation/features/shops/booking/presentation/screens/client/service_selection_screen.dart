@@ -6,8 +6,13 @@ final shopServicesProvider =
 
 class ServiceSelectionScreen extends ConsumerStatefulWidget {
   final String shopId;
-  const ServiceSelectionScreen({Key? key, required this.shopId})
-    : super(key: key);
+  final String shopCurrency;
+
+  const ServiceSelectionScreen({
+    Key? key,
+    required this.shopId,
+    required this.shopCurrency,
+  }) : super(key: key);
 
   @override
   ConsumerState<ServiceSelectionScreen> createState() =>
@@ -115,7 +120,7 @@ class _ServiceSelectionScreenState extends ConsumerState<ServiceSelectionScreen>
                       service: service,
                       isSelected: isSelected,
                       onTap: () => _toggleService(service),
-                      currency: 'GHS',
+                      currency: widget.shopCurrency,
                       showWorkerIndicator: true,
                     );
                   },

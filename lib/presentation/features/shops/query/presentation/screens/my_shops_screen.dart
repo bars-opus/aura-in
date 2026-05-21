@@ -178,11 +178,14 @@ class _MyShopsScreenState extends ConsumerState<MyShopsScreen> {
     // context.push('/shop-creation');
   }
 
-  void _editShop(String shopId) {
+  Future<void> _editShop(String shopId) async {
+    // Clear stale draft BEFORE navigating so loadShopData() always wins the
+    // shopCreationProvider state. If we cleared after navigation the async
+    // network load could race against the post-frame clearDraft call.
+    await ref.read(shopCreationProvider.notifier).clearDraft();
     // Invalidate so the notifier is recreated and loadShopData() runs fresh.
-    // Without this, the cached notifier from a previous edit never re-fetches.
     ref.invalidate(editShopProvider(shopId));
-    context.push('/editShop', extra: shopId);
+    if (mounted) context.push('/editShop', extra: shopId);
   }
 
   // void _viewAnalytics(String shopId) {

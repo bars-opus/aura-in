@@ -27,8 +27,8 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/c
     show WorkerManagementState, WorkerManagementController;
 import 'package:nano_embryo/presentation/features/shops/dashboard/services/export_service.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/services/notification_service.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/controllers/payment_settings_controller.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/data/repositories/payment_settings_repository.dart';
+import 'package:nano_embryo/payment/presentation/controllers/payment_settings_controller.dart';
+import 'package:nano_embryo/payment/data/repositories/payment_settings_repository.dart';
 
 // ============ Core Providers ============
 

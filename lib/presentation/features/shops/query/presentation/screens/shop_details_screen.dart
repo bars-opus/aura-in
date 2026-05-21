@@ -75,7 +75,7 @@ class _ShopDetailsScreenState extends ConsumerState<ShopDetailsScreen>
                       child: MediaQuery.removePadding(
                         removeTop: true,
                         context: context,
-                        child: ServiceSelectionScreen(shopId: widget.shopId),
+                        child: ServiceSelectionScreen(shopId: widget.shopId, shopCurrency: shopDetails.currency??'',),
                       ),
                     ),
                   ),

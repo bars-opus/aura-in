@@ -1,5 +1,5 @@
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/data/models/payment_settings_model.dart';
+import 'package:nano_embryo/payment/data/models/payment_settings_model.dart';
 
 class PayoutSettingsCard extends ConsumerStatefulWidget {
   final PaymentSettings settings;

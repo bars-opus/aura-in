@@ -1,6 +1,7 @@
 // lib/features/shop/creation/presentation/screens/edit_basics_screen.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/providers/profile_image_provider.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/profile/widgets/editable_profile_avatar.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_creation_provider.dart';
@@ -38,6 +39,14 @@ class _EditBasicsScreenState extends ConsumerState<EditBasicsScreen> {
     _termsController = TextEditingController(text: draft.terms ?? '');
     _selectedType = draft.shopType;
     // _selectedLuxuryLevel = draft.luxuryLevel;
+
+    // profileImageProvider.selectedImage persists across the entire app lifetime.
+    // A stale picked file from a previous session (or a profile-photo edit) would
+    // take precedence over the shop's existing logo URL. Clear it so the avatar
+    // falls through to NetworkImage/FileImage(currentAvatarUrl) correctly.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(profileImageProvider.notifier).clearSelectedImage();
+    });
   }
 
   @override

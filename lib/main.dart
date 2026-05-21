@@ -13,6 +13,7 @@ import 'package:nano_embryo/core/notifications/config/feature/notification_confi
 import 'package:nano_embryo/core/notifications/config/notification_config.dart';
 import 'package:nano_embryo/presentation/features/chat/config/chat_config.dart';
 import 'package:nano_embryo/presentation/features/chat/data/cache/chat_cache_service.dart';
+import 'package:nano_embryo/payment/config/payment_config.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/core/providers/routing_providers.dart';
 import 'package:nano_embryo/core/providers/shared_prefs_provider.dart';
@@ -120,6 +121,15 @@ Future<void> main() async {
           // Chat engine config — Sendbird app ID + optional UI customisation
           chatConfigProvider.overrideWithValue(
             ChatConfig(appId: Environment.sendbirdAppId),
+          ),
+
+          // Payment engine config — app scheme + currency + retry/poll knobs
+          paymentConfigProvider.overrideWithValue(
+            const PaymentConfig(
+              appScheme: 'nanoembryo',
+              brandName: 'NanoEmbryo',
+              defaultCurrency: 'GHS',
+            ),
           ),
 
           // Encrypted chat cache — initialized before runApp
@@ -305,22 +315,24 @@ bool _isOAuthCallback(Uri uri) {
 }
 
 /// Exchange the OAuth authorization code / tokens for a Supabase session.
-/// Supabase Flutter handles both PKCE (?code=) and implicit (#access_token=) forms.
 ///
-/// For password-recovery links (?type=recovery), sets isRecoveryMode on the
-/// RoutingNotifier BEFORE calling getSessionFromUrl. On cold start this runs
-/// before runApp(), so the router is created with the flag already true and
-/// immediately redirects to UpdatePasswordScreen.
-Future<void> _handleOAuthCallback(Uri uri, RoutingNotifier routingNotifier) async {
-  // aurain:// redirect carries ?type=recovery directly in the URL.
-  // HTTPS Universal Link redirect (aurain.barsopus.com/auth/callback) carries ?code=
-  // only — we must detect recovery from the auth stream event instead.
-  final isRecoveryUrl = uri.queryParameters['type'] == 'recovery';
+/// Supabase now sends password-reset links with ?token_hash=XXX&type=recovery
+/// (email OTP format). Older PKCE (?code=) and implicit (#access_token=) forms
+/// are also supported as fallbacks.
+///
+/// On cold start this runs before runApp(), so the router is created with
+/// isRecoveryMode already true and redirects immediately to UpdatePasswordScreen.
+Future<void> _handleOAuthCallback(
+    Uri uri, RoutingNotifier routingNotifier) async {
+  final params = uri.queryParameters;
+  final isRecoveryUrl = params['type'] == 'recovery';
+  final tokenHash = params['token_hash'];
+
   if (isRecoveryUrl) routingNotifier.setRecoveryMode(true);
 
-  // Subscribe BEFORE calling getSessionFromUrl so we don't miss the event.
-  // Only cancel once we see passwordRecovery — Supabase fires signedIn first,
-  // and cancelling on the first event would miss the recovery event entirely.
+  // Subscribe BEFORE exchanging credentials so we never miss the event.
+  // Supabase fires signedIn first then passwordRecovery — keep the sub alive
+  // until passwordRecovery is confirmed.
   late final StreamSubscription<AuthState> sub;
   sub = Supabase.instance.client.auth.onAuthStateChange.listen((state) {
     if (state.event == AuthChangeEvent.passwordRecovery) {
@@ -330,8 +342,20 @@ Future<void> _handleOAuthCallback(Uri uri, RoutingNotifier routingNotifier) asyn
   });
 
   try {
-    await Supabase.instance.client.auth.getSessionFromUrl(uri);
-    debugPrint('✅ OAuth session established from deep link');
+    if (tokenHash != null && isRecoveryUrl) {
+      // Supabase email OTP format: ?token_hash=XXX&type=recovery
+      // getSessionFromUrl only handles ?code= (PKCE) and #access_token=
+      // (implicit) — it would throw "No code detected" for token_hash URLs.
+      await Supabase.instance.client.auth.verifyOTP(
+        tokenHash: tokenHash,
+        type: OtpType.recovery,
+      );
+      debugPrint('✅ Recovery OTP verified from deep link');
+    } else {
+      // PKCE (?code=) or implicit (#access_token=) — standard exchange.
+      await Supabase.instance.client.auth.getSessionFromUrl(uri);
+      debugPrint('✅ OAuth session established from deep link');
+    }
   } catch (e) {
     debugPrint('❌ Failed to establish OAuth session from deep link: $e');
     sub.cancel();

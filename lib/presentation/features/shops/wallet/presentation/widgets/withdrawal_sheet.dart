@@ -1,6 +1,6 @@
 // lib/features/wallet/presentation/widgets/withdrawal_sheet.dart
 
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/widgets/info_row.dart';
+import 'package:nano_embryo/payment/presentation/widgets/info_row.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/wallet/presentation/controllers/wallet_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/wallet/presentation/providers/payment_setup_provider.dart';
@@ -245,35 +245,28 @@ class _WithdrawalSheetState extends ConsumerState<WithdrawalSheet> {
 
     try {
       final controller = ref.read(walletControllerProvider.notifier);
-      final success = await controller.requestWithdrawal(
+      await controller.requestWithdrawal(
         shopId: widget.shopId,
         amount: amount,
       );
 
-      if (success && mounted) {
+      if (mounted) {
         Navigator.pop(context);
         widget.onSuccess();
-
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Withdrawal request submitted successfully!'),
             backgroundColor: Colors.green,
-          ),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to submit withdrawal request. Please try again.',
-            ),
-            backgroundColor: Colors.red,
           ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e.toString().replaceFirst('Exception: ', '')),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {

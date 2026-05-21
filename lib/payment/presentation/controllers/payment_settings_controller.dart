@@ -1,9 +1,9 @@
 // lib/features/dashboard/presentation/controllers/payment_settings_controller.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equatable/equatable.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/data/models/payment_settings_model.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/data/repositories/payment_settings_repository.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/services/country_detection_service.dart';
+import 'package:nano_embryo/payment/data/models/payment_settings_model.dart';
+import 'package:nano_embryo/payment/data/repositories/payment_settings_repository.dart';
+import 'package:nano_embryo/payment/services/country_detection_service.dart';
 
 class PaymentSettingsState extends Equatable {
   final PaymentSettings? settings;
@@ -120,53 +120,44 @@ class PaymentSettingsController extends StateNotifier<PaymentSettingsState> {
     await _loadSettings();
   }
 
-  
-
-Future<void> updatePayoutSettings({
-  required PayoutSchedule schedule,
-  required double minimum,
-}) async {
-  if (_disposed) return;
-
-  state = state.copyWith(isSaving: true, error: null);
-
-  try {
-    final currentSettings = state.settings;
-    
-    final updatedSettings = currentSettings?.copyWith(
-      payoutSchedule: schedule,
-      payoutMinimum: minimum,
-    ) ?? PaymentSettings(
-      shopId: _shopId,
-      paymentProvider: PaymentProvider.none,
-      payoutSchedule: schedule,
-      payoutMinimum: minimum,
-      payoutCurrency: CountryDetectionService.getCurrencyForCountry(
-        state.shopCountry,
-      ),
-      autoPayoutEnabled: true,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-
-    final saved = await _repository.saveSettings(updatedSettings);
+  Future<void> updatePayoutSettings({
+    required PayoutSchedule schedule,
+    required double minimum,
+  }) async {
     if (_disposed) return;
 
-    state = state.copyWith(
-      settings: saved, 
-      isSaving: false, 
-      error: null,
-    );
-  } catch (e) {
-    if (_disposed) return;
-    state = state.copyWith(
-      isSaving: false, 
-      error: e.toString(),
-    );
+    state = state.copyWith(isSaving: true, error: null);
+
+    try {
+      final currentSettings = state.settings;
+
+      final updatedSettings =
+          currentSettings?.copyWith(
+            payoutSchedule: schedule,
+            payoutMinimum: minimum,
+          ) ??
+          PaymentSettings(
+            shopId: _shopId,
+            paymentProvider: PaymentProvider.none,
+            payoutSchedule: schedule,
+            payoutMinimum: minimum,
+            payoutCurrency: CountryDetectionService.getCurrencyForCountry(
+              state.shopCountry,
+            ),
+            autoPayoutEnabled: true,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+
+      final saved = await _repository.saveSettings(updatedSettings);
+      if (_disposed) return;
+
+      state = state.copyWith(settings: saved, isSaving: false, error: null);
+    } catch (e) {
+      if (_disposed) return;
+      state = state.copyWith(isSaving: false, error: e.toString());
+    }
   }
-}
-
-
 
   Future<void> disconnectProvider() async {
     if (_disposed) return;
