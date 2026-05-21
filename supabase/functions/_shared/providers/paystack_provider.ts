@@ -11,6 +11,7 @@ import type {
 } from "./port.ts";
 import { PaymentProviderError } from "./port.ts";
 import { retryFetch } from "../retry.ts";
+import { sanitizeCurrency } from "../sanitize.ts";
 
 const PAYSTACK_BASE_URL = "https://api.paystack.co";
 
@@ -27,8 +28,73 @@ export class PaystackProvider implements PaymentProviderPort {
     this.secretKey = Deno.env.get("PAYSTACK_SECRET_KEY") ?? "";
   }
 
-  initCheckout(_input: InitCheckoutInput): Promise<InitCheckoutResult> {
-    throw new Error("PaystackProvider.initCheckout: not implemented yet");
+  async initCheckout(
+    input: InitCheckoutInput,
+  ): Promise<InitCheckoutResult> {
+    if (!this.secretKey) {
+      throw new PaymentProviderError(
+        "Paystack secret key not configured",
+        "unavailable",
+        false,
+      );
+    }
+    const currency = sanitizeCurrency(input.currency);
+    // Append reference to callback so the WebView can pick it up from the URL.
+    const sep = input.callbackUrl.includes("?") ? "&" : "?";
+    const callbackUrl = `${input.callbackUrl}${sep}reference=${encodeURIComponent(input.reference)}`;
+
+    const body: Record<string, unknown> = {
+      amount: Math.round(input.amount * 100),
+      email: input.customerEmail,
+      currency,
+      reference: input.reference,
+      callback_url: callbackUrl,
+      metadata: input.metadata ?? {},
+    };
+    if (input.destinationAccountId) {
+      body.subaccount = input.destinationAccountId;
+    }
+    if (input.platformFeeAmount !== undefined) {
+      body.transaction_charge = Math.round(input.platformFeeAmount * 100);
+    }
+
+    let resp: Response;
+    try {
+      resp = await retryFetch(
+        `${PAYSTACK_BASE_URL}/transaction/initialize`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.secretKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        },
+        { attempts: 3, baseDelayMs: 500, label: "paystack.initialize" },
+      );
+    } catch (e) {
+      throw new PaymentProviderError(
+        `Paystack initialize failed: ${(e as Error).message}`,
+        "unavailable",
+        false,
+        undefined,
+        e,
+      );
+    }
+    const data = await resp.json();
+    if (!data.status) {
+      throw new PaymentProviderError(
+        data.message ?? "Paystack initialize returned status=false",
+        "invalid_request",
+        false,
+        undefined,
+        data,
+      );
+    }
+    return {
+      checkoutUrl: data.data.authorization_url,
+      providerReference: data.data.reference,
+    };
   }
 
   async verifyTransaction(

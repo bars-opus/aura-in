@@ -134,3 +134,81 @@ Deno.test("PaystackProvider.verifyTransaction: 401 from API → throws unavailab
     );
   } finally { restore(); }
 });
+
+Deno.test("PaystackProvider.initCheckout: returns authorization URL + reference", async () => {
+  const restore = stubFetch((url, init) => {
+    if (url.endsWith("/transaction/initialize")) {
+      const body = JSON.parse(init?.body as string);
+      // Adapter must convert major→minor units.
+      assertEquals(body.amount, 5000);
+      assertEquals(body.email, "buyer@example.com");
+      assertEquals(body.currency, "GHS");
+      assertEquals(body.reference, "ref_abc");
+      return new Response(JSON.stringify({
+        status: true,
+        data: {
+          authorization_url: "https://checkout.paystack.com/x",
+          reference: "ref_abc",
+          access_code: "ac_xyz",
+        },
+      }), { status: 200 });
+    }
+    return new Response("not found", { status: 404 });
+  });
+  try {
+    const provider = new PaystackProvider();
+    const result = await provider.initCheckout({
+      amount: 50,
+      currency: "GHS",
+      reference: "ref_abc",
+      customerEmail: "buyer@example.com",
+      callbackUrl: "nanoembryo://payment-success",
+    });
+    assertEquals(result.checkoutUrl, "https://checkout.paystack.com/x");
+    assertEquals(result.providerReference, "ref_abc");
+  } finally { restore(); }
+});
+
+Deno.test("PaystackProvider.initCheckout: forwards subaccount + platform fee", async () => {
+  let received: any;
+  const restore = stubFetch((url, init) => {
+    if (url.endsWith("/transaction/initialize")) {
+      received = JSON.parse(init?.body as string);
+      return new Response(JSON.stringify({
+        status: true,
+        data: { authorization_url: "u", reference: "r" },
+      }), { status: 200 });
+    }
+    return new Response("nf", { status: 404 });
+  });
+  try {
+    const provider = new PaystackProvider();
+    await provider.initCheckout({
+      amount: 100,
+      currency: "GHS",
+      reference: "r",
+      customerEmail: "x@y.z",
+      callbackUrl: "x://y",
+      destinationAccountId: "ACCT_sub1",
+      platformFeeAmount: 2.9,
+    });
+    assertEquals(received.subaccount, "ACCT_sub1");
+    assertEquals(received.transaction_charge, 290); // 2.9 → 290 minor
+  } finally { restore(); }
+});
+
+Deno.test("PaystackProvider.initCheckout: provider 400 → throws PaymentProviderError", async () => {
+  const restore = stubFetch(() =>
+    new Response(JSON.stringify({ status: false, message: "Invalid email" }), { status: 400 })
+  );
+  try {
+    const provider = new PaystackProvider();
+    await assertRejects(
+      () => provider.initCheckout({
+        amount: 50, currency: "GHS", reference: "r",
+        customerEmail: "bad", callbackUrl: "x://y",
+      }),
+      PaymentProviderError,
+    );
+  } finally { restore(); }
+});
