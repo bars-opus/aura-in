@@ -227,6 +227,24 @@ export class PaystackProvider implements PaymentProviderPort {
     const computed = Array.from(new Uint8Array(buf))
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
-    return computed === input.signatureHeader;
+    return timingSafeEqualHex(computed, input.signatureHeader);
   }
+}
+
+/// Constant-time equality check for hex strings (HMAC signature comparison).
+///
+/// A naive `===` short-circuits on the first mismatching character, leaking
+/// information about how much of the prefix matched via timing — an attacker
+/// can iteratively guess the signature one byte at a time. This loops over
+/// every character with a fixed-time XOR-and-OR so the comparison time is
+/// independent of where the first mismatch occurs.
+///
+/// Length-mismatch returns false immediately; lengths are not the secret.
+function timingSafeEqualHex(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
 }
