@@ -14,6 +14,7 @@ import 'package:nano_embryo/core/notifications/config/notification_config.dart';
 import 'package:nano_embryo/presentation/features/chat/config/chat_config.dart';
 import 'package:nano_embryo/presentation/features/chat/data/cache/chat_cache_service.dart';
 import 'package:nano_embryo/payment/config/payment_config.dart';
+import 'package:nano_embryo/payment/presentation/screens/payment_failure_screen.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/core/providers/routing_providers.dart';
 import 'package:nano_embryo/core/providers/shared_prefs_provider.dart';
@@ -125,10 +126,12 @@ Future<void> main() async {
 
           // Payment engine config — app scheme + currency + retry/poll knobs
           paymentConfigProvider.overrideWithValue(
-            const PaymentConfig(
+            PaymentConfig(
               appScheme: 'nanoembryo',
               brandName: 'NanoEmbryo',
               defaultCurrency: 'GHS',
+              paymentErrorBuilder: (context, info) =>
+                  PaymentFailureScreen(info: info),
             ),
           ),
 
