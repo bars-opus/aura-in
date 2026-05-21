@@ -1,19 +1,20 @@
 // supabase/functions/create-booking/payment-intent/index.ts
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@13.6.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import {
+  sanitizeText,
+  sanitizeAmount,
+  sanitizeIdentifier,
+  redactForLog,
+  isDebugLogging,
+} from "../_shared/sanitize.ts";
+import { getProvider } from "../_shared/providers/registry.ts";
+import { PaymentProviderError, type PaymentProviderName } from "../_shared/providers/port.ts";
 
 // ============================================================================
 // INITIALIZATION
 // ============================================================================
-
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, {
-  apiVersion: '2023-10-16',
-});
-
-const PAYSTACK_SECRET_KEY = Deno.env.get('PAYSTACK_SECRET_KEY')!;
-const PAYSTACK_BASE_URL = 'https://api.paystack.co';
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
@@ -71,12 +72,102 @@ serve(async (req) => {
   }
 
   try {
-    const body = await req.json() as BookingRequest;
-    
+    // Verify JWT and extract authenticated user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    );
+
+    if (authError || !authUser) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // ========================================================================
+    // RATE LIMITING — 10 payment intents per user per 10 minutes
+    // Checked before parsing the body to fail fast on spammers.
+    // ========================================================================
+    const windowStart = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    const { count: recentAttempts } = await supabase
+      .from('pending_payments')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', authUser.id)
+      .gte('created_at', windowStart);
+
+    if ((recentAttempts ?? 0) >= 10) {
+      console.warn('🚫 Rate limit exceeded for user:', authUser.id);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Too many payment attempts. Please wait a few minutes before trying again.' }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            'Retry-After': '600',
+          },
+        }
+      );
+    }
+
+    const rawBody = await req.json() as BookingRequest;
+
+    // Enforce that the booking is created for the authenticated user only
+    if (rawBody.userId !== authUser.id) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Unauthorized' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // ========================================================================
+    // INPUT SANITIZATION — fail fast on malformed input at the edge.
+    // ========================================================================
+    let body: BookingRequest;
+    try {
+      body = {
+        ...rawBody,
+        shopId: sanitizeIdentifier(rawBody.shopId, 64),
+        userId: sanitizeIdentifier(rawBody.userId, 64),
+        userEmail: sanitizeText(rawBody.userEmail, { maxLength: 320, rejectHtml: true }),
+        idempotencyKey: sanitizeIdentifier(rawBody.idempotencyKey, 128),
+        totalAmount: sanitizeAmount(rawBody.totalAmount, { min: 0.01 }),
+        depositAmount: sanitizeAmount(rawBody.depositAmount, { min: 0.01 }),
+        platformFee: sanitizeAmount(rawBody.platformFee, { min: 0 }),
+        services: (rawBody.services ?? []).map((s) => ({
+          slotId: sanitizeIdentifier(s.slotId, 64),
+          workerId: s.workerId ? sanitizeIdentifier(s.workerId, 64) : null,
+          priceAtBooking: sanitizeAmount(s.priceAtBooking, { min: 0 }),
+          durationMinutes: Math.max(0, Math.floor(Number(s.durationMinutes) || 0)),
+          serviceName: sanitizeText(s.serviceName, { maxLength: 200 }),
+          workerName: s.workerName
+            ? sanitizeText(s.workerName, { maxLength: 200 })
+            : null,
+        })),
+      };
+    } catch (sanErr) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Invalid input',
+          details: [(sanErr as Error).message],
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     // ========================================================================
     // STEP 1: VALIDATION
     // ========================================================================
-    
+
     const validation = await validateRequest(body);
     if (!validation.isValid) {
       return new Response(
@@ -126,89 +217,45 @@ const africanCountries = [
 ];
 
 
-// After fetching shop details, add this debug log
-console.log('🔍 SHOP DEBUG:', {
-  shopId: body.shopId,
-  rawCountry: shop.country,
-  trimmedCountry: shop.country?.trim(),
-  lowerCaseCountry: shop.country?.toLowerCase().trim(),
-  shopData: shop
-});
-
 const shopCountry = shop.country?.toLowerCase().trim() || '';
-console.log('🔍 shopCountry:', shopCountry);
-async function processPaystackPayment(
-  req: BookingRequest
-): Promise<{ success: boolean; paymentIntentId?: string; authorizationUrl?: string; reference?: string; error?: string }> {
-  try {
-    const reference = `booking_${req.shopId}_${Date.now()}_${req.idempotencyKey.slice(0, 8)}`;
-    const successUrl = `nanoembryo://payment-success?reference=${reference}`;
+const shopCurrency = shop.currency?.toUpperCase().trim() || 'GHS';
 
-    console.log('💰 Initializing Paystack transaction:', {
-      amount: req.depositAmount,
-      email: req.userEmail,
-      reference: reference,
-      callback_url: successUrl
-    });
+// Currency is the reliable fallback when shop.country is null/empty.
+const africanCurrencies = new Set([
+  'GHS', 'GHC', 'NGN', 'KES', 'ZAR', 'UGX', 'TZS', 'RWF', 'ZMW', 'BWP',
+  'XOF', 'XAF', 'EGP', 'MAD', 'TND', 'DZD', 'ETB', 'MZN', 'AOA',
+]);
 
-    const response = await fetch(`${PAYSTACK_BASE_URL}/transaction/initialize`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        amount: Math.round(req.depositAmount * 100),
-        email: req.userEmail,
-        currency: 'GHS',
-        reference: reference,
-        callback_url: successUrl,
-        metadata: {
-          shop_id: req.shopId,
-          user_id: req.userId,
-          total_amount: req.totalAmount,
-          deposit_amount: req.depositAmount,
-          platform_fee: req.platformFee,
-          services: req.services.map(s => s.serviceName).join(', '),
-          idempotency_key: req.idempotencyKey,
-        },
-      }),
-    });
-
-    const data = await response.json();
-    
-    console.log('📦 Paystack response status:', response.status);
-    console.log('📦 Paystack response data:', JSON.stringify(data, null, 2));
-
-    if (!response.ok || !data.status) {
-      return { 
-        success: false, 
-        error: data.message || `HTTP ${response.status}: Paystack error` 
-      };
-    }
-    
-    return {
-      success: true,
-      paymentIntentId: reference,
-      authorizationUrl: data.data.authorization_url,
-      reference: reference,
-    };
-  } catch (error) {
-    console.error('Paystack error:', error);
-    return { success: false, error: error.message };
-  }
-}
-
-const isAfrican = africanCountries.some(country => 
-  shopCountry === country || 
-  shopCountry.includes(country)
-);
-console.log('🔍 isAfrican:', isAfrican);
-console.log('🔍 provider:', isAfrican ? 'paystack' : 'stripe');
+const isAfrican =
+  africanCountries.some(country => shopCountry === country || shopCountry.includes(country)) ||
+  africanCurrencies.has(shopCurrency);
 
 const provider = isAfrican ? 'paystack' : 'stripe';
 
-console.log(`Shop country: ${shop.country}, normalized: ${shopCountry}, isAfrican: ${isAfrican}, using provider: ${provider}`);
+// Gate verbose request logging behind PAYMENT_DEBUG_LOGS=true so production
+// edge-function logs don't accumulate PII.
+if (isDebugLogging()) {
+  console.log('🔍 Provider detection:', {
+    rawCountry: shop.country,
+    rawCurrency: shop.currency,
+    shopCountry,
+    shopCurrency,
+    isAfrican,
+    provider,
+  });
+}
+
+// Hard failsafe: if we resolved to Stripe but no Stripe key is configured,
+// return a clear error instead of a cryptic Stripe auth failure.
+if (provider === 'stripe' && !Deno.env.get('STRIPE_SECRET_KEY')) {
+  return new Response(
+    JSON.stringify({
+      success: false,
+      error: 'This shop is not in a supported region for the available payment provider. Please contact support.',
+    }),
+    { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}
 
 
 
@@ -239,28 +286,58 @@ console.log(`Shop country: ${shop.country}, normalized: ${shopCountry}, isAfrica
     }
 
     // ========================================================================
-    // STEP 4: PROCESS PAYMENT BASED ON PROVIDER
+    // STEP 4: INITIALIZE CHECKOUT VIA THE PROVIDER PORT
     // ========================================================================
-    
-  let paymentResult;
-if (provider === 'stripe') {
-  paymentResult = await processStripePayment(body);
-} else {
-  paymentResult = await processPaystackPayment(body);
-}
+    const callbackBase = body.successUrl ?? "nanoembryo://payment-success";
 
-    if (!paymentResult.success) {
-      return new Response(
-        JSON.stringify({ success: false, error: paymentResult.error }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    let checkoutResult;
+    try {
+      checkoutResult = await getProvider(provider as PaymentProviderName).initCheckout({
+        amount: body.depositAmount,
+        currency: shopCurrency,
+        reference: provider === "paystack"
+          ? `booking_${body.shopId}_${Date.now()}_${body.idempotencyKey.slice(0, 8)}`
+          : body.idempotencyKey,
+        customerEmail: body.userEmail,
+        callbackUrl: callbackBase,
+        destinationAccountId: await resolveDestinationAccountId(body.shopId, provider),
+        platformFeeAmount: body.platformFee,
+        metadata: {
+          shop_id: body.shopId,
+          user_id: body.userId,
+          total_amount: String(body.totalAmount),
+          deposit_amount: String(body.depositAmount),
+          platform_fee: String(body.platformFee),
+          idempotency_key: body.idempotencyKey,
+          services: body.services.map((s) => s.serviceName).join(", "),
+        },
+      });
+    } catch (e) {
+      if (e instanceof PaymentProviderError) {
+        return new Response(
+          JSON.stringify({ success: false, error: e.message }),
+          { status: e.category === "invalid_request" ? 400 : 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      throw e;
     }
 
+    const paymentResult = {
+      success: true,
+      paymentIntentId: checkoutResult.providerReference,
+      authorizationUrl: checkoutResult.checkoutUrl,
+      reference: checkoutResult.providerReference,
+    };
+
     // ========================================================================
-    // STEP 5: STORE PENDING PAYMENT
+    // STEP 5: STORE PENDING PAYMENT (verify-payment + webhook depend on this)
     // ========================================================================
-    
-    await supabase
+    //
+    // Critical: if this fails silently, neither the webhook nor verify-payment
+    // can resolve the payment — the user would pay and never see a booking.
+    // We treat a missing pending_payments row as a fatal error.
+
+    const { error: pendingError } = await supabase
       .from('pending_payments')
       .upsert({
         idempotency_key: body.idempotencyKey,
@@ -268,12 +345,24 @@ if (provider === 'stripe') {
         user_id: body.userId,
         amount: body.totalAmount,
         payment_intent_id: paymentResult.paymentIntentId,
-        payment_provider: body.paymentProvider,
+        payment_provider: provider,
         status: 'pending',
         booking_data: body,
         created_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 min expiry
-      });
+        expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      }, { onConflict: 'idempotency_key' });
+
+    if (pendingError) {
+      console.error('❌ Failed to persist pending_payment:', pendingError);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error:
+            'Could not store payment state. Please try again — you have not been charged.',
+        }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
 
     // ========================================================================
     // STEP 6: RETURN PAYMENT URL FOR WEBVIEW
@@ -285,13 +374,18 @@ if (provider === 'stripe') {
         paymentIntentId: paymentResult.paymentIntentId,
         authorizationUrl: paymentResult.authorizationUrl,
         reference: paymentResult.reference,
-        provider: body.paymentProvider,
+        // Return server-determined provider — defeats client tampering and
+        // matches what's stored in pending_payments.
+        provider,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Payment error:', error);
+    console.error('Payment error:', (error as Error).message);
+    if (isDebugLogging()) {
+      console.error('Payment error redacted body:', redactForLog(error));
+    }
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -350,17 +444,49 @@ async function validateRequest(req: BookingRequest): Promise<ValidationResult> {
     }
   }
 
-  // Validate time slot is still available
-  const { data: conflictBookings } = await supabase
+  // Validate time slot availability per assigned worker (not whole shop),
+  // so shops with multiple workers can serve clients concurrently.
+  //
+  // The `bookings` table has no JSON `services` column — worker assignments
+  // live in `booking_services`. We join via the overlapping bookings.
+  const workerIds = req.services
+    .map(s => s.workerId)
+    .filter((id): id is string => !!id);
+
+  // Overlap: existing.start_time < req.endTime AND existing.end_time > req.startTime
+  const { data: overlapping, error: overlapErr } = await supabase
     .from('bookings')
     .select('id')
     .eq('shop_id', req.shopId)
     .eq('status', 'confirmed')
-    .gte('start_time', req.startTime)
-    .lte('end_time', req.endTime);
+    .lt('start_time', req.endTime)
+    .gt('end_time', req.startTime);
 
-  if (conflictBookings && conflictBookings.length > 0) {
-    errors.push('Time slot is no longer available');
+  if (overlapErr) {
+    // Treat a query error as conservative-block. Better to fail booking than to
+    // double-book a slot.
+    errors.push('Could not verify slot availability — please retry');
+  } else if (overlapping && overlapping.length > 0) {
+    const overlappingIds = overlapping.map((b: { id: string }) => b.id);
+
+    if (workerIds.length > 0) {
+      // Multi-worker shop: only flag if a *requested* worker is already booked
+      // in this window.
+      const { data: workerHits, error: bsErr } = await supabase
+        .from('booking_services')
+        .select('worker_id')
+        .in('booking_id', overlappingIds)
+        .in('worker_id', workerIds);
+
+      if (bsErr) {
+        errors.push('Could not verify worker availability — please retry');
+      } else if (workerHits && workerHits.length > 0) {
+        errors.push('Selected worker is not available for this time slot');
+      }
+    } else {
+      // No worker selected — treat as shop-wide capacity (single-worker shop).
+      errors.push('Time slot is no longer available');
+    }
   }
 
   // Validate amount matches calculation
@@ -377,106 +503,22 @@ async function validateRequest(req: BookingRequest): Promise<ValidationResult> {
 
 
 // ============================================================================
-// STRIPE PAYMENT PROCESSING
+// PROVIDER HELPERS
 // ============================================================================
 
-async function processStripePayment(
-  req: BookingRequest
-): Promise<{ success: boolean; paymentIntentId?: string; authorizationUrl?: string; reference?: string; error?: string }> {
-  try {
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'Booking Deposit',
-              description: `${req.services.length} service(s) booked`,
-            },
-            unit_amount: Math.round(req.depositAmount * 100),
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      success_url: req.successUrl || `${Deno.env.get('APP_URL')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: req.cancelUrl || `${Deno.env.get('APP_URL')}/payment-cancelled`,
-      metadata: {
-        shop_id: req.shopId,
-        user_id: req.userId,
-        total_amount: req.totalAmount.toString(),
-        deposit_amount: req.depositAmount.toString(),
-        platform_fee: req.platformFee.toString(),
-        idempotency_key: req.idempotencyKey,
-      },
-      // Remove transfer_data if no destination account
-      // payment_intent_data: {
-      //   application_fee_amount: Math.round(req.platformFee * 100),
-      //   transfer_data: {
-      //     destination: paymentSettings.stripe_account_id,
-      //   },
-      // },
-    });
-
-    return {
-      success: true,
-      paymentIntentId: session.id,
-      authorizationUrl: session.url,
-      reference: session.id,
-    };
-  } catch (error) {
-    console.error('Stripe error:', error);
-    return { success: false, error: error.message };
+async function resolveDestinationAccountId(
+  shopId: string,
+  provider: "paystack" | "stripe",
+): Promise<string | undefined> {
+  const { data: settings } = await supabase
+    .from("payment_settings")
+    .select("paystack_subaccount_code, stripe_account_id, stripe_verified")
+    .eq("shop_id", shopId)
+    .maybeSingle();
+  if (!settings) return undefined;
+  if (provider === "paystack") return settings.paystack_subaccount_code ?? undefined;
+  if (provider === "stripe") {
+    return settings.stripe_verified ? (settings.stripe_account_id ?? undefined) : undefined;
   }
-}
-
-// ============================================================================
-// PAYSTACK PAYMENT PROCESSING
-// ============================================================================
-
-async function processPaystackPayment(
-  req: BookingRequest
-): Promise<{ success: boolean; paymentIntentId?: string; authorizationUrl?: string; reference?: string; error?: string }> {
-  try {
-    const reference = `booking_${req.shopId}_${Date.now()}_${req.idempotencyKey.slice(0, 8)}`;
-
-    const response = await fetch(`${PAYSTACK_BASE_URL}/transaction/initialize`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        amount: Math.round(req.depositAmount * 100),
-        email: req.userEmail,
-        currency: 'GHS', // Hardcode or get from shop's currency
-        reference: reference,
-        metadata: {
-          shop_id: req.shopId,
-          user_id: req.userId,
-          total_amount: req.totalAmount,
-          deposit_amount: req.depositAmount,
-          platform_fee: req.platformFee,
-          services: req.services.map(s => s.serviceName).join(', '),
-          idempotency_key: req.idempotencyKey,
-        },
-        // No subaccount needed for now – money goes to platform
-      }),
-    });
-
-    const data = await response.json();
-    if (!data.status) {
-      return { success: false, error: data.message };
-    }
-    return {
-      success: true,
-      paymentIntentId: reference,
-      authorizationUrl: data.data.authorization_url,
-      reference: reference,
-    };
-  } catch (error) {
-    console.error('Paystack error:', error);
-    return { success: false, error: error.message };
-  }
+  return undefined;
 }
