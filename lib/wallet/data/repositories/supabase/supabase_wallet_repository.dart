@@ -63,6 +63,7 @@ class SupabaseWalletRepository implements WalletRepository {
     required String shopId,
     int? limit = 50,
     int? offset,
+    DateTime? before,
     DateTime? fromDate,
     DateTime? toDate,
     TransactionType? type,
@@ -80,6 +81,9 @@ class SupabaseWalletRepository implements WalletRepository {
       }
       if (toDate != null) {
         query = query.lte('created_at', toDate.toIso8601String());
+      }
+      if (before != null) {
+        query = query.lt('created_at', before.toIso8601String());
       }
       if (type != null) {
         query = query.eq('type', type.value);
@@ -334,6 +338,32 @@ class SupabaseWalletRepository implements WalletRepository {
       return wallet.balance - wallet.pendingWithdrawals;
     } catch (e) {
       throw WalletException('Failed to get available balance: $e');
+    }
+  }
+
+  @override
+  Stream<List<WithdrawalRequestModel>> watchDeadLetterWithdrawals(
+    String shopId,
+  ) async* {
+    // Emit immediately, then every 30 seconds. Polling is intentional —
+    // dead_letter is rare and Realtime subscriptions add lifecycle complexity
+    // for a low-frequency event.
+    while (true) {
+      try {
+        final data = await _client
+            .from('withdrawal_requests')
+            .select()
+            .eq('shop_id', shopId)
+            .eq('status', 'dead_letter')
+            .order('updated_at', ascending: false);
+        yield (data as List)
+            .map((row) => WithdrawalRequestModel.fromJson(row))
+            .toList();
+      } catch (e) {
+        // Yield empty on transient errors — banner just hides.
+        yield const [];
+      }
+      await Future.delayed(const Duration(seconds: 30));
     }
   }
 }
