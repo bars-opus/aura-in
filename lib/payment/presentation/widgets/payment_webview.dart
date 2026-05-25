@@ -49,6 +49,9 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
   late final String _failedScheme;
   late final String _appSchemePrefix;
 
+  String get _logTag =>
+      '[PW ref=${widget.reference.length >= 8 ? widget.reference.substring(0, 8) : widget.reference}]';
+
   @override
   void initState() {
     super.initState();
@@ -64,18 +67,26 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageStarted: (url) => setState(() => _isLoading = true),
+          onPageStarted: (url) {
+            debugPrint('$_logTag onPageStarted $url');
+            setState(() => _isLoading = true);
+          },
           onPageFinished: (url) {
+            debugPrint('$_logTag onPageFinished $url → _startDbPolling()');
             setState(() => _isLoading = false);
             _startDbPolling();
           },
           onUrlChange: (change) {
+            debugPrint('$_logTag onUrlChange ${change.url}');
             if (change.url == null) return;
             if (_isSuccessUrl(change.url!)) _handleSuccess();
             if (_isCancelUrl(change.url!)) _handleCancelled();
           },
           onNavigationRequest: (request) {
             if (request.url.toLowerCase().startsWith(_appSchemePrefix)) {
+              debugPrint(
+                '$_logTag onNavigationRequest ${request.url} → decision=prevent',
+              );
               if (_isSuccessUrl(request.url)) {
                 _handleSuccess();
               } else {
@@ -83,6 +94,9 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
               }
               return NavigationDecision.prevent;
             }
+            debugPrint(
+              '$_logTag onNavigationRequest ${request.url} → decision=navigate',
+            );
             return NavigationDecision.navigate;
           },
         ),
@@ -93,12 +107,19 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
     _verifyTimer = Timer.periodic(_config.verifyEscalationInterval, (_) {
       if (!_isComplete && !_isVerifying) _verifyPaymentDirectly();
     });
+
+    debugPrint(
+      '$_logTag init provider=${widget.provider} url=${widget.url} '
+      'scheme=$_appSchemePrefix dbPoll=${_config.dbPollInterval.inSeconds}s '
+      'verifyEsc=${_config.verifyEscalationInterval.inSeconds}s',
+    );
   }
 
   // ── App lifecycle ───────────────────────────────────────────────────────────
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    debugPrint('$_logTag lifecycle state=$state isComplete=$_isComplete');
     if (_isComplete) return;
     if (state == AppLifecycleState.resumed) {
       _checkBookingInDb();
@@ -114,6 +135,7 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
   void _startDbPolling() {
     _dbPollTimer?.cancel();
     _dbPollTimer = Timer.periodic(_config.dbPollInterval, (_) {
+      debugPrint('$_logTag dbPoll tick isComplete=$_isComplete');
       if (_isComplete) {
         _dbPollTimer?.cancel();
         return;
@@ -132,12 +154,16 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
           .eq('status', 'confirmed')
           .maybeSingle();
 
+      debugPrint(
+        '$_logTag checkBookingInDb result=${result == null ? 'null' : 'found id=${result['id']}'}',
+      );
+
       if (result != null) {
         _dbPollTimer?.cancel();
         _handleSuccess();
       }
     } catch (e) {
-      debugPrint('WebView DB poll error: $e');
+      debugPrint('$_logTag checkBookingInDb error=$e');
     }
   }
 
@@ -157,6 +183,9 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
       );
 
       final data = response.data;
+      debugPrint(
+        '$_logTag verifyPayment result=${data is Map ? (data['success'] == true ? 'success' : 'not confirmed') : 'non-map'}',
+      );
       if (data is Map<String, dynamic> && data['success'] == true) {
         debugPrint(
           '✅ ${_config.verifyPaymentFunctionName} confirmed — closing WebView',
@@ -166,7 +195,7 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
         _handleSuccess();
       }
     } catch (e) {
-      debugPrint('${_config.verifyPaymentFunctionName} error: $e');
+      debugPrint('$_logTag verifyPayment error=$e');
     } finally {
       _isVerifying = false;
     }
@@ -176,19 +205,33 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
 
   void _handleSuccess() {
     if (_isComplete) return;
+    debugPrint('$_logTag _handleSuccess ENTRY');
     _isComplete = true;
     widget.onComplete(true);
     Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) Navigator.pop(context);
+      debugPrint(
+        '$_logTag _handleSuccess 300ms elapsed mounted=$mounted → popping',
+      );
+      if (mounted) {
+        Navigator.pop(context);
+        debugPrint('$_logTag _handleSuccess post-pop');
+      }
     });
   }
 
   void _handleCancelled() {
     if (_isComplete) return;
+    debugPrint('$_logTag _handleCancelled ENTRY');
     _isComplete = true;
     widget.onComplete(false);
     Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) Navigator.pop(context);
+      debugPrint(
+        '$_logTag _handleCancelled 300ms elapsed mounted=$mounted → popping',
+      );
+      if (mounted) {
+        Navigator.pop(context);
+        debugPrint('$_logTag _handleCancelled post-pop');
+      }
     });
   }
 
@@ -204,6 +247,7 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
 
   @override
   void dispose() {
+    debugPrint('$_logTag dispose isComplete=$_isComplete');
     WidgetsBinding.instance.removeObserver(this);
     _dbPollTimer?.cancel();
     _verifyTimer?.cancel();

@@ -38,6 +38,26 @@
                 <data android:scheme="aurain" android:host="login-callback" />
             </intent-filter>
 
+            <!-- Payment callbacks: aurain://payment-success|cancelled|failed -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="aurain" android:host="payment-success" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="aurain" android:host="payment-cancelled" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="aurain" android:host="payment-failed" />
+            </intent-filter>
+
             <!-- Legacy deep links kept for compatibility -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

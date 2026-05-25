@@ -127,7 +127,7 @@ Future<void> main() async {
           // Payment engine config — app scheme + currency + retry/poll knobs
           paymentConfigProvider.overrideWithValue(
             PaymentConfig(
-              appScheme: 'nanoembryo',
+              appScheme: 'aurain',
               brandName: 'NanoEmbryo',
               defaultCurrency: 'GHS',
               paymentErrorBuilder: (context, info) =>
