@@ -74,6 +74,7 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
                 setState(() => _isLoading = true);
               },
               onPageFinished: (url) {
+                if (_isComplete) return;
                 setState(() {
                   _isLoading = false;
                   if (widget.provider == 'paystack') _showConfirmingSheet = true;
@@ -199,6 +200,9 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
   void _handleSuccess() {
     if (_isComplete) return;
     _isComplete = true;
+    if (mounted && widget.provider == 'paystack' && !_showConfirmingSheet) {
+      setState(() => _showConfirmingSheet = true);
+    }
     widget.onComplete(true);
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) Navigator.pop(context);
@@ -256,17 +260,18 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
         children: [
           WebViewWidget(controller: _controller),
           if (_isLoading) const Center(child: CircularLoadingIndicator()),
-          AnimatedSlide(
-            offset: _showConfirmingSheet && !_isComplete
-                ? Offset.zero
-                : const Offset(0, 1),
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOutCubic,
-            child: const Align(
-              alignment: Alignment.bottomCenter,
-              child: _ConfirmingSheet(),
+          if (widget.provider == 'paystack')
+            AnimatedSlide(
+              offset: _showConfirmingSheet && !_isComplete
+                  ? Offset.zero
+                  : const Offset(0, 1),
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic,
+              child: const Align(
+                alignment: Alignment.bottomCenter,
+                child: _ConfirmingSheet(),
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -291,7 +296,12 @@ class _ConfirmingSheet extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        14,
+        20,
+        28 + MediaQuery.of(context).padding.bottom,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
