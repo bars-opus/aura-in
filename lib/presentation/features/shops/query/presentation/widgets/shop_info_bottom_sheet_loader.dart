@@ -1,6 +1,6 @@
 import 'package:nano_embryo/core/utils/location/route_preview_widget.dart';
 import 'package:nano_embryo/presentation/features/auth/utility/auth_exports.dart';
-import 'package:nano_embryo/presentation/features/map/presentation/screens/map_shop_provider.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/map_shop_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/shop_list_item_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/discover_shops_widgets/shop_card.dart';
 
