@@ -32,6 +32,8 @@ class MapState {
   final MapBounds? currentBounds;
   final double? currentZoom;
   final MapFetchMode fetchMode;
+  final String? selectedPinId;
+  final bool viewportIsDirty;
 
   const MapState({
     this.pins = const [],
@@ -42,6 +44,8 @@ class MapState {
     this.currentBounds,
     this.currentZoom,
     this.fetchMode = MapFetchMode.browse,
+    this.selectedPinId,
+    this.viewportIsDirty = false,
   });
 
   MapState copyWith({
@@ -53,6 +57,8 @@ class MapState {
     MapBounds? currentBounds,
     double? currentZoom,
     MapFetchMode? fetchMode,
+    Object? selectedPinId = _kAbsent,
+    bool? viewportIsDirty,
   }) {
     return MapState(
       pins: pins ?? this.pins,
@@ -63,6 +69,10 @@ class MapState {
       currentBounds: currentBounds ?? this.currentBounds,
       currentZoom: currentZoom ?? this.currentZoom,
       fetchMode: fetchMode ?? this.fetchMode,
+      selectedPinId: identical(selectedPinId, _kAbsent)
+          ? this.selectedPinId
+          : selectedPinId as String?,
+      viewportIsDirty: viewportIsDirty ?? this.viewportIsDirty,
     );
   }
 }
