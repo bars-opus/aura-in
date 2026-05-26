@@ -13,7 +13,8 @@ import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dar
 /// (i.e. when `MapConfig.appLocationProvider` is null).
 class MapFabColumn extends StatelessWidget {
   final MapFetchMode fetchMode;
-  final bool isFetching;
+  final bool isFetchingGps;
+  final bool isFetchingAppLocation;
   final bool showAppLocationFab;
   final VoidCallback onGpsPressed;
   final VoidCallback onAppLocationPressed;
@@ -21,7 +22,8 @@ class MapFabColumn extends StatelessWidget {
   const MapFabColumn({
     super.key,
     required this.fetchMode,
-    required this.isFetching,
+    required this.isFetchingGps,
+    required this.isFetchingAppLocation,
     required this.showAppLocationFab,
     required this.onGpsPressed,
     required this.onAppLocationPressed,
@@ -43,7 +45,7 @@ class MapFabColumn extends StatelessWidget {
               heroTag: 'fab_gps',
               backgroundColor: colorScheme.surface,
               onPressed: onGpsPressed,
-              child: isFetching
+              child: isFetchingGps
                   ? const CircularLoadingIndicator()
                   : Icon(
                       fetchMode == MapFetchMode.deviceGps
@@ -67,7 +69,7 @@ class MapFabColumn extends StatelessWidget {
                 heroTag: 'fab_app_location',
                 backgroundColor: colorScheme.surface,
                 onPressed: onAppLocationPressed,
-                child: isFetching
+                child: isFetchingAppLocation
                     ? const CircularLoadingIndicator()
                     : Icon(
                         fetchMode == MapFetchMode.appLocation

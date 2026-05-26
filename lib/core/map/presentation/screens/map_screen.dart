@@ -46,7 +46,8 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
   bool _showMap = false;
   Timer? _mapInitTimeout;
   MarkerSourceManager? _markerManager;
-  bool _isFetchingNearby = false;
+  bool _isFetchingGps = false;
+  bool _isFetchingAppLocation = false;
 
   int _retryCount = 0;
   static const int _maxRetries = 4;
@@ -294,7 +295,8 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
 
             MapFabColumn(
               fetchMode: mapState.fetchMode,
-              isFetching: _isFetchingNearby,
+              isFetchingGps: _isFetchingGps,
+              isFetchingAppLocation: _isFetchingAppLocation,
               showAppLocationFab: config.appLocationProvider != null,
               onGpsPressed: () => _useDeviceLocation(controller),
               onAppLocationPressed: () => _useAppLocation(controller),
@@ -562,7 +564,7 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
       return;
     }
 
-    setState(() => _isFetchingNearby = true);
+    setState(() => _isFetchingGps = true);
     try {
       final position = await _getDeviceLocation();
       if (!mounted) return;
@@ -581,7 +583,7 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
     } catch (e) {
       debugPrint('Device location button error: $e');
     } finally {
-      if (mounted) setState(() => _isFetchingNearby = false);
+      if (mounted) setState(() => _isFetchingGps = false);
     }
   }
 
@@ -604,7 +606,7 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
       return;
     }
 
-    setState(() => _isFetchingNearby = true);
+    setState(() => _isFetchingAppLocation = true);
     try {
       await _flyToAndFetchNearby(
         controller: controller,
@@ -615,7 +617,7 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
     } catch (e) {
       debugPrint('App location button error: $e');
     } finally {
-      if (mounted) setState(() => _isFetchingNearby = false);
+      if (mounted) setState(() => _isFetchingAppLocation = false);
     }
   }
 
