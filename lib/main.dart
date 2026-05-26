@@ -7,8 +7,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:nano_embryo/app/app.dart';
 import 'package:nano_embryo/app/routing/routing_notifier.dart';
 import 'package:nano_embryo/core/config/env.dart';
-import 'package:nano_embryo/core/link/models/aurain_link_config.dart';
+import 'package:nano_embryo/core/link/config/aurain_link_config.dart';
 import 'package:nano_embryo/core/link/providers/link_providers.dart';
+import 'package:nano_embryo/core/map/config/feature/map_config.dart' show mapConfigProvider;
+import 'package:nano_embryo/core/map/config/map_config.dart' show buildNanoEmbryoMapConfig;
 import 'package:nano_embryo/core/notifications/config/feature/notification_config.dart';
 import 'package:nano_embryo/core/notifications/config/notification_config.dart';
 import 'package:nano_embryo/presentation/features/chat/config/chat_config.dart';
@@ -59,8 +61,9 @@ Future<void> main() async {
     // ============================================
     await _initializeOneSignal();
 
-    // 5. Create the routing notifier
-    final routingNotifier = RoutingNotifier();
+    // 5. Create the routing notifier with persistent recovery flag so a
+    //    mid-flow force-quit still re-prompts for the new password.
+    final routingNotifier = RoutingNotifier(prefs: sharedPreferences);
 
     // 6. Initialize deep link handling
     final appLinks = AppLinks();
@@ -113,6 +116,9 @@ Future<void> main() async {
 
           // Add OneSignal App ID provider
           oneSignalAppIdProvider.overrideWithValue(oneSignalAppId),
+
+          // Map engine config — data source + filter schema + marker style + copy
+          mapConfigProvider.overrideWithValue(buildNanoEmbryoMapConfig()),
 
           // Notification engine config — navigation callbacks + setting toggles
           notificationConfigProvider.overrideWithValue(
@@ -283,6 +289,15 @@ void _handleNotificationNavigation(
 // DEEP LINK HANDLERS
 // ============================================
 
+/// Strip query parameters and sensitive path segments from a URI before logging.
+/// Auth callback URLs carry single-use OAuth codes, recovery token hashes, and
+/// access tokens as query params — never log them, even in debug builds, since
+/// they end up in crash-reporting pipelines once added.
+String _redactUri(Uri uri) {
+  final base = '${uri.scheme}://${uri.host}${uri.path}';
+  return uri.hasQuery ? '$base?[redacted]' : base;
+}
+
 /// Handle initial deep link when app is opened from cold start
 Future<void> _handleInitialDeepLink(
   AppLinks appLinks,
@@ -297,7 +312,7 @@ Future<void> _handleInitialDeepLink(
       _processDeepLink(initialLink.toString(), routingNotifier);
     }
   } catch (e) {
-    debugPrint('Error getting initial deep link: $e');
+    debugPrint('Error getting initial deep link: ${e.runtimeType}');
   }
 }
 
@@ -336,13 +351,24 @@ Future<void> _handleOAuthCallback(
   // Subscribe BEFORE exchanging credentials so we never miss the event.
   // Supabase fires signedIn first then passwordRecovery — keep the sub alive
   // until passwordRecovery is confirmed.
+  //
+  // Safety net: a non-recovery OAuth flow (Google/Apple sign-in via this
+  // callback) will never fire passwordRecovery, so without an explicit
+  // timer the subscription would leak forever.
   late final StreamSubscription<AuthState> sub;
+  late final Timer safetyCancel;
+  void cancelAll() {
+    sub.cancel();
+    safetyCancel.cancel();
+  }
+
   sub = Supabase.instance.client.auth.onAuthStateChange.listen((state) {
     if (state.event == AuthChangeEvent.passwordRecovery) {
       routingNotifier.setRecoveryMode(true);
-      sub.cancel();
+      cancelAll();
     }
   });
+  safetyCancel = Timer(const Duration(seconds: 15), cancelAll);
 
   try {
     if (tokenHash != null && isRecoveryUrl) {
@@ -352,23 +378,26 @@ Future<void> _handleOAuthCallback(
       await Supabase.instance.client.auth.verifyOTP(
         tokenHash: tokenHash,
         type: OtpType.recovery,
-      );
+      ).timeout(const Duration(seconds: 30));
       debugPrint('✅ Recovery OTP verified from deep link');
     } else {
       // PKCE (?code=) or implicit (#access_token=) — standard exchange.
-      await Supabase.instance.client.auth.getSessionFromUrl(uri);
+      await Supabase.instance.client.auth
+          .getSessionFromUrl(uri)
+          .timeout(const Duration(seconds: 30));
       debugPrint('✅ OAuth session established from deep link');
     }
   } catch (e) {
-    debugPrint('❌ Failed to establish OAuth session from deep link: $e');
-    sub.cancel();
+    // Log only the exception type — the message may include the full URL with tokens.
+    debugPrint('❌ Failed to establish OAuth session from deep link: ${e.runtimeType}');
+    cancelAll();
     if (isRecoveryUrl) routingNotifier.setRecoveryMode(false);
   }
 }
 
 /// Handle incoming deep links while app is running
 void _handleIncomingDeepLink(Uri uri, RoutingNotifier routingNotifier) {
-  debugPrint('🔗 Deep link received: $uri');
+  debugPrint('🔗 Deep link received: ${_redactUri(uri)}');
   _processDeepLink(uri.toString(), routingNotifier);
 }
 
@@ -378,11 +407,7 @@ void _processDeepLink(String link, RoutingNotifier routingNotifier) {
   String? slug;
   String? linkType;
 
-  debugPrint('🔍 Parsing link: $link');
-  debugPrint('   Scheme: ${uri.scheme}');
-  debugPrint('   Host: ${uri.host}');
-  debugPrint('   Path: ${uri.path}');
-  debugPrint('   Path segments: ${uri.pathSegments}');
+  debugPrint('🔍 Parsing link: ${_redactUri(uri)}');
 
   if (uri.scheme == 'aurain') {
     // Custom scheme: host is the link type (shop/worker/booking)
@@ -391,9 +416,7 @@ void _processDeepLink(String link, RoutingNotifier routingNotifier) {
     slug = uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : null;
 
     if (slug != null) {
-      debugPrint(
-        '📱 Extracted type: $linkType, slug: $slug from custom scheme',
-      );
+      debugPrint('📱 Extracted type: $linkType from custom scheme');
     }
   } else if (uri.scheme == 'https' &&
       (uri.host == 'aurain.barsopus.com' ||
@@ -402,15 +425,15 @@ void _processDeepLink(String link, RoutingNotifier routingNotifier) {
     final segments = uri.pathSegments;
     if (segments.isNotEmpty && segments[0] == 'l' && segments.length >= 2) {
       slug = segments[1];
-      debugPrint('🌐 Extracted slug from web URL: $slug');
+      debugPrint('🌐 Extracted slug from web URL');
     }
   }
 
   if (slug != null && slug.isNotEmpty) {
     routingNotifier.setPendingDeepLink(slug);
-    debugPrint('📌 Deep link stored for Aura-In, waiting for auth: $slug');
+    debugPrint('📌 Deep link stored, waiting for auth');
   } else {
-    debugPrint('⚠️ Could not extract slug from link: $link');
+    debugPrint('⚠️ Could not extract slug from link');
   }
 }
 
