@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/map/config/feature/map_config.dart';
 import 'package:nano_embryo/core/map/domain/data_source/map_data_source.dart';
 import 'package:nano_embryo/core/map/domain/entities/lat_lng.dart';
 import 'package:nano_embryo/core/map/domain/entities/map_bounds.dart';
@@ -218,7 +219,6 @@ class MapController extends StateNotifier<MapState> {
   }
 }
 
-/* TODO: re-enable in Slice 3 once mapConfigProvider exists.
 final mapControllerProvider =
     StateNotifierProvider<MapController, MapState>((ref) {
   final config = ref.watch(mapConfigProvider);
@@ -229,4 +229,3 @@ final mapControllerProvider =
     nearbyLimit: config.nearbyLimit,
   );
 });
-*/
