@@ -213,6 +213,29 @@ class MapController extends StateNotifier<MapState> {
     }
   }
 
+  /// Explicit fetch for the current viewport + filters. Called by the
+  /// "Search this area" pill. Clears [MapState.viewportIsDirty] and
+  /// [MapState.selectedPinId] on success.
+  Future<void> refreshForCurrentViewport(Map<String, dynamic> filters) async {
+    if (state.currentBounds == null) return;
+    await _fetchInBounds(state.currentBounds!, filters);
+    if (!mounted) return;
+    if (state.error == null) {
+      state = state.copyWith(
+        viewportIsDirty: false,
+        selectedPinId: null,
+      );
+    }
+  }
+
+  /// Set or clear the active marker/card selection. Called by the carousel
+  /// when the active page changes, and by the marker source manager when
+  /// the user taps a pin.
+  void selectPin(String? pinId) {
+    if (state.selectedPinId == pinId) return;
+    state = state.copyWith(selectedPinId: pinId);
+  }
+
   void clearError() => state = state.copyWith(error: null);
 
   /// Reset loading/fetching flags without clearing pins.
