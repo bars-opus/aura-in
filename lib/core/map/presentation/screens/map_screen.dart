@@ -214,6 +214,7 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
                 key: _mapKey,
                 onMapCreated:
                     (mapboxMap) => _onMapCreated(mapboxMap, controller),
+                onStyleLoadedListener: (_) => _onStyleLoaded(controller),
                 cameraOptions: CameraOptions(
                   center: Point(coordinates: Position(20.0, 5.0)),
                   zoom: 3.0,
@@ -292,23 +293,29 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
 
   // ── Map lifecycle ─────────────────────────────────────────────────────
 
-  void _onMapCreated(MapboxMap mapboxMap, MapController controller) async {
+  void _onMapCreated(MapboxMap mapboxMap, MapController controller) {
     _mapInitTimeout?.cancel();
     _retryCount = 0;
-    try {
-      _mapboxMap = mapboxMap;
-      await _initMarkerManager();
+    _mapboxMap = mapboxMap;
+    _mapboxMap?.onMapScrollListener = (MapContentGestureContext ctx) {
+      _onCameraChanged(controller);
+    };
+    // Style may already be loaded (e.g. simulator); the widget-level
+    // onStyleLoadedListener handles the normal path, but if somehow
+    // style is already ready we fire directly.
+    // The idempotency guard in MarkerSourceManager._layersAdded prevents
+    // double-init if both paths fire.
+  }
 
+  void _onStyleLoaded(MapController controller) async {
+    if (_mapboxMap == null) return;
+    try {
+      await _initMarkerManager();
       if (!mounted) return;
       setState(() => _isMapReady = true);
-
-      _mapboxMap?.onMapScrollListener = (MapContentGestureContext ctx) {
-        _onCameraChanged(controller);
-      };
-
       _initializeMapWithLocation(controller);
     } catch (e) {
-      debugPrint('MapWidget init error: $e');
+      debugPrint('Style loaded init error: $e');
       if (mounted) controller.resetToIdle();
     }
   }
