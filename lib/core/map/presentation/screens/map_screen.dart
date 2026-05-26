@@ -17,6 +17,7 @@ import 'package:nano_embryo/core/map/presentation/controllers/map_controller.dar
 import 'package:nano_embryo/core/map/presentation/providers/map_filter_providers.dart';
 import 'package:nano_embryo/core/map/presentation/widgets/marker_source_manager.dart';
 import 'package:nano_embryo/core/map/presentation/widgets/map_fab_column.dart';
+import 'package:nano_embryo/core/map/presentation/widgets/search_this_area_pill.dart';
 import 'package:nano_embryo/core/map/presentation/widgets/map_filter_bar.dart';
 import 'package:nano_embryo/core/widgets/card_inkwell.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
@@ -240,6 +241,13 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
                   },
                 ),
               ),
+
+            Positioned(
+              top: MediaQuery.of(context).padding.top + Spacing.lg.h,
+              left: 0,
+              right: 0,
+              child: const Center(child: SearchThisAreaPill()),
+            ),
 
             MapFabColumn(
               fetchMode: mapState.fetchMode,
