@@ -6,33 +6,30 @@ import 'package:gap/gap.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/map/config/feature/map_config.dart';
 import 'package:nano_embryo/core/map/config/feature/map_filter_schema.dart';
+import 'package:nano_embryo/core/map/presentation/controllers/map_controller.dart';
 import 'package:nano_embryo/core/map/presentation/providers/map_filter_providers.dart';
 import 'package:nano_embryo/core/utils/animations/shake_transition.dart';
 import 'package:nano_embryo/core/widgets/app_filer_chip.dart';
+import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
+import 'package:nano_embryo/core/widgets/feedback/error_state.dart';
 import 'package:nano_embryo/core/widgets/horizontal_category_tabs.dart';
 
 /// Filter bar for the engine — primary tabs above, optional secondary
 /// chip row below. Layout is fixed; values come from
 /// `MapConfig.filterSchema`. The chip row hides entirely if
 /// `secondaryFilterKey` is `null`.
+///
+/// Error state: replaces filter bar content entirely with [ErrorStateWidget].
+/// Empty state: appends [EmptyStateWidget] below the chip row.
 class MapFilterBar extends ConsumerWidget {
   const MapFilterBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final config = ref.watch(mapConfigProvider);
+    final mapState = ref.watch(mapControllerProvider);
     final schema = config.filterSchema;
-    final selectedPrimary = ref.watch(selectedPrimaryFilterProvider);
-    final selectedSecondary = ref.watch(selectedSecondaryFilterProvider);
     final colorScheme = Theme.of(context).colorScheme;
-
-    final primaryEntries = <FilterOption>[
-      if (schema.primaryAllOption != null) schema.primaryAllOption!,
-      ...schema.primaryTabs,
-    ];
-    final primaryLabels = primaryEntries.map((e) => e.label).toList();
-    final selectedPrimaryLabel =
-        selectedPrimary?.label ?? schema.primaryAllOption?.label;
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: Spacing.sm.h),
@@ -50,84 +47,161 @@ class MapFilterBar extends ConsumerWidget {
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ShakeTransition(
-            duration: const Duration(milliseconds: 700),
-            child: HorizontalCategoryTabs(
-              categories: primaryLabels,
-              selectedCategory: selectedPrimaryLabel,
-              onCategorySelected: (label) {
-                final picked = primaryEntries.firstWhere(
-                  (e) => e.label == label,
-                  orElse: () => primaryEntries.first,
-                );
-                ref.read(selectedPrimaryFilterProvider.notifier).state =
-                    picked == schema.primaryAllOption ? null : picked;
+      child: _buildContent(context, ref, mapState, config, schema),
+    );
+  }
+
+  Widget _buildContent(
+    BuildContext context,
+    WidgetRef ref,
+    MapState mapState,
+    MapConfig config,
+    MapFilterSchema schema,
+  ) {
+    // Error state: replace content entirely.
+    if (mapState.error != null) {
+      return Padding(
+        padding: EdgeInsets.all(Spacing.md.w),
+        child: ErrorStateWidget(
+          subtitle: mapState.error,
+          onPrimaryAction: () {
+            final controller = ref.read(mapControllerProvider.notifier);
+            controller.clearError();
+            controller.refreshForCurrentViewport(ref.read(mapFiltersProvider));
+          },
+        ),
+      );
+    }
+
+    // Empty state: tabs + chips + empty widget below.
+    final showEmpty = !mapState.isLoading &&
+        !mapState.isFetching &&
+        mapState.pins.isEmpty;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildPrimaryTabs(context, ref, config, schema),
+        if (schema.secondaryFilterKey != null) ...[
+          Gap(Spacing.xs),
+          _buildSecondaryChips(context, ref, schema),
+        ],
+        if (showEmpty)
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: Spacing.md.w,
+              vertical: Spacing.md.h,
+            ),
+            child: EmptyStateWidget(
+              icon: Icons.map_outlined,
+              subtitle: config.copy.emptyStateSubtitle,
+              actionLabel: config.copy.errorRetryLabel,
+              onAction: () {
+                ref
+                    .read(mapControllerProvider.notifier)
+                    .refreshForCurrentViewport(ref.read(mapFiltersProvider));
               },
-              isLoading: false,
-              tabWidth: 90.w,
-              containerHeight: 40.h,
-              showBottomBorder: false,
-              selectedIndicatorColor: colorScheme.primary,
-              selectedTextColor: colorScheme.primary,
-              unselectedTextColor: colorScheme.onSurfaceVariant,
             ),
           ),
+      ],
+    );
+  }
 
-          if (schema.secondaryFilterKey != null) ...[
-            Gap(Spacing.xs),
-            ShakeTransition(
-              offset: -140,
-              child: SizedBox(
-                height: 48.h,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (schema.secondaryAllOption != null)
-                      Padding(
-                        padding: EdgeInsets.only(right: Spacing.sm.w),
-                        child: AppFilterChip(
-                          label: schema.secondaryAllOption!.label,
-                          selected: selectedSecondary == null,
-                          onSelected: (selected) {
-                            if (selected) {
-                              ref
-                                  .read(selectedSecondaryFilterProvider.notifier)
-                                  .state = null;
-                            }
-                          },
-                          selectedColor: colorScheme.primary,
-                          backgroundColor: Colors.transparent,
-                          borderWidth: 0.3,
-                        ),
-                      ),
-                    ...schema.secondaryChips.map((opt) {
-                      final isSelected = selectedSecondary == opt;
-                      return Padding(
-                        padding: EdgeInsets.only(right: Spacing.sm.w),
-                        child: AppFilterChip(
-                          label: opt.label,
-                          selected: isSelected,
-                          onSelected: (selected) {
-                            ref
-                                .read(selectedSecondaryFilterProvider.notifier)
-                                .state = selected ? opt : null;
-                          },
-                          selectedColor: colorScheme.primary,
-                          backgroundColor: colorScheme.surface,
-                          labelColor: colorScheme.onSurface,
-                          borderWidth: 0.3,
-                        ),
-                      );
-                    }),
-                  ],
+  Widget _buildPrimaryTabs(
+    BuildContext context,
+    WidgetRef ref,
+    MapConfig config,
+    MapFilterSchema schema,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final selectedPrimary = ref.watch(selectedPrimaryFilterProvider);
+
+    final primaryEntries = <FilterOption>[
+      if (schema.primaryAllOption != null) schema.primaryAllOption!,
+      ...schema.primaryTabs,
+    ];
+    final primaryLabels = primaryEntries.map((e) => e.label).toList();
+    final selectedPrimaryLabel =
+        selectedPrimary?.label ?? schema.primaryAllOption?.label;
+
+    return ShakeTransition(
+      duration: const Duration(milliseconds: 700),
+      child: HorizontalCategoryTabs(
+        categories: primaryLabels,
+        selectedCategory: selectedPrimaryLabel,
+        onCategorySelected: (label) {
+          final picked = primaryEntries.firstWhere(
+            (e) => e.label == label,
+            orElse: () => primaryEntries.first,
+          );
+          ref.read(selectedPrimaryFilterProvider.notifier).state =
+              picked == schema.primaryAllOption ? null : picked;
+        },
+        isLoading: false,
+        tabWidth: 90.w,
+        containerHeight: 40.h,
+        showBottomBorder: false,
+        selectedIndicatorColor: colorScheme.primary,
+        selectedTextColor: colorScheme.primary,
+        unselectedTextColor: colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+
+  Widget _buildSecondaryChips(
+    BuildContext context,
+    WidgetRef ref,
+    MapFilterSchema schema,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final selectedSecondary = ref.watch(selectedSecondaryFilterProvider);
+
+    return ShakeTransition(
+      offset: -140,
+      child: SizedBox(
+        height: 48.h,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (schema.secondaryAllOption != null)
+              Padding(
+                padding: EdgeInsets.only(right: Spacing.sm.w),
+                child: AppFilterChip(
+                  label: schema.secondaryAllOption!.label,
+                  selected: selectedSecondary == null,
+                  onSelected: (selected) {
+                    if (selected) {
+                      ref
+                          .read(selectedSecondaryFilterProvider.notifier)
+                          .state = null;
+                    }
+                  },
+                  selectedColor: colorScheme.primary,
+                  backgroundColor: Colors.transparent,
+                  borderWidth: 0.3,
                 ),
               ),
-            ),
+            ...schema.secondaryChips.map((opt) {
+              final isSelected = selectedSecondary == opt;
+              return Padding(
+                padding: EdgeInsets.only(right: Spacing.sm.w),
+                child: AppFilterChip(
+                  label: opt.label,
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    ref
+                        .read(selectedSecondaryFilterProvider.notifier)
+                        .state = selected ? opt : null;
+                  },
+                  selectedColor: colorScheme.primary,
+                  backgroundColor: colorScheme.surface,
+                  labelColor: colorScheme.onSurface,
+                  borderWidth: 0.3,
+                ),
+              );
+            }),
           ],
-        ],
+        ),
       ),
     );
   }

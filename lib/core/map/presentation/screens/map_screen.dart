@@ -20,9 +20,6 @@ import 'package:nano_embryo/core/map/presentation/widgets/map_fab_column.dart';
 import 'package:nano_embryo/core/map/presentation/widgets/map_pin_carousel.dart';
 import 'package:nano_embryo/core/map/presentation/widgets/search_this_area_pill.dart';
 import 'package:nano_embryo/core/map/presentation/widgets/map_filter_bar.dart';
-import 'package:nano_embryo/core/widgets/card_inkwell.dart';
-import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
-import 'package:nano_embryo/core/widgets/feedback/error_state.dart';
 
 /// Generic, drop-in map screen. All app-specific behaviour is driven by
 /// [mapConfigProvider]; mount it like:
@@ -136,26 +133,6 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
     _markerManager?.updatePins(pins);
   }
 
-  Widget _cardWell(Widget child) {
-    return Center(
-      child: SizedBox(
-        height: 300.h,
-        child: CardInkWell(
-          elevation: ElevationTokens.md,
-          borderRadius: BorderRadiusTokens.xlAll,
-          padding: const EdgeInsets.all(0),
-          margin: EdgeInsets.only(
-            left: Spacing.md,
-            top: Spacing.lg,
-            right: Spacing.md,
-          ),
-          onTap: () {},
-          child: child,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -244,44 +221,6 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
                 styleUri: mapStyleUri,
               ),
 
-            if (!mapState.isLoading &&
-                !mapState.isFetching &&
-                mapState.pins.isEmpty &&
-                mapState.error == null)
-              _cardWell(
-                Center(
-                  child: EmptyStateWidget(
-                    icon: Icons.map_outlined,
-                    subtitle: config.copy.emptyStateSubtitle,
-                    actionLabel: config.copy.errorRetryLabel,
-                    onAction: () {
-                      if (!_isMapReady) {
-                        _retryMapCreation();
-                      } else {
-                        controller.refresh(
-                          ref.read(mapFiltersProvider),
-                          radiusKm: config.defaultRadiusKm,
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ),
-
-            if (mapState.error != null)
-              _cardWell(
-                ErrorStateWidget(
-                  subtitle: mapState.error,
-                  onPrimaryAction: () {
-                    controller.clearError();
-                    controller.refresh(
-                      ref.read(mapFiltersProvider),
-                      radiusKm: config.defaultRadiusKm,
-                    );
-                  },
-                ),
-              ),
-
             Positioned(
               top: MediaQuery.of(context).padding.top + Spacing.lg.h,
               left: 0,
@@ -307,7 +246,7 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
           ],
         ),
       ),
-      bottomNavigationBar: mapState.error != null ? null : const MapFilterBar(),
+      bottomNavigationBar: const MapFilterBar(),
     );
   }
 
