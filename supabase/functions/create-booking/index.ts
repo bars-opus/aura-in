@@ -484,8 +484,25 @@ async function validateRequest(req: BookingRequest): Promise<ValidationResult> {
         errors.push('Selected worker is not available for this time slot');
       }
     } else {
-      // No worker selected — treat as shop-wide capacity (single-worker shop).
-      errors.push('Time slot is no longer available');
+      // No specific worker requested. Check shop capacity: allow if the number
+      // of overlapping confirmed bookings is less than the shop's active worker
+      // count. This correctly handles both single-worker shops (1 worker, 1
+      // booking → block) and multi-worker shops where the client skips worker
+      // selection (3 workers, 1 booking → still 2 available → allow).
+      const { data: shopWorkers, error: swErr } = await supabase
+        .from('workers')
+        .select('id')
+        .eq('shop_id', req.shopId)
+        .eq('is_active', true);
+
+      if (swErr) {
+        errors.push('Could not verify slot availability — please retry');
+      } else {
+        const totalWorkers = (shopWorkers ?? []).length;
+        if (totalWorkers === 0 || overlapping.length >= totalWorkers) {
+          errors.push('Time slot is no longer available');
+        }
+      }
     }
   }
 

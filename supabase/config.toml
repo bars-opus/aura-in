@@ -1,0 +1,15 @@
+project_id = "kbmjwicdffpuowymkobo"
+
+# Webhook endpoints — called by external providers (Paystack, Stripe, Sendbird)
+# with their own signature headers, NOT Supabase JWTs. Must skip platform-level
+# JWT verification or every webhook request gets rejected with HTTP 401 before
+# reaching the function code.
+
+[functions.paystack-webhook]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.sendbird-webhook]
+verify_jwt = false
