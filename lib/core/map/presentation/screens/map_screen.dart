@@ -21,7 +21,6 @@ import 'package:nano_embryo/core/map/presentation/widgets/map_pin_carousel.dart'
 import 'package:nano_embryo/core/map/presentation/widgets/search_this_area_pill.dart';
 import 'package:nano_embryo/core/map/presentation/widgets/map_filter_bar.dart';
 import 'package:nano_embryo/core/widgets/card_inkwell.dart';
-import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
 import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
 import 'package:nano_embryo/core/widgets/feedback/error_state.dart';
 
@@ -244,9 +243,6 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
                 ),
                 styleUri: mapStyleUri,
               ),
-
-            if (mapState.isLoading && mapState.pins.isEmpty)
-              const Center(child: CircularLoadingIndicator()),
 
             if (!mapState.isLoading &&
                 !mapState.isFetching &&
@@ -517,37 +513,47 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
   Future<void> _initializeMapWithLocation(MapController controller) async {
     final config = ref.read(mapConfigProvider);
 
-    // Tier 1: device GPS
+    // Tier 1: device GPS — pulses the GPS FAB while fetching.
+    setState(() => _isFetchingGps = true);
     final gpsPosition = await _getDeviceLocation();
     if (gpsPosition != null && mounted) {
-      await _flyToAndFetchNearby(
-        controller: controller,
-        latitude: gpsPosition.latitude,
-        longitude: gpsPosition.longitude,
-        mode: MapFetchMode.deviceGps,
-      );
+      try {
+        await _flyToAndFetchNearby(
+          controller: controller,
+          latitude: gpsPosition.latitude,
+          longitude: gpsPosition.longitude,
+          mode: MapFetchMode.deviceGps,
+        );
+      } finally {
+        if (mounted) setState(() => _isFetchingGps = false);
+      }
       return;
     }
-
+    if (mounted) setState(() => _isFetchingGps = false);
     if (!mounted) return;
 
-    // Tier 2: in-app user location (only if configured)
+    // Tier 2: in-app user location — pulses the app-location FAB.
     if (config.appLocationProvider != null) {
       final appLocation = ref.read(config.appLocationProvider!);
       if (appLocation != null) {
-        await _flyToAndFetchNearby(
-          controller: controller,
-          latitude: appLocation.latitude,
-          longitude: appLocation.longitude,
-          mode: MapFetchMode.appLocation,
-        );
+        setState(() => _isFetchingAppLocation = true);
+        try {
+          await _flyToAndFetchNearby(
+            controller: controller,
+            latitude: appLocation.latitude,
+            longitude: appLocation.longitude,
+            mode: MapFetchMode.appLocation,
+          );
+        } finally {
+          if (mounted) setState(() => _isFetchingAppLocation = false);
+        }
         return;
       }
     }
 
     if (!mounted) return;
 
-    // Tier 3: configured hardcoded fallback
+    // Tier 3: configured hardcoded fallback (no loading indicator).
     await _flyToAndFetchNearby(
       controller: controller,
       latitude: config.fallback.latitude,
