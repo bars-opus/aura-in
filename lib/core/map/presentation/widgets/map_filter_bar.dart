@@ -9,7 +9,7 @@ import 'package:nano_embryo/core/map/config/feature/map_filter_schema.dart';
 import 'package:nano_embryo/core/map/presentation/providers/map_filter_providers.dart';
 import 'package:nano_embryo/core/utils/animations/shake_transition.dart';
 import 'package:nano_embryo/core/widgets/app_filer_chip.dart';
-import 'package:nano_embryo/core/widgets/shop_category_tabs.dart';
+import 'package:nano_embryo/core/widgets/horizontal_category_tabs.dart';
 
 /// Filter bar for the engine — primary tabs above, optional secondary
 /// chip row below. Layout is fixed; values come from
@@ -55,7 +55,7 @@ class MapFilterBar extends ConsumerWidget {
         children: [
           ShakeTransition(
             duration: const Duration(milliseconds: 700),
-            child: ShopCategoryTabs(
+            child: HorizontalCategoryTabs(
               categories: primaryLabels,
               selectedCategory: selectedPrimaryLabel,
               onCategorySelected: (label) {

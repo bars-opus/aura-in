@@ -31,7 +31,7 @@ Copy `lib/core/map/` into any new project and follow this guide to go from zero 
 | `equatable` | ^2.x |
 | `flutter_screenutil` | ^5.x |
 
-Plus the project's existing widgets: `CardInkWell`, `EmptyStateWidget`, `ErrorStateWidget`, `CircularLoadingIndicator`, `AppFilterChip`, `ShopCategoryTabs`, `ShakeTransition`, `AnimatedScaleFade`.
+Plus the project's existing widgets: `CardInkWell`, `EmptyStateWidget`, `ErrorStateWidget`, `CircularLoadingIndicator`, `AppFilterChip`, `HorizontalCategoryTabs`, `ShakeTransition`, `AnimatedScaleFade`.
 
 ---
 

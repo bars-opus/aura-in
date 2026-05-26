@@ -1,58 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
-/// A universal category tabs widget for shop categories.
-///
-/// Features:
-/// - Horizontal scrolling tabs with underline indicator for selected tab
-/// - Loading state support
-/// - Disabled state for categories with no shops
-/// - Customizable formatting
-class ShopCategoryTabs extends ConsumerStatefulWidget {
-  /// List of category keys (e.g., ['salon', 'barbershop', ...])
+class HorizontalCategoryTabs extends StatefulWidget {
   final List<String> categories;
-
-  /// Currently selected category (null means "All")
   final String? selectedCategory;
-
-  /// Callback when a category is selected
   final Function(String?) onCategorySelected;
-
-  /// Optional map to check which categories have shops (for disabling)
   final Map<String, bool>? hasShopsMap;
-
-  /// Whether the widget is in loading state
   final bool isLoading;
-
-  /// Custom formatter for category names (if null, uses default formatting)
   final String Function(String)? categoryFormatter;
-
-  /// Custom width for each tab
   final double? tabWidth;
-
-  /// Custom height for the tabs container
   final double? containerHeight;
-
-  /// Whether to show a bottom border
   final bool showBottomBorder;
-
-  /// Color for selected tab underline indicator
   final Color? selectedIndicatorColor;
-
-  /// Color for selected text
   final Color? selectedTextColor;
-
-  /// Color for unselected text
   final Color? unselectedTextColor;
-
-  /// Color for disabled text
   final Color? disabledTextColor;
+  final bool noTopIndicatorPadding;
 
-  final bool noTopIndcatorPadding;
-
-  const ShopCategoryTabs({
+  const HorizontalCategoryTabs({
     super.key,
     required this.categories,
     required this.selectedCategory,
@@ -67,32 +31,14 @@ class ShopCategoryTabs extends ConsumerStatefulWidget {
     this.selectedTextColor,
     this.unselectedTextColor,
     this.disabledTextColor,
-    this.noTopIndcatorPadding = false,
+    this.noTopIndicatorPadding = false,
   });
 
   @override
-  ConsumerState<ShopCategoryTabs> createState() => _ShopCategoryTabsState();
+  State<HorizontalCategoryTabs> createState() => _HorizontalCategoryTabsState();
 }
 
-class _ShopCategoryTabsState extends ConsumerState<ShopCategoryTabs> {
-  // Track previous selected category to detect changes
-  String? _previousSelectedCategory;
-
-  @override
-  void initState() {
-    super.initState();
-    _previousSelectedCategory = widget.selectedCategory;
-  }
-
-  @override
-  void didUpdateWidget(ShopCategoryTabs oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Store previous value for animation reference
-    if (oldWidget.selectedCategory != widget.selectedCategory) {
-      _previousSelectedCategory = oldWidget.selectedCategory;
-    }
-  }
-
+class _HorizontalCategoryTabsState extends State<HorizontalCategoryTabs> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -104,12 +50,11 @@ class _ShopCategoryTabsState extends ConsumerState<ShopCategoryTabs> {
     return Container(
       height: effectiveContainerHeight,
       decoration: BoxDecoration(
-        color: Colors.transparent,
         border:
             widget.showBottomBorder
                 ? Border(
                   bottom: BorderSide(
-                    color: colorScheme.outline.withOpacity(0.1),
+                    color: colorScheme.outline.withValues(alpha: 0.1),
                     width: 1,
                   ),
                 )
@@ -122,7 +67,6 @@ class _ShopCategoryTabsState extends ConsumerState<ShopCategoryTabs> {
         itemBuilder: (context, index) {
           final category = widget.categories[index];
 
-          // Determine if this tab is selected
           final isSelected =
               !widget.isLoading &&
               ((category == 'all' && widget.selectedCategory == null) ||
@@ -135,9 +79,8 @@ class _ShopCategoryTabsState extends ConsumerState<ShopCategoryTabs> {
                   ? widget.categoryFormatter!(category)
                   : _defaultFormatCategoryName(category);
 
-          // Calculate indicator width
-          final indicatorWidth =
-              (isSelected && hasShops) ? effectiveTabWidth * 0.6 : 0;
+          final double indicatorWidth =
+              (isSelected && hasShops) ? effectiveTabWidth * 0.6 : 0.0;
 
           return GestureDetector(
             onTap:
@@ -151,43 +94,42 @@ class _ShopCategoryTabsState extends ConsumerState<ShopCategoryTabs> {
                   category == 'all'
                       ? effectiveTabWidth - 30.w
                       : effectiveTabWidth,
-              padding: EdgeInsets.only(top: Spacing.sm.h),
               margin: EdgeInsets.only(right: Spacing.sm.w),
               color: Colors.transparent,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Tab text
-                  Text(
-                    displayName,
-                    style: textTheme.labelLarge?.copyWith(
-                      color:
-                          widget.isLoading
-                              ? (widget.disabledTextColor ??
-                                  colorScheme.onBackground.withOpacity(0.3))
-                              : isSelected
-                              ? (widget.selectedTextColor ??
-                                  colorScheme.primary)
-                              : (widget.unselectedTextColor ??
-                                  colorScheme.onBackground.withOpacity(
-                                    hasShops ? 0.8 : 0.3,
-                                  )),
-                      fontWeight:
-                          (!widget.isLoading && isSelected && hasShops)
-                              ? FontWeight.w600
-                              : FontWeight.normal,
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        displayName,
+                        style: textTheme.labelLarge?.copyWith(
+                          color:
+                              widget.isLoading
+                                  ? (widget.disabledTextColor ??
+                                      colorScheme.onSurface.withValues(
+                                        alpha: 0.3,
+                                      ))
+                                  : isSelected
+                                  ? (widget.selectedTextColor ??
+                                      colorScheme.primary)
+                                  : (widget.unselectedTextColor ??
+                                      colorScheme.onSurface.withValues(
+                                        alpha: hasShops ? 0.8 : 0.3,
+                                      )),
+                          fontWeight:
+                              (!widget.isLoading && isSelected && hasShops)
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                  // Animated Underline indicator
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 250),
                     curve: Curves.easeInOut,
-                    margin: EdgeInsets.only(
-                      top: widget.noTopIndcatorPadding ? 0 : Spacing.sm.h + 1,
-                    ),
-                    height: 2.h,
-                    width: indicatorWidth.toDouble(),
+                    height: 2.r,
+                    width: indicatorWidth,
                     decoration: BoxDecoration(
                       color:
                           (isSelected && hasShops)

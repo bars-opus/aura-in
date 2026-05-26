@@ -207,7 +207,7 @@ class CanvasMarkerBuilder {
     if (!isSelected) {
       final borderPaint =
           Paint()
-            ..color = borderColor ?? colorScheme.background
+            ..color = borderColor ?? colorScheme.surface
             ..style = PaintingStyle.stroke
             ..strokeWidth = 3;
 
