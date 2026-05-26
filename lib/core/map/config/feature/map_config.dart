@@ -54,6 +54,13 @@ class MapConfig {
   /// Debounce between pan/zoom and the resulting viewport fetch.
   final Duration viewportDebounce;
 
+  /// Mapbox cluster radius in screen pixels. Defaults to 50.
+  final double clusterRadius;
+
+  /// Maximum zoom at which clusters still form. Beyond this, every pin
+  /// is shown individually. Defaults to 14.
+  final double clusterMaxZoom;
+
   const MapConfig({
     required this.dataSource,
     required this.filterSchema,
@@ -66,6 +73,8 @@ class MapConfig {
     this.viewportLimit = 100,
     this.nearbyLimit = 50,
     this.viewportDebounce = const Duration(milliseconds: 500),
+    this.clusterRadius = 50,
+    this.clusterMaxZoom = 14,
   });
 }
 
