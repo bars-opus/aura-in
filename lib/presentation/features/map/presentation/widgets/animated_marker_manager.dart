@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:nano_embryo/presentation/features/map/data/marker_code_generator.dart';
 import 'package:nano_embryo/presentation/features/map/data/models/shop_location_dto.dart';
-import 'package:nano_embryo/presentation/features/map/presentation/widgets/canvas_marker_builder.dart';
+import 'package:nano_embryo/core/map/presentation/widgets/canvas_marker_builder.dart';
 
 class AnimatedMarkerManager {
   final MapboxMap _mapboxMap;

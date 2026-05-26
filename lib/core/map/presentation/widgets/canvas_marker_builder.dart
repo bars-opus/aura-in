@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:nano_embryo/core/map/config/feature/marker_style.dart';
 
 class CanvasMarkerBuilder {
   /// Draw a rectangular marker with a triangular pointer at the bottom.
@@ -12,6 +13,7 @@ class CanvasMarkerBuilder {
     required Color luxuryColor,
     required BuildContext context,
     bool isSelected = false,
+    MarkerShape shape = MarkerShape.pill,
     double? width,
     double? height,
     double tailHeight = 30.0,
@@ -19,6 +21,15 @@ class CanvasMarkerBuilder {
     // Color? backgroundColor,
     Color? borderColor,
   }) async {
+    // Only the pill shape is implemented today (it is the current marker look).
+    // Future shapes can branch off this enum without changing call sites.
+    assert(
+      shape == MarkerShape.pill,
+      'MarkerShape.${shape.name} is not yet implemented; '
+      'CanvasMarkerBuilder currently only supports MarkerShape.pill. '
+      'Add a branch above or extend this function before using it.',
+    );
+
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
