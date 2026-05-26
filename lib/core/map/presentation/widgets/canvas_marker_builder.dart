@@ -318,9 +318,12 @@ class CanvasMarkerBuilder {
     return byteData!.buffer.asUint8List();
   }
 
-  /// Draw premium cluster marker
+  /// Draw a blank cluster bubble. Renders a colored circle with an outer glow
+  /// and a white inner ring, but no text. The actual cluster count is overlaid
+  /// by a separate text symbol layer in MarkerSourceManager — baking the count
+  /// into the image would freeze it as "0" since the image is registered once.
   static Future<Uint8List> drawClusterMarker({
-    required int count,
+    required Color color,
     double size = 44,
   }) async {
     final recorder = ui.PictureRecorder();
@@ -329,51 +332,26 @@ class CanvasMarkerBuilder {
     final center = Offset(size / 2, size / 2);
     final radius = size / 2 - 2;
 
-    // Draw outer glow
+    // Outer glow uses 30% opacity of the primary color.
     final glowPaint =
         Paint()
-          ..color = const Color(0xFF34C759).withOpacity(0.3)
+          ..color = color.withOpacity(0.3)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
     canvas.drawCircle(center, radius + 4, glowPaint);
 
-    // Draw gradient background
-    final gradient = ui.Gradient.radial(center, radius, [
-      const Color(0xFF4CD964),
-      const Color(0xFF34C759),
-    ]);
+    // Radial gradient: slightly lighter color in center, primary at edge.
+    final lighter = Color.lerp(color, Colors.white, 0.15) ?? color;
+    final gradient = ui.Gradient.radial(center, radius, [lighter, color]);
     final bgPaint = Paint()..shader = gradient;
     canvas.drawCircle(center, radius, bgPaint);
 
-    // Draw white inner ring
+    // White inner ring.
     final ringPaint =
         Paint()
           ..color = Colors.white
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2;
     canvas.drawCircle(center, radius - 2, ringPaint);
-
-    // Draw count text
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: count > 99 ? '99+' : count.toString(),
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: count > 99 ? 12 : 16,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'system-ui',
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(
-        center.dx - textPainter.width / 2,
-        center.dy - textPainter.height / 2,
-      ),
-    );
 
     final picture = recorder.endRecording();
     final image = await picture.toImage(size.toInt(), size.toInt());
