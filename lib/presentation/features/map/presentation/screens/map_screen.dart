@@ -11,7 +11,7 @@ import 'package:geolocator/geolocator.dart' as geo;
 import 'package:nano_embryo/presentation/features/map/presentation/providers/map_filter_providers.dart';
 import 'package:nano_embryo/presentation/features/map/presentation/widgets/animated_marker_manager.dart';
 import 'package:nano_embryo/presentation/features/map/presentation/widgets/map_filter_bar.dart';
-import 'package:nano_embryo/presentation/features/map/presentation/widgets/shop_info_bottom_sheet_loader.dart';
+import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_info_bottom_sheet_loader.dart';
 
 // Lagos, Nigeria — used as hardcoded fallback when neither GPS nor app
 // location is available. Close enough to real shops in the target market.
@@ -175,7 +175,8 @@ class _MapScreenState extends ConsumerState<MapScreen>
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final mapStyleUri = isDarkMode ? MapboxStyles.DARK : MapboxStyles.MAPBOX_STREETS;
+    final mapStyleUri =
+        isDarkMode ? MapboxStyles.DARK : MapboxStyles.MAPBOX_STREETS;
     final colorScheme = Theme.of(context).colorScheme;
     final mapState = ref.watch(mapControllerProvider);
     final controller = ref.read(mapControllerProvider.notifier);
