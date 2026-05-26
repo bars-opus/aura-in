@@ -330,7 +330,20 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
       context: context,
       resolveStyle: config.resolveMarkerStyle,
       onPinTap: (pinId) {
+        final pins = ref.read(mapControllerProvider).pins;
+        MapPin? pin;
+        for (final p in pins) {
+          if (p.id == pinId) {
+            pin = p;
+            break;
+          }
+        }
+        // Select first — also drives the carousel scroll.
         ref.read(mapControllerProvider.notifier).selectPin(pinId);
+        // Then open the modal via the app-supplied callback.
+        if (pin != null) {
+          config.onPinTap(pin, context);
+        }
       },
     );
     await _markerManager?.initialize();
