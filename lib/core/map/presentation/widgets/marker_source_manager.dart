@@ -57,8 +57,9 @@ class MarkerSourceManager {
     if (_layersAdded) return;
 
     // 1. Register the cluster-bubble image (single image; text overlays count).
+    final primaryColor = Theme.of(_context).colorScheme.primary;
     final clusterBytes = await CanvasMarkerBuilder.drawClusterMarker(
-      count: 0,
+      color: primaryColor,
       size: 56,
     );
     await _mapboxMap.style.addStyleImage(
