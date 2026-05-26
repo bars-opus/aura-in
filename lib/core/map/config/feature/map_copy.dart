@@ -10,6 +10,7 @@ class MapCopy extends Equatable {
   final String locationPermissionCancelLabel;
   final String locationPermissionOpenSettingsLabel;
   final String appLocationMissingSnackbar;
+  final String searchThisAreaLabel;
 
   const MapCopy({
     this.emptyStateSubtitle = 'No results in this area.',
@@ -21,6 +22,7 @@ class MapCopy extends Equatable {
     this.locationPermissionCancelLabel = 'Cancel',
     this.locationPermissionOpenSettingsLabel = 'Open Settings',
     this.appLocationMissingSnackbar = 'Set your location first.',
+    this.searchThisAreaLabel = 'Search this area',
   });
 
   @override
@@ -32,5 +34,6 @@ class MapCopy extends Equatable {
         locationPermissionCancelLabel,
         locationPermissionOpenSettingsLabel,
         appLocationMissingSnackbar,
+        searchThisAreaLabel,
       ];
 }
