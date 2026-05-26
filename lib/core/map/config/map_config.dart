@@ -21,6 +21,7 @@ import 'package:nano_embryo/core/utils/bottom_sheet_utils.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/marker_code_generator.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/repositories/supabase_shop_map_datasource.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_info_bottom_sheet_loader.dart';
+import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_map_card.dart';
 
 /// Build the NanoEmbryo [MapConfig]. Wire into the root `ProviderScope`:
 ///
@@ -64,6 +65,10 @@ MapConfig buildNanoEmbryoMapConfig() {
         padding: 0,
       );
     },
+    buildCarouselCard: (pin, isSelected, context) => ShopMapCard(
+      pin: pin,
+      isSelected: isSelected,
+    ),
     fallback: const MapFallback(latitude: 6.5244, longitude: 3.3792),
     appLocationProvider: userLocationNotifierProvider.select(
       (s) => s == null
