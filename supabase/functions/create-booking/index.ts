@@ -268,18 +268,22 @@ if (provider === 'stripe' && !Deno.env.get('STRIPE_SECRET_KEY')) {
     // STEP 3: CHECK IDEMPOTENCY (Prevent duplicate payments)
     // ========================================================================
     
-    const { data: existingPayment } = await supabase
-      .from('pending_payments')
+    // Only treat as "already processed" if an actual booking row exists.
+    // A stale pending_payments row with status='completed' but no booking
+    // means a previous attempt failed mid-flow (e.g., webhook never delivered
+    // a valid signature), so the user must be allowed to retry.
+    const { data: existingBooking } = await supabase
+      .from('bookings')
       .select('*')
-      .eq('idempotency_key', body.idempotencyKey)
+      .eq('payment_intent_id', body.idempotencyKey)
       .maybeSingle();
 
-    if (existingPayment && existingPayment.status === 'completed') {
+    if (existingBooking) {
       return new Response(
-        JSON.stringify({ 
-          success: true, 
+        JSON.stringify({
+          success: true,
           message: 'Payment already processed',
-          booking: existingPayment.booking_data 
+          booking: existingBooking,
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -483,27 +487,9 @@ async function validateRequest(req: BookingRequest): Promise<ValidationResult> {
       } else if (workerHits && workerHits.length > 0) {
         errors.push('Selected worker is not available for this time slot');
       }
-    } else {
-      // No specific worker requested. Check shop capacity: allow if the number
-      // of overlapping confirmed bookings is less than the shop's active worker
-      // count. This correctly handles both single-worker shops (1 worker, 1
-      // booking → block) and multi-worker shops where the client skips worker
-      // selection (3 workers, 1 booking → still 2 available → allow).
-      const { data: shopWorkers, error: swErr } = await supabase
-        .from('workers')
-        .select('id')
-        .eq('shop_id', req.shopId)
-        .eq('is_active', true);
-
-      if (swErr) {
-        errors.push('Could not verify slot availability — please retry');
-      } else {
-        const totalWorkers = (shopWorkers ?? []).length;
-        if (totalWorkers === 0 || overlapping.length >= totalWorkers) {
-          errors.push('Time slot is no longer available');
-        }
-      }
     }
+    // No-worker path: allow through. The webhook + booking assignment logic
+    // handles auto-assignment; we don't pre-block based on shop-wide overlap.
   }
 
   // Validate amount matches calculation

@@ -200,22 +200,19 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
   void _handleSuccess() {
     if (_isComplete) return;
     _isComplete = true;
-    if (mounted && widget.provider == 'paystack' && !_showConfirmingSheet) {
-      setState(() => _showConfirmingSheet = true);
-    }
+    // Pop the WebView synchronously BEFORE notifying the controller. The
+    // controller continues on the next microtask and pushes a success
+    // BottomSheet onto the navigator — if that happens while we still hold
+    // the top route, a deferred pop would pop the BottomSheet instead of us.
+    if (mounted) Navigator.pop(context);
     widget.onComplete(true);
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) Navigator.pop(context);
-    });
   }
 
   void _handleCancelled() {
     if (_isComplete) return;
     _isComplete = true;
+    if (mounted) Navigator.pop(context);
     widget.onComplete(false);
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) Navigator.pop(context);
-    });
   }
 
   bool _isSuccessUrl(String url) {
