@@ -122,9 +122,13 @@ void main() {
         mode: MapFetchMode.deviceGps,
       );
 
+      // Pins from the first successful fetch must still be there after the
+      // failed second fetch and after clearError — the test name says so.
       expect(controller.state.error, isNotNull);
+      expect(controller.state.pins.single.id, 'a');
       controller.clearError();
       expect(controller.state.error, isNull);
+      expect(controller.state.pins.single.id, 'a');
     });
   });
 }
