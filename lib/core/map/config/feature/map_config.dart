@@ -30,6 +30,12 @@ class MapConfig {
   /// Called when the user taps a marker. Required.
   final void Function(MapPin pin, BuildContext context) onPinTap;
 
+  /// Builds one card for the horizontal carousel. Called per visible pin.
+  /// Receives [isSelected] so the card can highlight when its marker
+  /// is the active selection.
+  final Widget Function(MapPin pin, bool isSelected, BuildContext context)
+      buildCarouselCard;
+
   /// Tier-3 fallback coordinates. Required.
   final MapFallback fallback;
 
@@ -66,6 +72,7 @@ class MapConfig {
     required this.filterSchema,
     required this.resolveMarkerStyle,
     required this.onPinTap,
+    required this.buildCarouselCard,
     required this.fallback,
     this.copy = const MapCopy(),
     this.appLocationProvider,
