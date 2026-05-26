@@ -345,12 +345,18 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
             break;
           }
         }
-        // Select first — also drives the carousel scroll.
+        if (pin == null) return;
+        // Select first (this also drives the carousel scroll).
         ref.read(mapControllerProvider.notifier).selectPin(pinId);
-        // Then open the modal via the app-supplied callback.
-        if (pin != null) {
-          config.onPinTap(pin, context);
-        }
+        // Defer the modal to the next frame so the camera fly + carousel
+        // scroll have settled. On real device the immediate-open variant
+        // appeared to silently no-op (most likely a navigator stack race).
+        final capturedPin = pin;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && context.mounted) {
+            config.onPinTap(capturedPin, context);
+          }
+        });
       },
     );
     await _markerManager?.initialize();
