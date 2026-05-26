@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart' as geo;
+import 'package:nano_embryo/core/map/domain/entities/map_bounds.dart';
 import 'package:nano_embryo/presentation/features/map/data/models/shop_location_dto.dart';
 import 'package:nano_embryo/presentation/features/map/domain/repositories/map_repository.dart';
 import 'package:nano_embryo/presentation/features/map/presentation/providers/map_filter_providers.dart';
 import 'package:nano_embryo/presentation/features/map/presentation/providers/map_providers.dart';
+export 'package:nano_embryo/core/map/domain/entities/map_bounds.dart' show MapBounds;
 
 // Sentinel to distinguish "caller didn't pass error" from "caller passed null"
 // so that copyWith() preserves an existing error unless explicitly cleared.
@@ -64,25 +66,6 @@ class MapState {
       currentZoom: currentZoom ?? this.currentZoom,
       fetchMode: fetchMode ?? this.fetchMode,
     );
-  }
-}
-
-/// Bounding box for viewport queries
-class MapBounds {
-  final double north;
-  final double south;
-  final double east;
-  final double west;
-
-  const MapBounds({
-    required this.north,
-    required this.south,
-    required this.east,
-    required this.west,
-  });
-
-  bool isValid() {
-    return north > south && east > west;
   }
 }
 
