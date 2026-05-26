@@ -15,7 +15,7 @@ import 'package:nano_embryo/core/map/domain/entities/map_bounds.dart';
 import 'package:nano_embryo/core/map/domain/entities/map_pin.dart';
 import 'package:nano_embryo/core/map/presentation/controllers/map_controller.dart';
 import 'package:nano_embryo/core/map/presentation/providers/map_filter_providers.dart';
-import 'package:nano_embryo/core/map/presentation/widgets/animated_marker_manager.dart';
+import 'package:nano_embryo/core/map/presentation/widgets/marker_source_manager.dart';
 import 'package:nano_embryo/core/map/presentation/widgets/map_fab_column.dart';
 import 'package:nano_embryo/core/map/presentation/widgets/map_filter_bar.dart';
 import 'package:nano_embryo/core/widgets/card_inkwell.dart';
@@ -43,7 +43,7 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
   bool _isMapReady = false;
   bool _showMap = false;
   Timer? _mapInitTimeout;
-  AnimatedMarkerManager? _markerManager;
+  MarkerSourceManager? _markerManager;
   bool _isFetchingNearby = false;
 
   int _retryCount = 0;
@@ -131,12 +131,7 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
   }
 
   void _updateMarkers(List<MapPin> pins) {
-    final config = ref.read(mapConfigProvider);
-    _markerManager?.updateMarkers(
-      pins,
-      (pin) => config.onPinTap(pin, context),
-      config.resolveMarkerStyle,
-    );
+    _markerManager?.updatePins(pins);
   }
 
   Widget _cardWell(Widget child) {
@@ -178,6 +173,13 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
     ref.listen<MapState>(mapControllerProvider, (previous, next) {
       if (previous?.pins != next.pins) _updateMarkers(next.pins);
     });
+
+    ref.listen<String?>(
+      mapControllerProvider.select((s) => s.selectedPinId),
+      (prev, next) {
+        _markerManager?.selectPin(next);
+      },
+    );
 
     return Scaffold(
       extendBody: true,
@@ -262,10 +264,6 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
       _mapboxMap = mapboxMap;
       await _initMarkerManager();
 
-      _markerManager?.onViewportChangeNeeded = () {
-        if (mounted) _onCameraChanged(controller);
-      };
-
       if (!mounted) return;
       setState(() => _isMapReady = true);
 
@@ -282,7 +280,17 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
 
   Future<void> _initMarkerManager() async {
     if (_mapboxMap == null) return;
-    _markerManager = AnimatedMarkerManager(_mapboxMap!, context, this);
+    final config = ref.read(mapConfigProvider);
+    _markerManager = MarkerSourceManager(
+      mapboxMap: _mapboxMap!,
+      clusterRadius: config.clusterRadius,
+      clusterMaxZoom: config.clusterMaxZoom,
+      context: context,
+      resolveStyle: config.resolveMarkerStyle,
+      onPinTap: (pinId) {
+        ref.read(mapControllerProvider.notifier).selectPin(pinId);
+      },
+    );
     await _markerManager?.initialize();
   }
 
