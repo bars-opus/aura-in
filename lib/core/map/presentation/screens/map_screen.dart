@@ -215,6 +215,13 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
                 onMapCreated:
                     (mapboxMap) => _onMapCreated(mapboxMap, controller),
                 onStyleLoadedListener: (_) => _onStyleLoaded(controller),
+                // Belt-and-suspenders: scroll listener fires on touch drag;
+                // camera-change fires on ANY camera state update (including
+                // programmatic zoom, momentum, smaller pans the scroll listener
+                // may miss on real iOS device).
+                onCameraChangeListener: (CameraChangedEventData data) {
+                  _onCameraChanged(controller);
+                },
                 cameraOptions: CameraOptions(
                   center: Point(coordinates: Position(20.0, 5.0)),
                   zoom: 3.0,
