@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/map/config/feature/map_config.dart';
 import 'package:nano_embryo/core/map/domain/data_source/map_data_source.dart';
@@ -82,11 +80,10 @@ class MapState {
 /// Data fetching is delegated to a [MapDataSource] supplied via [MapConfig].
 class MapController extends StateNotifier<MapState> {
   final MapDataSource _dataSource;
+  // ignore: unused_field — kept for Slice E plumbing cleanup
   final Duration _debounce;
   final int _viewportLimit;
   final int _nearbyLimit;
-
-  Timer? _debounceTimer;
 
   // Incremented on every fetch initiation. Each fetch captures the generation
   // on entry and discards results when the generation has changed (stale).
@@ -178,22 +175,23 @@ class MapController extends StateNotifier<MapState> {
     }
   }
 
-  /// Pan/zoom-driven update. Switches mode back to [MapFetchMode.browse]
-  /// (Airbnb-style: GPS/app-location FABs deactivate when user explores).
+  /// Pan/zoom-driven update. Records the new viewport but does NOT fetch.
+  /// Setting [MapState.viewportIsDirty] = true tells the UI to show the
+  /// "Search this area" pill. The pill triggers [refreshForCurrentViewport].
+  ///
+  /// Initial-load fetches (GPS / app-location / fallback) go through
+  /// [fetchNearby], which is unchanged — only pan-driven viewport updates
+  /// follow the new dirty-flag path.
   Future<void> updateViewport(
     MapBounds bounds,
     Map<String, dynamic> filters,
   ) async {
     if (!bounds.isValid()) return;
-
     state = state.copyWith(
       currentBounds: bounds,
-      isFetching: true,
       fetchMode: MapFetchMode.browse,
+      viewportIsDirty: true,
     );
-
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(_debounce, () => _fetchInBounds(bounds, filters));
   }
 
   /// Re-fetch with new filters, preserving the current fetch mode.
@@ -222,11 +220,6 @@ class MapController extends StateNotifier<MapState> {
   void resetToIdle() =>
       state = state.copyWith(isLoading: false, isFetching: false);
 
-  @override
-  void dispose() {
-    _debounceTimer?.cancel();
-    super.dispose();
-  }
 }
 
 final mapControllerProvider =
