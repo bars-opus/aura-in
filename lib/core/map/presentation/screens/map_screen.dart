@@ -17,6 +17,7 @@ import 'package:nano_embryo/core/map/presentation/controllers/map_controller.dar
 import 'package:nano_embryo/core/map/presentation/providers/map_filter_providers.dart';
 import 'package:nano_embryo/core/map/presentation/widgets/marker_source_manager.dart';
 import 'package:nano_embryo/core/map/presentation/widgets/map_fab_column.dart';
+import 'package:nano_embryo/core/map/presentation/widgets/map_pin_carousel.dart';
 import 'package:nano_embryo/core/map/presentation/widgets/search_this_area_pill.dart';
 import 'package:nano_embryo/core/map/presentation/widgets/map_filter_bar.dart';
 import 'package:nano_embryo/core/widgets/card_inkwell.dart';
@@ -182,6 +183,25 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
       },
     );
 
+    ref.listen<String?>(
+      mapControllerProvider.select((s) => s.selectedPinId),
+      (prev, next) {
+        if (next == null) return;
+        final pins = ref.read(mapControllerProvider).pins;
+        final pin = pins.firstWhere(
+          (p) => p.id == next,
+          orElse: () => const MapPin(id: '', latitude: 0, longitude: 0),
+        );
+        if (pin.id.isEmpty) return;
+        _mapboxMap?.flyTo(
+          CameraOptions(
+            center: Point(coordinates: Position(pin.longitude, pin.latitude)),
+          ),
+          MapAnimationOptions(duration: 400),
+        );
+      },
+    );
+
     return Scaffold(
       extendBody: true,
       backgroundColor: colorScheme.surface,
@@ -255,6 +275,13 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
               showAppLocationFab: config.appLocationProvider != null,
               onGpsPressed: () => _useDeviceLocation(controller),
               onAppLocationPressed: () => _useAppLocation(controller),
+            ),
+
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: const MapPinCarousel(),
             ),
           ],
         ),

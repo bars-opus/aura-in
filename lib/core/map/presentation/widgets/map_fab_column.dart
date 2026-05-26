@@ -34,7 +34,7 @@ class MapFabColumn extends StatelessWidget {
     return Stack(
       children: [
         Positioned(
-          bottom: Spacing.xxl.h + Spacing.xxl.h,
+          bottom: 200.h + Spacing.xxl.h + Spacing.xxl.h,
           right: Spacing.md.w,
           child: AnimatedScaleFade(
             duration: const Duration(milliseconds: 500),
@@ -58,7 +58,7 @@ class MapFabColumn extends StatelessWidget {
         ),
         if (showAppLocationFab)
           Positioned(
-            bottom: Spacing.lg.h + Spacing.md.h,
+            bottom: 200.h + Spacing.lg.h + Spacing.md.h,
             right: Spacing.md.w,
             child: AnimatedScaleFade(
               duration: const Duration(milliseconds: 500),
