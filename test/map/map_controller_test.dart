@@ -22,25 +22,82 @@ void main() {
 
     tearDown(() => controller.dispose());
 
-    test('updateViewport debounces multiple rapid calls into one fetch', () async {
+    test('updateViewport sets viewportIsDirty and does NOT fetch', () async {
       fake.queueViewport(const [
         MapPin(id: 'a', latitude: 0, longitude: 0),
       ]);
 
       const bounds = MapBounds(north: 1, south: 0, east: 1, west: 0);
-
       await controller.updateViewport(bounds, const {'k': 'v1'});
-      await controller.updateViewport(bounds, const {'k': 'v2'});
-      await controller.updateViewport(bounds, const {'k': 'v3'});
+
+      // No matter how long we wait, the controller must not call the
+      // data source. The pill drives the fetch now, not the controller.
+      await Future<void>.delayed(const Duration(milliseconds: 200));
 
       expect(fake.viewportCalls, 0);
-
-      await Future<void>.delayed(const Duration(milliseconds: 80));
-
-      expect(fake.viewportCalls, 1);
-      expect(fake.lastViewportFilters, equals({'k': 'v3'}));
-      expect(controller.state.pins.length, 1);
+      expect(controller.state.viewportIsDirty, isTrue);
+      expect(controller.state.currentBounds, bounds);
       expect(controller.state.fetchMode, MapFetchMode.browse);
+    });
+
+    test('refreshForCurrentViewport fetches and clears dirty + selection', () async {
+      // Arrange: set up a dirty viewport with an existing selection.
+      fake.queueViewport(const [
+        MapPin(id: 'shop-x', latitude: 0, longitude: 0),
+      ]);
+      const bounds = MapBounds(north: 1, south: 0, east: 1, west: 0);
+      await controller.updateViewport(bounds, const {});
+      controller.selectPin('previously-selected');
+      expect(controller.state.viewportIsDirty, isTrue);
+      expect(controller.state.selectedPinId, 'previously-selected');
+
+      // Act
+      await controller.refreshForCurrentViewport(const {'shop_type': 'salon'});
+
+      // Assert: fetch fired with the filters; state cleaned up.
+      expect(fake.viewportCalls, 1);
+      expect(fake.lastViewportFilters, equals({'shop_type': 'salon'}));
+      expect(controller.state.pins.single.id, 'shop-x');
+      expect(controller.state.viewportIsDirty, isFalse);
+      expect(controller.state.selectedPinId, isNull);
+    });
+
+    test('refreshForCurrentViewport keeps dirty true on fetch error', () async {
+      fake.queueError(Exception('network down'));
+      const bounds = MapBounds(north: 1, south: 0, east: 1, west: 0);
+      await controller.updateViewport(bounds, const {});
+
+      await controller.refreshForCurrentViewport(const {});
+
+      // Error path: dirty flag stays so the user can retry the pill.
+      expect(controller.state.error, contains('network down'));
+      expect(controller.state.viewportIsDirty, isTrue);
+    });
+
+    test('refreshForCurrentViewport no-ops when currentBounds is null', () async {
+      // Fresh controller, no updateViewport yet → currentBounds is null.
+      await controller.refreshForCurrentViewport(const {});
+      expect(fake.viewportCalls, 0);
+    });
+
+    test('selectPin updates selectedPinId', () {
+      controller.selectPin('shop-1');
+      expect(controller.state.selectedPinId, 'shop-1');
+      controller.selectPin('shop-2');
+      expect(controller.state.selectedPinId, 'shop-2');
+    });
+
+    test('selectPin(null) clears the selection', () {
+      controller.selectPin('shop-1');
+      controller.selectPin(null);
+      expect(controller.state.selectedPinId, isNull);
+    });
+
+    test('selectPin with same id is a no-op (does not emit new state)', () {
+      controller.selectPin('shop-1');
+      final stateBefore = controller.state;
+      controller.selectPin('shop-1');
+      expect(identical(controller.state, stateBefore), isTrue);
     });
 
     test('fetchNearby switches mode and records anchor location', () async {
