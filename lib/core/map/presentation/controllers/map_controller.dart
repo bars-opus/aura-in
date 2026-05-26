@@ -75,13 +75,11 @@ class MapState {
   }
 }
 
-/// Generic map controller. Owns debounce, generation tokens, browse vs
-/// radius fetch modes, anchor-location tracking, and error/loading state.
+/// Generic map controller. Owns generation tokens, browse vs radius fetch
+/// modes, anchor-location tracking, and error/loading state.
 /// Data fetching is delegated to a [MapDataSource] supplied via [MapConfig].
 class MapController extends StateNotifier<MapState> {
   final MapDataSource _dataSource;
-  // ignore: unused_field — kept for Slice E plumbing cleanup
-  final Duration _debounce;
   final int _viewportLimit;
   final int _nearbyLimit;
 
@@ -91,11 +89,9 @@ class MapController extends StateNotifier<MapState> {
 
   MapController({
     required MapDataSource dataSource,
-    required Duration viewportDebounce,
     required int viewportLimit,
     required int nearbyLimit,
   })  : _dataSource = dataSource,
-        _debounce = viewportDebounce,
         _viewportLimit = viewportLimit,
         _nearbyLimit = nearbyLimit,
         // Start loading so the UI shows a spinner instead of empty state
@@ -250,7 +246,6 @@ final mapControllerProvider =
   final config = ref.watch(mapConfigProvider);
   return MapController(
     dataSource: config.dataSource,
-    viewportDebounce: config.viewportDebounce,
     viewportLimit: config.viewportLimit,
     nearbyLimit: config.nearbyLimit,
   );

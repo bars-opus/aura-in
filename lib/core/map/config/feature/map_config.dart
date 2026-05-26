@@ -57,9 +57,6 @@ class MapConfig {
   /// Max pins per radius fetch.
   final int nearbyLimit;
 
-  /// Debounce between pan/zoom and the resulting viewport fetch.
-  final Duration viewportDebounce;
-
   /// Mapbox cluster radius in screen pixels. Defaults to 50.
   final double clusterRadius;
 
@@ -79,7 +76,6 @@ class MapConfig {
     this.defaultRadiusKm = 5.0,
     this.viewportLimit = 100,
     this.nearbyLimit = 50,
-    this.viewportDebounce = const Duration(milliseconds: 500),
     this.clusterRadius = 50,
     this.clusterMaxZoom = 14,
   });

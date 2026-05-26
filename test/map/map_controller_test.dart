@@ -14,7 +14,6 @@ void main() {
       fake = FakeMapDataSource();
       controller = MapController(
         dataSource: fake,
-        viewportDebounce: const Duration(milliseconds: 50),
         viewportLimit: 100,
         nearbyLimit: 50,
       );
