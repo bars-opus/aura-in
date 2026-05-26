@@ -185,17 +185,32 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
 
     ref.listen<String?>(
       mapControllerProvider.select((s) => s.selectedPinId),
-      (prev, next) {
+      (prev, next) async {
         if (next == null) return;
         final pins = ref.read(mapControllerProvider).pins;
-        final pin = pins.firstWhere(
-          (p) => p.id == next,
-          orElse: () => const MapPin(id: '', latitude: 0, longitude: 0),
-        );
-        if (pin.id.isEmpty) return;
-        _mapboxMap?.flyTo(
+        MapPin? pin;
+        for (final p in pins) {
+          if (p.id == next) {
+            pin = p;
+            break;
+          }
+        }
+        if (pin == null) return;
+        final mapbox = _mapboxMap;
+        if (mapbox == null) return;
+        final mapConfig = ref.read(mapConfigProvider);
+        // Determine target zoom: if current zoom is below where clusters
+        // stop forming, bump to clusterMaxZoom + 1 so the cluster definitely
+        // splits and the pin shows individually. Otherwise keep current zoom.
+        final cameraState = await mapbox.getCameraState();
+        final currentZoom = cameraState.zoom;
+        final targetZoom = currentZoom < mapConfig.clusterMaxZoom + 1
+            ? mapConfig.clusterMaxZoom + 1
+            : currentZoom;
+        await mapbox.flyTo(
           CameraOptions(
             center: Point(coordinates: Position(pin.longitude, pin.latitude)),
+            zoom: targetZoom,
           ),
           MapAnimationOptions(duration: 400),
         );
