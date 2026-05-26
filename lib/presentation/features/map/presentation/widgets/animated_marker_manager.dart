@@ -188,7 +188,7 @@ class AnimatedMarkerManager {
 
     final imageBytes = await CanvasMarkerBuilder.drawSimpleMarker(
       typeCode: typeCode,
-      luxuryColor: luxuryColor,
+      accentColor: luxuryColor,
       context: context,
       isSelected: isSelected,
       width: 100.h,

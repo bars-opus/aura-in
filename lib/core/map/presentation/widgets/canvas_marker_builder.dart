@@ -6,11 +6,11 @@ import 'package:nano_embryo/core/map/config/feature/marker_style.dart';
 
 class CanvasMarkerBuilder {
   /// Draw a rectangular marker with a triangular pointer at the bottom.
-  /// Displays a colored dot (luxury level) followed by the type code (e.g., "SALON").
+  /// Displays a colored accent dot followed by the type code (e.g., "CONCERT").
   /// Both are centered horizontally and vertically.
   static Future<Uint8List> drawSimpleMarker({
     required String typeCode,
-    required Color luxuryColor,
+    required Color accentColor,
     required BuildContext context,
     bool isSelected = false,
     MarkerShape shape = MarkerShape.pill,
@@ -272,14 +272,14 @@ class CanvasMarkerBuilder {
     final yCenter = rectangleHeight / 2;
     final startXContent = xCenter - totalContentWidth / 2;
 
-    // Draw luxury color dot with inner glow
+    // Draw accent color dot with inner glow
     final dotX = startXContent + dotSize / 2;
     final dotY = yCenter;
 
     // Dot outer glow
 
     // Dot main color
-    final dotPaint = Paint()..color = luxuryColor;
+    final dotPaint = Paint()..color = accentColor;
     canvas.drawCircle(Offset(dotX, dotY), dotSize / 2, dotPaint);
 
     // Dot border

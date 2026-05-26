@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 /// One option in the filter bar.
 ///
 /// [value] is what gets passed to the data source as the filter value
-/// (e.g. `'salon'`). [label] is what the user sees (e.g. `'Salon'`).
+/// (e.g. `'concert'`). [label] is what the user sees (e.g. `'Concert'`).
 class FilterOption extends Equatable {
   final String value;
   final String label;
