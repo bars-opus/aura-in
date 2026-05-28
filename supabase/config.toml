@@ -20,3 +20,10 @@ verify_jwt = false
 
 [functions.resolve-link]
 verify_jwt = false
+
+# Public guest prefill lookup — called anonymously from the booking page as the
+# visitor types their phone number. Returns cached name/last-services for a
+# returning guest, or null if unknown. No JWT required by design.
+
+[functions.lookup-guest]
+verify_jwt = false
