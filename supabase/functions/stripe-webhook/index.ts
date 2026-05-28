@@ -184,7 +184,18 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     .from('bookings')
     .insert({
       shop_id: pending.shop_id,
-      user_id: pending.user_id,
+      user_id: pending.user_id,                       // null on guest path
+      guest_profile_id: pending.guest_profile_id,     // NEW
+      guest_name: pending.guest_profile_id
+        ? bookingData.guestName ?? null
+        : null,                                       // NEW snapshot
+      guest_phone: pending.guest_profile_id
+        ? bookingData.guestPhone ?? null
+        : null,                                       // NEW snapshot
+      client_address: bookingData.clientAddress ?? null,        // NEW
+      client_address_lat: bookingData.clientAddressLat ?? null, // NEW
+      client_address_lng: bookingData.clientAddressLng ?? null, // NEW
+      delivery_channel: pending.delivery_channel ?? 'push',     // NEW
       booking_date: bookingData.startTime,
       payment_intent_id: sessionId,
       payment_method: 'stripe',
@@ -218,6 +229,137 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   }
 
   console.log('✅ Booking created from Stripe payment:', booking.id);
+
+  // NEW: record guest booking history for prefill cache
+  if (pending.guest_profile_id && Array.isArray(bookingData.services)) {
+    const { recordGuestBookingHistory } = await import("../_shared/booking_helpers.ts");
+    for (const svc of bookingData.services) {
+      await recordGuestBookingHistory(
+        supabase,
+        pending.guest_profile_id,
+        svc.serviceName,
+        pending.shop_id ?? null,
+      );
+    }
+  }
+
+  // NEW: schedule WhatsApp notifications if guest opted into WhatsApp channel
+  if (pending.delivery_channel === 'whatsapp' && pending.guest_profile_id) {
+    try {
+      const startTime = new Date(bookingData.startTime);
+      const endTime = new Date(bookingData.actualEndTime ?? bookingData.endTime);
+
+      // Resolve shop name + address for the templates.
+      let targetName = "Your booking";
+      let address = "";
+      if (pending.shop_id) {
+        const { data: shop } = await supabase
+          .from("shops")
+          .select("shop_name, address")
+          .eq("id", pending.shop_id)
+          .single();
+        targetName = (shop as any)?.shop_name ?? targetName;
+        address = bookingData.clientAddress ?? (shop as any)?.address ?? "";
+      }
+
+      const { buildConfirmationParams } = await import("../_shared/booking_helpers.ts");
+
+      const remainingAmount = (
+        bookingData.totalAmount - bookingData.depositAmount
+      ).toFixed(2);
+      const depositAmount = bookingData.depositAmount.toFixed(2);
+
+      const confirmationParams = buildConfirmationParams({
+        guestName: bookingData.guestName,
+        targetName,
+        startTime: bookingData.startTime,
+        address,
+        depositAmount,
+        remainingAmount,
+      });
+
+      const reminder24Params = {
+        "1": targetName,
+        "2": new Date(bookingData.startTime).toLocaleTimeString("en-GB", {
+          hour: "numeric", minute: "2-digit", hour12: true,
+        }),
+        "3": address,
+      };
+      const reminder2Params = { ...reminder24Params };
+      const reviewParams = {
+        "1": targetName,
+        "2": `https://aura-in-web.vercel.app/r/${booking.id}`,
+      };
+
+      const baseMetadata = {
+        phone: bookingData.guestPhone,
+        booking_id: booking.id,
+      };
+
+      const nowIso = new Date().toISOString();
+
+      const { error: waSchedError } = await supabase
+        .from("scheduled_notifications")
+        .insert([
+          {
+            notification_type: "booking_confirmation",
+            guest_profile_id: pending.guest_profile_id,
+            scheduled_for: nowIso,
+            delivery_channel: "whatsapp",
+            whatsapp_template: "booking_confirmation_v1",
+            whatsapp_params: confirmationParams,
+            status: "pending",
+            metadata: baseMetadata,
+            created_at: nowIso,
+            updated_at: nowIso,
+          },
+          {
+            notification_type: "booking_reminder_24h",
+            guest_profile_id: pending.guest_profile_id,
+            scheduled_for: new Date(startTime.getTime() - 24 * 60 * 60 * 1000).toISOString(),
+            delivery_channel: "whatsapp",
+            whatsapp_template: "booking_reminder_24h_v1",
+            whatsapp_params: reminder24Params,
+            status: "pending",
+            metadata: baseMetadata,
+            created_at: nowIso,
+            updated_at: nowIso,
+          },
+          {
+            notification_type: "booking_reminder_2h",
+            guest_profile_id: pending.guest_profile_id,
+            scheduled_for: new Date(startTime.getTime() - 2 * 60 * 60 * 1000).toISOString(),
+            delivery_channel: "whatsapp",
+            whatsapp_template: "booking_reminder_2h_v1",
+            whatsapp_params: reminder2Params,
+            status: "pending",
+            metadata: baseMetadata,
+            created_at: nowIso,
+            updated_at: nowIso,
+          },
+          {
+            notification_type: "booking_review_prompt",
+            guest_profile_id: pending.guest_profile_id,
+            scheduled_for: new Date(endTime.getTime() + 90 * 60 * 1000).toISOString(),
+            delivery_channel: "whatsapp",
+            whatsapp_template: "booking_review_prompt_v1",
+            whatsapp_params: reviewParams,
+            status: "pending",
+            metadata: baseMetadata,
+            created_at: nowIso,
+            updated_at: nowIso,
+          },
+        ]);
+
+      if (waSchedError) {
+        console.error('⚠️ WhatsApp scheduled_notifications insert failed (non-fatal):', waSchedError);
+      } else {
+        console.log(`📲 Scheduled 4 WhatsApp notifications for booking ${booking.id}`);
+      }
+    } catch (waErr) {
+      console.error('⚠️ WhatsApp scheduling failed (non-fatal):', waErr);
+    }
+  }
 
   // Insert booking_services rows
   if (Array.isArray(bookingData.services) && bookingData.services.length > 0) {
@@ -274,7 +416,11 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   });
 
   // Push notification + in-app inbox entries + all booking reminders.
-  await scheduleBookingNotifications(booking, bookingData, pending.shop_id, pending.user_id);
+  // Guest path (pending.user_id is null) skips this — WhatsApp scheduling above
+  // handles guest notifications instead.
+  if (pending.user_id) {
+    await scheduleBookingNotifications(booking, bookingData, pending.shop_id, pending.user_id);
+  }
 
   console.log('✅ Stripe payment flow complete for booking:', booking.id);
 }
