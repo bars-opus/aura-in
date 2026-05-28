@@ -33,8 +33,11 @@ const corsHeaders = {
 
 interface BookingRequest {
   shopId: string;
-  userId: string;
-  userEmail: string;
+  // userId is optional on the guest (web) path; required on the mobile (auth) path.
+  userId?: string;
+  // userEmail is required on the auth path; optional on the guest path
+  // (synthesized from phone for the payment provider).
+  userEmail?: string;
   services: Array<{
     slotId: string;
     workerId: string | null;
@@ -54,6 +57,14 @@ interface BookingRequest {
   idempotencyKey: string;
   successUrl?: string;
   cancelUrl?: string;
+
+  // NEW guest mode fields (web link booking path):
+  guestName?: string;
+  guestPhone?: string;
+  clientAddress?: string;
+  clientAddressLat?: number;
+  clientAddressLng?: number;
+  deliveryChannel?: "push" | "whatsapp";
 }
 
 interface ValidationResult {
@@ -72,7 +83,10 @@ serve(async (req) => {
   }
 
   try {
-    // Verify JWT and extract authenticated user
+    // Authorization is required (anon key for the web/guest path; user JWT for the
+    // mobile/auth path). We resolve the user lazily — if the bearer is a valid
+    // user JWT, authUser is populated; if it's the anon key, authUser is null
+    // and we route to the guest path based on body fields.
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(
@@ -81,51 +95,69 @@ serve(async (req) => {
       );
     }
 
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(
+    const { data: { user: authUser } } = await supabase.auth.getUser(
       authHeader.replace('Bearer ', '')
     );
 
-    if (authError || !authUser) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Invalid or expired token' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // ========================================================================
-    // RATE LIMITING — 10 payment intents per user per 10 minutes
-    // Checked before parsing the body to fail fast on spammers.
-    // ========================================================================
-    const windowStart = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-    const { count: recentAttempts } = await supabase
-      .from('pending_payments')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', authUser.id)
-      .gte('created_at', windowStart);
-
-    if ((recentAttempts ?? 0) >= 10) {
-      console.warn('🚫 Rate limit exceeded for user:', authUser.id);
-      return new Response(
-        JSON.stringify({ success: false, error: 'Too many payment attempts. Please wait a few minutes before trying again.' }),
-        {
-          status: 429,
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json',
-            'Retry-After': '600',
-          },
-        }
-      );
-    }
-
     const rawBody = await req.json() as BookingRequest;
 
-    // Enforce that the booking is created for the authenticated user only
-    if (rawBody.userId !== authUser.id) {
+    // Decide intent: auth path requires userId + matching JWT; guest path
+    // requires guestName + guestPhone and forbids userId.
+    const wantsAuth = !!rawBody.userId;
+    const wantsGuest = !!(rawBody.guestName && rawBody.guestPhone);
+
+    if (wantsAuth === wantsGuest) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({
+          success: false,
+          error: wantsAuth
+            ? 'Cannot specify both userId and guest fields'
+            : 'Must specify either userId or guestName + guestPhone',
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    if (wantsAuth) {
+      // Mobile/auth path: JWT must be a real user and match the submitted userId.
+      if (!authUser) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      if (rawBody.userId !== authUser.id) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Unauthorized' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // ======================================================================
+      // RATE LIMITING — 10 payment intents per user per 10 minutes
+      // (auth path only; guest path is rate-limited at the link layer)
+      // ======================================================================
+      const windowStart = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+      const { count: recentAttempts } = await supabase
+        .from('pending_payments')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', authUser.id)
+        .gte('created_at', windowStart);
+
+      if ((recentAttempts ?? 0) >= 10) {
+        console.warn('🚫 Rate limit exceeded for user:', authUser.id);
+        return new Response(
+          JSON.stringify({ success: false, error: 'Too many payment attempts. Please wait a few minutes before trying again.' }),
+          {
+            status: 429,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+              'Retry-After': '600',
+            },
+          }
+        );
+      }
     }
 
     // ========================================================================
@@ -136,8 +168,10 @@ serve(async (req) => {
       body = {
         ...rawBody,
         shopId: sanitizeIdentifier(rawBody.shopId, 64),
-        userId: sanitizeIdentifier(rawBody.userId, 64),
-        userEmail: sanitizeText(rawBody.userEmail, { maxLength: 320, rejectHtml: true }),
+        userId: rawBody.userId ? sanitizeIdentifier(rawBody.userId, 64) : undefined,
+        userEmail: rawBody.userEmail
+          ? sanitizeText(rawBody.userEmail, { maxLength: 320, rejectHtml: true })
+          : undefined,
         idempotencyKey: sanitizeIdentifier(rawBody.idempotencyKey, 128),
         totalAmount: sanitizeAmount(rawBody.totalAmount, { min: 0.01 }),
         depositAmount: sanitizeAmount(rawBody.depositAmount, { min: 0.01 }),
@@ -152,6 +186,27 @@ serve(async (req) => {
             ? sanitizeText(s.workerName, { maxLength: 200 })
             : null,
         })),
+        // NEW guest fields — sanitize only if present.
+        guestName: rawBody.guestName
+          ? sanitizeText(rawBody.guestName, { maxLength: 120, rejectHtml: true })
+          : undefined,
+        guestPhone: rawBody.guestPhone
+          // Phone is validated for E.164 in validateRequest; here we just strip
+          // shape. Allow + digits spaces dashes — normalizePhone tolerates the rest.
+          ? sanitizeText(rawBody.guestPhone, { maxLength: 32, rejectHtml: true })
+          : undefined,
+        clientAddress: rawBody.clientAddress
+          ? sanitizeText(rawBody.clientAddress, { maxLength: 500, rejectHtml: true })
+          : undefined,
+        clientAddressLat: typeof rawBody.clientAddressLat === 'number'
+          ? rawBody.clientAddressLat
+          : undefined,
+        clientAddressLng: typeof rawBody.clientAddressLng === 'number'
+          ? rawBody.clientAddressLng
+          : undefined,
+        deliveryChannel: rawBody.deliveryChannel === 'whatsapp' ? 'whatsapp'
+          : rawBody.deliveryChannel === 'push' ? 'push'
+          : undefined,
       };
     } catch (sanErr) {
       return new Response(
@@ -294,6 +349,21 @@ if (provider === 'stripe' && !Deno.env.get('STRIPE_SECRET_KEY')) {
     // ========================================================================
     const callbackBase = body.successUrl ?? "nanoembryo://payment-success";
 
+    // Paystack + Stripe both require an email. For guest bookings (no auth user
+    // and no userEmail) synthesize a stable, deliverability-free placeholder
+    // derived from the E.164 phone. The receipt won't be emailed — webhooks
+    // surface the booking via WhatsApp / push.
+    const customerEmail = body.userEmail
+      ?? (body.guestPhone
+        ? `guest_${body.guestPhone.replace(/[^\d]/g, '')}@guest.aurain.local`
+        : undefined);
+    if (!customerEmail) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Missing customer contact' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     let checkoutResult;
     try {
       checkoutResult = await getProvider(provider as PaymentProviderName).initCheckout({
@@ -302,13 +372,13 @@ if (provider === 'stripe' && !Deno.env.get('STRIPE_SECRET_KEY')) {
         reference: provider === "paystack"
           ? `booking_${body.shopId}_${Date.now()}_${body.idempotencyKey.slice(0, 8)}`
           : body.idempotencyKey,
-        customerEmail: body.userEmail,
+        customerEmail,
         callbackUrl: callbackBase,
         destinationAccountId: await resolveDestinationAccountId(body.shopId, provider),
         platformFeeAmount: body.platformFee,
         metadata: {
           shop_id: body.shopId,
-          user_id: body.userId,
+          user_id: body.userId ?? '',
           total_amount: String(body.totalAmount),
           deposit_amount: String(body.depositAmount),
           platform_fee: String(body.platformFee),
@@ -341,17 +411,45 @@ if (provider === 'stripe' && !Deno.env.get('STRIPE_SECRET_KEY')) {
     // can resolve the payment — the user would pay and never see a booking.
     // We treat a missing pending_payments row as a fatal error.
 
+    // NEW: on the guest path, upsert the guest profile so the webhook can
+    // resolve the customer when finalizing the booking. We do this *after*
+    // the payment intent is created so a provider error doesn't leave a
+    // stray guest_profiles row (the upsert is by phone, so a retry is safe
+    // anyway, but ordering this way keeps the table cleaner).
+    let guestProfileId: string | null = null;
+    if (body.guestName && body.guestPhone) {
+      try {
+        const { upsertGuestProfile } = await import('../_shared/booking_helpers.ts');
+        guestProfileId = await upsertGuestProfile(
+          supabase,
+          body.guestPhone,
+          body.guestName,
+        );
+      } catch (e) {
+        console.error('❌ Failed to upsert guest profile:', (e as Error).message);
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'Could not register guest profile. Please try again.',
+          }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+    }
+
     const { error: pendingError } = await supabase
       .from('pending_payments')
       .upsert({
         idempotency_key: body.idempotencyKey,
         shop_id: body.shopId,
-        user_id: body.userId,
+        user_id: body.userId ?? null,
+        guest_profile_id: guestProfileId,
         amount: body.totalAmount,
         payment_intent_id: paymentResult.paymentIntentId,
         payment_provider: provider,
         status: 'pending',
         booking_data: body,
+        delivery_channel: body.deliveryChannel ?? 'push',
         created_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
       }, { onConflict: 'idempotency_key' });
@@ -403,6 +501,73 @@ if (provider === 'stripe' && !Deno.env.get('STRIPE_SECRET_KEY')) {
 
 async function validateRequest(req: BookingRequest): Promise<ValidationResult> {
   const errors: string[] = [];
+
+  // NEW: enforce exactly one of userId or (guestName + guestPhone).
+  const hasUser = !!req.userId;
+  const hasGuest = !!(req.guestName && req.guestPhone);
+  if (hasUser === hasGuest) {
+    errors.push(
+      hasUser
+        ? 'Cannot specify both userId and guest fields'
+        : 'Must specify either userId or guestName + guestPhone',
+    );
+    return { isValid: false, errors };
+  }
+
+  // NEW: guest path requires E.164 phone (validated via shared helper).
+  if (hasGuest) {
+    try {
+      const { normalizePhone } = await import('../_shared/booking_helpers.ts');
+      normalizePhone(req.guestPhone!);
+    } catch (e) {
+      errors.push(`Invalid guest phone: ${(e as Error).message}`);
+      return { isValid: false, errors };
+    }
+  }
+
+  // NEW: if clientAddress + lat/lng is supplied (freelancer booking with
+  // travel), confirm the freelancer assigned to this shop can reach it.
+  // Skip when no freelancer worker is configured — the shop is location-based.
+  if (
+    req.clientAddress != null &&
+    req.clientAddressLat != null &&
+    req.clientAddressLng != null
+  ) {
+    const { data: freelancerWorker } = await supabase
+      .from('workers')
+      .select(`
+        id, is_freelancer,
+        freelancer_details:freelancer_details(can_travel, travel_radius_km, base_latitude, base_longitude)
+      `)
+      .eq('shop_id', req.shopId)
+      .eq('is_active', true)
+      .eq('is_freelancer', true)
+      .limit(1)
+      .maybeSingle();
+
+    if (freelancerWorker) {
+      const details = Array.isArray((freelancerWorker as any).freelancer_details)
+        ? (freelancerWorker as any).freelancer_details[0]
+        : (freelancerWorker as any).freelancer_details;
+      if (
+        details?.can_travel &&
+        typeof details.base_latitude === 'number' &&
+        typeof details.base_longitude === 'number'
+      ) {
+        const distance = haversineKm(
+          details.base_latitude,
+          details.base_longitude,
+          req.clientAddressLat,
+          req.clientAddressLng,
+        );
+        if (distance > (details.travel_radius_km ?? 0)) {
+          errors.push(
+            `Address is ${distance.toFixed(1)}km away (max ${details.travel_radius_km}km)`,
+          );
+        }
+      }
+    }
+  }
 
   // Validate shop exists
   const { data: shop, error: shopError } = await supabase
@@ -502,6 +667,28 @@ async function validateRequest(req: BookingRequest): Promise<ValidationResult> {
     isValid: errors.length === 0,
     errors,
   };
+}
+
+/**
+ * Haversine great-circle distance between two lat/lng coordinates in km.
+ * Used to enforce freelancer travel_radius_km on guest bookings that include
+ * a client address.
+ */
+function haversineKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number,
+): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
 }
 
 
