@@ -101,3 +101,55 @@ ALTER TABLE pending_payments
   ADD COLUMN IF NOT EXISTS delivery_channel  text NOT NULL DEFAULT 'push'
     CHECK (delivery_channel IN ('push', 'whatsapp')),
   ADD COLUMN IF NOT EXISTS guest_profile_id  uuid REFERENCES guest_profiles(id);
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- TRIGGER: keep shops.booking_slug in sync with short_links.
+-- The authoritative slug lives in short_links; this column is a denormalized
+-- copy for fast resolve-link lookups (no join needed).
+--
+-- Freelancers note: a freelancer's booking link is generated as a regular
+-- shop link (link_type='shop', target_id=their shop id). Per-worker links
+-- (link_type='worker') are not used for the booking flow in v1.
+-- ────────────────────────────────────────────────────────────────────────────
+CREATE OR REPLACE FUNCTION sync_booking_slug_to_shop()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.link_type = 'shop' AND NEW.is_active = true THEN
+    UPDATE shops SET booking_slug = NEW.slug WHERE id = NEW.target_id::uuid;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS short_links_sync_booking_slug_ins ON short_links;
+CREATE TRIGGER short_links_sync_booking_slug_ins
+  AFTER INSERT ON short_links
+  FOR EACH ROW
+  EXECUTE FUNCTION sync_booking_slug_to_shop();
+
+DROP TRIGGER IF EXISTS short_links_sync_booking_slug_upd ON short_links;
+CREATE TRIGGER short_links_sync_booking_slug_upd
+  AFTER UPDATE OF slug, target_id, link_type, is_active ON short_links
+  FOR EACH ROW
+  EXECUTE FUNCTION sync_booking_slug_to_shop();
+
+-- One-time backfill of existing shop short_links (no-op for fresh installs)
+DO $$
+DECLARE
+  link record;
+BEGIN
+  FOR link IN
+    SELECT slug, target_id
+    FROM short_links
+    WHERE link_type = 'shop'
+      AND is_active = true
+  LOOP
+    UPDATE shops SET booking_slug = link.slug WHERE id = link.target_id::uuid;
+  END LOOP;
+END $$;
+
+-- End of guest support migration.
