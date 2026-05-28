@@ -118,9 +118,30 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
+  -- Clear cache if the link was previously an active shop link AND it is now
+  -- deactivated, retargeted, retyped, or re-slugged. Use OLD.target_id /
+  -- OLD.slug to clear the previously-cached value. Guard with
+  -- booking_slug = OLD.slug so we don't clobber a newer active link.
+  IF TG_OP = 'UPDATE'
+     AND OLD.link_type = 'shop'
+     AND OLD.is_active = true
+     AND (
+          NEW.is_active = false
+       OR NEW.link_type <> 'shop'
+       OR NEW.target_id <> OLD.target_id
+       OR NEW.slug <> OLD.slug
+     ) THEN
+    UPDATE shops
+       SET booking_slug = NULL
+     WHERE id = OLD.target_id::uuid
+       AND booking_slug = OLD.slug;
+  END IF;
+
+  -- Set cache on the current (new) target if it is an active shop link.
   IF NEW.link_type = 'shop' AND NEW.is_active = true THEN
     UPDATE shops SET booking_slug = NEW.slug WHERE id = NEW.target_id::uuid;
   END IF;
+
   RETURN NEW;
 END;
 $$;
