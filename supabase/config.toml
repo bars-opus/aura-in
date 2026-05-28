@@ -13,3 +13,10 @@ verify_jwt = false
 
 [functions.sendbird-webhook]
 verify_jwt = false
+
+# Public booking-link resolver — called anonymously from the marketing/booking
+# web page when a visitor opens https://aura-in-web.vercel.app/book/<slug>.
+# No JWT required by design (guests have no auth session).
+
+[functions.resolve-link]
+verify_jwt = false
