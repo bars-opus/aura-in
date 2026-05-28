@@ -102,6 +102,13 @@ ALTER TABLE pending_payments
     CHECK (delivery_channel IN ('push', 'whatsapp')),
   ADD COLUMN IF NOT EXISTS guest_profile_id  uuid REFERENCES guest_profiles(id);
 
+-- pending_payments.user_id must be nullable for the guest path; guests
+-- have no auth user. The matching guest_profile_id was added above; at
+-- least one of user_id / guest_profile_id must be present at write time
+-- (enforced in application code, not via DB constraint, since
+-- pending_payments is a short-lived staging table).
+ALTER TABLE pending_payments ALTER COLUMN user_id DROP NOT NULL;
+
 -- ────────────────────────────────────────────────────────────────────────────
 -- TRIGGER: keep shops.booking_slug in sync with short_links.
 -- The authoritative slug lives in short_links; this column is a denormalized
