@@ -27,3 +27,11 @@ verify_jwt = false
 
 [functions.lookup-guest]
 verify_jwt = false
+
+# Public lazy slot lookup — called anonymously from the booking page after the
+# visitor picks services + quantities. generate_available_slots requires
+# concrete service_ids that resolve-link can't know up-front, so the booking
+# flow calls this as a follow-up. No JWT required by design.
+
+[functions.get-slots]
+verify_jwt = false
