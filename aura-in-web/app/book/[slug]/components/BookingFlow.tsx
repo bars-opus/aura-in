@@ -24,8 +24,15 @@ import { ServicePicker } from "./ServicePicker";
 import { WorkerPicker } from "./WorkerPicker";
 import { SlotPicker } from "./SlotPicker";
 import { GuestForm } from "./GuestForm";
+import { AddressPicker } from "./AddressPicker";
 import { createBooking, getSlots } from "@/lib/api";
 import { formatMoney } from "@/lib/format";
+
+interface PickedAddress {
+  text: string;
+  lat: number;
+  lng: number;
+}
 
 export function BookingFlow({
   data,
@@ -44,8 +51,11 @@ export function BookingFlow({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [lastService, setLastService] = useState<string | undefined>();
+  const [address, setAddress] = useState<PickedAddress | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const needsAddress = data.targetType === "freelancer" && data.canTravel;
 
   const selectedService: Service | null = useMemo(
     () => data.services.find((s) => s.id === selectedServiceId) ?? null,
@@ -91,7 +101,12 @@ export function BookingFlow({
   }, [selectedServiceId, selectedWorkerId, data.target.id]);
 
   const canSubmit =
-    !!selectedService && !!selectedSlot && !!name && !!phone && !submitting;
+    !!selectedService &&
+    !!selectedSlot &&
+    !!name &&
+    !!phone &&
+    (!needsAddress || !!address) &&
+    !submitting;
   const deposit = selectedService
     ? selectedService.price * data.depositFraction
     : 0;
@@ -151,6 +166,9 @@ export function BookingFlow({
       deliveryChannel: "whatsapp",
       successUrl: `https://aura-in-web.vercel.app/book/${slug}/success`,
       cancelUrl: `https://aura-in-web.vercel.app/book/${slug}`,
+      clientAddress: address?.text,
+      clientAddressLat: address?.lat,
+      clientAddressLng: address?.lng,
     });
 
     if (!res.success || !res.authorizationUrl) {
@@ -184,6 +202,13 @@ export function BookingFlow({
         onSelect={setSelectedSlot}
         loading={slotsLoading}
       />
+      {needsAddress && (
+        <AddressPicker
+          freelancer={data.target}
+          travelRadiusKm={data.travelRadiusKm}
+          onChange={(addr) => setAddress(addr)}
+        />
+      )}
       <GuestForm
         name={name}
         phone={phone}
