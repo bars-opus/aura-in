@@ -57,6 +57,161 @@ async function isPushEnabled(userId: string): Promise<boolean> {
   return data?.push_enabled !== false;
 }
 
+// ── WhatsApp delivery ─────────────────────────────────────────────────────────
+//
+// Rows with delivery_channel='whatsapp' are inserted by Plan A's webhooks
+// (paystack-webhook / stripe-webhook) for guest bookings. The worker calls
+// the internal whatsapp-send function with service-role auth, then persists
+// the returned message_id into metadata so whatsapp-webhook can match
+// delivery receipts back to this row.
+//
+// Failure modes:
+//   - template_not_found (HTTP 202 from whatsapp-send): defer 6 h and retry,
+//     because Meta template approval is async — the template may be approved
+//     by the next attempt.
+//   - transient error: exponential backoff (30 s, 5 min, 30 min), max 3 attempts.
+//   - permanent error after 3 retries: mark failed.
+
+interface ScheduledNotificationRow {
+  id: string;
+  user_id?: string | null;
+  guest_profile_id?: string | null;
+  notification_type?: string | null;
+  delivery_channel?: string | null;
+  whatsapp_template?: string | null;
+  whatsapp_params?: Record<string, string> | null;
+  metadata?: Record<string, unknown> | null;
+  retry_count?: number | null;
+}
+
+async function dispatchWhatsApp(
+  row: ScheduledNotificationRow
+): Promise<void> {
+  const meta = (row.metadata as Record<string, unknown> | null) ?? {};
+  const phone = typeof meta.phone === "string" ? meta.phone : undefined;
+  const template = row.whatsapp_template;
+  const params = row.whatsapp_params ?? {};
+
+  if (!phone || !template) {
+    await markFailed(row.id, "missing phone or template");
+    return;
+  }
+
+  // Call whatsapp-send (internal, service-role auth required).
+  const url = `${SUPABASE_URL}/functions/v1/whatsapp-send`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+      body: JSON.stringify({ to: phone, template, params }),
+    });
+  } catch (err) {
+    // Network failure reaching whatsapp-send — treat as transient.
+    await incrementWhatsAppRetryOrFail(
+      row.id,
+      row.retry_count ?? 0,
+      meta,
+      `whatsapp-send fetch failed: ${String(err)}`
+    );
+    return;
+  }
+
+  const body = (await res.json().catch(() => ({}))) as {
+    success?: boolean;
+    error?: string;
+    message?: string;
+    messageId?: string;
+  };
+
+  // Template not yet approved at Meta — defer 6 h and retry.
+  if (res.status === 202 && body.error === "template_not_found") {
+    await deferNotification(row.id, 6 * 60 * 60 * 1000);
+    return;
+  }
+
+  if (!res.ok || !body.success) {
+    await incrementWhatsAppRetryOrFail(
+      row.id,
+      row.retry_count ?? 0,
+      meta,
+      body.message ?? `whatsapp-send returned ${res.status}`
+    );
+    return;
+  }
+
+  // Success — record message_id for whatsapp-webhook receipt matching.
+  await markSentWithMessageId(row.id, body.messageId ?? "", meta);
+}
+
+async function markSentWithMessageId(
+  id: string,
+  messageId: string,
+  prevMetadata: Record<string, unknown>
+): Promise<void> {
+  await supabase
+    .from("scheduled_notifications")
+    .update({
+      status: "sent",
+      metadata: { ...prevMetadata, message_id: messageId },
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+}
+
+async function markFailed(id: string, reason: string): Promise<void> {
+  await supabase
+    .from("scheduled_notifications")
+    .update({
+      status: "failed",
+      last_error: reason,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+}
+
+async function deferNotification(id: string, deferMs: number): Promise<void> {
+  await supabase
+    .from("scheduled_notifications")
+    .update({
+      scheduled_for: new Date(Date.now() + deferMs).toISOString(),
+      status: "pending",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+}
+
+async function incrementWhatsAppRetryOrFail(
+  id: string,
+  prevRetryCount: number,
+  prevMetadata: Record<string, unknown>,
+  reason: string
+): Promise<void> {
+  const retryCount = (prevRetryCount ?? 0) + 1;
+  if (retryCount >= 3) {
+    await markFailed(id, `${reason} (after ${retryCount} attempts)`);
+    return;
+  }
+
+  // Exponential backoff: 30 s, 5 min, 30 min.
+  const backoffs = [30_000, 5 * 60_000, 30 * 60_000];
+  const delayMs = backoffs[retryCount - 1] ?? 30 * 60_000;
+  await supabase
+    .from("scheduled_notifications")
+    .update({
+      scheduled_for: new Date(Date.now() + delayMs).toISOString(),
+      status: "pending",
+      retry_count: retryCount,
+      last_error: reason,
+      metadata: { ...prevMetadata },
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 serve(async () => {
@@ -91,6 +246,15 @@ serve(async () => {
 
     for (const notification of pending) {
       try {
+        // Branch by delivery channel. Default ('push' or missing) keeps the
+        // existing OneSignal flow; 'whatsapp' rows are inserted by Plan A's
+        // webhooks and routed to the WhatsApp dispatcher.
+        if (notification.delivery_channel === "whatsapp") {
+          await dispatchWhatsApp(notification as ScheduledNotificationRow);
+          processed++;
+          continue;
+        }
+
         // Respect the user's push preference.
         const enabled = await isPushEnabled(notification.user_id);
         if (!enabled) {
