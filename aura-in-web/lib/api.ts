@@ -15,6 +15,8 @@ import type {
   LookupGuestResponse,
   CreateBookingRequest,
   CreateBookingResponse,
+  GetSlotsRequest,
+  GetSlotsResponse,
 } from "./types";
 
 /**
@@ -137,6 +139,31 @@ export async function createBooking(
     };
   }
   return (await res.json()) as CreateBookingResponse;
+}
+
+/**
+ * Lazy slot lookup. Called from the booking page after the visitor picks
+ * services + (optionally) a worker. Always returns a response shape — any
+ * non-2xx is collapsed to `{ slots: [] }` so the SlotPicker can render an
+ * empty-state without a separate error branch. Network errors throw and
+ * the caller's surrounding try/catch handles them.
+ */
+export async function getSlots(
+  req: GetSlotsRequest,
+): Promise<GetSlotsResponse> {
+  const { supabaseUrl, anonKey } = getSupabaseEnv();
+  const url = `${supabaseUrl}/functions/v1/get-slots`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${anonKey}`,
+    },
+    body: JSON.stringify(req),
+    cache: "no-store",
+  });
+  if (!res.ok) return { slots: [] };
+  return (await res.json()) as GetSlotsResponse;
 }
 
 /**

@@ -21,9 +21,8 @@ export type TargetType = "shop" | "freelancer";
  *   - `luxuryLevel` ← shops.luxury_level (numeric in DB; widened to allow string in case PostgREST stringifies numerics)
  *   - `address`, `latitude`, `longitude`, `country` come from the primary
  *     shop_locations row (falls back to shops.address when no location row).
- *
- * Currency is NOT currently returned by resolve-link (Plan A gap). When
- * Plan A is patched to surface it, add `currency: string | null` here.
+ *   - `currency`    ← shops.currency (3-letter ISO: GHS, NGN, USD, EUR, ...)
+ *                     Nullable defensively — older shops may have NULL.
  */
 export interface Shop {
   id: string;
@@ -36,6 +35,7 @@ export interface Shop {
   country: string | null;
   latitude: number | null;
   longitude: number | null;
+  currency: string | null;
 }
 
 /**
@@ -72,16 +72,41 @@ export interface Worker {
 }
 
 /**
- * A single available slot as it will be returned by the (future) slots
- * endpoint. resolve-link v1 returns `availableSlots: []` and the booking
- * page resolves slots lazily after the visitor picks services — see the
- * comment in resolve-link/index.ts §5. Shape kept here so Task 4 can wire
- * the lazy fetch without re-deriving it.
+ * A single available slot as returned by the get-slots edge function.
+ *
+ * Keys are camelCased to match get-slots' JSON output (the function
+ * normalises the snake_case RPC return shape into this contract). Note
+ * resolve-link's `availableSlots` field still types as `SlotEntry[]` but
+ * is always `[]` in v1 — the booking page calls getSlots() explicitly
+ * after the visitor picks services. See resolve-link/index.ts §5.
  */
 export interface SlotEntry {
-  start_time: string; // ISO timestamp
-  end_time: string;
-  worker_id: string | null;
+  startTime: string; // ISO timestamp
+  endTime: string;
+  workerId: string | null;
+}
+
+/**
+ * get-slots request body. `quantities` defaults to `[1, 1, ...]` server-side
+ * if omitted or length-mismatched. `workerIds` narrows the slot search to
+ * specific worker(s); omit/null for "any available worker". `days` caps the
+ * search window (server clamps to [1, 30]; default 7).
+ */
+export interface GetSlotsRequest {
+  shopId: string;
+  serviceIds: string[];
+  quantities: number[];
+  workerIds?: string[] | null;
+  days?: number;
+}
+
+/**
+ * get-slots response. `slots` may be empty (no availability in the window,
+ * shop closed all 7 days, RPC failed for every date, etc.) — callers should
+ * render a "no slots" state rather than treating it as an error.
+ */
+export interface GetSlotsResponse {
+  slots: SlotEntry[];
 }
 
 /**
