@@ -18,7 +18,8 @@
 // Response contract (200):
 //   {
 //     targetType: 'shop' | 'freelancer',
-//     target:     { id, name, type, logoUrl, address, latitude, longitude, ... },
+//     target:     { id, name, type, logoUrl, address, latitude, longitude,
+//                   currency, ... },
 //     services:   [{ id, name, price, durationMinutes, description }],
 //     workers:    [{ id, name, profileImageUrl, specialties }],   // empty for freelancer
 //     canTravel:  boolean,                                        // freelancer-only signal
@@ -90,7 +91,8 @@ export async function handler(req: Request): Promise<Response> {
       shop_logo_url,
       luxury_level,
       verified,
-      address
+      address,
+      currency
     `)
     .eq("booking_slug", slug)
     .maybeSingle();
@@ -205,6 +207,7 @@ export async function handler(req: Request): Promise<Response> {
     country,
     latitude,
     longitude,
+    currency: (shop as any).currency ?? null,
   };
 
   // 7. Normalize services payload.
