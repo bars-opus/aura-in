@@ -14,7 +14,7 @@ import 'package:nano_embryo/core/notifications/config/notification_setting_toggl
 import 'package:nano_embryo/core/notifications/domain/entities/notification_template.dart';
 import 'package:nano_embryo/core/notifications/domain/entities/notification_type.dart';
 
-/// Returns the NanoEmbryo [NotificationConfig].
+/// Returns the NanoEmbryo [NotificationConfig],
 ///
 /// Pass this to [notificationConfigProvider] in the root [ProviderScope].
 NotificationConfig buildNanoEmbryoNotificationConfig() {

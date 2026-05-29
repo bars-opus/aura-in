@@ -40,7 +40,8 @@ enum NotificationStatus {
 class ScheduledNotification extends Equatable {
   final String id;
   final String notificationType;  // Change from NotificationType to String
-  final String userId;
+  final String? userId;
+  final String? guestProfileId;
   final String? bookingId;
   final String? shopId;
   final DateTime scheduledFor;
@@ -48,13 +49,17 @@ class ScheduledNotification extends Equatable {
   final int retryCount;
   final String? lastError;
   final Map<String, dynamic> metadata;
+  final String deliveryChannel;
+  final String? whatsappTemplate;
+  final Map<String, dynamic>? whatsappParams;
   final DateTime createdAt;
   final DateTime updatedAt;
-  
+
   const ScheduledNotification({
     required this.id,
     required this.notificationType,  // Now String
-    required this.userId,
+    this.userId,
+    this.guestProfileId,
     this.bookingId,
     this.shopId,
     required this.scheduledFor,
@@ -62,6 +67,9 @@ class ScheduledNotification extends Equatable {
     this.retryCount = 0,
     this.lastError,
     this.metadata = const {},
+    this.deliveryChannel = 'push',
+    this.whatsappTemplate,
+    this.whatsappParams,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -71,11 +79,15 @@ class ScheduledNotification extends Equatable {
     id,
     notificationType,
     userId,
+    guestProfileId,
     bookingId,
     shopId,
     scheduledFor,
     status,
     retryCount,
+    deliveryChannel,
+    whatsappTemplate,
+    whatsappParams,
     createdAt,
     updatedAt,
   ];

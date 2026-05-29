@@ -5,7 +5,8 @@ import 'package:nano_embryo/core/notifications/domain/entities/scheduled_notific
 class ScheduledNotificationModel {
   final String id;
   final String notificationType;
-  final String userId;
+  final String? userId;
+  final String? guestProfileId;
   final String? bookingId;
   final String? shopId;
   final DateTime scheduledFor;
@@ -13,13 +14,17 @@ class ScheduledNotificationModel {
   final int retryCount;
   final String? lastError;
   final Map<String, dynamic> metadata;
+  final String deliveryChannel;
+  final String? whatsappTemplate;
+  final Map<String, dynamic>? whatsappParams;
   final DateTime createdAt;
   final DateTime updatedAt;
 
   ScheduledNotificationModel({
     required this.id,
     required this.notificationType,
-    required this.userId,
+    this.userId,
+    this.guestProfileId,
     this.bookingId,
     this.shopId,
     required this.scheduledFor,
@@ -27,6 +32,9 @@ class ScheduledNotificationModel {
     required this.retryCount,
     this.lastError,
     required this.metadata,
+    this.deliveryChannel = 'push',
+    this.whatsappTemplate,
+    this.whatsappParams,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -36,7 +44,8 @@ class ScheduledNotificationModel {
     return ScheduledNotificationModel(
       id: json['id'] as String,
       notificationType: json['notification_type'] as String,
-      userId: json['user_id'] as String,
+      userId: json['user_id'] as String?,
+      guestProfileId: json['guest_profile_id'] as String?,
       bookingId: json['booking_id'] as String?,
       shopId: json['shop_id'] as String?,
       scheduledFor: DateTime.parse(json['scheduled_for'] as String),
@@ -44,6 +53,9 @@ class ScheduledNotificationModel {
       retryCount: json['retry_count'] as int? ?? 0,
       lastError: json['last_error'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>? ?? {},
+      deliveryChannel: json['delivery_channel'] as String? ?? 'push',
+      whatsappTemplate: json['whatsapp_template'] as String?,
+      whatsappParams: json['whatsapp_params'] as Map<String, dynamic>?,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
@@ -55,6 +67,7 @@ class ScheduledNotificationModel {
       'id': id,
       'notification_type': notificationType,
       'user_id': userId,
+      'guest_profile_id': guestProfileId,
       'booking_id': bookingId,
       'shop_id': shopId,
       'scheduled_for': scheduledFor.toIso8601String(),
@@ -62,6 +75,9 @@ class ScheduledNotificationModel {
       'retry_count': retryCount,
       'last_error': lastError,
       'metadata': metadata,
+      'delivery_channel': deliveryChannel,
+      'whatsapp_template': whatsappTemplate,
+      'whatsapp_params': whatsappParams,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -71,8 +87,9 @@ class ScheduledNotificationModel {
   ScheduledNotification toDomain() {
     return ScheduledNotification(
       id: id,
-      notificationType: notificationType, // ✅ Keep as String, not enum
+      notificationType: notificationType, // Keep as String, not enum
       userId: userId,
+      guestProfileId: guestProfileId,
       bookingId: bookingId,
       shopId: shopId,
       scheduledFor: scheduledFor,
@@ -80,6 +97,9 @@ class ScheduledNotificationModel {
       retryCount: retryCount,
       lastError: lastError,
       metadata: metadata,
+      deliveryChannel: deliveryChannel,
+      whatsappTemplate: whatsappTemplate,
+      whatsappParams: whatsappParams,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -92,8 +112,9 @@ class ScheduledNotificationModel {
     return ScheduledNotificationModel(
       id: notification.id,
       notificationType:
-          notification.notificationType, // ✅ Use the String property directly
+          notification.notificationType, // Use the String property directly
       userId: notification.userId,
+      guestProfileId: notification.guestProfileId,
       bookingId: notification.bookingId,
       shopId: notification.shopId,
       scheduledFor: notification.scheduledFor,
@@ -101,6 +122,9 @@ class ScheduledNotificationModel {
       retryCount: notification.retryCount,
       lastError: notification.lastError,
       metadata: notification.metadata,
+      deliveryChannel: notification.deliveryChannel,
+      whatsappTemplate: notification.whatsappTemplate,
+      whatsappParams: notification.whatsappParams,
       createdAt: notification.createdAt,
       updatedAt: notification.updatedAt,
     );
