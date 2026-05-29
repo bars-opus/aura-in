@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
+import 'package:nano_embryo/core/link/providers/link_providers.dart';
+import 'package:nano_embryo/core/link/widgets/shareable_link_section.dart';
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_details_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/export_reports_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/promotions_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/reminder_settings_screen.dart';
@@ -40,6 +43,16 @@ class ToolsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    final shopDetailsAsync = ref.watch(shopDetailsProvider(shopId));
+    final shopName = shopDetailsAsync.maybeWhen(
+      data: (shop) => shop?.shopName ?? '',
+      orElse: () => '',
+    );
+    final bookingSlug = shopDetailsAsync.maybeWhen(
+      data: (shop) => shop?.bookingSlug,
+      orElse: () => null,
+    );
+
     return Scaffold(
       body: CardInkWell(
         elevation: 0,
@@ -48,6 +61,27 @@ class ToolsScreen extends ConsumerWidget {
         margin: EdgeInsets.all(Spacing.md),
         child: ListView(
           children: [
+            ShareableLinkSection(
+              currentSlug: bookingSlug,
+              entityName: shopName,
+              onEditSlug: (newSlug) async {
+                final svc = ref.read(linkServiceProvider);
+                final result = await svc.createShopLink(
+                  shopId: shopId,
+                  customSlug: newSlug,
+                  metadata: {'name': shopName},
+                );
+                if (!result.success) {
+                  throw Exception(result.error ?? 'Failed to update slug');
+                }
+                // Trigger from Plan A syncs shops.booking_slug; reload to pick
+                // it up in the UI.
+                await ref
+                    .read(shopDetailsProvider(shopId).notifier)
+                    .loadShop(shopId);
+              },
+            ),
+            Gap(Spacing.sm.h),
             Align(
               alignment: Alignment.topLeft,
               child: Text(

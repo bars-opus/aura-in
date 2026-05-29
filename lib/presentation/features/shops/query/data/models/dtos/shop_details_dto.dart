@@ -60,6 +60,11 @@ class ShopDetailsDTO extends Equatable {
   final List<AppointmentSlotDTO> services;
   final List<String> amenityIds;
 
+  /// Public booking slug (mirrors `shops.booking_slug`). Synced automatically
+  /// by the Plan A trigger when a shop short_link is created. Null until the
+  /// first slug is generated (e.g. older shops or a failed initial sync).
+  final String? bookingSlug;
+
   const ShopDetailsDTO({
     required this.id,
     required this.userId,
@@ -93,6 +98,7 @@ class ShopDetailsDTO extends Equatable {
     this.services = const [],
     this.amenityIds = const [],
     this.totalReviews,
+    this.bookingSlug,
   });
 
   factory ShopDetailsDTO.fromJson(Map<String, dynamic> json) {
@@ -222,6 +228,7 @@ class ShopDetailsDTO extends Equatable {
       distanceKm: (json['distance_km'] as num?)?.toDouble(),
       services: services, // ✅ Now populated
       amenityIds: amenityIds, // ✅ Now populated
+      bookingSlug: json['booking_slug'] as String?,
     );
   }
 
