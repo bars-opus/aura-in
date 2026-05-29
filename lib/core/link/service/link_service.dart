@@ -168,6 +168,35 @@ class LinkService {
     }
   }
 
+  /// Resolve a slug to a ShortLink row scoped to this app.
+  ///
+  /// Used by the mobile deep link handler (Universal Link `/book/<slug>`).
+  /// Unlike [getLink], this filters by [LinkConfig.appId] so cross-app
+  /// slug collisions cannot leak — and returns null on any error instead
+  /// of throwing, so the router can fall back gracefully to home.
+  Future<ShortLink?> resolveSlug(String slug) async {
+    if (slug.isEmpty) return null;
+    try {
+      final response =
+          await _supabase
+              .from('short_links')
+              .select()
+              .eq('slug', slug)
+              .eq('app_id', _config.appId)
+              .eq('is_active', true)
+              .maybeSingle();
+
+      if (response == null) return null;
+
+      final link = ShortLink.fromJson(response);
+      if (link.isExpired) return null;
+      return link;
+    } catch (e) {
+      debugPrint('resolveSlug failed for "$slug": $e');
+      return null;
+    }
+  }
+
   /// Track a click on a link
   Future<void> trackClick({
     required String slug,

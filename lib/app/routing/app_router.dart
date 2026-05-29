@@ -1,7 +1,11 @@
 // Route names for type-safe navigation
+import 'dart:async' show unawaited;
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/app/routing/routing_notifier.dart';
 import 'package:nano_embryo/app/splash_screen.dart';
+import 'package:nano_embryo/core/link/models/link_models.dart';
+import 'package:nano_embryo/core/link/providers/link_providers.dart';
 import 'package:nano_embryo/core/utils/location/location_search_mode.dart';
 import 'package:nano_embryo/core/utils/location/widgets/location_search_screen.dart';
 import 'package:nano_embryo/presentation/features/auth/log_in/presentation/screens/forgot_password_screen.dart';
@@ -44,8 +48,8 @@ import 'package:nano_embryo/presentation/features/shops/creation/presentation/sc
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/screens/set_hours_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/screens/shop_creation.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/owner_dashboard_screen.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/screens/payment_settings_screen.dart';
-import 'package:nano_embryo/presentation/features/shops/payment/presentation/widgets/paystack_connection_screen.dart';
+import 'package:nano_embryo/payment/presentation/screens/payment_settings_screen.dart';
+import 'package:nano_embryo/payment/presentation/widgets/paystack_connection_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/screens/all_shop_workers_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/screens/my_shops_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/screens/premium_shops_screen.dart';
@@ -145,6 +149,85 @@ class RouteNames {
   static const String productForm = '/productForm';
 
   // static const String bookingDetailScreen = '/bookingDetailScreen';
+}
+
+/// Resolves a short-link slug (from a Universal Link / App Link such as
+/// `https://aura-in-web.vercel.app/book/<slug>` or `/l/<slug>`) to a
+/// concrete in-app destination, then redirects.
+///
+/// Shows a brief loading indicator while [LinkService.resolveSlug] runs.
+/// Unknown / expired / inactive slugs bounce to home rather than dead-end
+/// the user on a blank screen.
+class _DeepLinkResolverScreen extends ConsumerStatefulWidget {
+  const _DeepLinkResolverScreen({required this.slug});
+
+  final String slug;
+
+  @override
+  ConsumerState<_DeepLinkResolverScreen> createState() =>
+      _DeepLinkResolverScreenState();
+}
+
+class _DeepLinkResolverScreenState
+    extends ConsumerState<_DeepLinkResolverScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _resolve());
+  }
+
+  Future<void> _resolve() async {
+    final slug = widget.slug.trim();
+    if (slug.isEmpty) {
+      if (mounted) context.go(RouteNames.home);
+      return;
+    }
+
+    final service = ref.read(linkServiceProvider);
+    final link = await service.resolveSlug(slug);
+
+    if (!mounted) return;
+
+    if (link == null) {
+      // Unknown / inactive / expired — fall back to home so the user has
+      // somewhere to go. The web fallback (.well-known + Next.js page from
+      // Plan B) handles the case where the app isn't installed.
+      context.go(RouteNames.home);
+      return;
+    }
+
+    // Fire-and-forget analytics; never block UX.
+    unawaited(service.trackClick(slug: slug, platform: 'mobile'));
+
+    // Route by link type. v1 only generates `shop` links from
+    // ShareableLinkSection, but freelancers ARE shops with
+    // workers.is_freelancer=true, so worker/freelancer links resolve to
+    // the same shop details destination. The existing booking flow on
+    // that screen handles both cases.
+    switch (link.type) {
+      case LinkType.shop:
+      case LinkType.worker:
+      case LinkType.booking:
+        context.pushReplacement(
+          RouteNames.shopDetailsScreen,
+          extra: <String, String?>{
+            'shopId': link.targetId,
+            'coverImageUrl': '',
+            'fromLink': 'true',
+          },
+        );
+        break;
+      case LinkType.campaign:
+      case LinkType.custom:
+        context.go(RouteNames.home);
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+  }
 }
 
 GoRouter createAppRouter(RoutingNotifier routingNotifier) {
@@ -272,11 +355,31 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
       return null;
     },
     routes: [
-      // Add deep link route handler
+      // Universal Link / App Link handler for short links.
+      //
+      // `/book/:slug` is the canonical public path served by the
+      // aura-in-web Next.js fallback page (Plan B / Task 7). When the
+      // mobile app is installed and Universal Links are configured
+      // (.well-known/apple-app-site-association + assetlinks.json),
+      // iOS/Android hand the URL to Flutter and this route fires.
+      //
+      // `/l/:slug` is kept as a backwards-compatible alias for any
+      // pre-existing short links.
+      GoRoute(
+        path: '/book/:slug',
+        name: 'bookDeepLink',
+        builder:
+            (context, state) => _DeepLinkResolverScreen(
+              slug: state.pathParameters['slug'] ?? '',
+            ),
+      ),
       GoRoute(
         path: '/l/:slug',
         name: 'deepLink',
-        builder: (context, state) => const SizedBox.shrink(),
+        builder:
+            (context, state) => _DeepLinkResolverScreen(
+              slug: state.pathParameters['slug'] ?? '',
+            ),
       ),
       // Your routes here - exactly as you had them
       GoRoute(
