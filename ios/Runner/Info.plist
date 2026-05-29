@@ -4,6 +4,10 @@
 	<dict>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
+		<key>com.apple.developer.associated-domains</key>
+		<array>
+			<string>applinks:aura-in-web.vercel.app</string>
+		</array>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
@@ -53,6 +57,14 @@
 		<true/>
 		<key>MBXAccessToken</key>
 		<string>$(MAPBOX_ACCESS_TOKEN)</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Allow camera access to take photos for chat</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>Allow microphone access for video recording in chat</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Allow photo library access to share images in chat</string>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Allow access to save photos to your library</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 		<string>We need your location to show shops near you</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
