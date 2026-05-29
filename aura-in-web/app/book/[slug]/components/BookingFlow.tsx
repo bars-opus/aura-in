@@ -120,6 +120,8 @@ export function BookingFlow({
     setSubmitting(true);
     setError(null);
 
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+
     const startTime = selectedSlot.startTime;
     // Prefer the RPC-reported endTime (already accounts for the slot
     // duration); fall back to a computed end if for some reason it's
@@ -164,8 +166,8 @@ export function BookingFlow({
       paymentProvider: "paystack",
       idempotencyKey,
       deliveryChannel: "whatsapp",
-      successUrl: `https://aura-in-web.vercel.app/book/${slug}/success`,
-      cancelUrl: `https://aura-in-web.vercel.app/book/${slug}`,
+      successUrl: `${origin}/book/${slug}/success`,
+      cancelUrl: `${origin}/book/${slug}`,
       clientAddress: address?.text,
       clientAddressLat: address?.lat,
       clientAddressLng: address?.lng,
