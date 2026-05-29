@@ -429,6 +429,32 @@ void _processDeepLink(String link, RoutingNotifier routingNotifier) {
     }
   }
 
+  // Universal Links from aura-in-web.vercel.app/book/<slug>
+  // (and the legacy /l/<slug> alias). When the app is already running and the
+  // OS hands a Universal Link to app_links.uriLinkStream, navigate directly via
+  // the GoRouter so the deep-link resolver screen fires. This bypasses the
+  // setPendingDeepLink plumbing (which has no consumer) entirely.
+  final productionDomain = AuraInLinkConfig.production.baseDomain;
+  final isProductionHost = uri.host == productionDomain;
+  final isBookPath = uri.pathSegments.length >= 2 &&
+      (uri.pathSegments[0] == 'book' || uri.pathSegments[0] == 'l');
+  if (uri.scheme == 'https' && isProductionHost && isBookPath) {
+    final webSlug = uri.pathSegments[1];
+    if (webSlug.isNotEmpty) {
+      debugPrint('[deep-link] aura-in-web booking link: $webSlug');
+      // Warm-start path: router exists, go directly.
+      if (_appRouter != null) {
+        _appRouter!.go('/book/$webSlug');
+        return;
+      }
+      // Cold-start fallback: stash in routing notifier (consumer is vestigial
+      // today but keeps behavioural parity with the other deep link schemes).
+      routingNotifier.setPendingDeepLink(webSlug);
+      debugPrint('📌 Deep link stored (cold start), waiting for router');
+      return;
+    }
+  }
+
   if (slug != null && slug.isNotEmpty) {
     routingNotifier.setPendingDeepLink(slug);
     debugPrint('📌 Deep link stored, waiting for auth');

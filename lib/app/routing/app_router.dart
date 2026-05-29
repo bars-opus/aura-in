@@ -296,8 +296,16 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         }
       }
 
+      // Deep link routes (Universal Links from aura-in-web.vercel.app) must
+      // bypass first-launch and auth gates. A logged-out new user opening a
+      // /book/<slug> link from WhatsApp should reach the booking resolver,
+      // which routes them into the guest booking flow (name + phone) rather
+      // than being forced through /intro and losing the slug.
+      final isDeepLink = state.matchedLocation.startsWith('/book/') ||
+          state.matchedLocation.startsWith('/l/');
+
       // 1. FIRST LAUNCH
-      if (isFirstLaunch) {
+      if (isFirstLaunch && !isDeepLink) {
         if (state.matchedLocation == RouteNames.intro) return null;
         return RouteNames.intro;
       }
@@ -336,6 +344,10 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
 
       if (!hasUsername) {
         if (state.matchedLocation == RouteNames.createUsername) return null;
+        // Deep link routes pass through — the booking flow accepts guest
+        // bookings, so a no-username user opening /book/<slug> should reach
+        // the resolver rather than being yanked to /createUsername.
+        if (isDeepLink) return null;
         // After email confirmation the user lands on createUsername, not verifyEmail
         if (state.matchedLocation == RouteNames.verifyEmail) {
           return RouteNames.createUsername;
