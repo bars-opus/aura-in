@@ -17,21 +17,28 @@ import type {
   CreateBookingResponse,
 } from "./types";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-// Fail fast at module load — every API call needs these. We throw rather
-// than `!`-asserting so the error message is obvious instead of "fetch
-// failed: invalid URL" on first call.
-if (!SUPABASE_URL || !ANON_KEY) {
-  throw new Error(
-    "Supabase env vars missing — set NEXT_PUBLIC_SUPABASE_URL and " +
-      "NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local (see .env.local.example).",
-  );
+/**
+ * Read Supabase env vars lazily, per-call, instead of at module load.
+ *
+ * Why: Next 16's `next build` collects page data by actually invoking server
+ * components — that means modules imported by those components are evaluated
+ * during the build, not just at runtime. A module-level throw on missing env
+ * vars therefore breaks the build whenever .env.local isn't present (CI
+ * preview builds, fresh checkouts, etc.), even though the values would be
+ * injected fine at deploy/runtime. Lazy evaluation pushes the failure into
+ * the first actual fetch, which is where the error message belongs.
+ */
+function getSupabaseEnv(): { supabaseUrl: string; anonKey: string } {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !anonKey) {
+    throw new Error(
+      "Supabase env vars missing — set NEXT_PUBLIC_SUPABASE_URL and " +
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local (see .env.local.example).",
+    );
+  }
+  return { supabaseUrl, anonKey };
 }
-
-const FUNCTIONS_BASE = `${SUPABASE_URL}/functions/v1`;
-const REST_BASE = `${SUPABASE_URL}/rest/v1`;
 
 /**
  * Resolve a slug to shop + services + workers + metadata. The edge
@@ -44,9 +51,10 @@ const REST_BASE = `${SUPABASE_URL}/rest/v1`;
 export async function resolveLink(
   slug: string,
 ): Promise<ResolveLinkResponse | null> {
-  const url = `${FUNCTIONS_BASE}/resolve-link?slug=${encodeURIComponent(slug)}`;
+  const { supabaseUrl, anonKey } = getSupabaseEnv();
+  const url = `${supabaseUrl}/functions/v1/resolve-link?slug=${encodeURIComponent(slug)}`;
   const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${ANON_KEY}` },
+    headers: { Authorization: `Bearer ${anonKey}` },
     // Edge-cache parity with the function's own Cache-Control header.
     next: { revalidate: 30 },
   });
@@ -74,14 +82,15 @@ export async function resolveLink(
 export async function lookupGuest(
   phone: string,
 ): Promise<LookupGuestResponse | null> {
-  const url = `${FUNCTIONS_BASE}/lookup-guest`;
+  const { supabaseUrl, anonKey } = getSupabaseEnv();
+  const url = `${supabaseUrl}/functions/v1/lookup-guest`;
   let res: Response;
   try {
     res = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${ANON_KEY}`,
+        Authorization: `Bearer ${anonKey}`,
       },
       body: JSON.stringify({ phone }),
     });
@@ -108,12 +117,13 @@ export async function lookupGuest(
 export async function createBooking(
   req: CreateBookingRequest,
 ): Promise<CreateBookingResponse> {
-  const url = `${FUNCTIONS_BASE}/create-booking`;
+  const { supabaseUrl, anonKey } = getSupabaseEnv();
+  const url = `${supabaseUrl}/functions/v1/create-booking`;
   const res = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${ANON_KEY}`,
+      Authorization: `Bearer ${anonKey}`,
     },
     body: JSON.stringify(req),
   });
@@ -142,14 +152,15 @@ export async function createBooking(
 export async function fetchBookingByReference(
   reference: string,
 ): Promise<{ id: string; status: string } | null> {
+  const { supabaseUrl, anonKey } = getSupabaseEnv();
   const url =
-    `${REST_BASE}/bookings` +
+    `${supabaseUrl}/rest/v1/bookings` +
     `?payment_intent_id=eq.${encodeURIComponent(reference)}` +
     `&select=id,status&status=eq.confirmed&limit=1`;
   const res = await fetch(url, {
     headers: {
-      apikey: ANON_KEY as string,
-      Authorization: `Bearer ${ANON_KEY}`,
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`,
     },
     cache: "no-store",
   });
