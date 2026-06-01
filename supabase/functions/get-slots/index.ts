@@ -34,6 +34,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate_limit.ts";
 
 // Lazy-init for test-importability (matches resolve-link's pattern).
 let _supabase: SupabaseClient | null = null;
@@ -82,6 +83,26 @@ export async function handler(req: Request): Promise<Response> {
       : body.serviceIds.map(() => 1);
 
   const supabase = getSupabase();
+
+  // Rate limit: 30/min/IP. Each service-pick triggers one call; visitors
+  // change services a few times before settling. 30/min kills slot-scraping.
+  const rl = await checkRateLimit(supabase, "get-slots", req, {
+    max: 30,
+    windowSeconds: 60,
+  });
+  if (!rl.allowed) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests" }),
+      {
+        status: 429,
+        headers: {
+          ...cors,
+          "Content-Type": "application/json",
+          "Retry-After": String(rl.retryAfterSeconds),
+        },
+      },
+    );
+  }
 
   // Loop the RPC over the next N days (default 7). The RPC is per-date by
   // design — it inspects shop_opening_hours for the weekday. Cap at 30 to

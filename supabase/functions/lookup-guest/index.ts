@@ -12,6 +12,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { buildCorsHeaders } from "../_shared/cors.ts";
 import { redactError } from "../_shared/sanitize.ts";
+import { checkRateLimit } from "../_shared/rate_limit.ts";
 
 // Lazy-init the Supabase client so the module can be imported in tests
 // without env vars set. The Supabase JS client throws synchronously when
@@ -53,6 +54,26 @@ export async function handler(req: Request): Promise<Response> {
   }
 
   const supabase = getSupabase();
+
+  // Rate limit: 20/min/IP. The web form debounces input so a real visitor
+  // hits this 1–3 times per session; 20/min kills phone-number enumeration.
+  const rl = await checkRateLimit(supabase, "lookup-guest", req, {
+    max: 20,
+    windowSeconds: 60,
+  });
+  if (!rl.allowed) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests" }),
+      {
+        status: 429,
+        headers: {
+          ...cors,
+          "Content-Type": "application/json",
+          "Retry-After": String(rl.retryAfterSeconds),
+        },
+      },
+    );
+  }
 
   const { data: profile, error: profileErr } = await supabase
     .from("guest_profiles")

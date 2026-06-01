@@ -38,6 +38,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate_limit.ts";
 
 // Lazy-init the Supabase client so the module can be imported in tests
 // without env vars set. The Supabase JS client throws synchronously when
@@ -73,6 +74,21 @@ export async function handler(req: Request): Promise<Response> {
   }
 
   const supabase = getSupabase();
+
+  // Rate limit: 60 reads / minute / IP. A real visitor opens the page once
+  // and stays; 60/min is well above any human pattern but kills enumeration.
+  const rl = await checkRateLimit(supabase, "resolve-link", req, {
+    max: 60,
+    windowSeconds: 60,
+  });
+  if (!rl.allowed) {
+    return jsonResponse(
+      cors,
+      { error: "Too many requests" },
+      429,
+      { "Retry-After": String(rl.retryAfterSeconds) },
+    );
+  }
 
   // 1. Look up the shop by cached booking_slug (Tasks 1+2 keep this column
   //    in sync with short_links via trigger). No embedded join — shops and

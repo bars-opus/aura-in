@@ -12,6 +12,7 @@ import {
 import { getProvider } from "../_shared/providers/registry.ts";
 import { PaymentProviderError, type PaymentProviderName } from "../_shared/providers/port.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate_limit.ts";
 
 // ============================================================================
 // INITIALIZATION
@@ -152,6 +153,29 @@ serve(async (req) => {
               'Retry-After': '600',
             },
           }
+        );
+      }
+    } else if (wantsGuest) {
+      // Guest path: 5 booking attempts per IP per 10 minutes. The earlier
+      // comment claimed rate limiting happened at the link layer — it didn't.
+      const rl = await checkRateLimit(supabase, "create-booking-guest", req, {
+        max: 5,
+        windowSeconds: 600,
+      });
+      if (!rl.allowed) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "Too many booking attempts. Please wait a few minutes before trying again.",
+          }),
+          {
+            status: 429,
+            headers: {
+              ...corsHeaders,
+              "Content-Type": "application/json",
+              "Retry-After": String(rl.retryAfterSeconds),
+            },
+          },
         );
       }
     }
