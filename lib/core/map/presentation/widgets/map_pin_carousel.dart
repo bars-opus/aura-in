@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -48,6 +49,11 @@ class _MapPinCarouselState extends ConsumerState<MapPinCarousel> {
     final pin = pins[pageIndex];
     final currentSelected = ref.read(mapControllerProvider).selectedPinId;
     if (currentSelected != pin.id) {
+      // Haptic feedback when a new card snaps to center.
+      // selectionClick is the iOS-style subtle tap; on Android it maps to
+      // a light click. Only fire when the focused pin actually changes
+      // (not for in-between scroll positions).
+      HapticFeedback.selectionClick();
       ref.read(mapControllerProvider.notifier).selectPin(pin.id);
     }
   }
