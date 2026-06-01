@@ -29,6 +29,7 @@ async function sendPush(
       "Content-Type": "application/json",
       Authorization: `Basic ${ONE_SIGNAL_API_KEY}`,
     },
+    signal: AbortSignal.timeout(10_000),
     body: JSON.stringify({
       app_id: ONE_SIGNAL_APP_ID,
       include_external_user_ids: [userId],
@@ -109,6 +110,9 @@ async function dispatchWhatsApp(
         Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
       },
       body: JSON.stringify({ to: phone, template, params }),
+      // 15s: whatsapp-send itself calls Meta with a 10s timeout, plus
+      // a little headroom for our function's own startup.
+      signal: AbortSignal.timeout(15_000),
     });
   } catch (err) {
     // Network failure reaching whatsapp-send — treat as transient.

@@ -59,6 +59,9 @@ export async function sendWhatsAppTemplate(
     },
   };
 
+  // 10s timeout: Meta's Cloud API is normally <1s, but during incidents it
+  // can hang for minutes. The scheduler retries with 30s/5min/30min backoff,
+  // so it's safer to fail fast and retry than to block a worker invocation.
   const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -66,6 +69,7 @@ export async function sendWhatsAppTemplate(
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(10_000),
   });
 
   const responseBody = await res.json().catch(() => ({}));
