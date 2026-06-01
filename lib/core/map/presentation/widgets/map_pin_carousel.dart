@@ -113,10 +113,21 @@ class _MapPinCarouselState extends ConsumerState<MapPinCarousel> {
         itemBuilder: (context, index) {
           final pin = pins[index];
           final isSelected = pin.id == selectedId;
+          // Selected card "grows" by getting less vertical/horizontal
+          // padding around it — the inner content fills more of the slot.
+          // Unselected cards have a slight inset, creating the size delta.
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => config.onPinTap(pin, context),
-            child: config.buildCarouselCard(pin, isSelected, context),
+            child: AnimatedPadding(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
+              padding: EdgeInsets.symmetric(
+                vertical: isSelected ? 0 : 8.h,
+                horizontal: isSelected ? 0 : 4.w,
+              ),
+              child: config.buildCarouselCard(pin, isSelected, context),
+            ),
           );
         },
       ),
