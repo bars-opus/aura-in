@@ -5,6 +5,7 @@ import type Stripe from "https://esm.sh/stripe@13.6.0";
 import { getProvider } from "../_shared/providers/registry.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { isDebugLogging, redactForLog } from "../_shared/sanitize.ts";
+import { markEventProcessed } from "../_shared/webhook_dedup.ts";
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
@@ -33,6 +34,15 @@ serve(async (req) => {
 
   // Signature is valid; safe to parse the event payload.
   const event = JSON.parse(body) as Stripe.Event;
+
+  // Event-ID dedup. Stripe replays aggressively; event.id is canonical.
+  const dedup = await markEventProcessed(supabase, 'stripe', event.id, event.type);
+  if (!dedup.firstTime && !dedup.error) {
+    console.log('↩️  Stripe event already processed, skipping:', event.id);
+    return new Response(JSON.stringify({ received: true, deduplicated: true }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 
   try {
     switch (event.type) {

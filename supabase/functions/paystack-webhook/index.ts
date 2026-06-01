@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { isDebugLogging, redactForLog } from "../_shared/sanitize.ts";
 import { getProvider } from "../_shared/providers/registry.ts";
+import { markEventProcessed } from "../_shared/webhook_dedup.ts";
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -38,6 +39,18 @@ serve(async (req) => {
     console.log('📨 Webhook event:', event.event);
     if (isDebugLogging()) {
       console.log('📦 Webhook payload:', redactForLog(event));
+    }
+
+    // Event-ID dedup. Paystack `data.id` is the canonical event identifier
+    // (the top-level wrapper has no id). On replay, exit cleanly with 200.
+    const eventId = String(event?.data?.id ?? event?.id ?? '');
+    const dedup = await markEventProcessed(supabase, 'paystack', eventId, event.event);
+    if (!dedup.firstTime && !dedup.error) {
+      console.log('↩️  Paystack event already processed, skipping:', eventId);
+      return new Response(JSON.stringify({ received: true, deduplicated: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     switch (event.event) {
