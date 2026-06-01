@@ -23,6 +23,12 @@ CREATE INDEX IF NOT EXISTS rate_limit_events_key_created_idx
 -- Atomic rate-limit check. Counts events in the trailing window, returns
 -- TRUE if the caller is under the limit (and records this hit), FALSE if
 -- they should be 429'd. Old rows are pruned opportunistically on each call.
+--
+-- DROP first because an older check_rate_limit with a different return type
+-- may exist in some environments (Postgres rejects CREATE OR REPLACE when
+-- the return signature changes).
+DROP FUNCTION IF EXISTS check_rate_limit(TEXT, INT, INT);
+
 CREATE OR REPLACE FUNCTION check_rate_limit(
   p_key            TEXT,
   p_max            INT,
