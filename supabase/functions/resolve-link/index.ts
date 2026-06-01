@@ -37,6 +37,7 @@
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { buildCorsHeaders } from "../_shared/cors.ts";
 
 // Lazy-init the Supabase client so the module can be imported in tests
 // without env vars set. The Supabase JS client throws synchronously when
@@ -51,29 +52,24 @@ function getSupabase(): SupabaseClient {
   return _supabase;
 }
 
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
-
 // v1 booking-economics defaults. Move to system_config once we have a
 // per-shop override story.
 const DEPOSIT_FRACTION = 0.3;
 const PLATFORM_FEE_FRACTION = 0.029;
 
 export async function handler(req: Request): Promise<Response> {
+  const cors = buildCorsHeaders(req, "GET, OPTIONS");
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: cors });
   }
   if (req.method !== "GET") {
-    return jsonResponse({ error: "Method not allowed" }, 405);
+    return jsonResponse(cors, { error: "Method not allowed" }, 405);
   }
 
   const url = new URL(req.url);
   const slug = url.searchParams.get("slug");
   if (!slug || slug.trim().length === 0) {
-    return jsonResponse({ error: "Missing slug" }, 400);
+    return jsonResponse(cors, { error: "Missing slug" }, 400);
   }
 
   const supabase = getSupabase();
@@ -99,10 +95,10 @@ export async function handler(req: Request): Promise<Response> {
 
   if (shopErr) {
     console.error("resolve-link: shop fetch error", shopErr);
-    return jsonResponse({ error: "Internal error" }, 500);
+    return jsonResponse(cors, { error: "Internal error" }, 500);
   }
   if (!shop) {
-    return jsonResponse({ error: "Slug not found" }, 404);
+    return jsonResponse(cors, { error: "Slug not found" }, 404);
   }
 
   // 2. Parallel fetch: services (appointment_slots), workers (with
@@ -250,6 +246,7 @@ export async function handler(req: Request): Promise<Response> {
     });
 
   return jsonResponse(
+    cors,
     {
       targetType,
       target,
@@ -293,6 +290,7 @@ function parseDurationMinutes(raw: unknown): number {
 }
 
 function jsonResponse(
+  cors: Record<string, string>,
   body: unknown,
   status: number,
   extraHeaders: Record<string, string> = {},

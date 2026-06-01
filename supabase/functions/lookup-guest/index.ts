@@ -10,6 +10,7 @@
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { buildCorsHeaders } from "../_shared/cors.ts";
 
 // Lazy-init the Supabase client so the module can be imported in tests
 // without env vars set. The Supabase JS client throws synchronously when
@@ -25,34 +26,29 @@ function getSupabase(): SupabaseClient {
   return _supabase;
 }
 
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
-
 // E.164 lite: + followed by 8-15 digits. We validate before any DB hit so a
 // malformed phone can't probe storage (and so the user gets a fast 400).
 const PHONE_RE = /^\+\d{8,15}$/;
 
 export async function handler(req: Request): Promise<Response> {
+  const cors = buildCorsHeaders(req, "POST, OPTIONS");
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: cors });
   }
   if (req.method !== "POST") {
-    return json({ error: "Method not allowed" }, 405);
+    return json(cors, { error: "Method not allowed" }, 405);
   }
 
   let body: { phone?: string };
   try {
     body = await req.json();
   } catch {
-    return json({ error: "Invalid JSON" }, 400);
+    return json(cors, { error: "Invalid JSON" }, 400);
   }
 
   const phone = (body.phone ?? "").trim();
   if (!PHONE_RE.test(phone)) {
-    return json({ error: "Invalid phone format" }, 400);
+    return json(cors, { error: "Invalid phone format" }, 400);
   }
 
   const supabase = getSupabase();
@@ -65,12 +61,12 @@ export async function handler(req: Request): Promise<Response> {
 
   if (profileErr) {
     console.error("lookup-guest: guest_profiles fetch error", profileErr);
-    return json({ error: "Internal error" }, 500);
+    return json(cors, { error: "Internal error" }, 500);
   }
 
   if (!profile) {
     // 200 + null to avoid enumeration via differential status codes.
-    return json(null, 200);
+    return json(cors, null, 200);
   }
 
   // Pull recent booking history; dedupe to 3 distinct service names in JS
@@ -103,10 +99,10 @@ export async function handler(req: Request): Promise<Response> {
     if (lastServices.length >= 3) break;
   }
 
-  return json({ name: (profile as any).name, lastServices }, 200);
+  return json(cors, { name: (profile as any).name, lastServices }, 200);
 }
 
-function json(body: unknown, status: number): Response {
+function json(cors: Record<string, string>, body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...cors, "Content-Type": "application/json" },

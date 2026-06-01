@@ -11,6 +11,7 @@ import {
 } from "../_shared/sanitize.ts";
 import { getProvider } from "../_shared/providers/registry.ts";
 import { PaymentProviderError, type PaymentProviderName } from "../_shared/providers/port.ts";
+import { buildCorsHeaders } from "../_shared/cors.ts";
 
 // ============================================================================
 // INITIALIZATION
@@ -20,12 +21,6 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
 
 // ============================================================================
 // TYPES
@@ -77,6 +72,7 @@ interface ValidationResult {
 // ============================================================================
 
 serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req, "POST, OPTIONS");
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -370,7 +366,7 @@ if (provider === 'stripe' && !Deno.env.get('STRIPE_SECRET_KEY')) {
         amount: body.depositAmount,
         currency: shopCurrency,
         reference: provider === "paystack"
-          ? `booking_${body.shopId}_${Date.now()}_${body.idempotencyKey.slice(0, 8)}`
+          ? `booking_${body.idempotencyKey}`.slice(0, 100)
           : body.idempotencyKey,
         customerEmail,
         callbackUrl: callbackBase,

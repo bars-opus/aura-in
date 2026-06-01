@@ -33,6 +33,7 @@
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { buildCorsHeaders } from "../_shared/cors.ts";
 
 // Lazy-init for test-importability (matches resolve-link's pattern).
 let _supabase: SupabaseClient | null = null;
@@ -45,18 +46,13 @@ function getSupabase(): SupabaseClient {
   return _supabase;
 }
 
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
 export async function handler(req: Request): Promise<Response> {
+  const cors = buildCorsHeaders(req, "POST, OPTIONS");
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: cors });
   }
   if (req.method !== "POST") {
-    return json({ error: "Method not allowed" }, 405);
+    return json(cors, { error: "Method not allowed" }, 405);
   }
 
   let body: {
@@ -69,7 +65,7 @@ export async function handler(req: Request): Promise<Response> {
   try {
     body = await req.json();
   } catch {
-    return json({ error: "Invalid JSON" }, 400);
+    return json(cors, { error: "Invalid JSON" }, 400);
   }
 
   if (
@@ -77,7 +73,7 @@ export async function handler(req: Request): Promise<Response> {
     !Array.isArray(body.serviceIds) ||
     body.serviceIds.length === 0
   ) {
-    return json({ error: "Missing shopId or serviceIds" }, 400);
+    return json(cors, { error: "Missing shopId or serviceIds" }, 400);
   }
 
   const quantities =
@@ -150,10 +146,10 @@ export async function handler(req: Request): Promise<Response> {
     }
   }
 
-  return json({ slots: allSlots }, 200);
+  return json(cors, { slots: allSlots }, 200);
 }
 
-function json(body: unknown, status: number): Response {
+function json(cors: Record<string, string>, body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...cors, "Content-Type": "application/json" },
