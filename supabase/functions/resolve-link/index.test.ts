@@ -30,10 +30,27 @@ Deno.test("resolve-link: returns 405 on non-GET method", async () => {
   assertEquals(res.status, 405);
 });
 
-Deno.test("resolve-link: handles OPTIONS preflight", async () => {
-  const req = new Request("https://x/resolve-link", { method: "OPTIONS" });
+Deno.test("resolve-link: handles OPTIONS preflight from allowed origin", async () => {
+  const req = new Request("https://x/resolve-link", {
+    method: "OPTIONS",
+    headers: { "Origin": "https://aurain.barsopus.com" },
+  });
   const { handler } = await import("./index.ts");
   const res = await handler(req);
   assertEquals(res.status, 204);
-  assertEquals(res.headers.get("Access-Control-Allow-Origin"), "*");
+  assertEquals(
+    res.headers.get("Access-Control-Allow-Origin"),
+    "https://aurain.barsopus.com",
+  );
+});
+
+Deno.test("resolve-link: omits Allow-Origin for unknown origins", async () => {
+  const req = new Request("https://x/resolve-link", {
+    method: "OPTIONS",
+    headers: { "Origin": "https://evil.example.com" },
+  });
+  const { handler } = await import("./index.ts");
+  const res = await handler(req);
+  assertEquals(res.status, 204);
+  assertEquals(res.headers.get("Access-Control-Allow-Origin"), null);
 });
