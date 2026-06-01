@@ -8,7 +8,7 @@ class AuraInLinkConfig {
   static const LinkConfig production = LinkConfig(
     appId: 'aurain',
     appName: 'Aura-In',
-    baseDomain: 'www.aura-in.app',
+    baseDomain: 'aurain.barsopus.com',
     deepLinkScheme: 'aurain://',
     enableAnalytics: true,
     maxSlugLength: 50,

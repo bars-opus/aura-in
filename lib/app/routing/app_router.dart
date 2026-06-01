@@ -152,7 +152,7 @@ class RouteNames {
 }
 
 /// Resolves a short-link slug (from a Universal Link / App Link such as
-/// `https://www.aura-in.app/book/<slug>` or `/l/<slug>`) to a
+/// `https://aurain.barsopus.com/book/<slug>` or `/l/<slug>`) to a
 /// concrete in-app destination, then redirects.
 ///
 /// Shows a brief loading indicator while [LinkService.resolveSlug] runs.
@@ -296,7 +296,7 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         }
       }
 
-      // Deep link routes (Universal Links from www.aura-in.app) must
+      // Deep link routes (Universal Links from aurain.barsopus.com) must
       // bypass first-launch and auth gates. A logged-out new user opening a
       // /book/<slug> link from WhatsApp should reach the booking resolver,
       // which routes them into the guest booking flow (name + phone) rather

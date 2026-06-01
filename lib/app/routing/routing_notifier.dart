@@ -95,7 +95,7 @@ class RoutingNotifier extends ChangeNotifier {
   // warm-start deep link path in main.dart now calls _appRouter.go(...)
   // directly instead of stashing the slug here, and no consumer in the router
   // reads consumePendingDeepLink(). Cold-start universal links from
-  // www.aura-in.app still fall through to setPendingDeepLink as a
+  // aurain.barsopus.com still fall through to setPendingDeepLink as a
   // safety net, but until a consumer is wired in (e.g. into the /_invisible
   // redirect) those will not auto-navigate. Left in place rather than
   // refactored out — the next time deep link routing is touched, either

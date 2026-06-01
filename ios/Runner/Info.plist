@@ -6,7 +6,7 @@
 		<true/>
 		<key>com.apple.developer.associated-domains</key>
 		<array>
-			<string>applinks:www.aura-in.app</string>
+			<string>applinks:aurain.barsopus.com</string>
 		</array>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>

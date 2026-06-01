@@ -429,7 +429,7 @@ void _processDeepLink(String link, RoutingNotifier routingNotifier) {
     }
   }
 
-  // Universal Links from www.aura-in.app/book/<slug>
+  // Universal Links from aurain.barsopus.com/book/<slug>
   // (and the legacy /l/<slug> alias). When the app is already running and the
   // OS hands a Universal Link to app_links.uriLinkStream, navigate directly via
   // the GoRouter so the deep-link resolver screen fires. This bypasses the
