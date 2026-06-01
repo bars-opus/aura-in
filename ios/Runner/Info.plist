@@ -6,7 +6,7 @@
 		<true/>
 		<key>com.apple.developer.associated-domains</key>
 		<array>
-			<string>applinks:aura-in-web.vercel.app</string>
+			<string>applinks:www.aura-in.app</string>
 		</array>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>

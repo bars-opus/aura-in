@@ -81,14 +81,14 @@
         <data android:pathPrefix="/l" />
     </intent-filter>
 
-            <!-- Universal/App Links: https://aura-in-web.vercel.app/book/<slug> -->
+            <!-- Universal/App Links: https://www.aura-in.app/book/<slug> -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="https"
-                    android:host="aura-in-web.vercel.app"
+                    android:host="www.aura-in.app"
                     android:pathPrefix="/book/" />
             </intent-filter>
         </activity>
