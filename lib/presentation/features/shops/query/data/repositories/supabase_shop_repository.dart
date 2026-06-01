@@ -1040,39 +1040,24 @@ class SupabaseShopRepository implements ShopRepository {
     }
   }
 
-  /// Log search for analytics
+  /// Log search for analytics.
+  ///
+  /// Delegates to the `log_search_query` RPC which sanitizes the input
+  /// (lower + trim + length cap), enforces a per-actor rate limit, and
+  /// performs the upsert in a single round-trip. The client never writes
+  /// raw user-typed text directly into the analytics table.
   Future<void> logSearchAnalytics(String query, int resultCount) async {
     try {
-      // Try to update existing analytics or insert new
-      final existing =
-          await _client
-              .from('search_analytics')
-              .select()
-              .eq('query', query)
-              .maybeSingle();
-
-      if (existing != null) {
-        // Update existing
-        await _client
-            .from('search_analytics')
-            .update({
-              'count': (existing['count'] as int) + 1,
-              'last_searched_at': DateTime.now().toIso8601String(),
-            })
-            .eq('query', query);
-      } else {
-        // Insert new
-        await _client.from('search_analytics').insert({
-          'query': query,
-          'count': 1,
-          'result_count': resultCount,
-          'first_searched_at': DateTime.now().toIso8601String(),
-          'last_searched_at': DateTime.now().toIso8601String(),
-        });
-      }
-    } catch (e) {
-      // Silent fail - don't break the search experience
-      print('Failed to log search analytics: $e');
+      await _client.rpc(
+        'log_search_query',
+        params: {
+          'p_query': query,
+          'p_category': 'shops',
+          'p_result_count': resultCount,
+        },
+      );
+    } catch (_) {
+      // Silent fail — analytics must never break the search experience.
     }
   }
 

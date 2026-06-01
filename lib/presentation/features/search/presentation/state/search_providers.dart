@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/repositories/supabase_freelancer_repository.dart';
-import 'package:nano_embryo/presentation/features/profile/repositories/profile_repository.dart';
+import 'package:nano_embryo/presentation/features/profile/repositories/supabase_profile_repository.dart';
 import 'package:nano_embryo/presentation/features/profile/repositories/profile_repository_interface.dart';
 import 'package:nano_embryo/presentation/features/search/domain/local/search_history_storage.dart';
 import 'package:nano_embryo/presentation/features/search/domain/models/category_search_section.dart';
@@ -118,14 +118,17 @@ class SearchNotifier
         StateNotifier<AsyncValue<SearchPaginatedResult<UnifiedSearchResult>>> {
   final Ref _ref;
   Timer? _debounceTimer;
-  String? _lastQuery;
-  String? _currentCursor;
-  bool _hasMore = true;
+  // Monotonically increasing token. Each new search increments it; only
+  // the latest in-flight call is allowed to write to state. Prevents a
+  // slow earlier request from overwriting a fast later one.
+  int _requestToken = 0;
 
   SearchNotifier(this._ref) : super(const AsyncValue.loading());
 
   Future<void> search(String query, {bool debounce = true}) async {
     if (query.isEmpty) {
+      _debounceTimer?.cancel();
+      _requestToken++; // invalidate any in-flight call
       state = AsyncValue.data(
         SearchPaginatedResult<UnifiedSearchResult>.empty(),
       );
@@ -143,12 +146,8 @@ class SearchNotifier
     }
   }
 
-  // In search_providers.dart - SearchNotifier._performSearch
-
   Future<void> _performSearch(String query) async {
-    _lastQuery = query;
-    _currentCursor = null;
-    _hasMore = true;
+    final token = ++_requestToken;
 
     state = const AsyncValue.loading();
 
@@ -158,23 +157,25 @@ class SearchNotifier
 
       final params = SearchParams.forAllView(query: query, filters: filters);
 
-      // ✅ Use searchAllSections (no cache)
       final sections = await repository.searchAllSections(params: params);
+
+      // Stale-result guard: another search started after we did. Drop
+      // these results silently — the latest call owns the state.
+      if (token != _requestToken) return;
 
       final allResults = sections.expand((s) => s.results).toList();
 
-      final result = SearchPaginatedResult<UnifiedSearchResult>(
-        items: allResults,
-        nextCursor: null,
-        totalCount: allResults.length,
+      state = AsyncValue.data(
+        SearchPaginatedResult<UnifiedSearchResult>(
+          items: allResults,
+          nextCursor: null,
+          totalCount: allResults.length,
+        ),
       );
 
-      _hasMore = false;
-      state = AsyncValue.data(result);
-
-      // Add to search history
       await _ref.read(searchHistoryProvider.notifier).addToHistory(query);
     } catch (e, stack) {
+      if (token != _requestToken) return;
       state = AsyncValue.error(e, stack);
     }
   }
@@ -190,9 +191,8 @@ class SearchNotifier
   void clear() {
     _ref.read(searchQueryProvider.notifier).state = '';
     state = AsyncValue.data(SearchPaginatedResult<UnifiedSearchResult>.empty());
-    _currentCursor = null;
-    _hasMore = true;
     _debounceTimer?.cancel();
+    _requestToken++;
   }
 
   @override
@@ -261,18 +261,21 @@ class CategorySearchNotifier
   String? _currentCursor;
   bool _hasMore = true;
   bool _isLoadingMore = false;
+  int _requestToken = 0;
 
   CategorySearchNotifier(this._repository, this._ref, this._category)
     : super(const AsyncValue.loading());
 
   Future<void> search(String query, SearchFilters filters) async {
     if (query.isEmpty) {
+      _requestToken++;
       state = AsyncValue.data(
         SearchPaginatedResult<UnifiedSearchResult>.empty(),
       );
       return;
     }
 
+    final token = ++_requestToken;
     _currentCursor = null;
     _hasMore = true;
     _isLoadingMore = false;
@@ -290,9 +293,12 @@ class CategorySearchNotifier
 
       final result = await _repository.searchByCategory(params: params);
 
+      if (token != _requestToken) return;
+
       _hasMore = result.hasMore;
       state = AsyncValue.data(result);
     } catch (e, stack) {
+      if (token != _requestToken) return;
       state = AsyncValue.error(e, stack);
     }
   }
@@ -316,6 +322,7 @@ class CategorySearchNotifier
     }
 
     _isLoadingMore = true;
+    final token = _requestToken;
 
     try {
       final query = _ref.read(searchQueryProvider);
@@ -332,6 +339,9 @@ class CategorySearchNotifier
 
       final moreResults = await _repository.searchByCategory(params: params);
 
+      // A new search() started while we were paginating — discard.
+      if (token != _requestToken) return;
+
       final allItems = [...currentResults.items, ...moreResults.items];
       final newResult = SearchPaginatedResult<UnifiedSearchResult>(
         items: allItems,
@@ -342,6 +352,7 @@ class CategorySearchNotifier
       _hasMore = moreResults.hasMore;
       state = AsyncValue.data(newResult);
     } catch (e, stack) {
+      if (token != _requestToken) return;
       state = AsyncValue.error(e, stack);
     } finally {
       _isLoadingMore = false;

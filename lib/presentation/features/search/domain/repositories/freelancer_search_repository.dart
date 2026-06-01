@@ -1,4 +1,5 @@
 // lib/features/search/data/repositories/freelancer_search_repository.dart
+import 'dart:developer' as developer;
 import 'package:nano_embryo/presentation/features/freelancer/data/models/nearby_freelancer_dto.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/repositories/freelancer_repository.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/repositories/supabase_freelancer_repository.dart';
@@ -48,8 +49,13 @@ class FreelancerSearchRepository
             totalCount: result.totalCount,
           );
         }
-      } catch (e) {
-        print('Name search failed: $e');
+      } catch (e, stack) {
+        developer.log(
+          'freelancer name search failed',
+          name: 'search',
+          error: e,
+          stackTrace: stack,
+        );
       }
     }
 
@@ -83,8 +89,13 @@ class FreelancerSearchRepository
           nextCursor: nextCursor,
           totalCount: result.totalCount,
         );
-      } catch (e) {
-        print('Nearby search failed: $e');
+      } catch (e, stack) {
+        developer.log(
+          'freelancer nearby search failed',
+          name: 'search',
+          error: e,
+          stackTrace: stack,
+        );
       }
     }
 

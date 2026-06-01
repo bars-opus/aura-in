@@ -1,4 +1,5 @@
 // lib/features/search/data/repositories/shop_search_repository.dart
+import 'dart:developer' as developer;
 import 'package:nano_embryo/presentation/features/search/domain/mappers/shop_to_search_mapper.dart';
 import 'package:nano_embryo/presentation/features/search/domain/repositories/search_repository.dart';
 import 'package:nano_embryo/presentation/features/search/models/search_paginated_result.dart';
@@ -39,8 +40,14 @@ class ShopSearchRepository implements SearchRepository<ShopSearchResult> {
         nextCursor: paginatedShops.nextCursor,
         totalCount: paginatedShops.totalCount,
       );
-    } catch (e) {
-      throw Exception('Failed to search shops: $e');
+    } catch (e, stack) {
+      developer.log(
+        'shop search failed',
+        name: 'search',
+        error: e,
+        stackTrace: stack,
+      );
+      throw Exception('Search failed. Please try again.');
     }
   }
 

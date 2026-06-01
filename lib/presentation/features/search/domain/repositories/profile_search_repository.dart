@@ -1,4 +1,5 @@
 // lib/features/search/data/repositories/profile_search_repository.dart
+import 'dart:developer' as developer;
 import 'package:nano_embryo/presentation/features/profile/models/profile_search_result.dart';
 import 'package:nano_embryo/presentation/features/search/models/search_paginated_result.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -6,6 +7,9 @@ import 'package:nano_embryo/presentation/features/profile/models/profile.dart';
 
 /// Repository for searching profiles
 class ProfileSearchRepository {
+  static const int _maxLimit = 50;
+  static const int _maxQueryLength = 100;
+
   final SupabaseClient _client;
 
   ProfileSearchRepository(this._client);
@@ -17,39 +21,38 @@ class ProfileSearchRepository {
     int limit = 20,
     String? cursor,
   }) async {
-    if (query.isEmpty) {
+    if (query.isEmpty || query.length > _maxQueryLength) {
       return SearchPaginatedResult.empty();
     }
 
+    final clampedLimit = limit.clamp(1, _maxLimit);
+    final escapedQuery = _escapeLike(query);
+    // Offset pagination keeps profile-search consistent with shops and
+    // freelancers. The previous keyset on raw UUID was unsound — UUIDs
+    // sort lexicographically, not by insertion order, so pages could
+    // skip or repeat rows depending on how Postgres ordered the OR-set.
+    final offset = int.tryParse(cursor ?? '') ?? 0;
+
     try {
-      // Start with PostgrestFilterBuilder
       PostgrestFilterBuilder queryBuilder = _client
           .from('profiles')
           .select()
           .or(
-            'username.ilike.%$query%,'
-            'display_name.ilike.%$query%,'
-            'bio.ilike.%$query%',
+            'username.ilike.%$escapedQuery%,'
+            'display_name.ilike.%$escapedQuery%,'
+            'bio.ilike.%$escapedQuery%',
           );
 
-      // Apply cursor pagination BEFORE ordering
-      if (cursor != null && cursor.isNotEmpty) {
-        queryBuilder = queryBuilder.gt('id', cursor);
-      }
-
-      // Request ONE extra item to check if there are more
       final response = await queryBuilder
-          .order('id', ascending: true)
-          .limit(limit + 1); // 👈 Request limit + 1
+          .order('created_at', ascending: false)
+          .order('id')
+          .range(offset, offset + clampedLimit);
 
       final profiles =
           (response as List).map((json) => Profile.fromJson(json)).toList();
 
-      // Determine if there are more results
-      final hasMore = profiles.length > limit;
-
-      // Take only the requested amount
-      final itemsToTake = hasMore ? limit : profiles.length;
+      final hasMore = profiles.length > clampedLimit;
+      final itemsToTake = hasMore ? clampedLimit : profiles.length;
       final items = profiles.take(itemsToTake).toList();
 
       final results =
@@ -57,16 +60,21 @@ class ProfileSearchRepository {
             return ProfileSearchResult.fromProfile(profile, query);
           }).toList();
 
-      //  Set nextCursor only if there are more results
-      final nextCursor = hasMore ? results.last.id : null;
+      final nextCursor = hasMore ? (offset + clampedLimit).toString() : null;
 
       return SearchPaginatedResult(
         items: results,
         nextCursor: nextCursor,
         totalCount: 0,
       );
-    } catch (e) {
-      throw Exception('Failed to search profiles: $e');
+    } catch (e, stack) {
+      developer.log(
+        'profile search failed',
+        name: 'search',
+        error: e,
+        stackTrace: stack,
+      );
+      throw Exception('Search failed. Please try again.');
     }
   }
 
@@ -84,5 +92,13 @@ class ProfileSearchRepository {
     } catch (e) {
       return [];
     }
+  }
+
+  /// Escapes `%`, `_`, `\` so user-typed wildcards match literally in ilike.
+  static String _escapeLike(String input) {
+    return input
+        .replaceAll('\\', '\\\\')
+        .replaceAll('%', '\\%')
+        .replaceAll('_', '\\_');
   }
 }

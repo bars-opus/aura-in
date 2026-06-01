@@ -1,10 +1,10 @@
 // lib/features/search/data/repositories/unified_search_repository.dart
 import 'dart:async';
+import 'dart:developer' as developer;
 import 'package:nano_embryo/presentation/features/search/domain/models/category_search_section.dart';
 import 'package:nano_embryo/presentation/features/search/domain/models/search_params.dart';
 import 'package:nano_embryo/presentation/features/search/domain/repositories/freelancer_search_repository.dart';
 import 'package:nano_embryo/presentation/features/search/domain/repositories/shop_search_repository.dart';
-import 'package:nano_embryo/presentation/features/search/models/search_filters.dart';
 import 'package:nano_embryo/presentation/features/search/models/search_paginated_result.dart';
 import 'package:nano_embryo/presentation/features/search/models/search_category.dart';
 import 'package:nano_embryo/presentation/features/search/models/unified_search_result.dart';
@@ -13,6 +13,8 @@ import 'profile_search_repository.dart';
 
 /// Repository that combines search results from multiple categories
 class UnifiedSearchRepository {
+  static const Duration _searchTimeout = Duration(seconds: 8);
+
   final ShopSearchRepository _shopRepository;
   final ProfileSearchRepository _profileRepository;
   final FreelancerSearchRepository _freelancerRepository;
@@ -50,25 +52,31 @@ class UnifiedSearchRepository {
 
     switch (params.category) {
       case SearchCategory.shops:
-        return await _shopRepository.search(
-          query: params.query,
-          filters: params.filters,
-          cursor: params.cursor,
-          limit: params.limit,
-        );
+        return await _shopRepository
+            .search(
+              query: params.query,
+              filters: params.filters,
+              cursor: params.cursor,
+              limit: params.limit,
+            )
+            .timeout(_searchTimeout);
       case SearchCategory.profiles:
-        return await _profileRepository.search(
-          query: params.query,
-          limit: params.limit,
-          cursor: params.cursor,
-        );
+        return await _profileRepository
+            .search(
+              query: params.query,
+              limit: params.limit,
+              cursor: params.cursor,
+            )
+            .timeout(_searchTimeout);
       case SearchCategory.freelancers:
-        final result = await _freelancerRepository.search(
-          query: params.query,
-          limit: params.limit,
-          cursor: params.cursor,
-          filters: params.filters,
-        );
+        final result = await _freelancerRepository
+            .search(
+              query: params.query,
+              limit: params.limit,
+              cursor: params.cursor,
+              filters: params.filters,
+            )
+            .timeout(_searchTimeout);
         return SearchPaginatedResult<UnifiedSearchResult>(
           items: result.items,
           nextCursor: result.nextCursor,
@@ -95,8 +103,13 @@ class UnifiedSearchRepository {
         hasMore: result.hasMore,
         totalCount: result.totalCount,
       );
-    } catch (e) {
-      print('Error searching ${category.displayName}: $e');
+    } catch (e, stack) {
+      developer.log(
+        'category search failed: ${category.name}',
+        name: 'search',
+        error: e,
+        stackTrace: stack,
+      );
       return CategorySearchSection.empty(category);
     }
   }

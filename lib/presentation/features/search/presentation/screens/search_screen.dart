@@ -14,6 +14,7 @@ import 'package:nano_embryo/presentation/features/search/presentation/state/sear
 import 'package:nano_embryo/presentation/features/search/presentation/widgets/category_result_card.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/widgets/horizontal_shop_list.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/widgets/search_suggestions.dart';
+import 'package:nano_embryo/presentation/features/search/presentation/widgets/shop_card_shimmer.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/widgets/vertical_category_list.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
@@ -149,7 +150,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     _searchFocusNode.unfocus();
   }
 
-  Widget _buildAnimatedSearchBar() {
+  Widget _buildAnimatedSearchBar(AppLocalizations loc) {
     return SizeTransition(
       sizeFactor: CurvedAnimation(
         parent: _animationController,
@@ -186,7 +187,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                 controller: _searchController,
                 focusNode: _searchFocusNode,
                 autofocus: false,
-                hintText: 'Search shops, professionals, products...',
+                hintText: loc.searchScreenSearchHint,
                 filterChips: _availableFilters,
                 filterIcons: _filterIcons,
                 selectedFilters: _selectedFilters,
@@ -204,6 +205,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final selectedCategory = ref.watch(selectedCategoryProvider);
     final searchQuery = ref.watch(searchQueryProvider);
     final allSections = ref.watch(allSearchSectionsProvider);
@@ -216,12 +218,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           },
           child: Column(
             children: [
-              _buildAnimatedSearchBar(),
+              _buildAnimatedSearchBar(loc),
               Expanded(
                 child: _buildContent(
                   selectedCategory,
                   searchQuery,
                   allSections,
+                  loc,
                 ),
               ),
             ],
@@ -236,6 +239,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     SearchCategory? selectedCategory,
     String query,
     AsyncValue<List<CategorySearchSection>> sectionsState,
+    AppLocalizations loc,
   ) {
     if (query.isEmpty) {
       return SearchSuggestions(
@@ -250,7 +254,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     return sectionsState.when(
       data: (sections) {
         if (sections.isEmpty) {
-          return _buildEmptyState(query);
+          return _buildEmptyState(query, loc);
         }
 
         if (selectedCategory != null) {
@@ -261,6 +265,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           if (categorySection.results.isEmpty) {
             return _buildEmptyState(
               query,
+              loc,
               category: selectedCategory.displayName,
             );
           }
@@ -308,8 +313,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           child: Column(children: children),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => _buildErrorState(error.toString()),
+      loading: () => const SearchLoadingShimmer(),
+      error: (error, stack) => _buildErrorState(loc),
     );
   }
 
@@ -345,21 +350,27 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     );
   }
 
-  Widget _buildEmptyState(String query, {String? category}) {
+  Widget _buildEmptyState(
+    String query,
+    AppLocalizations loc, {
+    String? category,
+  }) {
     return Center(
       child: EmptyStateWidget(
         icon: Icons.search_off,
-        title: category != null ? 'No $category found' : 'No results found',
-        subtitle: 'Searched for: "$query"',
+        title:
+            category != null
+                ? loc.searchScreenNoResultsCategory(category.toLowerCase())
+                : loc.searchScreenNoResultsFound,
+        subtitle: loc.searchScreenSearchedFor(query),
       ),
     );
   }
 
-  Widget _buildErrorState(String error) {
+  Widget _buildErrorState(AppLocalizations loc) {
     return Center(
       child: ErrorStateWidget(
-        title: 'Something went wrong',
-        subtitle: error,
+        title: loc.searchScreenSomethingWentWrong,
         onPrimaryAction: () {
           final query = ref.read(searchQueryProvider);
           if (query.isNotEmpty) {
