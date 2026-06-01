@@ -11,6 +11,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { redactError } from "../_shared/sanitize.ts";
 
 // Lazy-init the Supabase client so the module can be imported in tests
 // without env vars set. The Supabase JS client throws synchronously when
@@ -60,7 +61,7 @@ export async function handler(req: Request): Promise<Response> {
     .maybeSingle();
 
   if (profileErr) {
-    console.error("lookup-guest: guest_profiles fetch error", profileErr);
+    console.error("lookup-guest: guest_profiles fetch error", redactError(profileErr));
     return json(cors, { error: "Internal error" }, 500);
   }
 
@@ -82,7 +83,7 @@ export async function handler(req: Request): Promise<Response> {
     .limit(10);
 
   if (historyErr) {
-    console.error("lookup-guest: guest_booking_history fetch error", historyErr);
+    console.error("lookup-guest: guest_booking_history fetch error", redactError(historyErr));
     // Non-fatal — still return the name we found. lastServices = [] is a
     // valid prefill state ("we know you, but we don't remember what you
     // booked").

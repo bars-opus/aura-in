@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { redactError } from "../_shared/sanitize.ts";
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
@@ -115,7 +116,7 @@ async function dispatchWhatsApp(
       row.id,
       row.retry_count ?? 0,
       meta,
-      `whatsapp-send fetch failed: ${String(err)}`
+      `whatsapp-send fetch failed: ${redactError(err)}`,
     );
     return;
   }
@@ -288,7 +289,7 @@ serve(async () => {
           .update({
             status: newStatus,
             retry_count: retryCount,
-            last_error: String(err),
+            last_error: redactError(err),
             scheduled_for: newStatus === "pending" ? nextAttempt : undefined,
             updated_at: new Date().toISOString(),
           })
@@ -296,7 +297,7 @@ serve(async () => {
 
         console.error(
           `Notification ${notification.id} failed (attempt ${retryCount}):`,
-          err
+          redactError(err),
         );
       }
     }
@@ -306,9 +307,9 @@ serve(async () => {
       { headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("process-scheduled-notifications error:", error);
+    console.error("process-scheduled-notifications error:", redactError(error));
     return new Response(
-      JSON.stringify({ success: false, error: String(error) }),
+      JSON.stringify({ success: false, error: "internal_error" }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }

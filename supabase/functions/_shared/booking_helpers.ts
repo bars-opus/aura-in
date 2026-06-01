@@ -4,6 +4,7 @@
 // paystack-webhook, and stripe-webhook to keep guest handling DRY.
 
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { redactError } from "./sanitize.ts";
 
 /**
  * Normalize phone to E.164 (+<digits>). Strips spaces and dashes.
@@ -72,7 +73,7 @@ export async function recordGuestBookingHistory(
       booked_at: new Date().toISOString(),
     });
   } catch (e) {
-    console.error("guest_booking_history insert failed (non-fatal):", e);
+    console.error("guest_booking_history insert failed (non-fatal):", redactError(e));
   }
 }
 

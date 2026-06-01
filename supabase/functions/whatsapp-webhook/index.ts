@@ -16,6 +16,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { verifyMetaSignature } from "../_shared/whatsapp_client.ts";
+import { redactError, redactPhone } from "../_shared/sanitize.ts";
 
 let _supabase: SupabaseClient | null = null;
 function getSupabase(): SupabaseClient {
@@ -57,7 +58,7 @@ async function handleEvent(req: Request): Promise<Response> {
   try {
     isValid = await verifyMetaSignature(rawBody, signature);
   } catch (e) {
-    console.error("WhatsApp signature check failed:", e);
+    console.error("WhatsApp signature check failed:", redactError(e));
     return new Response("Misconfigured", { status: 500 });
   }
   if (!isValid) {
@@ -78,8 +79,16 @@ async function handleEvent(req: Request): Promise<Response> {
         await handleDeliveryStatus(status);
       }
       // Inbound messages — v1: log only. Future Spec 4 processes these.
+      // Do NOT log the full message payload — it contains the sender's full
+      // phone number and message text (PII per checklist 4.4). Log only the
+      // shape we need to confirm receipt.
       for (const msg of value.messages ?? []) {
-        console.log("Inbound WhatsApp:", JSON.stringify(msg));
+        console.log("Inbound WhatsApp:", {
+          from: redactPhone(msg.from),
+          type: msg.type,
+          wamid: msg.id,
+          timestamp: msg.timestamp,
+        });
       }
     }
   }
@@ -112,7 +121,7 @@ async function handleDeliveryStatus(status: any): Promise<void> {
     .eq("metadata->>message_id", messageId);
 
   if (error) {
-    console.error("scheduled_notifications status update failed:", error);
+    console.error("scheduled_notifications status update failed:", redactError(error));
   }
 }
 

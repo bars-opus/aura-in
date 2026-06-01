@@ -14,6 +14,7 @@ import {
   sendWhatsAppTemplate,
   WhatsAppTemplateNotFoundError,
 } from "../_shared/whatsapp_client.ts";
+import { redactError } from "../_shared/sanitize.ts";
 
 export async function handler(req: Request): Promise<Response> {
   if (req.method !== "POST") {
@@ -72,12 +73,14 @@ export async function handler(req: Request): Promise<Response> {
         202,
       );
     }
-    console.error("whatsapp-send error:", e);
+    console.error("whatsapp-send error:", redactError(e));
     return json(
       {
         success: false,
         error: "send_failed",
-        message: (e as Error).message,
+        // Don't echo provider error text to the caller — could leak the phone
+        // number from a 400 response or token info from a 401.
+        message: "Failed to send WhatsApp message",
       },
       502,
     );
