@@ -220,12 +220,11 @@ serve(async () => {
     // run of this cron cannot pick up the same rows.
     const now = new Date().toISOString();
 
+    // Atomic claim — single statement transitions rows from pending→processing
+    // via FOR UPDATE SKIP LOCKED, so overlapping cron runs can't grab the same
+    // rows. See migration 20260601130000_atomic_claim_scheduled_notifications.
     const { data: pending, error: fetchError } = await supabase
-      .from("scheduled_notifications")
-      .select("*")
-      .eq("status", "pending")
-      .lte("scheduled_for", now)
-      .limit(BATCH_LIMIT);
+      .rpc("claim_pending_notifications", { p_limit: BATCH_LIMIT, p_now: now });
 
     if (fetchError) throw fetchError;
     if (!pending || pending.length === 0) {
@@ -234,13 +233,6 @@ serve(async () => {
         { headers: { "Content-Type": "application/json" } }
       );
     }
-
-    // Lock the rows before processing to prevent double-send.
-    const ids = pending.map((n: { id: string }) => n.id);
-    await supabase
-      .from("scheduled_notifications")
-      .update({ status: "processing", updated_at: now })
-      .in("id", ids);
 
     let processed = 0;
 
