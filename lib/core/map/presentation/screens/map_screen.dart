@@ -194,6 +194,29 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
       },
     );
 
+    // Opens the modal from the screen's own context (Flutter state-update
+    // cycle), not from inside the Mapbox tap callback. On real iOS device
+    // the Mapbox callback context cannot reliably open Flutter modals.
+    ref.listen<String?>(
+      mapControllerProvider.select((s) => s.pendingModalForPinId),
+      (prev, next) {
+        if (next == null) return;
+        final pins = ref.read(mapControllerProvider).pins;
+        MapPin? pin;
+        for (final p in pins) {
+          if (p.id == next) {
+            pin = p;
+            break;
+          }
+        }
+        // Always clear the flag, even if we couldn't find the pin.
+        ref.read(mapControllerProvider.notifier).clearPendingModal();
+        if (pin != null) {
+          config.onPinTap(pin, context);
+        }
+      },
+    );
+
     return Scaffold(
       extendBody: true,
       backgroundColor: colorScheme.surface,
@@ -289,20 +312,11 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
       context: context,
       resolveStyle: config.resolveMarkerStyle,
       onPinTap: (pinId) {
-        final pins = ref.read(mapControllerProvider).pins;
-        MapPin? pin;
-        for (final p in pins) {
-          if (p.id == pinId) {
-            pin = p;
-            break;
-          }
-        }
-        if (pin == null) return;
-        // Open the modal FIRST so the user sees feedback immediately.
-        // The carousel scroll happens after, driven by selectPin's
-        // state change propagating through the listeners.
-        config.onPinTap(pin, context);
-        ref.read(mapControllerProvider.notifier).selectPin(pinId);
+        // Use requestModalForPin instead of selectPin + onPinTap. It both
+        // selects the pin (driving carousel scroll) AND signals the screen
+        // to open the modal in its own context, bypassing the Mapbox tap
+        // callback context that on iOS cannot reliably open modals.
+        ref.read(mapControllerProvider.notifier).requestModalForPin(pinId);
       },
     );
     await _markerManager?.initialize();

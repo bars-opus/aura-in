@@ -33,6 +33,11 @@ class MapState {
   final String? selectedPinId;
   final bool viewportIsDirty;
 
+  /// Transient signal: non-null when the screen should open a modal for this
+  /// pin. Set by [MapController.requestModalForPin]; cleared by
+  /// [MapController.clearPendingModal] after the screen opens the modal.
+  final String? pendingModalForPinId;
+
   const MapState({
     this.pins = const [],
     this.isLoading = false,
@@ -44,6 +49,7 @@ class MapState {
     this.fetchMode = MapFetchMode.browse,
     this.selectedPinId,
     this.viewportIsDirty = false,
+    this.pendingModalForPinId,
   });
 
   MapState copyWith({
@@ -57,6 +63,7 @@ class MapState {
     MapFetchMode? fetchMode,
     Object? selectedPinId = _kAbsent,
     bool? viewportIsDirty,
+    Object? pendingModalForPinId = _kAbsent,
   }) {
     return MapState(
       pins: pins ?? this.pins,
@@ -71,6 +78,9 @@ class MapState {
           ? this.selectedPinId
           : selectedPinId as String?,
       viewportIsDirty: viewportIsDirty ?? this.viewportIsDirty,
+      pendingModalForPinId: identical(pendingModalForPinId, _kAbsent)
+          ? this.pendingModalForPinId
+          : pendingModalForPinId as String?,
     );
   }
 }
@@ -230,6 +240,24 @@ class MapController extends StateNotifier<MapState> {
   void selectPin(String? pinId) {
     if (state.selectedPinId == pinId) return;
     state = state.copyWith(selectedPinId: pinId);
+  }
+
+  /// Sets [MapState.selectedPinId] AND [MapState.pendingModalForPinId].
+  /// The screen listens for `pendingModalForPinId` changes and opens the
+  /// modal in its own context — this decouples modal-open from the Mapbox
+  /// tap callback, which on iOS device cannot reliably open modals.
+  void requestModalForPin(String pinId) {
+    state = state.copyWith(
+      selectedPinId: pinId,
+      pendingModalForPinId: pinId,
+    );
+  }
+
+  /// Clears the pending-modal flag. Called by the screen after opening
+  /// the modal so the next request can fire.
+  void clearPendingModal() {
+    if (state.pendingModalForPinId == null) return;
+    state = state.copyWith(pendingModalForPinId: null);
   }
 
   void clearError() => state = state.copyWith(error: null);

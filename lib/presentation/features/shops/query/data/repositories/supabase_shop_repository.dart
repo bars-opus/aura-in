@@ -1,7 +1,9 @@
 // lib/features/shops/data/repositories/supabase_shop_repository.dart
+import 'dart:developer' as developer;
+
+import 'package:nano_embryo/core/repositories/repository_helpers.dart';
 import 'package:nano_embryo/presentation/features/search/models/search_paginated_result.dart';
 import 'package:nano_embryo/presentation/features/search/models/shop_query_params.dart';
-import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/shop_details_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/data/models/booking_review.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
@@ -10,6 +12,10 @@ class SupabaseShopRepository implements ShopRepository {
   final SupabaseClient _client;
 
   SupabaseShopRepository(this._client);
+
+  /// "Premium" maps to these luxury levels. Centralized so the definition
+  /// stays consistent across all premium query methods.
+  static const List<String> _premiumLuxuryLevels = ['Luxury', 'UltraLuxury'];
 
   // ==================== HELPER METHODS ====================
 
@@ -27,117 +33,121 @@ class SupabaseShopRepository implements ShopRepository {
   // ==================== EXISTING METHODS ====================
 
   @override
-  Future<List<ShopTypeCount>> getShopTypeCounts() async {
-    try {
-      final response = await _client
-          .from('shops')
-          .select('shop_type')
-          .neq('shop_type', 'null')
-          .neq('shop_type', '');
+  Future<List<ShopTypeCount>> getShopTypeCounts() {
+    return runRepoQuery(
+      opName: 'getShopTypeCounts',
+      userMessage: "Couldn't load shop categories. Please try again.",
+      () async {
+        final response = await _client
+            .from('shops')
+            .select('shop_type')
+            .neq('shop_type', 'null')
+            .neq('shop_type', '');
 
-      final Map<String, int> counts = {};
-      for (var row in response) {
-        final type = row['shop_type'] as String?;
-        if (type != null && type.isNotEmpty) {
-          counts[type] = (counts[type] ?? 0) + 1;
+        final Map<String, int> counts = {};
+        for (var row in response) {
+          final type = row['shop_type'] as String?;
+          if (type != null && type.isNotEmpty) {
+            counts[type] = (counts[type] ?? 0) + 1;
+          }
         }
-      }
 
-      return counts.entries
-          .map((e) => ShopTypeCount(shopType: e.key, count: e.value))
-          .toList()
-        ..sort((a, b) => a.shopType.compareTo(b.shopType));
-    } catch (e) {
-      throw Exception('Failed to fetch shop types: $e');
-    }
+        return counts.entries
+            .map((e) => ShopTypeCount(shopType: e.key, count: e.value))
+            .toList()
+          ..sort((a, b) => a.shopType.compareTo(b.shopType));
+      },
+    );
   }
 
   @override
-  Future<List<LuxuryLevelInfo>> getLuxuryLevels(String shopType) async {
-    try {
-      final response = await _client
-          .from('shops')
-          .select('luxury_level')
-          .eq('shop_type', shopType)
-          .neq('luxury_level', 'null')
-          .neq('luxury_level', '');
+  Future<List<LuxuryLevelInfo>> getLuxuryLevels(String shopType) {
+    return runRepoQuery(
+      opName: 'getLuxuryLevels',
+      userMessage: "Couldn't load filters. Please try again.",
+      () async {
+        final response = await _client
+            .from('shops')
+            .select('luxury_level')
+            .eq('shop_type', shopType)
+            .neq('luxury_level', 'null')
+            .neq('luxury_level', '');
 
-      final Map<String, int> counts = {};
-      for (var row in response) {
-        final level = row['luxury_level'] as String?;
-        if (level != null && level.isNotEmpty) {
-          counts[level] = (counts[level] ?? 0) + 1;
+        final Map<String, int> counts = {};
+        for (var row in response) {
+          final level = row['luxury_level'] as String?;
+          if (level != null && level.isNotEmpty) {
+            counts[level] = (counts[level] ?? 0) + 1;
+          }
         }
-      }
 
-      return counts.entries
-          .map((e) => LuxuryLevelInfo(level: e.key, count: e.value))
-          .toList()
-        ..sort((a, b) => a.level.compareTo(b.level));
-    } catch (e) {
-      throw Exception('Failed to fetch luxury levels: $e');
-    }
+        return counts.entries
+            .map((e) => LuxuryLevelInfo(level: e.key, count: e.value))
+            .toList()
+          ..sort((a, b) => a.level.compareTo(b.level));
+      },
+    );
   }
 
   // ==================== LIST VIEW METHODS (ShopListItemDTO) ====================
   @override
   Future<SearchPaginatedResult<ShopListItemDTO>> getShops(
     ShopQueryParams params,
-  ) async {
-    try {
-      // ✅ Use view instead of shops table
-      dynamic query = _client.from('shops_with_cover').select('''
-      id,
-      shop_name,
-      average_rating,
-      number_clients_worked,
-      luxury_level,
-      verified,
-      shop_type,
-      cover_image_url,
-      created_at
-    ''');
+  ) {
+    return runRepoQuery(
+      opName: 'getShops',
+      userMessage: "Couldn't load shops. Please try again.",
+      () async {
+        dynamic query = _client.from('shops_with_cover').select('''
+        id,
+        shop_name,
+        average_rating,
+        number_clients_worked,
+        luxury_level,
+        verified,
+        shop_type,
+        cover_image_url,
+        created_at
+      ''');
 
-      // Add search condition
-      if (params.searchQuery != null && params.searchQuery!.isNotEmpty) {
-        query = query.ilike('shop_name', '%${params.searchQuery}%');
-      }
+        if (params.searchQuery != null && params.searchQuery!.isNotEmpty) {
+          // Escape ilike wildcards so user input "%" / "_" matches literally.
+          query = query.ilike('shop_name', '%${_escapeLike(params.searchQuery!)}%');
+        }
 
-      // Apply other filters
-      if (params.shopType != null && params.shopType!.isNotEmpty) {
-        query = query.eq('shop_type', params.shopType!);
-      }
-      if (params.luxuryLevel != null && params.luxuryLevel!.isNotEmpty) {
-        query = query.eq('luxury_level', params.luxuryLevel!);
-      }
-      if (params.verifiedOnly == true) {
-        query = query.eq('verified', true);
-      }
-      if (params.minRating != null) {
-        query = query.gte('average_rating', params.minRating);
-      }
+        if (params.shopType != null && params.shopType!.isNotEmpty) {
+          query = query.eq('shop_type', params.shopType!);
+        }
+        if (params.luxuryLevel != null && params.luxuryLevel!.isNotEmpty) {
+          query = query.eq('luxury_level', params.luxuryLevel!);
+        }
+        if (params.verifiedOnly == true) {
+          query = query.eq('verified', true);
+        }
+        if (params.minRating != null) {
+          query = query.gte('average_rating', params.minRating);
+        }
 
-      // Apply cursor pagination BEFORE sorting
-      if (params.cursor != null && params.cursor!.isNotEmpty) {
-        query = query.lt('id', params.cursor!);
-      }
+        // Sort with id tie-break so offset pagination is stable.
+        switch (params.sortBy) {
+          case 'rating':
+            query =
+                query.order('average_rating', ascending: false).order('id');
+            break;
+          case 'name':
+            query = query.order('shop_name', ascending: true).order('id');
+            break;
+          default:
+            query = query.order('created_at', ascending: false).order('id');
+        }
 
-      // Apply sorting AFTER cursor pagination
-      switch (params.sortBy) {
-        case 'rating':
-          query = query.order('average_rating', ascending: false);
-          break;
-        case 'name':
-          query = query.order('shop_name', ascending: true);
-          break;
-        default:
-          query = query.order('created_at', ascending: false);
-      }
+        final offset = int.tryParse(params.cursor ?? '') ?? 0;
+        final limit = params.limit.clamp(1, 50);
+        final response =
+            await query.range(offset, offset + limit - 1) as PostgrestList;
 
-      final response = await query.limit(params.limit) as PostgrestList;
-
-      // ✅ No need to fetch media separately - cover_image_url is already in the view
-      final shops =
+        final rawCount = response.length;
+        final shops = _dedupe(
           response
               .map(
                 (json) => ShopListItemDTO(
@@ -154,19 +164,29 @@ class SupabaseShopRepository implements ShopRepository {
                   openStatus: null,
                 ),
               )
-              .toList();
+              .toList(),
+        );
 
-      final uniqueShops = _dedupe(shops);
-      final nextCursor = uniqueShops.isNotEmpty ? uniqueShops.last.id : null;
+        // Compare raw response length (not deduped) so we don't terminate
+        // pagination early when the view fans out duplicates.
+        final nextCursor =
+            rawCount < limit ? null : (offset + limit).toString();
 
-      return SearchPaginatedResult(
-        items: uniqueShops,
-        nextCursor: nextCursor,
-        totalCount: 0,
-      );
-    } catch (e) {
-      throw Exception('Failed to fetch shops: $e');
-    }
+        return SearchPaginatedResult(
+          items: shops,
+          nextCursor: nextCursor,
+          totalCount: 0,
+        );
+      },
+    );
+  }
+
+  /// Escapes `%`, `_`, `\` so user-typed wildcards match literally in ilike.
+  static String _escapeLike(String input) {
+    return input
+        .replaceAll('\\', '\\\\')
+        .replaceAll('%', '\\%')
+        .replaceAll('_', '\\_');
   }
 
   @override
@@ -176,78 +196,83 @@ class SupabaseShopRepository implements ShopRepository {
     UserLocation? userLocation,
     int limit = 10,
   }) async {
-    try {
-      if (userLocation == null) {
-        return await _getPremiumShopsUnsorted(shopType, luxuryLevel, limit);
-      }
+    final clampedLimit = limit.clamp(1, 50);
 
-      final response = await _client.rpc(
-        'get_premium_shops_by_distance',
-        params: {
-          'p_shop_type': shopType,
-          'p_user_lat': userLocation.latitude,
-          'p_user_lng': userLocation.longitude,
-          'p_luxury_level': luxuryLevel,
-          'p_limit': limit,
+    if (userLocation == null) {
+      return _getPremiumShopsUnsorted(shopType, luxuryLevel, clampedLimit);
+    }
+
+    // Try distance-sorted RPC first; fall back to unsorted on persistent failure
+    // so the discover screen never goes blank just because the RPC is slow/broken.
+    try {
+      return await runRepoQuery(
+        opName: 'getPremiumShops.byDistance',
+        userMessage: '', // not surfaced — we fall back
+        () async {
+          final response = await _client.rpc(
+            'get_premium_shops_by_distance',
+            params: {
+              'p_shop_type': shopType,
+              'p_user_lat': userLocation.latitude,
+              'p_user_lng': userLocation.longitude,
+              'p_luxury_level': luxuryLevel,
+              'p_limit': clampedLimit,
+            },
+          );
+
+          final List<dynamic> data = response as List<dynamic>;
+
+          // Batch-fetch any missing cover images in one query (was N+1).
+          final missingCoverIds = <String>[
+            for (final item in data)
+              if ((item['shop']['cover_image_url'] as String?) == null)
+                item['shop']['id'] as String,
+          ];
+
+          final coverByShopId = <String, String>{};
+          if (missingCoverIds.isNotEmpty) {
+            final mediaRows = await _client
+                .from('shop_media')
+                .select('shop_id, url, is_cover, sort_order')
+                .inFilter('shop_id', missingCoverIds)
+                .eq('media_type', 'professional')
+                .order('is_cover', ascending: false)
+                .order('sort_order');
+
+            for (final row in mediaRows) {
+              final shopId = row['shop_id'] as String;
+              coverByShopId.putIfAbsent(shopId, () => row['url'] as String);
+            }
+          }
+
+          // RPC already returns rows sorted by distance — no client-side sort.
+          final shops = <ShopListItemDTO>[
+            for (final item in data)
+              ShopListItemDTO(
+                id: item['shop']['id'] as String,
+                shopName: item['shop']['shop_name'] as String,
+                coverImageUrl:
+                    (item['shop']['cover_image_url'] as String?) ??
+                        coverByShopId[item['shop']['id'] as String],
+                averageRating:
+                    (item['shop']['average_rating'] as num?)?.toDouble(),
+                numberClientsWorked:
+                    item['shop']['number_clients_worked'] as int?,
+                luxuryLevel: item['shop']['luxury_level'] as String?,
+                distanceKm: (item['distance_km'] as num).toDouble(),
+                verified: item['shop']['verified'] as bool? ?? false,
+                shopType: item['shop']['shop_type'] as String?,
+                isOpen: false,
+                openStatus: null,
+              ),
+          ];
+
+          return _dedupe(shops);
         },
       );
-
-      final List<dynamic> data = response as List<dynamic>;
-      final shops = <ShopListItemDTO>[];
-
-      for (var item in data) {
-        final shopJson = item['shop'] as Map<String, dynamic>;
-        final distanceKm = (item['distance_km'] as num).toDouble();
-
-        // Get cover image from the RPC result or from separate query
-        String? coverImageUrl = shopJson['cover_image_url'] as String?;
-
-        // If RPC doesn't return cover image, fetch it
-        if (coverImageUrl == null) {
-          final mediaResponse = await _client
-              .from('shop_media')
-              .select('url, is_cover')
-              .eq('shop_id', shopJson['id'])
-              .eq('media_type', 'professional')
-              .order('is_cover', ascending: false)
-              .order('sort_order')
-              .limit(1);
-
-          if (mediaResponse.isNotEmpty) {
-            coverImageUrl = mediaResponse.first['url'] as String?;
-          }
-        }
-
-        shops.add(
-          ShopListItemDTO(
-            id: shopJson['id'] as String,
-            shopName: shopJson['shop_name'] as String,
-            coverImageUrl: coverImageUrl,
-            averageRating: (shopJson['average_rating'] as num?)?.toDouble(),
-            numberClientsWorked: shopJson['number_clients_worked'] as int?,
-            luxuryLevel: shopJson['luxury_level'] as String?,
-            distanceKm: distanceKm,
-            verified: shopJson['verified'] as bool? ?? false,
-            shopType: shopJson['shop_type'] as String?,
-            isOpen: false,
-            openStatus: null,
-          ),
-        );
-      }
-
-      // Sort by distance
-      shops.sort((a, b) {
-        if (a.distanceKm != null && b.distanceKm != null) {
-          return a.distanceKm!.compareTo(b.distanceKm!);
-        }
-        if (a.distanceKm != null) return -1;
-        if (b.distanceKm != null) return 1;
-        return 0;
-      });
-
-      return _dedupe(shops);
-    } catch (e) {
-      return await _getPremiumShopsUnsorted(shopType, luxuryLevel, limit);
+    } on RepositoryException {
+      // RPC failed after retries — log was already emitted, fall back gracefully.
+      return _getPremiumShopsUnsorted(shopType, luxuryLevel, clampedLimit);
     }
   }
 
@@ -255,48 +280,53 @@ class SupabaseShopRepository implements ShopRepository {
     String shopType,
     String? luxuryLevel,
     int limit,
-  ) async {
-    // ✅ Use view
-    var query = _client
-        .from('shops_with_cover')
-        .select('''
-        id,
-        shop_name,
-        average_rating,
-        number_clients_worked,
-        luxury_level,
-        verified,
-        shop_type,
-        cover_image_url
-      ''')
-        .eq('shop_type', shopType);
+  ) {
+    return runRepoQuery(
+      opName: 'getPremiumShops.unsorted',
+      userMessage: "Couldn't load premium shops. Please try again.",
+      () async {
+        var query = _client
+            .from('shops_with_cover')
+            .select('''
+            id,
+            shop_name,
+            average_rating,
+            number_clients_worked,
+            luxury_level,
+            verified,
+            shop_type,
+            cover_image_url
+          ''')
+            .eq('shop_type', shopType);
 
-    if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
-      query = query.eq('luxury_level', luxuryLevel);
-    } else {
-      query = query.inFilter('luxury_level', ['Luxury', 'UltraLuxury']);
-    }
+        if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
+          query = query.eq('luxury_level', luxuryLevel);
+        } else {
+          query = query.inFilter('luxury_level', _premiumLuxuryLevels);
+        }
 
-    final response = await query.limit(limit);
+        final response = await query.limit(limit);
 
-    return _dedupe(
-      response
-          .map(
-            (json) => ShopListItemDTO(
-              id: json['id'] as String,
-              shopName: json['shop_name'] as String,
-              coverImageUrl: json['cover_image_url'] as String?,
-              averageRating: (json['average_rating'] as num?)?.toDouble(),
-              numberClientsWorked: json['number_clients_worked'] as int?,
-              luxuryLevel: json['luxury_level'] as String?,
-              distanceKm: null,
-              verified: json['verified'] as bool? ?? false,
-              shopType: json['shop_type'] as String?,
-              isOpen: false,
-              openStatus: null,
-            ),
-          )
-          .toList(),
+        return _dedupe(
+          response
+              .map(
+                (json) => ShopListItemDTO(
+                  id: json['id'] as String,
+                  shopName: json['shop_name'] as String,
+                  coverImageUrl: json['cover_image_url'] as String?,
+                  averageRating: (json['average_rating'] as num?)?.toDouble(),
+                  numberClientsWorked: json['number_clients_worked'] as int?,
+                  luxuryLevel: json['luxury_level'] as String?,
+                  distanceKm: null,
+                  verified: json['verified'] as bool? ?? false,
+                  shopType: json['shop_type'] as String?,
+                  isOpen: false,
+                  openStatus: null,
+                ),
+              )
+              .toList(),
+        );
+      },
     );
   }
 
@@ -308,85 +338,86 @@ class SupabaseShopRepository implements ShopRepository {
     int limit = 20,
     bool? verifiedOnly,
     String? sortBy,
-  }) async {
-    try {
-      // ✅ Use the view
-      dynamic query = _client
-          .from('shops_with_cover')
-          .select('''
-          id,
-          shop_name,
-          average_rating,
-          number_clients_worked,
-          luxury_level,
-          verified,
-          shop_type,
-          cover_image_url
-        ''')
-          .eq('shop_type', shopType);
+  }) {
+    return runRepoQuery(
+      opName: 'getPremiumShopsPaginated',
+      userMessage: "Couldn't load premium shops. Please try again.",
+      () async {
+        dynamic query = _client
+            .from('shops_with_cover')
+            .select('''
+            id,
+            shop_name,
+            average_rating,
+            number_clients_worked,
+            luxury_level,
+            verified,
+            shop_type,
+            cover_image_url
+          ''')
+            .eq('shop_type', shopType);
 
-      // Apply luxury level filter
-      if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
-        query = query.eq('luxury_level', luxuryLevel);
-      } else {
-        query = query.inFilter('luxury_level', ['Luxury', 'UltraLuxury']);
-      }
+        if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
+          query = query.eq('luxury_level', luxuryLevel);
+        } else {
+          query = query.inFilter('luxury_level', _premiumLuxuryLevels);
+        }
 
-      // Apply verified only filter
-      if (verifiedOnly == true) {
-        query = query.eq('verified', true);
-      }
+        if (verifiedOnly == true) {
+          query = query.eq('verified', true);
+        }
 
-      // Apply sorting before pagination so the offset is stable.
-      switch (sortBy) {
-        case 'name':
-          query = query.order('shop_name', ascending: true).order('id');
-          break;
-        case 'rating':
-        default:
-          query = query.order('average_rating', ascending: false).order('id');
-          break;
-      }
+        // Sort with id tie-break so offset pagination is stable.
+        switch (sortBy) {
+          case 'name':
+            query = query.order('shop_name', ascending: true).order('id');
+            break;
+          case 'rating':
+          default:
+            query =
+                query.order('average_rating', ascending: false).order('id');
+            break;
+        }
 
-      // Offset-based pagination — cursor encodes the next page start offset
-      // as a decimal string. Using id-keyset with a rating sort caused
-      // duplicates because UUIDs have no relationship to the sort column.
-      final offset = int.tryParse(cursor ?? '') ?? 0;
-      final response =
-          await query.range(offset, offset + limit - 1) as PostgrestList;
+        final offset = int.tryParse(cursor ?? '') ?? 0;
+        final clampedLimit = limit.clamp(1, 50);
+        final response =
+            await query.range(offset, offset + clampedLimit - 1)
+                as PostgrestList;
 
-      final shops = _dedupe(
-        response
-            .map(
-              (json) => ShopListItemDTO(
-                id: json['id'] as String,
-                shopName: json['shop_name'] as String,
-                coverImageUrl: json['cover_image_url'] as String?,
-                averageRating: (json['average_rating'] as num?)?.toDouble(),
-                numberClientsWorked: json['number_clients_worked'] as int?,
-                luxuryLevel: json['luxury_level'] as String?,
-                distanceKm: null,
-                verified: json['verified'] as bool? ?? false,
-                shopType: json['shop_type'] as String?,
-                isOpen: false,
-                openStatus: null,
-              ),
-            )
-            .toList(),
-      );
+        final rawCount = response.length;
+        final shops = _dedupe(
+          response
+              .map(
+                (json) => ShopListItemDTO(
+                  id: json['id'] as String,
+                  shopName: json['shop_name'] as String,
+                  coverImageUrl: json['cover_image_url'] as String?,
+                  averageRating: (json['average_rating'] as num?)?.toDouble(),
+                  numberClientsWorked: json['number_clients_worked'] as int?,
+                  luxuryLevel: json['luxury_level'] as String?,
+                  distanceKm: null,
+                  verified: json['verified'] as bool? ?? false,
+                  shopType: json['shop_type'] as String?,
+                  isOpen: false,
+                  openStatus: null,
+                ),
+              )
+              .toList(),
+        );
 
-      // Null cursor = no more pages; string offset = start of next page.
-      final nextCursor =
-          shops.length < limit ? null : (offset + limit).toString();
+        // Compare raw response length (not deduped) — see getShops.
+        final nextCursor = rawCount < clampedLimit
+            ? null
+            : (offset + clampedLimit).toString();
 
-      return SearchPaginatedResult(
-        items: shops,
-        nextCursor: nextCursor,
-        totalCount: 0,
-      );
-    } catch (e) {
-      throw Exception('Failed to fetch premium shops: $e');
-    }
+        return SearchPaginatedResult(
+          items: shops,
+          nextCursor: nextCursor,
+          totalCount: 0,
+        );
+      },
+    );
   }
 
   @override
@@ -395,49 +426,52 @@ class SupabaseShopRepository implements ShopRepository {
     double minRating = 4.5,
     int minReviews = 5,
     int limit = 10,
-  }) async {
-    try {
-      // ✅ Use view
-      var query = _client
-          .from('shops_with_cover')
-          .select('''
-          id,
-          shop_name,
-          average_rating,
-          number_clients_worked,
-          luxury_level,
-          verified,
-          shop_type,
-          cover_image_url
-        ''')
-          .eq('shop_type', shopType)
-          .gte('average_rating', minRating)
-          .gte('number_clients_worked', minReviews)
-          .order('average_rating', ascending: false);
+  }) {
+    return runRepoQuery(
+      opName: 'getTopRatedShops',
+      userMessage: "Couldn't load top rated shops. Please try again.",
+      () async {
+        final clampedLimit = limit.clamp(1, 50);
+        final response = await _client
+            .from('shops_with_cover')
+            .select('''
+            id,
+            shop_name,
+            average_rating,
+            number_clients_worked,
+            luxury_level,
+            verified,
+            shop_type,
+            cover_image_url
+          ''')
+            .eq('shop_type', shopType)
+            .gte('average_rating', minRating)
+            .gte('number_clients_worked', minReviews)
+            .order('average_rating', ascending: false)
+            .order('id')
+            .limit(clampedLimit);
 
-      final response = await query.limit(limit);
-      return _dedupe(
-        response
-            .map(
-              (json) => ShopListItemDTO(
-                id: json['id'] as String,
-                shopName: json['shop_name'] as String,
-                coverImageUrl: json['cover_image_url'] as String?,
-                averageRating: (json['average_rating'] as num?)?.toDouble(),
-                numberClientsWorked: json['number_clients_worked'] as int?,
-                luxuryLevel: json['luxury_level'] as String?,
-                distanceKm: null,
-                verified: json['verified'] as bool? ?? false,
-                shopType: json['shop_type'] as String?,
-                isOpen: false,
-                openStatus: null,
-              ),
-            )
-            .toList(),
-      );
-    } catch (e) {
-      throw Exception('Failed to fetch top rated shops: $e');
-    }
+        return _dedupe(
+          response
+              .map(
+                (json) => ShopListItemDTO(
+                  id: json['id'] as String,
+                  shopName: json['shop_name'] as String,
+                  coverImageUrl: json['cover_image_url'] as String?,
+                  averageRating: (json['average_rating'] as num?)?.toDouble(),
+                  numberClientsWorked: json['number_clients_worked'] as int?,
+                  luxuryLevel: json['luxury_level'] as String?,
+                  distanceKm: null,
+                  verified: json['verified'] as bool? ?? false,
+                  shopType: json['shop_type'] as String?,
+                  isOpen: false,
+                  openStatus: null,
+                ),
+              )
+              .toList(),
+        );
+      },
+    );
   }
 
   @override
@@ -450,81 +484,87 @@ class SupabaseShopRepository implements ShopRepository {
     int limit = 20,
     bool? verifiedOnly,
     String? sortBy,
-  }) async {
-    try {
-      // ✅ Use view
-      dynamic query = _client
-          .from('shops_with_cover')
-          .select('''
-          id,
-          shop_name,
-          average_rating,
-          number_clients_worked,
-          luxury_level,
-          verified,
-          shop_type,
-          cover_image_url
-        ''')
-          .eq('shop_type', shopType)
-          .gte('average_rating', minRating)
-          .gte('number_clients_worked', minReviews);
+  }) {
+    return runRepoQuery(
+      opName: 'getTopRatedShopsPaginated',
+      userMessage: "Couldn't load top rated shops. Please try again.",
+      () async {
+        dynamic query = _client
+            .from('shops_with_cover')
+            .select('''
+            id,
+            shop_name,
+            average_rating,
+            number_clients_worked,
+            luxury_level,
+            verified,
+            shop_type,
+            cover_image_url
+          ''')
+            .eq('shop_type', shopType)
+            .gte('average_rating', minRating)
+            .gte('number_clients_worked', minReviews);
 
-      if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
-        query = query.eq('luxury_level', luxuryLevel);
-      } else {
-        query = query.inFilter('luxury_level', ['Luxury', 'UltraLuxury']);
-      }
+        if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
+          query = query.eq('luxury_level', luxuryLevel);
+        } else {
+          query = query.inFilter('luxury_level', _premiumLuxuryLevels);
+        }
 
-      if (verifiedOnly == true) {
-        query = query.eq('verified', true);
-      }
+        if (verifiedOnly == true) {
+          query = query.eq('verified', true);
+        }
 
-      switch (sortBy) {
-        case 'name':
-          query = query.order('shop_name', ascending: true).order('id');
-          break;
-        case 'rating':
-        default:
-          query = query.order('average_rating', ascending: false).order('id');
-          break;
-      }
+        switch (sortBy) {
+          case 'name':
+            query = query.order('shop_name', ascending: true).order('id');
+            break;
+          case 'rating':
+          default:
+            query =
+                query.order('average_rating', ascending: false).order('id');
+            break;
+        }
 
-      // Offset-based pagination — same rationale as getPremiumShopsPaginated.
-      final offset = int.tryParse(cursor ?? '') ?? 0;
-      final response =
-          await query.range(offset, offset + limit - 1) as PostgrestList;
+        final offset = int.tryParse(cursor ?? '') ?? 0;
+        final clampedLimit = limit.clamp(1, 50);
+        final response =
+            await query.range(offset, offset + clampedLimit - 1)
+                as PostgrestList;
 
-      final shops = _dedupe(
-        response
-            .map(
-              (json) => ShopListItemDTO(
-                id: json['id'] as String,
-                shopName: json['shop_name'] as String,
-                coverImageUrl: json['cover_image_url'] as String?,
-                averageRating: (json['average_rating'] as num?)?.toDouble(),
-                numberClientsWorked: json['number_clients_worked'] as int?,
-                luxuryLevel: json['luxury_level'] as String?,
-                distanceKm: null,
-                verified: json['verified'] as bool? ?? false,
-                shopType: json['shop_type'] as String?,
-                isOpen: false,
-                openStatus: null,
-              ),
-            )
-            .toList(),
-      );
+        final rawCount = response.length;
+        final shops = _dedupe(
+          response
+              .map(
+                (json) => ShopListItemDTO(
+                  id: json['id'] as String,
+                  shopName: json['shop_name'] as String,
+                  coverImageUrl: json['cover_image_url'] as String?,
+                  averageRating: (json['average_rating'] as num?)?.toDouble(),
+                  numberClientsWorked: json['number_clients_worked'] as int?,
+                  luxuryLevel: json['luxury_level'] as String?,
+                  distanceKm: null,
+                  verified: json['verified'] as bool? ?? false,
+                  shopType: json['shop_type'] as String?,
+                  isOpen: false,
+                  openStatus: null,
+                ),
+              )
+              .toList(),
+        );
 
-      final nextCursor =
-          shops.length < limit ? null : (offset + limit).toString();
+        // Compare raw response length (not deduped) — see getPremiumShopsPaginated.
+        final nextCursor = rawCount < clampedLimit
+            ? null
+            : (offset + clampedLimit).toString();
 
-      return SearchPaginatedResult(
-        items: shops,
-        nextCursor: nextCursor,
-        totalCount: 0,
-      );
-    } catch (e) {
-      throw Exception('Failed to fetch top rated shops: $e');
-    }
+        return SearchPaginatedResult(
+          items: shops,
+          nextCursor: nextCursor,
+          totalCount: 0,
+        );
+      },
+    );
   }
 
   // @override
@@ -570,91 +610,28 @@ class SupabaseShopRepository implements ShopRepository {
     required double longitude,
     double radiusKm = 10.0,
     int limit = 10,
-  }) async {
-    try {
-      final response = await _client.rpc(
-        'get_nearby_shops',
-        params: {
-          'user_lat': latitude,
-          'user_lng': longitude,
-          'radius_km': radiusKm,
-          'filter_luxury_level': null,
-          'verified_only': false,
-          'sort_by': 'distance',
-          'cursor_id': null,
-          'page_limit': limit,
-        },
-      );
+  }) {
+    return runRepoQuery(
+      opName: 'getNearbyShops',
+      userMessage: "Couldn't load nearby shops. Please try again.",
+      () async {
+        final clampedLimit = limit.clamp(1, 50);
+        final response = await _client.rpc(
+          'get_nearby_shops',
+          params: {
+            'user_lat': latitude,
+            'user_lng': longitude,
+            'radius_km': radiusKm,
+            'filter_luxury_level': null,
+            'verified_only': false,
+            'sort_by': 'distance',
+            'cursor_id': null,
+            'page_limit': clampedLimit,
+          },
+        );
 
-      final List<dynamic> data = response as List<dynamic>;
-
-      if (data.isNotEmpty) {}
-
-      final result = <ShopListItemDTO>[];
-      for (var json in data) {
-        try {
-          final dto = ShopListItemDTO(
-            id: json['id'] as String,
-            shopName: json['shop_name'] as String,
-            coverImageUrl: json['cover_image_url'] as String?,
-            averageRating: (json['average_rating'] as num?)?.toDouble(),
-            numberClientsWorked: json['number_clients_worked'] as int?,
-            luxuryLevel: json['luxury_level'] as String?,
-            distanceKm: (json['distance_km'] as num?)?.toDouble(),
-            verified: json['verified'] as bool? ?? false,
-            shopType: json['shop_type'] as String?,
-            isOpen: false,
-            openStatus: null,
-          );
-          result.add(dto);
-        } catch (e) {
-          continue;
-        }
-      }
-
-      return _dedupe(result);
-    } catch (e) {
-      throw Exception('Failed to fetch nearby shops: $e');
-    }
-  }
-
-  @override
-  Future<SearchPaginatedResult<ShopListItemDTO>> getNearbyShopsPaginated({
-    required double latitude,
-    required double longitude,
-    double radiusKm = 10.0,
-    String? cursor,
-    String? luxuryLevel,
-    int limit = 20,
-    bool? verifiedOnly,
-    String? sortBy,
-  }) async {
-    try {
-      final Map<String, dynamic> params = {
-        'user_lat': latitude,
-        'user_lng': longitude,
-        'radius_km': radiusKm,
-        'filter_luxury_level': null,
-        'verified_only': false,
-        'sort_by': 'distance',
-        'cursor_id': null,
-        'page_limit': limit,
-      };
-      if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
-        params['filter_luxury_level'] = luxuryLevel;
-      }
-      if (verifiedOnly == true) {
-        params['verified_only'] = true;
-      }
-      if (sortBy != null) {
-        params['sort_by'] = sortBy;
-      }
-      if (cursor != null && cursor.isNotEmpty) {
-        params['cursor_id'] = cursor;
-      }
-      final response = await _client.rpc('get_nearby_shops', params: params);
-      final List<dynamic> data = response as List<dynamic>;
-      final shops =
+        final List<dynamic> data = response as List<dynamic>;
+        return _dedupe(
           data
               .map(
                 (json) => ShopListItemDTO(
@@ -671,85 +648,156 @@ class SupabaseShopRepository implements ShopRepository {
                   openStatus: null,
                 ),
               )
-              .toList();
+              .toList(),
+        );
+      },
+    );
+  }
 
-      final uniqueShops = _dedupe(shops);
-      final nextCursor = uniqueShops.isNotEmpty ? uniqueShops.last.id : null;
-      return SearchPaginatedResult(
-        items: uniqueShops,
-        nextCursor: nextCursor,
-        totalCount: 0,
-      );
-    } catch (e) {
-      throw Exception('Failed to fetch nearby shops: $e');
-    }
+  @override
+  Future<SearchPaginatedResult<ShopListItemDTO>> getNearbyShopsPaginated({
+    required double latitude,
+    required double longitude,
+    double radiusKm = 10.0,
+    String? cursor,
+    String? luxuryLevel,
+    int limit = 20,
+    bool? verifiedOnly,
+    String? sortBy,
+  }) {
+    return runRepoQuery(
+      opName: 'getNearbyShopsPaginated',
+      userMessage: "Couldn't load nearby shops. Please try again.",
+      () async {
+        final clampedLimit = limit.clamp(1, 50);
+        final Map<String, dynamic> params = {
+          'user_lat': latitude,
+          'user_lng': longitude,
+          'radius_km': radiusKm,
+          'filter_luxury_level': null,
+          'verified_only': false,
+          'sort_by': 'distance',
+          'cursor_id': null,
+          'page_limit': clampedLimit,
+        };
+        if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
+          params['filter_luxury_level'] = luxuryLevel;
+        }
+        if (verifiedOnly == true) {
+          params['verified_only'] = true;
+        }
+        if (sortBy != null) {
+          params['sort_by'] = sortBy;
+        }
+        if (cursor != null && cursor.isNotEmpty) {
+          params['cursor_id'] = cursor;
+        }
+        final response =
+            await _client.rpc('get_nearby_shops', params: params);
+        final List<dynamic> data = response as List<dynamic>;
+
+        // Capture the raw last row's id BEFORE dedup so the next page anchors
+        // to the actual server-side cursor position, not our deduped tail.
+        final rawLastId =
+            data.isNotEmpty ? data.last['id'] as String? : null;
+        final rawCount = data.length;
+
+        final shops = _dedupe(
+          data
+              .map(
+                (json) => ShopListItemDTO(
+                  id: json['id'] as String,
+                  shopName: json['shop_name'] as String,
+                  coverImageUrl: json['cover_image_url'] as String?,
+                  averageRating: (json['average_rating'] as num?)?.toDouble(),
+                  numberClientsWorked: json['number_clients_worked'] as int?,
+                  luxuryLevel: json['luxury_level'] as String?,
+                  distanceKm: (json['distance_km'] as num?)?.toDouble(),
+                  verified: json['verified'] as bool? ?? false,
+                  shopType: json['shop_type'] as String?,
+                  isOpen: false,
+                  openStatus: null,
+                ),
+              )
+              .toList(),
+        );
+
+        // Terminate when the RPC returned fewer rows than requested.
+        // NOTE: assumes get_nearby_shops orders by (distance, id) and uses
+        // cursor_id as a keyset on id within the same distance. Verify SQL.
+        final nextCursor = rawCount < clampedLimit ? null : rawLastId;
+        return SearchPaginatedResult(
+          items: shops,
+          nextCursor: nextCursor,
+          totalCount: 0,
+        );
+      },
+    );
   }
 
   // ==================== DETAILS VIEW METHODS (ShopDetailsDTO) ====================
 
   @override
-  Future<List<ShopListItemDTO>> getShopsByProfileId(String profileId) async {
-    try {
-      final shopsResponse = await _client
-          .from('shops')
-          .select('''
-          id,
-          shop_name,
-          average_rating,
-          number_clients_worked,
-          luxury_level,
-          verified,
-          shop_type
-        ''')
-          .eq('user_id', profileId)
-          .order('created_at', ascending: false);
+  Future<List<ShopListItemDTO>> getShopsByProfileId(String profileId) {
+    return runRepoQuery(
+      opName: 'getShopsByProfileId',
+      userMessage: "Couldn't load shops. Please try again.",
+      () async {
+        final shopsResponse = await _client
+            .from('shops')
+            .select('''
+            id,
+            shop_name,
+            average_rating,
+            number_clients_worked,
+            luxury_level,
+            verified,
+            shop_type
+          ''')
+            .eq('user_id', profileId)
+            .order('created_at', ascending: false);
 
-      final List<ShopListItemDTO> shops = [];
+        if (shopsResponse.isEmpty) return [];
 
-      for (var shopJson in shopsResponse) {
-        final shopId = shopJson['id'] as String;
-
-        final mediaResponse = await _client
+        // Batch-fetch covers in one query (was N+1 before).
+        final shopIds = [
+          for (final s in shopsResponse) s['id'] as String,
+        ];
+        final mediaRows = await _client
             .from('shop_media')
-            .select('url, media_type, sort_order, is_cover')
-            .eq('shop_id', shopId)
+            .select('shop_id, url, is_cover, sort_order')
+            .inFilter('shop_id', shopIds)
             .eq('media_type', 'professional')
-            .order('sort_order', ascending: true);
+            .order('is_cover', ascending: false)
+            .order('sort_order');
 
-        // Find cover image - Option 3 (cleanest)
-        final coverImages =
-            mediaResponse.where((m) => m['is_cover'] == true).toList();
-        String? coverImageUrl;
-
-        if (coverImages.isNotEmpty) {
-          coverImageUrl = coverImages.first['url'] as String?;
-        } else if (mediaResponse.isNotEmpty) {
-          // Fallback to first image if no cover
-          coverImageUrl = mediaResponse.first['url'] as String?;
+        // First row per shop wins (ordered is_cover desc, sort_order asc).
+        final coverByShopId = <String, String>{};
+        for (final row in mediaRows) {
+          final id = row['shop_id'] as String;
+          coverByShopId.putIfAbsent(id, () => row['url'] as String);
         }
 
-        shops.add(
-          ShopListItemDTO(
-            id: shopId,
-            shopName: shopJson['shop_name'] as String,
-            coverImageUrl: coverImageUrl,
-            averageRating: (shopJson['average_rating'] as num?)?.toDouble(),
-            numberClientsWorked: shopJson['number_clients_worked'] as int?,
-            luxuryLevel: shopJson['luxury_level'] as String?,
-            distanceKm: null,
-            verified: shopJson['verified'] as bool? ?? false,
-            shopType: shopJson['shop_type'] as String?,
-            isOpen: false,
-            openStatus: null,
-          ),
-        );
-      }
-
-      return shops;
-    } catch (e) {
-      print('Error in getShopsByProfileId: $e');
-      throw Exception('Error fetching shops: $e');
-    }
+        return shopsResponse
+            .map(
+              (shopJson) => ShopListItemDTO(
+                id: shopJson['id'] as String,
+                shopName: shopJson['shop_name'] as String,
+                coverImageUrl: coverByShopId[shopJson['id'] as String],
+                averageRating: (shopJson['average_rating'] as num?)?.toDouble(),
+                numberClientsWorked:
+                    shopJson['number_clients_worked'] as int?,
+                luxuryLevel: shopJson['luxury_level'] as String?,
+                distanceKm: null,
+                verified: shopJson['verified'] as bool? ?? false,
+                shopType: shopJson['shop_type'] as String?,
+                isOpen: false,
+                openStatus: null,
+              ),
+            )
+            .toList();
+      },
+    );
   }
 
   @override
@@ -849,9 +897,18 @@ class SupabaseShopRepository implements ShopRepository {
       };
 
       return ShopDetailsDTO.fromJson(enrichedResponse);
-    } catch (e) {
-      print(e.toString());
-      throw Exception('Failed to fetch shop details: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getShopDetailsById failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
+      throw RepositoryException(
+        "Couldn't load shop details. Please try again.",
+        cause: e,
+        stackTrace: stack,
+      );
     }
   }
 
@@ -921,9 +978,18 @@ class SupabaseShopRepository implements ShopRepository {
           .eq('is_active', true);
 
       return activeWorkers.map((json) => WorkerDTO.fromJson(json)).toList();
-    } catch (e) {
-      print(e.toString());
-      throw Exception('Failed to fetch workers: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getWorkers failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
+      throw RepositoryException(
+        "Couldn't load workers. Please try again.",
+        cause: e,
+        stackTrace: stack,
+      );
     }
   }
 
@@ -1056,8 +1122,14 @@ class SupabaseShopRepository implements ShopRepository {
           'p_result_count': resultCount,
         },
       );
-    } catch (_) {
+    } catch (e, stack) {
       // Silent fail — analytics must never break the search experience.
+      developer.log(
+        'logSearchAnalytics failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
     }
   }
 
@@ -1072,38 +1144,41 @@ class SupabaseShopRepository implements ShopRepository {
           .limit(limit);
 
       return response.map((row) => row['query'] as String).toList();
-    } catch (e) {
-      // If table doesn't exist yet, return default list
-      print('Failed to fetch popular searches: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getPopularSearches failed — falling back to defaults',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return _getDefaultPopularSearches();
     }
   }
 
   @override
-  Future<ShopListItemDTO> getMarkerShopDetails(String shopId) async {
-    try {
-      // Use the view that already includes cover_image_url
-      final response =
-          await _client
-              .from('shops_with_cover')
-              .select('''
-          id,
-          shop_name,
-          average_rating,
-          number_clients_worked,
-          luxury_level,
-          verified,
-          shop_type,
-          cover_image_url
-        ''')
-              .eq('id', shopId)
-              .single();
+  Future<ShopListItemDTO> getMarkerShopDetails(String shopId) {
+    return runRepoQuery(
+      opName: 'getMarkerShopDetails',
+      userMessage: "Couldn't load shop details. Please try again.",
+      () async {
+        final response = await _client
+            .from('shops_with_cover')
+            .select('''
+            id,
+            shop_name,
+            average_rating,
+            number_clients_worked,
+            luxury_level,
+            verified,
+            shop_type,
+            cover_image_url
+          ''')
+            .eq('id', shopId)
+            .single();
 
-      return ShopListItemDTO.fromJson(response);
-    } catch (e) {
-      print(e);
-      throw Exception('Failed to fetch shop details: $e');
-    }
+        return ShopListItemDTO.fromJson(response);
+      },
+    );
   }
 
   List<String> _getDefaultPopularSearches() {

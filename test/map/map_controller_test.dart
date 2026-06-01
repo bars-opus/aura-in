@@ -99,6 +99,19 @@ void main() {
       expect(identical(controller.state, stateBefore), isTrue);
     });
 
+    test('requestModalForPin sets both selectedPinId and pendingModalForPinId', () {
+      controller.requestModalForPin('shop-1');
+      expect(controller.state.selectedPinId, 'shop-1');
+      expect(controller.state.pendingModalForPinId, 'shop-1');
+    });
+
+    test('clearPendingModal clears the modal flag without touching selection', () {
+      controller.requestModalForPin('shop-1');
+      controller.clearPendingModal();
+      expect(controller.state.pendingModalForPinId, isNull);
+      expect(controller.state.selectedPinId, 'shop-1'); // selection preserved
+    });
+
     test('fetchNearby switches mode and records anchor location', () async {
       fake.queueNearby(const [
         MapPin(id: 'b', latitude: 5, longitude: 5),
