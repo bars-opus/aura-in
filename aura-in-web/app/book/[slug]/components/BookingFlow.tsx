@@ -54,6 +54,14 @@ export function BookingFlow({
   const [address, setAddress] = useState<PickedAddress | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Bumped after each failed submit so the next attempt sends a fresh
+  // idempotency key (Paystack rejects reuse of an already-attempted
+  // reference). Stable within a single submit so a network retry of the
+  // SAME click doesn't create two charges. Seeded from Date.now() so a
+  // page reload after a prior aborted attempt also gets a fresh key.
+  const [submitAttempt, setSubmitAttempt] = useState(() =>
+    Math.floor(Date.now() / 1000),
+  );
 
   const needsAddress = data.targetType === "freelancer" && data.canTravel;
 
@@ -135,11 +143,13 @@ export function BookingFlow({
     const endTime = selectedSlot.endTime || computedEnd;
     const actualEndTime = selectedSlot.endTime || computedEnd;
 
-    // Idempotency key scoped to (shop, phone, start_time) so a double-tap
-    // on the CTA can't create two bookings.
+    // Idempotency key scoped to (shop, phone, start_time, attempt) so a
+    // double-tap on the CTA can't create two bookings, but a user-initiated
+    // retry after a failure rotates the suffix so Paystack accepts the new
+    // reference (it 400s on duplicates of prior attempts).
     const idempotencyKey = `shop_${data.target.id}_${phone}_${new Date(
       startTime,
-    ).getTime()}`;
+    ).getTime()}_${submitAttempt}`;
 
     const res = await createBooking({
       shopId: data.target.id,
@@ -184,6 +194,9 @@ export function BookingFlow({
     if (!res.success || !res.authorizationUrl) {
       setError(res.error ?? "Could not start payment. Please try again.");
       setSubmitting(false);
+      // Rotate idempotency suffix so the user's next click sends a fresh
+      // reference (Paystack rejects re-attempts on the same one).
+      setSubmitAttempt((a) => a + 1);
       return;
     }
     window.location.href = res.authorizationUrl;
