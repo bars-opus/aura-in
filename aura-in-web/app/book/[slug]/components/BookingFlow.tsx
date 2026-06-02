@@ -148,10 +148,18 @@ export function BookingFlow({
       services: [
         {
           slotId: selectedService.id,
-          workerId: selectedWorkerId,
+          // Prefer the visitor's explicit worker pick. When they leave it on
+          // "Any available", fall back to the worker the picked slot is
+          // actually bound to (get-slots emits one entry per (slot, worker)
+          // pair). Without this fallback, booking_services trips the
+          // "Worker does not belong to this shop" check via stale NULL +
+          // trigger interaction.
+          workerId: selectedWorkerId ?? selectedSlot.workerId,
           serviceName: selectedService.name,
           workerName:
-            data.workers.find((w) => w.id === selectedWorkerId)?.name ?? "",
+            data.workers.find(
+              (w) => w.id === (selectedWorkerId ?? selectedSlot.workerId),
+            )?.name ?? "",
           priceAtBooking: selectedService.price,
           durationMinutes: selectedService.durationMinutes,
         },

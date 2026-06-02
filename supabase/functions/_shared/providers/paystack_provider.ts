@@ -24,8 +24,12 @@ export class PaystackProvider implements PaymentProviderPort {
   constructor() {
     // Read at construction so a missing secret fails fast on instantiation,
     // not during signature verify.
-    this.webhookSecret = Deno.env.get("PAYSTACK_WEBHOOK_SECRET") ?? "";
     this.secretKey = Deno.env.get("PAYSTACK_SECRET_KEY") ?? "";
+    // Paystack signs webhooks with HMAC-SHA512(secretKey, body) — there is NO
+    // separate webhook secret. Fall back to secretKey if the dedicated env
+    // var isn't set; this matches Paystack's actual webhook contract.
+    this.webhookSecret =
+      Deno.env.get("PAYSTACK_WEBHOOK_SECRET") ?? this.secretKey;
   }
 
   async initCheckout(
