@@ -180,15 +180,18 @@ export async function fetchBookingByReference(
   reference: string,
 ): Promise<{ id: string; status: string } | null> {
   const { supabaseUrl, anonKey } = getSupabaseEnv();
-  const url =
-    `${supabaseUrl}/rest/v1/bookings` +
-    `?payment_intent_id=eq.${encodeURIComponent(reference)}` +
-    `&select=id,status&status=eq.confirmed&limit=1`;
+  // Guests can't SELECT bookings directly (RLS restricts to user_id /
+  // shop owners). The SECURITY DEFINER RPC scopes the lookup to the
+  // specific reference and returns only {id, status}.
+  const url = `${supabaseUrl}/rest/v1/rpc/get_booking_by_reference`;
   const res = await fetch(url, {
+    method: "POST",
     headers: {
       apikey: anonKey,
       Authorization: `Bearer ${anonKey}`,
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify({ p_reference: reference }),
     cache: "no-store",
   });
   if (!res.ok) return null;

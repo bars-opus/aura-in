@@ -308,10 +308,17 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
       const nowIso = new Date().toISOString();
 
+      // See paystack-webhook for has_reference rationale.
+      const refCols = {
+        booking_id: booking.id,
+        shop_id: pending.shop_id,
+      };
+
       const { error: waSchedError } = await supabase
         .from("scheduled_notifications")
         .insert([
           {
+            ...refCols,
             notification_type: "booking_confirmation",
             guest_profile_id: pending.guest_profile_id,
             scheduled_for: nowIso,
@@ -324,6 +331,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
             updated_at: nowIso,
           },
           {
+            ...refCols,
             notification_type: "booking_reminder_24h",
             guest_profile_id: pending.guest_profile_id,
             scheduled_for: new Date(startTime.getTime() - 24 * 60 * 60 * 1000).toISOString(),
@@ -336,6 +344,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
             updated_at: nowIso,
           },
           {
+            ...refCols,
             notification_type: "booking_reminder_2h",
             guest_profile_id: pending.guest_profile_id,
             scheduled_for: new Date(startTime.getTime() - 2 * 60 * 60 * 1000).toISOString(),
@@ -348,6 +357,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
             updated_at: nowIso,
           },
           {
+            ...refCols,
             notification_type: "booking_review_prompt",
             guest_profile_id: pending.guest_profile_id,
             scheduled_for: new Date(endTime.getTime() + 90 * 60 * 1000).toISOString(),
