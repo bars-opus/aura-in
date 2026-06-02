@@ -89,32 +89,33 @@ Widget _buildServiceWorkerRow(
   final colorScheme = theme.colorScheme;
   final textTheme = theme.textTheme;
 
-  return Expanded(
-    flex: 1,
-    child: RichText(
-      text: TextSpan(
-        style: theme.textTheme.bodyMedium?.copyWith(
-          color: colorScheme.onSurface,
-        ),
-        children: [
-          TextSpan(
-            text: '$label:\n',
-            style: textTheme.labelSmall?.copyWith(
-              color: colorScheme.onBackground.withOpacity(.7),
-              fontWeight: FontWeight.normal,
-            ),
-          ),
-          TextSpan(
-            text: value,
-            style: textTheme.labelLarge?.copyWith(
-              color: colorScheme.onBackground,
-            ),
-          ),
-        ],
+  // No Expanded — TableRow cells are sized by Table.columnWidths. Expanded
+  // requires a Flex parent and casts BoxParentData → FlexParentData on mount;
+  // in a Table cell that cast threw in release ("BoxParentData is not a
+  // subtype of FlexParentData") and blanked the whole card.
+  return RichText(
+    text: TextSpan(
+      style: theme.textTheme.bodyMedium?.copyWith(
+        color: colorScheme.onSurface,
       ),
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
+      children: [
+        TextSpan(
+          text: '$label:\n',
+          style: textTheme.labelSmall?.copyWith(
+            color: colorScheme.onBackground.withOpacity(.7),
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+        TextSpan(
+          text: value,
+          style: textTheme.labelLarge?.copyWith(
+            color: colorScheme.onBackground,
+          ),
+        ),
+      ],
     ),
+    maxLines: 2,
+    overflow: TextOverflow.ellipsis,
   );
 }
 
@@ -127,20 +128,20 @@ Widget _buildPriceDurationRow({
   final colorScheme = theme.colorScheme;
   final textTheme = theme.textTheme;
 
-  return Expanded(
-    child: Row(
-      children: [
-        Icon(icon, size: 15.h, color: colorScheme.background),
-        Gap(10.w),
-        Text(
-          label,
-          style: textTheme.labelSmall?.copyWith(
-            color: colorScheme.background,
-            fontWeight: FontWeight.normal,
-          ),
+  // Same as the row helper above — Expanded inside a TableRow cell breaks
+  // in release. Row is fine as a TableRow child.
+  return Row(
+    children: [
+      Icon(icon, size: 15.h, color: colorScheme.background),
+      Gap(10.w),
+      Text(
+        label,
+        style: textTheme.labelSmall?.copyWith(
+          color: colorScheme.background,
+          fontWeight: FontWeight.normal,
         ),
-      ],
-    ),
+      ),
+    ],
   );
 }
 
