@@ -366,14 +366,15 @@ class SupabaseDashboardRepository implements DashboardRepository {
     final targetYear = year ?? DateTime.now().year;
 
     try {
+      // Query bookings directly. The booking_with_client_info view (added
+      // via dashboard) silently joined on profiles and started returning
+      // zero rows for guest bookings (user_id IS NULL). Reading the base
+      // table sidesteps that, and we don't need client info here anyway.
       final response = await _supabase
-          .from('booking_with_client_info')
+          .from('bookings')
           .select('total_amount, start_time')
           .eq('shop_id', shopId)
-          .inFilter('status', [
-            'confirmed',
-            'completed',
-          ]) // ← FIXED: use direct 'status'
+          .inFilter('status', ['confirmed', 'completed'])
           .gte('start_time', '$targetYear-01-01')
           .lte('start_time', '$targetYear-12-31');
 
@@ -744,9 +745,9 @@ class SupabaseDashboardRepository implements DashboardRepository {
         endDate,
       );
 
-      // Get confirmed/completed bookings in date range
+      // Read from `bookings` directly — see getQuarterlyRevenue note.
       final bookings = await _supabase
-          .from('booking_with_client_info')
+          .from('bookings')
           .select('id')
           .eq('shop_id', shopId)
           .inFilter('status', ['confirmed', 'completed'])
@@ -954,9 +955,9 @@ class SupabaseDashboardRepository implements DashboardRepository {
         endDate,
       );
 
-      // Use the view - status is a direct column, not nested
+      // Read from `bookings` directly — see getQuarterlyRevenue note.
       final bookings = await _supabase
-          .from('booking_with_client_info')
+          .from('bookings')
           .select('id')
           .eq('shop_id', shopId)
           .inFilter('status', ['confirmed', 'completed'])
@@ -1128,13 +1129,10 @@ class SupabaseDashboardRepository implements DashboardRepository {
   }) async {
     try {
       final response = await _supabase
-          .from('booking_with_client_info')
+          .from('bookings')
           .select('total_amount')
           .eq('shop_id', shopId)
-          .inFilter('status', [
-            'confirmed',
-            'completed',
-          ]) // ← FIXED: use direct 'status'
+          .inFilter('status', ['confirmed', 'completed'])
           .gte('start_time', startDate.toIso8601String())
           .lte('start_time', endDate.toIso8601String());
 
