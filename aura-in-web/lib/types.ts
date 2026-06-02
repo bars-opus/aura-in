@@ -202,3 +202,34 @@ export interface CreateBookingResponse {
   provider?: "stripe" | "paystack";
   error?: string;
 }
+
+/**
+ * Shape returned by get_booking_detail RPC. Used by the /booking/[id] page
+ * accessible from the WhatsApp confirmation link. Phone is server-redacted.
+ */
+export interface BookingDetail {
+  id: string;
+  status: string;
+  start_time: string;
+  end_time: string | null;
+  total_amount: number;
+  deposit_amount: number;
+  platform_fee: number;
+  guest_name: string | null;
+  guest_phone_masked: string | null;
+  client_address: string | null;
+  shop: {
+    name: string;
+    type: string | null;
+    logo_url: string | null;
+    address: string | null;
+    country: string | null;
+  } | null;
+  services: Array<{
+    name: string;
+    duration_minutes: number;
+    price: number;
+    worker_name: string | null;
+    start_time: string | null;
+  }>;
+}

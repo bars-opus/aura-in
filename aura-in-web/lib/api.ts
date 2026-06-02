@@ -17,6 +17,7 @@ import type {
   CreateBookingResponse,
   GetSlotsRequest,
   GetSlotsResponse,
+  BookingDetail,
 } from "./types";
 
 /**
@@ -200,4 +201,30 @@ export async function fetchBookingByReference(
     status: string;
   }>;
   return rows[0] ?? null;
+}
+
+/**
+ * Fetch the public detail view of a confirmed booking by ID. Powers the
+ * /booking/[id] page reachable from the WhatsApp confirmation link.
+ *
+ * Server-side RPC returns null for unknown / unconfirmed IDs; the page
+ * treats null as 404.
+ */
+export async function fetchBookingDetail(
+  id: string,
+): Promise<BookingDetail | null> {
+  const { supabaseUrl, anonKey } = getSupabaseEnv();
+  const res = await fetch(`${supabaseUrl}/rest/v1/rpc/get_booking_detail`, {
+    method: "POST",
+    headers: {
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ p_id: id }),
+    cache: "no-store",
+  });
+  if (!res.ok) return null;
+  const data = (await res.json().catch(() => null)) as BookingDetail | null;
+  return data;
 }
