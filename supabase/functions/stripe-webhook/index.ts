@@ -288,17 +288,19 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         remainingAmount,
       });
 
+      // Meta rejects (#131008) any empty body param. Default to em-dash.
+      const safe = (v: string) => (v && v.trim().length > 0 ? v : "—");
       const reminder24Params = {
-        "1": targetName,
-        "2": new Date(bookingData.startTime).toLocaleTimeString("en-GB", {
+        "1": safe(targetName),
+        "2": safe(new Date(bookingData.startTime).toLocaleTimeString("en-GB", {
           hour: "numeric", minute: "2-digit", hour12: true,
-        }),
-        "3": address,
+        })),
+        "3": safe(address),
       };
       const reminder2Params = { ...reminder24Params };
       const reviewParams = {
-        "1": targetName,
-        "2": `https://aura-in-web.vercel.app/r/${booking.id}`,
+        "1": safe(targetName),
+        "2": safe(`https://aurain.barsopus.com/r/${booking.id}`),
       };
 
       const baseMetadata = {

@@ -90,13 +90,17 @@ export function buildConfirmationParams(args: {
   depositAmount: string;
   remainingAmount: string;
 }): Record<string, string> {
+  // Meta rejects (#131008) any template send where a body param is empty.
+  // Default missing strings to an em-dash so the message still goes through
+  // for shops that haven't set an address yet.
+  const safe = (v: string) => (v && v.trim().length > 0 ? v : "—");
   return {
-    "1": args.guestName,
-    "2": args.targetName,
-    "3": formatDateForHuman(args.startTime),
-    "4": args.address,
-    "5": args.depositAmount,
-    "6": args.remainingAmount,
+    "1": safe(args.guestName),
+    "2": safe(args.targetName),
+    "3": safe(formatDateForHuman(args.startTime)),
+    "4": safe(args.address),
+    "5": safe(args.depositAmount),
+    "6": safe(args.remainingAmount),
   };
 }
 
