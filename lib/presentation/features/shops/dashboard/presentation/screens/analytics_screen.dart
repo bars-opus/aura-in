@@ -74,7 +74,12 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
             )
             .refresh();
       },
+      // ListView is already scrollable — Expanded + SingleChildScrollView
+      // inside it was invalid (Expanded requires Flex; nested scrollables
+      // blank in release while debug let it slide via different layout
+      // assertion paths).
       child: ListView(
+        padding: EdgeInsets.all(Spacing.md.h),
         children: [
           CustomUniversalTabs(
             tabs: [
@@ -97,7 +102,6 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                 value: AnalyticsTab.workers,
               ),
             ],
-            // Use local state approach
             selectedIndex: _selectedTab.index,
             onIndexChanged: (index) {
               setState(() {
@@ -112,12 +116,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
             animateIconScale: true,
             showBottomBorder: false,
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(Spacing.md.h),
-              child: _buildTabContent(state),
-            ),
-          ),
+          _buildTabContent(state),
         ],
       ),
     );
