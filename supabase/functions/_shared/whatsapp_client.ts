@@ -76,13 +76,26 @@ export async function sendWhatsAppTemplate(
 
   if (!res.ok) {
     const code = responseBody?.error?.code;
+    const subcode = responseBody?.error?.error_subcode;
     const errMsg = responseBody?.error?.message ?? "Unknown error";
+    const userTitle = responseBody?.error?.error_user_title;
+    const userMsg = responseBody?.error?.error_user_msg;
     if (code === 132001 || /template.*not found/i.test(errMsg)) {
       throw new WhatsAppTemplateNotFoundError(
         `Template not found or not approved: ${input.templateName}`,
       );
     }
-    throw new Error(`Meta API ${res.status}: ${errMsg}`);
+    // Include code + subcode so operators can map directly to Meta's docs
+    // (e.g. 131056 = recipient not in allowed list while in dev mode).
+    const detail = [
+      `code=${code ?? "?"}`,
+      subcode ? `subcode=${subcode}` : null,
+      userTitle ? `title=${userTitle}` : null,
+      userMsg ? `userMsg=${userMsg}` : null,
+    ]
+      .filter(Boolean)
+      .join(" ");
+    throw new Error(`Meta API ${res.status}: ${errMsg} [${detail}]`);
   }
 
   const messageId = responseBody?.messages?.[0]?.id;
