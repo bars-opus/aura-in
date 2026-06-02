@@ -9,6 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:nano_embryo/core/link/config/aurain_link_config.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/domain/usecases/publish_shop_usecase.dart'
+    show slugifyShopName;
 
 class ShareableLinkSection extends ConsumerWidget {
   /// The currently-cached slug (read from `shops.booking_slug`). null if
@@ -35,12 +37,36 @@ class ShareableLinkSection extends ConsumerWidget {
     final config = AuraInLinkConfig.getConfig();
 
     if (currentSlug == null) {
-      return const Card(
-        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: ListTile(
-          leading: Icon(Icons.link),
-          title: Text('Shareable booking link'),
-          subtitle: Text('Link will appear after your profile is saved.'),
+      // Empty state covers two cases: (1) shop just created, slug generation
+      // failed best-effort and never retried; (2) shop existed before Plan A
+      // shipped, so the publish-time hook never ran. Either way, let the
+      // owner generate the link on demand from here.
+      return Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.link),
+                title: Text('Shareable booking link'),
+                subtitle: Text(
+                  'No public link yet. Generate one to start sharing on WhatsApp or Instagram.',
+                ),
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton.icon(
+                  icon: const Icon(Icons.add_link, size: 18),
+                  label: const Text('Generate link'),
+                  onPressed: () => _showEditSlugDialog(context),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -122,7 +148,10 @@ class ShareableLinkSection extends ConsumerWidget {
 
   Future<void> _showEditSlugDialog(BuildContext context) async {
     final config = AuraInLinkConfig.getConfig();
-    final ctrl = TextEditingController(text: currentSlug);
+    // Pre-fill with the current slug if we have one, otherwise a slug derived
+    // from the shop/freelancer name so the owner only has to tap Save.
+    final defaultSlug = currentSlug ?? slugifyShopName(entityName);
+    final ctrl = TextEditingController(text: defaultSlug);
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
