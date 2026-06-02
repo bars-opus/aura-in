@@ -34,17 +34,22 @@ class AuraInLinkConfig {
     fallbackWebUrl: 'https://aura-in.app',
   );
 
-  /// Development configuration (for local testing)
+  /// Development configuration (for local testing).
+  ///
+  /// We share the production app_id and domain because there is no separate
+  /// dev environment — one Supabase project, one Vercel deployment. The
+  /// distinction is kept only via enableAnalytics=false so dev runs don't
+  /// pollute click metrics.
   static const LinkConfig development = LinkConfig(
-    appId: 'aurain_dev',
+    appId: 'aurain',
     appName: 'Aura-In Dev',
-    baseDomain: 'aura-in-dev.app',
-    deepLinkScheme: 'auraindev://',
+    baseDomain: 'aurain.barsopus.com',
+    deepLinkScheme: 'aurain://',
     enableAnalytics: false, // Don't track in dev
     maxSlugLength: 50,
     reservedSlugs: ['admin', 'api', 'test'],
     defaultLinkExpiration: Duration(days: 30), // Expire after 30 days
-    fallbackWebUrl: 'http://localhost:3000',
+    fallbackWebUrl: 'https://aurain.barsopus.com',
   );
 
   /// Staging configuration (for testing before production)
