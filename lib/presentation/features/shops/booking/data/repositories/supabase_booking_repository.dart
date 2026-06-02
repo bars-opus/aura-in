@@ -452,7 +452,10 @@ class SupabaseBookingRepository implements BookingRepository {
       final firstRow = bookingResponse.first;
       final shopId = firstRow['shop_id'];
 
-      // 2. Fetch shop details WITH locations
+      // 2. Fetch shop details + locations in two queries. The embedded
+      // PostgREST relationship `locations:shop_locations(...)` failed with
+      // PGRST200 because no FK constraint is declared between shops and
+      // shop_locations (the table was added via the Supabase dashboard).
       final shopResponse =
           await _client
               .from('shops')
@@ -463,26 +466,23 @@ class SupabaseBookingRepository implements BookingRepository {
           luxury_level,
           verified,
           shop_type,
-          address,
-          locations:shop_locations(
-            address,
-            city,
-            country,
-            latitude,
-            longitude,
-            is_primary
-          )
+          address
         ''')
               .eq('id', shopId)
               .single();
+
+      final locationsResponse = await _client
+          .from('shop_locations')
+          .select('address, city, country, latitude, longitude, is_primary')
+          .eq('shop_id', shopId);
+      final locations = List<Map<String, dynamic>>.from(locationsResponse);
 
       // Extract coordinates from locations
       double? latitude;
       double? longitude;
       String? shopAddress;
 
-      final locations = shopResponse['locations'] as List?;
-      if (locations != null && locations.isNotEmpty) {
+      if (locations.isNotEmpty) {
         final primaryLocation = locations.firstWhere(
           (loc) => loc['is_primary'] == true,
           orElse: () => locations.first,
@@ -490,7 +490,7 @@ class SupabaseBookingRepository implements BookingRepository {
         latitude = (primaryLocation['latitude'] as num?)?.toDouble();
         longitude = (primaryLocation['longitude'] as num?)?.toDouble();
         shopAddress =
-            primaryLocation['address'] as String? ?? shopResponse['address'];
+            primaryLocation['address'] as String? ?? shopResponse['address'] as String?;
       } else {
         shopAddress = shopResponse['address'] as String?;
       }
