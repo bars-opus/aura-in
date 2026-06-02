@@ -214,6 +214,7 @@ export function BookingFlow({
       <GuestForm
         name={name}
         phone={phone}
+        defaultCountryIso2={data.target.country}
         onChange={({ name: n, phone: p, lastService: ls }) => {
           setName(n);
           setPhone(p);

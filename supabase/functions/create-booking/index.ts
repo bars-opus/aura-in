@@ -373,9 +373,12 @@ if (provider === 'stripe' && !Deno.env.get('STRIPE_SECRET_KEY')) {
     // and no userEmail) synthesize a stable, deliverability-free placeholder
     // derived from the E.164 phone. The receipt won't be emailed — webhooks
     // surface the booking via WhatsApp / push.
+    // Paystack validates the email TLD strictly — '.local' is rejected as
+    // not a real top-level domain. Use a real subdomain we control. Mail
+    // sent here black-holes; users get receipts via WhatsApp / push.
     const customerEmail = body.userEmail
       ?? (body.guestPhone
-        ? `guest_${body.guestPhone.replace(/[^\d]/g, '')}@guest.aurain.local`
+        ? `guest_${body.guestPhone.replace(/[^\d]/g, '')}@guests.aurain.barsopus.com`
         : undefined);
     if (!customerEmail) {
       return new Response(

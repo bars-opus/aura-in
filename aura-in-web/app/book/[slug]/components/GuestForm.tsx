@@ -8,14 +8,18 @@
 
 import { useState, useEffect } from "react";
 import { lookupGuest } from "@/lib/api";
+import { PhoneInput } from "./PhoneInput";
 
 export function GuestForm({
   name,
   phone,
+  defaultCountryIso2,
   onChange,
 }: {
   name: string;
   phone: string;
+  /** Shop country, used to default the phone-input country picker. */
+  defaultCountryIso2: string | null;
   onChange: (next: {
     name: string;
     phone: string;
@@ -68,12 +72,10 @@ export function GuestForm({
         onChange={(e) => onChange({ name: e.target.value, phone })}
         className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm mb-2"
       />
-      <input
-        type="tel"
-        placeholder="Phone (MoMo, with country code, e.g. +233...)"
+      <PhoneInput
         value={phone}
-        onChange={(e) => onChange({ name, phone: e.target.value })}
-        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm"
+        defaultCountryIso2={defaultCountryIso2}
+        onChange={(e164) => onChange({ name, phone: e164 })}
       />
     </section>
   );
