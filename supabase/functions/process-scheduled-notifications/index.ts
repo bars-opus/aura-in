@@ -1,6 +1,10 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { redactError } from "../_shared/sanitize.ts";
+import {
+  sendWhatsAppTemplate,
+  WhatsAppTemplateNotFoundError,
+} from "../_shared/whatsapp_client.ts";
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
@@ -99,44 +103,46 @@ async function dispatchWhatsApp(
     return;
   }
 
-  // Call whatsapp-send (internal, service-role auth required).
-  const url = `${SUPABASE_URL}/functions/v1/whatsapp-send`;
-  let res: Response;
+  // Call Meta directly — avoids a function-to-function hop that requires
+  // forwarding the platform JWT (the auto-injected SUPABASE_SERVICE_ROLE_KEY
+  // in the edge runtime didn't validate against whatsapp-send's verify_jwt
+  // gate). Both functions wrap the same _shared/whatsapp_client helper,
+  // so the contract is identical.
+  const orderedParams = Object.keys(params)
+    .sort((a, b) => parseInt(a) - parseInt(b))
+    .map((k) => (params as Record<string, string>)[k]);
+
+  let messageId: string;
   try {
-    res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-      },
-      body: JSON.stringify({ to: phone, template, params }),
-      // 15s: whatsapp-send itself calls Meta with a 10s timeout, plus
-      // a little headroom for our function's own startup.
-      signal: AbortSignal.timeout(15_000),
+    const result = await sendWhatsAppTemplate({
+      to: phone,
+      templateName: template,
+      bodyParams: orderedParams,
     });
+    messageId = result.messageId;
   } catch (err) {
-    // Network failure reaching whatsapp-send — treat as transient.
+    if (err instanceof WhatsAppTemplateNotFoundError) {
+      // Template not yet approved at Meta — defer 6 h and retry.
+      await deferNotification(row.id, 6 * 60 * 60 * 1000);
+      return;
+    }
     await incrementWhatsAppRetryOrFail(
       row.id,
       row.retry_count ?? 0,
       meta,
-      `whatsapp-send fetch failed: ${redactError(err)}`,
+      `Meta send failed: ${redactError(err)}`,
     );
     return;
   }
 
-  const body = (await res.json().catch(() => ({}))) as {
+  // Synthesize the old shape so the success path below stays unchanged.
+  const res = { ok: true, status: 200 } as { ok: boolean; status: number };
+  const body = { success: true, messageId } as {
     success?: boolean;
     error?: string;
     message?: string;
     messageId?: string;
   };
-
-  // Template not yet approved at Meta — defer 6 h and retry.
-  if (res.status === 202 && body.error === "template_not_found") {
-    await deferNotification(row.id, 6 * 60 * 60 * 1000);
-    return;
-  }
 
   if (!res.ok || !body.success) {
     await incrementWhatsAppRetryOrFail(
