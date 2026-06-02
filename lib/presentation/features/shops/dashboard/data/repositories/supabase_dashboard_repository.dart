@@ -761,42 +761,55 @@ class SupabaseDashboardRepository implements DashboardRepository {
       final bookingIds = bookings.map((b) => b['id']).toList();
       final Map<String, Map<String, dynamic>> serviceStats = {};
 
-      // Get all booking_services
-      for (final bookingId in bookingIds) {
-        final services = await _supabase
-            .from('booking_services')
-            .select('price_at_booking, slot_id')
-            .eq('booking_id', bookingId);
+      // Single batched fetch instead of N+1 per booking. Drops what was
+      // O(bookings × services × 2) round-trips down to 2 queries total.
+      final servicesResponse = await _supabase
+          .from('booking_services')
+          .select('price_at_booking, slot_id, service_name')
+          .inFilter('booking_id', bookingIds);
 
-        for (final item in services) {
-          final slotId = item['slot_id'];
-          if (slotId == null) continue;
-
-          final price = (item['price_at_booking'] as num).toDouble();
-
-          final slotResponse =
-              await _supabase
-                  .from('appointment_slots')
-                  .select('id, service_name')
-                  .eq('id', slotId)
-                  .maybeSingle();
-
-          if (slotResponse == null) continue;
-          final serviceId = slotResponse['id'];
-          final serviceName = slotResponse['service_name'];
-          if (!serviceStats.containsKey(serviceId)) {
-            serviceStats[serviceId] = {
-              'service_id': serviceId,
-              'service_name': serviceName,
-              'booking_count': 0,
-              'revenue': 0.0,
-            };
-          }
-          serviceStats[serviceId]!['booking_count'] =
-              serviceStats[serviceId]!['booking_count'] + 1;
-          serviceStats[serviceId]!['revenue'] =
-              serviceStats[serviceId]!['revenue'] + price;
+      // Fall back to appointment_slots only for rows where service_name
+      // wasn't denormalized onto booking_services (legacy data).
+      final missingSlotIds = <String>{};
+      for (final item in servicesResponse) {
+        final slotId = item['slot_id'];
+        final svcName = item['service_name'];
+        if (slotId != null && (svcName == null || svcName.toString().isEmpty)) {
+          missingSlotIds.add(slotId as String);
         }
+      }
+      final Map<String, String> slotNameById = {};
+      if (missingSlotIds.isNotEmpty) {
+        final slotsResponse = await _supabase
+            .from('appointment_slots')
+            .select('id, service_name')
+            .inFilter('id', missingSlotIds.toList());
+        for (final slot in slotsResponse) {
+          slotNameById[slot['id'] as String] = slot['service_name'] as String? ?? '';
+        }
+      }
+
+      for (final item in servicesResponse) {
+        final slotId = item['slot_id'];
+        if (slotId == null) continue;
+        final price = (item['price_at_booking'] as num).toDouble();
+        final serviceName = (item['service_name'] as String?)?.isNotEmpty == true
+            ? item['service_name'] as String
+            : slotNameById[slotId] ?? '';
+        if (serviceName.isEmpty) continue;
+        final serviceId = slotId as String;
+        if (!serviceStats.containsKey(serviceId)) {
+          serviceStats[serviceId] = {
+            'service_id': serviceId,
+            'service_name': serviceName,
+            'booking_count': 0,
+            'revenue': 0.0,
+          };
+        }
+        serviceStats[serviceId]!['booking_count'] =
+            serviceStats[serviceId]!['booking_count'] + 1;
+        serviceStats[serviceId]!['revenue'] =
+            serviceStats[serviceId]!['revenue'] + price;
       }
 
       if (serviceStats.isEmpty) {
