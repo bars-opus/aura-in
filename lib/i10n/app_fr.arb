@@ -1161,5 +1161,33 @@
         "example": "Lun, 15 Jan 2026"
       }
     }
+  },
+
+  "reviewsScreenTitle": "Avis pour {shopName}",
+  "@reviewsScreenTitle": {
+    "description": "App bar title for shop reviews screen",
+    "placeholders": {
+      "shopName": {
+        "type": "String",
+        "example": "Salon Deluxe"
+      }
+    }
+  },
+  "reviewsLoadError": "Impossible de charger les avis",
+  "reviewsNoReviews": "Pas d'avis pour le moment",
+  "reviewsRateProduct": "Évaluer le produit",
+  "reviewsYourReview": "Votre avis",
+  "reviewsReviewHint": "Partagez votre expérience avec ce produit...",
+  "reviewsSubmitButton": "Envoyer l'avis",
+  "reviewsThankYou": "Merci pour votre avis !",
+  "reviewsSubmitError": "Impossible d'envoyer l'avis : {error}",
+  "@reviewsSubmitError": {
+    "description": "Error message when review submission fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Erreur réseau"
+      }
+    }
   }
 }

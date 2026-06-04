@@ -3108,6 +3108,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No appointments on this day\n{date}'**
   String calendarNoAppointmentsSnackbar(String date);
+
+  /// App bar title for shop reviews screen
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews for {shopName}'**
+  String reviewsScreenTitle(String shopName);
+
+  /// No description provided for @reviewsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load reviews'**
+  String get reviewsLoadError;
+
+  /// No description provided for @reviewsNoReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet'**
+  String get reviewsNoReviews;
+
+  /// No description provided for @reviewsRateProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate Your Product'**
+  String get reviewsRateProduct;
+
+  /// No description provided for @reviewsYourReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Review'**
+  String get reviewsYourReview;
+
+  /// No description provided for @reviewsReviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your experience with this product...'**
+  String get reviewsReviewHint;
+
+  /// No description provided for @reviewsSubmitButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Review'**
+  String get reviewsSubmitButton;
+
+  /// No description provided for @reviewsThankYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your review!'**
+  String get reviewsThankYou;
+
+  /// Error message when review submission fails
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to submit review: {error}'**
+  String reviewsSubmitError(String error);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

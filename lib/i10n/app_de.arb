@@ -1162,5 +1162,33 @@
         "example": "Mo, 15. Jan 2026"
       }
     }
+  },
+
+  "reviewsScreenTitle": "Bewertungen für {shopName}",
+  "@reviewsScreenTitle": {
+    "description": "App bar title for shop reviews screen",
+    "placeholders": {
+      "shopName": {
+        "type": "String",
+        "example": "Salon Deluxe"
+      }
+    }
+  },
+  "reviewsLoadError": "Bewertungen konnten nicht geladen werden",
+  "reviewsNoReviews": "Noch keine Bewertungen",
+  "reviewsRateProduct": "Produkt bewerten",
+  "reviewsYourReview": "Ihre Bewertung",
+  "reviewsReviewHint": "Teilen Sie Ihre Erfahrung mit diesem Produkt...",
+  "reviewsSubmitButton": "Bewertung senden",
+  "reviewsThankYou": "Vielen Dank für Ihre Bewertung!",
+  "reviewsSubmitError": "Bewertung konnte nicht eingereicht werden: {error}",
+  "@reviewsSubmitError": {
+    "description": "Error message when review submission fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Netzwerkfehler"
+      }
+    }
   }
 }

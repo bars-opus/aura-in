@@ -37,6 +37,7 @@ class _ProductReviewBottomSheetState
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -53,7 +54,7 @@ class _ProductReviewBottomSheetState
               child: Column(
                 children: [
                   Text(
-                    'Rate Your Product',
+                    loc.reviewsRateProduct,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -90,8 +91,8 @@ class _ProductReviewBottomSheetState
             // Review Text Field
             AppTextFormField(
               controller: _reviewController,
-              label: 'Your Review',
-              hintText: 'Share your experience with this product...',
+              label: loc.reviewsYourReview,
+              hintText: loc.reviewsReviewHint,
               maxLines: 5,
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.done,
@@ -104,7 +105,7 @@ class _ProductReviewBottomSheetState
                 ? const Center(child: CircularLoadingIndicator())
                 : AppButton(
                   elevation: 0,
-                  label: 'Submit Review',
+                  label: loc.reviewsSubmitButton,
                   onPressed:
                       _selectedRating > 0 && !_isSubmitting
                           ? _submitReview
@@ -123,6 +124,7 @@ class _ProductReviewBottomSheetState
   }
 
   Future<void> _submitReview() async {
+    final loc = AppLocalizations.of(context)!;
     setState(() {
       _isSubmitting = true;
     });
@@ -144,14 +146,14 @@ class _ProductReviewBottomSheetState
         Navigator.pop(context);
         widget.onReviewSubmitted();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Thank you for your review!')),
+          SnackBar(content: Text(loc.reviewsThankYou)),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Failed to submit review: $e')));
+        ).showSnackBar(SnackBar(content: Text(loc.reviewsSubmitError(e.toString()))));
       }
     } finally {
       if (mounted) {

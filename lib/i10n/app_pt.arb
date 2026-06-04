@@ -1161,5 +1161,33 @@
         "example": "Seg, 15 Jan 2026"
       }
     }
+  },
+
+  "reviewsScreenTitle": "Avaliações para {shopName}",
+  "@reviewsScreenTitle": {
+    "description": "App bar title for shop reviews screen",
+    "placeholders": {
+      "shopName": {
+        "type": "String",
+        "example": "Salão Deluxe"
+      }
+    }
+  },
+  "reviewsLoadError": "Não foi possível carregar as avaliações",
+  "reviewsNoReviews": "Sem avaliações ainda",
+  "reviewsRateProduct": "Avaliar produto",
+  "reviewsYourReview": "Sua avaliação",
+  "reviewsReviewHint": "Compartilhe sua experiência com este produto...",
+  "reviewsSubmitButton": "Enviar avaliação",
+  "reviewsThankYou": "Obrigado pela sua avaliação!",
+  "reviewsSubmitError": "Não foi possível enviar a avaliação: {error}",
+  "@reviewsSubmitError": {
+    "description": "Error message when review submission fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Erro de rede"
+      }
+    }
   }
 }

@@ -1205,5 +1205,33 @@
         "example": "Mon, Jan 15, 2026"
       }
     }
+  },
+
+  "reviewsScreenTitle": "Reviews for {shopName}",
+  "@reviewsScreenTitle": {
+    "description": "App bar title for shop reviews screen",
+    "placeholders": {
+      "shopName": {
+        "type": "String",
+        "example": "Salon Deluxe"
+      }
+    }
+  },
+  "reviewsLoadError": "Failed to load reviews",
+  "reviewsNoReviews": "No reviews yet",
+  "reviewsRateProduct": "Rate Your Product",
+  "reviewsYourReview": "Your Review",
+  "reviewsReviewHint": "Share your experience with this product...",
+  "reviewsSubmitButton": "Submit Review",
+  "reviewsThankYou": "Thank you for your review!",
+  "reviewsSubmitError": "Failed to submit review: {error}",
+  "@reviewsSubmitError": {
+    "description": "Error message when review submission fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
   }
 }

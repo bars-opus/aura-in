@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
 import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/review_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/widgets/review_display_widget.dart';
 
@@ -19,14 +20,15 @@ class ShopReviewsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     final reviewsAsync = ref.watch(shopReviewsProvider(shopId));
 
     return Scaffold(
-      appBar: AppBar(title: Text('Reviews for $shopName'), centerTitle: false),
+      appBar: AppBar(title: Text(loc.reviewsScreenTitle(shopName)), centerTitle: false),
       body: reviewsAsync.when(
         data: (reviews) {
           if (reviews.isEmpty) {
-            return _buildEmptyState(context);
+            return _buildEmptyState(context, loc);
           }
 
           return ListView.builder(
@@ -54,7 +56,7 @@ class ShopReviewsScreen extends ConsumerWidget {
                   ),
                   SizedBox(height: Spacing.md.h),
                   Text(
-                    'Failed to load reviews',
+                    loc.reviewsLoadError,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   SizedBox(height: Spacing.sm.h),
@@ -70,12 +72,12 @@ class ShopReviewsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(BuildContext context, AppLocalizations loc) {
     return Center(
       child: EmptyStateWidget(
         title: '',
         icon: Icons.rate_review_outlined,
-        subtitle: 'No reviews yet',
+        subtitle: loc.reviewsNoReviews,
       ),
     );
   }

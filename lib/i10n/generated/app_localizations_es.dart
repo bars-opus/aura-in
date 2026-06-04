@@ -1637,4 +1637,35 @@ class AppLocalizationsEs extends AppLocalizations {
   String calendarNoAppointmentsSnackbar(String date) {
     return 'Sin citas en este día\n$date';
   }
+
+  @override
+  String reviewsScreenTitle(String shopName) {
+    return 'Reseñas para $shopName';
+  }
+
+  @override
+  String get reviewsLoadError => 'No se pudieron cargar las reseñas';
+
+  @override
+  String get reviewsNoReviews => 'Sin reseñas aún';
+
+  @override
+  String get reviewsRateProduct => 'Calificar producto';
+
+  @override
+  String get reviewsYourReview => 'Tu reseña';
+
+  @override
+  String get reviewsReviewHint => 'Comparte tu experiencia con este producto...';
+
+  @override
+  String get reviewsSubmitButton => 'Enviar reseña';
+
+  @override
+  String get reviewsThankYou => '¡Gracias por tu reseña!';
+
+  @override
+  String reviewsSubmitError(String error) {
+    return 'No se pudo enviar la reseña: $error';
+  }
 }
