@@ -1,4 +1,19 @@
 // lib/features/dashboard/presentation/screens/tools_screen.dart
+//
+// Tools tab for the shop-owner dashboard. Six cards:
+//   0. Automated Reminders   -> ReminderSettingsScreen
+//   1. Promotions Manager    -> PromotionsScreen
+//   2. Export Reports        -> ExportReportsScreen
+//   3. Payment Settings      -> /paymentSettingsScreen via context.push
+//                              (extras sourced from shopDetailsProvider)
+//   4. Business Hours        -> Coming Soon (disabled + SnackBar on tap)
+//   5. Service Management    -> Coming Soon (disabled + SnackBar on tap)
+//
+// Phase 10.5 fixed three dead-route bugs where cards 3, 4, 5 all opened
+// ExportReportsScreen via the now-deleted _openExport helper. The two
+// Coming Soon cards render at 50% opacity but still accept taps so the
+// SnackBar fires.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,7 +26,6 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/s
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/promotions_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/reminder_settings_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/tools/kpi_card.dart';
-import 'package:nano_embryo/payment/presentation/screens/payment_settings_screen.dart';
 
 class ToolsScreen extends ConsumerWidget {
   final String shopId;
@@ -20,44 +34,21 @@ class ToolsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Add the method:
-    void _openPromotions(BuildContext context) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PromotionsScreen(shopId: shopId),
-        ),
-      );
-    }
-
-    // Add the method:
-    void _openExport(BuildContext context) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ExportReportsScreen(shopId: shopId),
-        ),
-      );
-    }
-
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     final shopDetailsAsync = ref.watch(shopDetailsProvider(shopId));
-    final shopName = shopDetailsAsync.maybeWhen(
-      data: (shop) => shop?.shopName ?? '',
-      orElse: () => '',
-    );
-    final bookingSlug = shopDetailsAsync.maybeWhen(
-      data: (shop) => shop?.bookingSlug,
+    final shop = shopDetailsAsync.maybeWhen(
+      data: (s) => s,
       orElse: () => null,
     );
+    final shopName = shop?.shopName ?? '';
+    final bookingSlug = shop?.bookingSlug;
 
     return Scaffold(
       body: CardInkWell(
         elevation: 0,
         onTap: () {},
-        // borderRadius: BorderRadius.circular(30),
         margin: EdgeInsets.all(Spacing.md),
         child: ListView(
           children: [
@@ -100,7 +91,7 @@ class ToolsScreen extends ConsumerWidget {
               child: ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 padding: EdgeInsets.symmetric(vertical: Spacing.sm.h),
-                itemCount: 6, // Number of tools
+                itemCount: 6,
                 itemBuilder: (context, index) {
                   switch (index) {
                     case 0:
@@ -110,8 +101,6 @@ class ToolsScreen extends ConsumerWidget {
                         icon: Icons.notifications_active,
                         iconColor: colorScheme.error,
                         onTap: () => _openReminderSettings(context),
-
-                        // trendUpIsPositive: data.trendUpIsPositive,
                       );
                     case 1:
                       return KpiCard(
@@ -120,10 +109,7 @@ class ToolsScreen extends ConsumerWidget {
                         icon: Icons.local_offer,
                         iconColor: colorScheme.success,
                         onTap: () => _openPromotions(context),
-
-                        // trendUpIsPositive: data.trendUpIsPositive,
                       );
-
                     case 2:
                       return KpiCard(
                         title: 'Export →',
@@ -131,43 +117,66 @@ class ToolsScreen extends ConsumerWidget {
                         icon: Icons.download,
                         iconColor: colorScheme.warning,
                         onTap: () => _openExport(context),
-
-                        // trendUpIsPositive: data.trendUpIsPositive,
                       );
-
                     case 3:
+                      // Payment Settings. Gate on shopDetailsAsync being
+                      // loaded — tapping during the first ~200ms after tab
+                      // open would otherwise push with empty extras.
+                      final paymentEnabled = shop != null;
                       return KpiCard(
                         title: 'Configure →',
                         value: 'Payment Settings',
                         icon: Icons.payment,
                         iconColor: colorScheme.info,
-                        onTap: () => _openExport(context),
-
-                        // trendUpIsPositive: data.trendUpIsPositive,
+                        enabled: paymentEnabled,
+                        onTap: () {
+                          if (shop == null) {
+                            Snackbar.info(
+                              context,
+                              'Loading shop details…',
+                            );
+                            return;
+                          }
+                          // DTO -> route extras mapping (locked by RESEARCH
+                          // Finding 1): the route's keys differ from the DTO
+                          // field names. shopOwnerId <- shop.userId,
+                          // shopCurrencyCode <- shop.currency, etc.
+                          context.push(
+                            '/paymentSettingsScreen',
+                            extra: {
+                              'shopId': shopId,
+                              'shopName': shop.shopName,
+                              'shopOwnerId': shop.userId,
+                              'shopCurrencyCode': shop.currency ?? '',
+                              'shopCountry': shop.country ?? '',
+                            },
+                          );
+                        },
                       );
-
                     case 4:
                       return KpiCard(
                         title: 'Coming Soon',
                         value: 'Business Hours',
                         icon: Icons.access_time,
                         iconColor: colorScheme.error,
-                        onTap: () => _openExport(context),
-
-                        // trendUpIsPositive: data.trendUpIsPositive,
+                        enabled: false,
+                        onTap: () => Snackbar.info(
+                          context,
+                          'Coming in a future release.',
+                        ),
                       );
-
                     case 5:
                       return KpiCard(
                         title: 'Coming Soon',
                         value: 'Service Management',
                         icon: Icons.access_time,
                         iconColor: colorScheme.error,
-                        onTap: () => _openExport(context),
-
-                        // trendUpIsPositive: data.trendUpIsPositive,
+                        enabled: false,
+                        onTap: () => Snackbar.info(
+                          context,
+                          'Coming in a future release.',
+                        ),
                       );
-
                     default:
                       return const SizedBox.shrink();
                   }
@@ -185,6 +194,24 @@ class ToolsScreen extends ConsumerWidget {
       context,
       MaterialPageRoute(
         builder: (context) => ReminderSettingsScreen(shopId: shopId),
+      ),
+    );
+  }
+
+  void _openPromotions(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PromotionsScreen(shopId: shopId),
+      ),
+    );
+  }
+
+  void _openExport(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ExportReportsScreen(shopId: shopId),
       ),
     );
   }

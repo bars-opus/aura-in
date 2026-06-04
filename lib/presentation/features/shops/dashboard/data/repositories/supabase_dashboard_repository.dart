@@ -2346,15 +2346,17 @@ class SupabaseDashboardRepository implements DashboardRepository {
   @override
   Future<void> sendManualReminder(String bookingId) async {
     try {
-      await _supabase.functions.invoke(
-        'send-reminder',
-        body: {'booking_id': bookingId, 'type': 'manual'},
+      await _supabase.rpc(
+        'schedule_manual_booking_reminder',
+        params: {'p_booking_id': bookingId},
       );
-    } catch (e) {
+    } on PostgrestException catch (e) {
       throw DashboardRepositoryException(
-        'Failed to send manual reminder',
+        _classifyReminderError(e),
         originalError: e,
       );
+    } catch (e) {
+      throw DashboardRepositoryException('reminder_send_failed', originalError: e);
     }
   }
 
@@ -2363,27 +2365,30 @@ class SupabaseDashboardRepository implements DashboardRepository {
     try {
       final targetDate = date ?? DateTime.now();
       final dateStr = targetDate.toIso8601String().split('T').first;
-
-      final bookings = await _supabase
-          .from('bookings')
-          .select('id')
-          .eq('shop_id', shopId)
-          .eq('booking_date', dateStr)
-          .eq('status', 'confirmed');
-
-      final bookingIds = List<Map<String, dynamic>>.from(bookings);
-
-      for (final booking in bookingIds) {
-        await sendManualReminder(booking['id']);
-      }
-
-      return bookingIds.length;
-    } catch (e) {
+      final count = await _supabase.rpc(
+        'schedule_bulk_manual_booking_reminders',
+        params: {'p_shop_id': shopId, 'p_date': dateStr},
+      );
+      return (count as num).toInt();
+    } on PostgrestException catch (e) {
       throw DashboardRepositoryException(
-        'Failed to send bulk reminders',
+        _classifyReminderError(e),
         originalError: e,
       );
+    } catch (e) {
+      throw DashboardRepositoryException('reminder_send_failed', originalError: e);
     }
+  }
+
+  /// Maps PostgrestException from the two reminder RPCs to a stable
+  /// internal classifier. Never echoes the raw exception body.
+  String _classifyReminderError(PostgrestException e) {
+    if (e.code == '42501' || e.code == 'P0002') return 'not_found';
+    final hint = e.hint ?? '';
+    if (hint.contains('BOOKING_ALREADY_STARTED')) return 'booking_in_past';
+    if (hint.contains('NO_PUSH_FOR_GUEST')) return 'guest_booking_not_supported';
+    if (e.code == '22023') return 'invalid_input';
+    return 'reminder_send_failed';
   }
 
   @override

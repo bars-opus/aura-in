@@ -1,6 +1,7 @@
 // lib/features/dashboard/presentation/controllers/reminders_controller.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equatable/equatable.dart';
+import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/repositories/dashboard_repository.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/services/notification_service.dart';
 
@@ -86,7 +87,9 @@ class RemindersController extends StateNotifier<RemindersState> {
       state = state.copyWith(settings: settings, isLoading: false, error: null);
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isLoading: false, error: e.toString());
+      AppLogger.warn('reminders.load_failed',
+          fields: {'shop_id': state.shopId, 'error': e.toString()});
+      state = state.copyWith(isLoading: false, error: 'load_failed');
     }
   }
 
@@ -102,7 +105,9 @@ class RemindersController extends StateNotifier<RemindersState> {
       state = state.copyWith(settings: settings, isRefreshing: false, error: null);
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isRefreshing: false, error: e.toString());
+      AppLogger.warn('reminders.refresh_failed',
+          fields: {'shop_id': state.shopId, 'error': e.toString()});
+      state = state.copyWith(isRefreshing: false, error: 'refresh_failed');
     }
   }
 
@@ -128,7 +133,9 @@ class RemindersController extends StateNotifier<RemindersState> {
       state = state.copyWith(settings: settings, isLoading: false, error: null);
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isLoading: false, error: e.toString());
+      AppLogger.warn('reminders.update_failed',
+          fields: {'shop_id': state.shopId, 'error': e.toString()});
+      state = state.copyWith(isLoading: false, error: 'update_failed');
     }
   }
 
@@ -144,7 +151,9 @@ class RemindersController extends StateNotifier<RemindersState> {
       state = state.copyWith(isSending: false, lastSentCount: count, error: null);
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isSending: false, error: e.toString());
+      AppLogger.warn('reminders.send_bulk_failed',
+          fields: {'shop_id': state.shopId, 'error': e.toString()});
+      state = state.copyWith(isSending: false, error: 'send_bulk_failed');
     }
   }
 
@@ -160,7 +169,9 @@ class RemindersController extends StateNotifier<RemindersState> {
       state = state.copyWith(isSending: false, error: null);
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isSending: false, error: e.toString());
+      AppLogger.warn('reminders.send_manual_failed',
+          fields: {'shop_id': state.shopId, 'error': e.toString()});
+      state = state.copyWith(isSending: false, error: 'send_manual_failed');
     }
   }
 

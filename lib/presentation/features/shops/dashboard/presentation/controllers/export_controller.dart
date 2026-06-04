@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equatable/equatable.dart';
+import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/export_report.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/services/export_service.dart';
 import 'package:share_plus/share_plus.dart';
@@ -73,7 +74,8 @@ class ExportController extends StateNotifier<ExportState> {
       );
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isExporting: false, error: e.toString());
+      AppLogger.warn('export.export_failed', fields: {'error': e.toString()});
+      state = state.copyWith(isExporting: false, error: 'export_failed');
     }
   }
 
@@ -85,7 +87,8 @@ class ExportController extends StateNotifier<ExportState> {
         XFile(state.filePath!),
       ], text: 'Here is your exported report from NanoEmbryo');
     } catch (e) {
-      state = state.copyWith(error: 'Failed to share file: $e');
+      AppLogger.warn('export.share_failed', fields: {'error': e.toString()});
+      state = state.copyWith(error: 'share_failed');
     }
   }
 

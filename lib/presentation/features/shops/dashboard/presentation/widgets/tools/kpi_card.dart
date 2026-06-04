@@ -6,7 +6,12 @@ import 'package:nano_embryo/app/theme/app_colors.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 
-/// Individual KPI card displaying a metric with optional trend indicator
+/// Individual KPI card displaying a metric with optional trend indicator.
+///
+/// When [enabled] is `false`, the card content is rendered at 50% opacity
+/// so it reads as disabled, but [onTap] still fires — callers use this to
+/// show a "coming soon" SnackBar instead of opening a screen.
+/// Do NOT wrap in `IgnorePointer` (it would suppress the SnackBar tap).
 class KpiCard extends StatelessWidget {
   final String title;
   final String value;
@@ -15,6 +20,7 @@ class KpiCard extends StatelessWidget {
   final double? trendPercent;
   final bool trendUpIsPositive;
   final VoidCallback? onTap;
+  final bool enabled;
 
   const KpiCard({
     super.key,
@@ -25,6 +31,7 @@ class KpiCard extends StatelessWidget {
     this.trendPercent,
     this.trendUpIsPositive = true,
     this.onTap,
+    this.enabled = true,
   });
 
   @override
@@ -32,7 +39,7 @@ class KpiCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return InfoRowWidget(
+    final card = InfoRowWidget(
       title: value,
       subtitle: title,
       onTap: onTap,
@@ -77,6 +84,7 @@ class KpiCard extends StatelessWidget {
               )
               : SizedBox.shrink(),
     );
+    return enabled ? card : Opacity(opacity: 0.5, child: card);
   }
 
   bool get _isPositiveTrend {
