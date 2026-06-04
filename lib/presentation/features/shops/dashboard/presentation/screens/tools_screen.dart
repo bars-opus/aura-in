@@ -6,13 +6,15 @@
 //   2. Export Reports        -> ExportReportsScreen
 //   3. Payment Settings      -> /paymentSettingsScreen via context.push
 //                              (extras sourced from shopDetailsProvider)
-//   4. Business Hours        -> Coming Soon (disabled + SnackBar on tap)
-//   5. Service Management    -> Coming Soon (disabled + SnackBar on tap)
+//   4. Business Hours        -> BusinessHoursScreen (Phase 11)
+//   5. Service Management    -> ServiceManagementScreen (Phase 11)
 //
 // Phase 10.5 fixed three dead-route bugs where cards 3, 4, 5 all opened
-// ExportReportsScreen via the now-deleted _openExport helper. The two
-// Coming Soon cards render at 50% opacity but still accept taps so the
-// SnackBar fires.
+// ExportReportsScreen via the now-deleted _openExport helper.
+// Phase 11 promoted cards 4 and 5 from disabled "Coming Soon"
+// placeholders to working editors. The Snackbar import stays because
+// case 3 (Payment Settings) still uses Snackbar.info while the shop
+// details async is loading.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,9 +24,11 @@ import 'package:nano_embryo/core/link/providers/link_providers.dart';
 import 'package:nano_embryo/core/link/widgets/shareable_link_section.dart';
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_details_provider.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/business_hours_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/export_reports_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/promotions_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/reminder_settings_screen.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/service_management_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/tools/kpi_card.dart';
 
 class ToolsScreen extends ConsumerWidget {
@@ -154,27 +158,37 @@ class ToolsScreen extends ConsumerWidget {
                         },
                       );
                     case 4:
+                      // Phase 11: Business Hours editor — routes to the
+                      // new BusinessHoursScreen which performs an atomic
+                      // DELETE+INSERT rebuild via the
+                      // rebuild_shop_opening_hours RPC.
                       return KpiCard(
-                        title: 'Coming Soon',
+                        title: 'Configure →',
                         value: 'Business Hours',
                         icon: Icons.access_time,
                         iconColor: colorScheme.error,
-                        enabled: false,
-                        onTap: () => Snackbar.info(
+                        onTap: () => Navigator.push(
                           context,
-                          'Coming in a future release.',
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                BusinessHoursScreen(shopId: shopId),
+                          ),
                         ),
                       );
                     case 5:
+                      // Phase 11: Service Management — list/edit/archive
+                      // via the new ServiceManagementScreen.
                       return KpiCard(
-                        title: 'Coming Soon',
+                        title: 'Manage →',
                         value: 'Service Management',
-                        icon: Icons.access_time,
+                        icon: Icons.cut,
                         iconColor: colorScheme.error,
-                        enabled: false,
-                        onTap: () => Snackbar.info(
+                        onTap: () => Navigator.push(
                           context,
-                          'Coming in a future release.',
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                ServiceManagementScreen(shopId: shopId),
+                          ),
                         ),
                       );
                     default:

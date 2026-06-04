@@ -14,6 +14,7 @@ import 'package:nano_embryo/presentation/features/shops/booking/presentation/wid
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/service_selection/service_ticket_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/service_form_modal.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/appointmetn_workers_provider.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/providers/hours_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/services_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_creation_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/utils/undo_service.dart';
@@ -351,6 +352,7 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
                     },
                     shopId: widget.shopId,
                     availableWorkers: workers,
+                    availableHours: ref.read(hoursProvider),
                   ),
             ),
           );
@@ -384,7 +386,8 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
                       ref.read(servicesProvider.notifier).addService(service);
                     },
                     shopId: widget.shopId,
-                    availableWorkers: [],
+                    availableWorkers: const [],
+                    availableHours: ref.read(hoursProvider),
                   ),
             ),
           );
@@ -426,6 +429,7 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
                     },
                     shopId: widget.shopId,
                     availableWorkers: workers,
+                    availableHours: ref.read(hoursProvider),
                   ),
             ),
           );
@@ -446,6 +450,7 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
               },
               shopId: widget.shopId,
               availableWorkers: const [],
+              availableHours: ref.read(hoursProvider),
             ),
           );
         }
@@ -465,6 +470,7 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
               },
               shopId: widget.shopId,
               availableWorkers: const [],
+              availableHours: ref.read(hoursProvider),
             ),
           );
         }

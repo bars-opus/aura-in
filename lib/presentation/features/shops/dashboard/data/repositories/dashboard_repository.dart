@@ -6,8 +6,10 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/an
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/quaterly_category_breakdown.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/weekly_revenue.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/clients/client_profile.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/domain/models/opening_hours_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/dashboard_metrics.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/lost_booking_metrics.dart';
+import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/export_report.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/performance_alert.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/quarterly_revenue.dart';
@@ -313,4 +315,31 @@ abstract class DashboardRepository {
     int lookbackDays = 90,
     int minLost = 2,
   });
+
+  // ============ Business Hours + Service Management (Phase 11) ============
+  //
+  // Both surfaces wrap SECURITY DEFINER RPCs that enforce
+  // auth.uid()-owns-shop. On error they throw the corresponding typed
+  // exception ([BusinessHoursException] / [ServiceManagementException])
+  // with a sanitized message; implementations MUST NOT echo raw
+  // PostgrestException text.
+
+  /// Atomic DELETE+INSERT rebuild of a shop's weekly opening hours. One
+  /// transaction at the DB layer; partial-write impossible. Throws
+  /// [InvalidHoursPayloadException], [DayOfWeekOutOfRangeException],
+  /// [HoursNotFoundException], or [HoursSaveFailedException].
+  Future<void> rebuildShopOpeningHours({
+    required String shopId,
+    required List<OpeningHoursDraft> hours,
+  });
+
+  /// Returns the shop's active (non-archived) services, capped at 200
+  /// rows server-side.
+  Future<List<AppointmentSlotDTO>> getActiveServices(String shopId);
+
+  /// Soft-deletes a service by setting `archived_at`. Idempotent — a
+  /// second call on an already-archived slot is a no-op. Throws
+  /// [ServiceNotFoundException] (authz failure or unknown id) or
+  /// [ServiceArchiveFailedException].
+  Future<void> archiveAppointmentSlot(String slotId);
 }

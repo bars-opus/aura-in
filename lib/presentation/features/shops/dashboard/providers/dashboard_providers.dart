@@ -16,10 +16,14 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/c
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/client_management_controller.dart'
     show ClientManagementState, ClientManagementController;
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/export_controller.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/domain/models/opening_hours_draft.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/business_hours_edit_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/heatmap_controller.dart'
     show HeatmapState, HeatmapController;
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/lost_bookings_controller.dart'
     show LostBookingsState, LostBookingsController;
+import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_repository_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/providers/booking_mutation_signal.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/owner_dashboard_controller.dart'
     show OwnerDashboardState, OwnerDashboardController;
@@ -218,6 +222,32 @@ final lostBookingsControllerProviderFamily = StateNotifierProvider.family<
     controller.refresh();
   });
   return controller;
+});
+
+// ===== Phase 11 — Business Hours + Service Management =====
+
+/// Controller for the Tools-tab BusinessHoursScreen. Family keyed on
+/// shopId so editing two shops' hours in succession produces two
+/// independent controllers (each with its own server load).
+final businessHoursEditControllerProvider = StateNotifierProvider.family<
+    BusinessHoursEditController,
+    AsyncValue<List<OpeningHoursDraft>>,
+    String>((ref, shopId) {
+  return BusinessHoursEditController(
+    shopId: shopId,
+    dashboardRepo: ref.watch(dashboardRepositoryProvider),
+    shopRepo: ref.watch(shopRepositoryProvider),
+  );
+});
+
+/// Active (non-archived) services for a shop. Used by
+/// ServiceManagementScreen's list view. Auto-invalidated by the
+/// archive / save callbacks in that screen so a Future.value() refetch
+/// flushes the list.
+final activeServicesProvider =
+    FutureProvider.family<List<AppointmentSlotDTO>, String>(
+        (ref, shopId) async {
+  return ref.read(dashboardRepositoryProvider).getActiveServices(shopId);
 });
 
 final remindersControllerProviderFamily = StateNotifierProvider.family<

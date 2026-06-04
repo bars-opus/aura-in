@@ -7,6 +7,11 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/an
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/quaterly_category_breakdown.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/weekly_revenue.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/clients/client_profile.dart';
+import 'package:nano_embryo/core/utils/logging/app_logger.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/domain/models/opening_hours_draft.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/business_hours_exceptions.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/service_management_exceptions.dart';
+import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/dashboard_metrics.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/lost_booking_metrics.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/export_report.dart';
@@ -2502,5 +2507,113 @@ class SupabaseDashboardRepository implements DashboardRepository {
     if (e.code == '42501') return 'not_found';
     if (e.code == '22023') return 'invalid_range';
     return 'load_failed';
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Business Hours + Service Management (Phase 11).
+  //
+  // All three methods funnel PostgrestException through HINT-aware
+  // classifiers and throw the typed BusinessHoursException /
+  // ServiceManagementException subtypes. Raw provider responses never
+  // reach the UI (checklist 4.4 + 5.5).
+  // ────────────────────────────────────────────────────────────────────
+
+  @override
+  Future<void> rebuildShopOpeningHours({
+    required String shopId,
+    required List<OpeningHoursDraft> hours,
+  }) async {
+    // Locked correction 1: opens_at / closes_at pass through as TEXT.
+    // The existing UI already writes "09:00 AM" strings — no conversion.
+    final hoursJson = hours
+        .map((h) => {
+              'day_of_week': h.dayOfWeek,
+              'opens_at': h.opensAt,
+              'closes_at': h.closesAt,
+              'is_closed': h.isClosed,
+            })
+        .toList();
+    try {
+      await _supabase.rpc(
+        'rebuild_shop_opening_hours',
+        params: {'p_shop_id': shopId, 'p_hours': hoursJson},
+      );
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'dashboard.rebuild_hours_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw _classifyHoursError(e, shopId);
+    } catch (e) {
+      AppLogger.warn(
+        'dashboard.rebuild_hours_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw HoursSaveFailedException();
+    }
+  }
+
+  /// Maps PostgrestException raised by `rebuild_shop_opening_hours`
+  /// to the typed exception subtype the controller branches on.
+  BusinessHoursException _classifyHoursError(
+      PostgrestException e, String shopId) {
+    if (e.code == '42501') return HoursNotFoundException(shopId);
+    final hint = e.hint ?? '';
+    if (e.code == '22023' && hint == 'DAY_OF_WEEK_OUT_OF_RANGE') {
+      return DayOfWeekOutOfRangeException();
+    }
+    if (e.code == '22023') return InvalidHoursPayloadException();
+    return HoursSaveFailedException();
+  }
+
+  @override
+  Future<List<AppointmentSlotDTO>> getActiveServices(String shopId) async {
+    try {
+      final response = await _supabase
+          .from('appointment_slots')
+          .select('*')
+          .eq('shop_id', shopId)
+          .isFilter('archived_at', null)
+          .order('created_at', ascending: false)
+          .limit(200);
+      final rows = List<Map<String, dynamic>>.from(response);
+      return rows.map(AppointmentSlotDTO.fromJson).toList();
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'dashboard.list_services_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw ServiceSaveFailedException();
+    } catch (e) {
+      AppLogger.warn(
+        'dashboard.list_services_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw ServiceSaveFailedException();
+    }
+  }
+
+  @override
+  Future<void> archiveAppointmentSlot(String slotId) async {
+    try {
+      await _supabase.rpc(
+        'archive_appointment_slot',
+        params: {'p_slot_id': slotId},
+      );
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'service.archive_failed',
+        fields: {'slot_id': slotId, 'error': e.toString()},
+      );
+      if (e.code == '42501') throw ServiceNotFoundException(slotId);
+      if (e.code == '22023') throw InvalidServicePayloadException();
+      throw ServiceArchiveFailedException();
+    } catch (e) {
+      AppLogger.warn(
+        'service.archive_failed',
+        fields: {'slot_id': slotId, 'error': e.toString()},
+      );
+      throw ServiceArchiveFailedException();
+    }
   }
 }

@@ -1,7 +1,18 @@
 // lib/features/shop/creation/presentation/widgets/service_form_modal.dart
+//
+// Phase 11 changes (locked corrections 7 + 8):
+//   * `availableHours` is now a required constructor parameter. The
+//     widget no longer reads `hoursProvider` at runtime. Call sites
+//     pass the shop's hours explicitly (creation flow reads from
+//     `hoursProvider`; Tools-tab edit flow passes the loaded shop's
+//     hours from `shopDetailsProvider`). This removes the silent
+//     cross-contamination risk where opening this modal from a
+//     published shop could pick up another shop's in-progress draft.
+//   * `bufferMinutes` is no longer hard-coded to 15. It now defaults
+//     to `widget.initialService?.bufferMinutes ?? 0`, so editing a
+//     saved service preserves its buffer.
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/opening_hours_draft.dart';
-import 'package:nano_embryo/presentation/features/shops/creation/providers/hours_provider.dart';
 
 final _selectedDaysProvider = StateProvider<List<int>>((ref) => []);
 
@@ -12,6 +23,11 @@ class ServiceFormModal extends ConsumerStatefulWidget {
   final String? shopId;
   final List<WorkerDTO>? availableWorkers;
 
+  /// Weekly opening hours for the shop the service belongs to. Required
+  /// so the form can validate day-of-week selections without reaching
+  /// for a global `hoursProvider` that may belong to a different shop.
+  final List<OpeningHoursDraft> availableHours;
+
   const ServiceFormModal({
     super.key,
     this.initialService,
@@ -19,6 +35,7 @@ class ServiceFormModal extends ConsumerStatefulWidget {
     required this.onSave,
     this.shopId,
     this.availableWorkers,
+    required this.availableHours,
   });
 
   @override
@@ -80,39 +97,33 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
       ref.read(_selectedDaysProvider.notifier).state = initialDays;
     });
 
-    _loadShopHours();
+    _hydrateFromProp();
   }
 
-  Future<void> _loadShopHours() async {
-    final hours = ref.read(hoursProvider);
-
+  /// Hydrate the form's hours state from the constructor parameter.
+  /// Phase 11: replaces the previous `ref.read(hoursProvider)` lookup
+  /// so this widget no longer couples to creation-flow global state.
+  void _hydrateFromProp() {
+    final hours = widget.availableHours;
     if (hours.isEmpty) {
-      setState(() {
-        _hasHoursError = true;
-        _isLoadingHours = false;
-      });
+      _hasHoursError = true;
+      _isLoadingHours = false;
       return;
     }
+    _shopHours = List.of(hours);
+    _isLoadingHours = false;
+    _hasHoursError = false;
 
-    setState(() {
-      _shopHours = List.from(hours);
-      _isLoadingHours = false;
-      _hasHoursError = false;
-
-      // If no days selected and shop has hours, default to open days
-      if (ref.read(_selectedDaysProvider).isEmpty) {
-        final defaultDays =
-            _shopHours
-                .where((h) => !h.isClosed)
-                .map((h) => h.dayOfWeek)
-                .toList();
-        if (defaultDays.isNotEmpty) {
-          Future.microtask(() {
-            ref.read(_selectedDaysProvider.notifier).state = defaultDays;
-          });
-        }
+    // If no days selected and shop has hours, default to open days.
+    if (ref.read(_selectedDaysProvider).isEmpty) {
+      final defaultDays =
+          _shopHours.where((h) => !h.isClosed).map((h) => h.dayOfWeek).toList();
+      if (defaultDays.isNotEmpty) {
+        Future.microtask(() {
+          ref.read(_selectedDaysProvider.notifier).state = defaultDays;
+        });
       }
-    });
+    }
   }
 
   @override
@@ -582,7 +593,11 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
       daysOfWeek: selectedDays,
       selectPreferredWorker: _selectPreferredWorker,
       workerIds: _selectedWorkerIds,
-      bufferMinutes: 15,
+      // Phase 11 locked correction 7: preserve the saved bufferMinutes
+      // instead of overwriting with a hard-coded 15. The previous value
+      // silently regressed every edit. ?? 0 covers the create-mode case
+      // where initialService is null.
+      bufferMinutes: widget.initialService?.bufferMinutes ?? 0,
     );
 
     print('✅ Saving service with ID: ${service.id}');
