@@ -2,8 +2,10 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/todays_view.dart';
 import 'package:nano_embryo/payment/presentation/widgets/payment_setup_banner.dart';
+import 'package:nano_embryo/wallet/data/exceptions/wallet_exceptions.dart';
 import 'package:nano_embryo/wallet/presentation/providers/payment_setup_provider.dart';
 import 'package:nano_embryo/wallet/presentation/widgets/dead_letter_banner.dart';
 import 'package:nano_embryo/wallet/presentation/widgets/transaction_list_item.dart';
@@ -138,11 +140,15 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     );
                     // const SizedBox.shrink();
                   },
-                  loading:
-                      () =>
-                          const SizedBox.shrink(), // Don't show anything while loading
+                  loading: () => const SizedBox.shrink(),
                   error: (error, stack) {
-                    print('Error checking payment setup: $error');
+                    AppLogger.warn(
+                      'wallet.payment_setup.read_failed',
+                      fields: {
+                        'shop_id': widget.shopId,
+                        'error': error.toString(),
+                      },
+                    );
                     return const SizedBox.shrink();
                   },
                 ),
@@ -191,16 +197,23 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                         padding: EdgeInsets.symmetric(vertical: Spacing.xl),
                         child: ShopSchimmerSkeleton(height: 250.h, raduis: 20),
                       ),
-                  error:
-                      (error, stack) => Center(
-                        child: ErrorStateWidget(
-                          compact: true,
-                          subtitle: 'Error loading wallet: $error',
-                          title: '',
-                          showDetails: true,
-                          errorDetails: 'Error loading wallet: $error',
-                        ),
+                  error: (error, stack) {
+                    AppLogger.errorEvent(
+                      'wallet.balance.read_failed',
+                      summary: error.toString(),
+                      fields: {'shop_id': widget.shopId},
+                    );
+                    final userMessage = error is WalletException
+                        ? error.userMessage
+                        : "We couldn't load your wallet right now.";
+                    return Center(
+                      child: ErrorStateWidget(
+                        compact: true,
+                        subtitle: userMessage,
+                        title: '',
                       ),
+                    );
+                  },
                 ),
               ),
 
@@ -258,12 +271,20 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     () => const SliverFillRemaining(
                       child: Center(child: CircularLoadingIndicator()),
                     ),
-                error:
-                    (error, stack) => SliverFillRemaining(
-                      child: Center(
-                        child: Text('Error loading transactions: $error'),
-                      ),
+                error: (error, stack) {
+                  AppLogger.warn(
+                    'wallet.transactions.read_failed',
+                    fields: {
+                      'shop_id': widget.shopId,
+                      'error': error.toString(),
+                    },
+                  );
+                  return const SliverFillRemaining(
+                    child: Center(
+                      child: Text("Couldn't load recent transactions."),
                     ),
+                  );
+                },
               ),
               SliverToBoxAdapter(child: Gap(Spacing.xxl)),
             ],

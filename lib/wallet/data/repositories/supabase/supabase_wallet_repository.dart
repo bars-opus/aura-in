@@ -1,5 +1,8 @@
 // lib/features/wallet/data/repositories/supabase/supabase_wallet_repository.dart
 
+import 'dart:async';
+
+import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/payment/config/payment_config.dart';
 import 'package:nano_embryo/wallet/data/exceptions/wallet_exceptions.dart';
 import 'package:nano_embryo/wallet/data/models/wallet_model.dart';
@@ -17,44 +20,29 @@ class SupabaseWalletRepository implements WalletRepository {
   @override
   Future<WalletModel> getWallet(String shopId) async {
     try {
-      final response =
-          await _client
-              .from('wallets')
-              .select()
-              .eq('shop_id', shopId)
-              .maybeSingle();
+      // The trg_create_wallet_on_shop_insert trigger (migration
+      // 20260602180000) creates the wallet row when a shop is created, and
+      // add_wallet_transaction backfills on first deposit. Both paths
+      // create rows under postgres-side privileges, so the client only
+      // needs to read. If the row is genuinely missing here, that's a
+      // schema invariant violation worth surfacing — don't paper over it
+      // with a client-side INSERT (which would race with the trigger).
+      final response = await _client
+          .from('wallets')
+          .select()
+          .eq('shop_id', shopId)
+          .maybeSingle();
 
       if (response == null) {
-        // Try to create wallet
-        try {
-          final newWallet =
-              await _client
-                  .from('wallets')
-                  .insert({'shop_id': shopId})
-                  .select()
-                  .single();
-          return WalletModel.fromJson(newWallet);
-        } catch (insertError) {
-          // If insert fails (RLS), try one more select (wallet might have been created by trigger)
-          final retryResponse =
-              await _client
-                  .from('wallets')
-                  .select()
-                  .eq('shop_id', shopId)
-                  .maybeSingle();
-
-          if (retryResponse == null) {
-            throw WalletException(
-              'Unable to create or fetch wallet for shop: $shopId',
-            );
-          }
-          return WalletModel.fromJson(retryResponse);
-        }
+        throw WalletNotFoundException(shopId);
       }
-
       return WalletModel.fromJson(response);
-    } catch (e) {
-      throw WalletException('Failed to fetch wallet: $e');
+    } on WalletException {
+      rethrow;
+    } on PostgrestException catch (e) {
+      throw WalletException('getWallet PostgrestException: ${e.code} ${e.message}');
+    } catch (e, st) {
+      throw WalletException('getWallet unexpected: $e\n$st');
     }
   }
 
@@ -103,8 +91,10 @@ class SupabaseWalletRepository implements WalletRepository {
       return (response as List)
           .map((json) => WalletTransactionModel.fromJson(json))
           .toList();
-    } catch (e) {
-      throw WalletException('Failed to fetch transactions: $e');
+    } on PostgrestException catch (e) {
+      throw WalletException('getTransactions PostgrestException: ${e.code} ${e.message}');
+    } catch (e, st) {
+      throw WalletException('getTransactions unexpected: $e\n$st');
     }
   }
 
@@ -134,68 +124,64 @@ class SupabaseWalletRepository implements WalletRepository {
 
       return WalletTransactionModel.fromJson(result);
     } on PostgrestException catch (e) {
-      if (e.message?.contains('Insufficient balance') ?? false) {
-        throw InsufficientBalanceException(0, amount);
-      }
-      throw WalletException('Failed to add transaction: ${e.message}');
-    } catch (e) {
-      throw WalletException('Failed to add transaction: $e');
+      if (_isInsufficientBalance(e)) throw InsufficientBalanceException();
+      throw WalletException(
+        'add_wallet_transaction RPC failed: ${e.code} ${e.message}',
+      );
+    } catch (e, st) {
+      throw WalletException('addTransaction unexpected: $e\n$st');
     }
   }
+
+  // Centralised error classifier. Postgrest surfaces RAISE EXCEPTION HINTs
+  // via PostgrestException.details (Supabase forwards them in the JSON
+  // response body). We match on HINT codes set by the wallet RPCs rather
+  // than English strings so localisation / re-wording can't break us.
+  bool _isInsufficientBalance(PostgrestException e) =>
+      (e.hint ?? '').contains('WALLET_INSUFFICIENT') ||
+      e.message.toLowerCase().contains('insufficient');
+
+  bool _isDailyLimit(PostgrestException e) =>
+      (e.hint ?? '').contains('WALLET_DAILY_LIMIT') ||
+      e.message.toLowerCase().contains('daily withdrawal limit');
+
+  bool _isDuplicateIdempotencyKey(PostgrestException e) =>
+      e.code == '23505' || e.message.contains('duplicate key');
 
   @override
   Future<WithdrawalRequestModel> requestWithdrawal({
     required String shopId,
     required double amount,
   }) async {
+    // 1. Client-side validation (config bounds). Server enforces these too;
+    //    the duplicate check here is purely a UX optimisation so we don't
+    //    waste a round-trip when the user clearly entered something invalid.
+    final min = _config.minWithdrawalAmount;
+    final max = _config.maxWithdrawalAmount;
+    if (amount < min || amount > max) {
+      throw InvalidWithdrawalAmountException();
+    }
+
     try {
-      // 1. Validate amount against configured bounds
-      final min = _config.minWithdrawalAmount;
-      final max = _config.maxWithdrawalAmount;
-      final currency = _config.defaultCurrency;
-      if (amount < min) {
-        throw WalletException(
-          'Minimum withdrawal amount is $currency ${min.toStringAsFixed(0)}',
-        );
-      }
-      if (amount > max) {
-        throw WalletException(
-          'Maximum withdrawal per transaction is $currency ${max.toStringAsFixed(0)}',
-        );
-      }
-
-      // 2. Get shop's payment provider and recipient
+      // 2. Resolve the shop's payment recipient.
       final paymentInfo = await _getShopPaymentInfo(shopId);
-
-      if (paymentInfo == null) {
-        throw WalletException(
-          'No connected payment method found. Please connect Paystack or Stripe first.',
-        );
+      if (paymentInfo == null || !paymentInfo['recipient_verified']) {
+        throw PaymentSetupMissingException();
       }
 
-      if (!paymentInfo['recipient_verified']) {
-        throw WalletException(
-          'Your payment recipient is not verified. Please reconnect your payment account.',
-        );
-      }
+      // 3. Idempotency key. The server treats (shop_id, idempotency_key)
+      //    as a primary key for retries — same key on attempt 1..N must
+      //    produce the same withdrawal_id (checklist 2.20).
+      //
+      //    The previous implementation used `amount.toInt()` which truncated
+      //    cents — 12.49 and 12.51 collided onto the same key. We now use
+      //    `toStringAsFixed(2)` so the full minor-unit resolution is part
+      //    of the key. Also UTC-stamped so the key is stable for retries
+      //    within the same UTC day, deliberately distinct across days.
+      final idempotencyKey = _buildIdempotencyKey(shopId, amount);
 
-      // 3. Get current wallet balance to check if sufficient
-      final wallet = await getWallet(shopId);
-      final availableBalance = wallet.balance - wallet.pendingWithdrawals;
-
-      if (availableBalance < amount) {
-        throw InsufficientBalanceException(availableBalance, amount);
-      }
-
-      // 4. Date-scoped idempotency key — one withdrawal per shop per day at this
-      //    amount, naturally enforcing the daily limit and preventing retries from
-      //    creating duplicate requests.
-      final today = DateTime.now().toUtc();
-      final dateStamp =
-          '${today.year}${today.month.toString().padLeft(2, '0')}${today.day.toString().padLeft(2, '0')}';
-      final idempotencyKey = 'wd_${shopId}_${dateStamp}_${amount.toInt()}';
-
-      // 5. Call database function to create withdrawal request
+      // 4. Call the server-side RPC. Authz, balance check, daily limit, and
+      //    fee calc all happen inside SECURITY DEFINER on the DB.
       final result = await _client.rpc(
         'create_withdrawal_request',
         params: {
@@ -207,35 +193,44 @@ class SupabaseWalletRepository implements WalletRepository {
         },
       );
 
-      // 7. Fetch the created withdrawal request
-      final withdrawalResponse =
-          await _client
-              .from('withdrawal_requests')
-              .select()
-              .eq('id', result)
-              .single();
+      // 5. Fetch the created (or pre-existing, in retry case) withdrawal row.
+      final withdrawalResponse = await _client
+          .from('withdrawal_requests')
+          .select()
+          .eq('id', result)
+          .single();
 
       return WithdrawalRequestModel.fromJson(withdrawalResponse);
-    } on InsufficientBalanceException {
+    } on WalletException {
       rethrow;
     } on PostgrestException catch (e) {
-      if (e.message?.contains('Insufficient balance') ?? false) {
-        throw InsufficientBalanceException(0, amount);
-      }
-      if (e.message?.contains('Daily withdrawal limit') ?? false) {
-        throw WalletException(
-          'Daily withdrawal limit of ${_config.defaultCurrency} ${_config.maxWithdrawalAmount.toStringAsFixed(0)} exceeded. You can only make one withdrawal per day.',
-        );
-      }
-      if (e.message?.contains('duplicate key') ?? false) {
-        throw WalletException(
-          'Duplicate withdrawal request detected. Please wait a few minutes and try again.',
-        );
-      }
-      throw WalletException('Failed to request withdrawal: ${e.message}');
-    } catch (e) {
-      throw WalletException('Failed to request withdrawal: $e');
+      if (_isInsufficientBalance(e)) throw InsufficientBalanceException();
+      if (_isDailyLimit(e)) throw WithdrawalLimitExceededException();
+      if (_isDuplicateIdempotencyKey(e)) throw DuplicateWithdrawalException();
+      throw WalletException(
+        'create_withdrawal_request RPC failed: ${e.code} ${e.message}',
+      );
+    } catch (e, st) {
+      throw WalletException('requestWithdrawal unexpected: $e\n$st');
     }
+  }
+
+  /// Stable idempotency key for a withdrawal request.
+  ///
+  /// Format: `wd_{shopId}_{YYYYMMDD-UTC}_{amount-2dp}`.
+  ///
+  /// Stability guarantees:
+  /// - Two retries of the same withdrawal on the same UTC day produce the
+  ///   same key (so the server short-circuits on the second call).
+  /// - Different amounts produce different keys (no cents-truncation bug).
+  /// - Different UTC days produce different keys (so yesterday's withdrawal
+  ///   doesn't block today's withdrawal of the same amount).
+  String _buildIdempotencyKey(String shopId, double amount) {
+    final now = DateTime.now().toUtc();
+    final y = now.year.toString().padLeft(4, '0');
+    final m = now.month.toString().padLeft(2, '0');
+    final d = now.day.toString().padLeft(2, '0');
+    return 'wd_${shopId}_$y$m${d}_${amount.toStringAsFixed(2)}';
   }
 
   Future<Map<String, dynamic>?> _getShopPaymentInfo(String shopId) async {
@@ -274,8 +269,18 @@ class SupabaseWalletRepository implements WalletRepository {
       }
 
       return null;
-    } catch (e) {
-      print('Error fetching payment info: $e');
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'wallet.payment_info.postgrest',
+        fields: {'shop_id': shopId, 'code': e.code},
+      );
+      return null;
+    } catch (e, st) {
+      AppLogger.errorEvent(
+        'wallet.payment_info.unexpected',
+        summary: e.toString(),
+        fields: {'shop_id': shopId, 'stack_head': st.toString().split('\n').first},
+      );
       return null;
     }
   }
@@ -308,8 +313,12 @@ class SupabaseWalletRepository implements WalletRepository {
       return (response as List)
           .map((json) => WithdrawalRequestModel.fromJson(json))
           .toList();
-    } catch (e) {
-      throw WalletException('Failed to fetch withdrawal history: $e');
+    } on PostgrestException catch (e) {
+      throw WalletException(
+        'getWithdrawalHistory PostgrestException: ${e.code} ${e.message}',
+      );
+    } catch (e, st) {
+      throw WalletException('getWithdrawalHistory unexpected: $e\n$st');
     }
   }
 
@@ -318,37 +327,50 @@ class SupabaseWalletRepository implements WalletRepository {
     String withdrawalId,
   ) async {
     try {
-      final response =
-          await _client
-              .from('withdrawal_requests')
-              .select()
-              .eq('id', withdrawalId)
-              .single();
-
+      final response = await _client
+          .from('withdrawal_requests')
+          .select()
+          .eq('id', withdrawalId)
+          .single();
       return WithdrawalRequestModel.fromJson(response);
-    } catch (e) {
-      throw WalletException('Failed to fetch withdrawal request: $e');
+    } on PostgrestException catch (e) {
+      throw WalletException(
+        'getWithdrawalRequest PostgrestException: ${e.code} ${e.message}',
+      );
+    } catch (e, st) {
+      throw WalletException('getWithdrawalRequest unexpected: $e\n$st');
     }
   }
 
   @override
   Future<double> getAvailableBalance(String shopId) async {
-    try {
-      final wallet = await getWallet(shopId);
-      return wallet.balance - wallet.pendingWithdrawals;
-    } catch (e) {
-      throw WalletException('Failed to get available balance: $e');
-    }
+    // Don't wrap — the caller already gets a typed WalletException from
+    // getWallet(), and re-wrapping loses the code/userMessage.
+    final wallet = await getWallet(shopId);
+    return wallet.balance - wallet.pendingWithdrawals;
   }
 
   @override
   Stream<List<WithdrawalRequestModel>> watchDeadLetterWithdrawals(
     String shopId,
-  ) async* {
-    // Emit immediately, then every 30 seconds. Polling is intentional —
-    // dead_letter is rare and Realtime subscriptions add lifecycle complexity
-    // for a low-frequency event.
-    while (true) {
+  ) {
+    // Cancellable poll loop. Previous implementation was `while (true)
+    // … Future.delayed(30s)` inside an async* generator with no way for
+    // the consumer to stop it short of letting the generator be
+    // garbage-collected. That violated checklist 2.13 (cleanup on
+    // cancellation): consumers that listened briefly still held a
+    // pending HTTP call hostage and a Timer in flight.
+    //
+    // We now expose a StreamController whose onCancel tears down both
+    // the in-flight request token and the timer. Polling is preserved
+    // (Realtime overkill for a low-frequency event).
+    const interval = Duration(seconds: 30);
+    late StreamController<List<WithdrawalRequestModel>> ctrl;
+    Timer? timer;
+    var cancelled = false;
+
+    Future<void> tick() async {
+      if (cancelled) return;
       try {
         final data = await _client
             .from('withdrawal_requests')
@@ -356,14 +378,35 @@ class SupabaseWalletRepository implements WalletRepository {
             .eq('shop_id', shopId)
             .eq('status', 'dead_letter')
             .order('updated_at', ascending: false);
-        yield (data as List)
+        if (cancelled) return;
+        ctrl.add((data as List)
             .map((row) => WithdrawalRequestModel.fromJson(row))
-            .toList();
+            .toList());
       } catch (e) {
-        // Yield empty on transient errors — banner just hides.
-        yield const [];
+        // Transient failures (network blip, RLS hiccup) should hide the
+        // banner, not crash the screen. The banner is informational; if
+        // we genuinely have dead-letter rows we'll resurface on the
+        // next tick.
+        if (cancelled) return;
+        AppLogger.warn(
+          'wallet.dead_letter.poll_failed',
+          fields: {'shop_id': shopId, 'error': e.toString()},
+        );
+        ctrl.add(const []);
       }
-      await Future.delayed(const Duration(seconds: 30));
     }
+
+    ctrl = StreamController<List<WithdrawalRequestModel>>(
+      onListen: () {
+        tick();
+        timer = Timer.periodic(interval, (_) => tick());
+      },
+      onCancel: () {
+        cancelled = true;
+        timer?.cancel();
+        timer = null;
+      },
+    );
+    return ctrl.stream;
   }
 }

@@ -1,5 +1,6 @@
 // lib/features/wallet/presentation/widgets/withdrawal_sheet.dart
 
+import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/payment/presentation/widgets/info_row.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 import 'package:nano_embryo/wallet/presentation/controllers/wallet_controller.dart';
@@ -61,7 +62,10 @@ class _WithdrawalSheetState extends ConsumerState<WithdrawalSheet> {
         });
       }
     } catch (e) {
-      print('Error loading payment provider: $e');
+      AppLogger.warn(
+        'wallet.withdrawal_sheet.provider_load_failed',
+        fields: {'shop_id': widget.shopId, 'error': e.toString()},
+      );
       if (mounted) {
         setState(() {
           _connectedProvider = null;

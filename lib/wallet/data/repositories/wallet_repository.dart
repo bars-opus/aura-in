@@ -52,4 +52,10 @@ abstract class WalletRepository {
     int? limit,
     WithdrawalStatus? status,
   });
+
+  /// Fetch a single withdrawal request by id.
+  Future<WithdrawalRequestModel> getWithdrawalRequest(String withdrawalId);
+
+  /// Convenience: balance minus pending holds for [shopId].
+  Future<double> getAvailableBalance(String shopId);
 }
