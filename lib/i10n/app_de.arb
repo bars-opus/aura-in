@@ -1190,5 +1190,54 @@
         "example": "Netzwerkfehler"
       }
     }
+  },
+
+  "bookingServiceAddress": "Serviceadresse",
+  "bookingFindingAvailableTimes": "Verfügbare Zeiten werden gesucht...",
+  "bookingErrorLoadingWorkers": "Fehler beim Laden von Mitarbeitern: {error}",
+  "@bookingErrorLoadingWorkers": {
+    "description": "Error when workers fail to load during booking",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Netzwerk-Timeout"
+      }
+    }
+  },
+  "bookingErrorValidatingDistance": "Fehler bei der Distanzvalidierung: {error}",
+  "@bookingErrorValidatingDistance": {
+    "description": "Error when distance validation fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Standort nicht verfügbar"
+      }
+    }
+  },
+  "bookingAddSpecialRequirements": "Hinzufügen",
+  "bookingCancelSpecialRequirements": "Abbrechen",
+  "bookingSaveSpecialRequirements": "Speichern",
+  "bookingFailedSaveRequirements": "Fehler beim Speichern: {error}",
+  "@bookingFailedSaveRequirements": {
+    "description": "Error when special requirements fail to save",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Netzwerkfehler"
+      }
+    }
+  },
+  "bookingInvitationSent": "Einladung erfolgreich gesendet",
+  "bookingSavingAssignments": "Zuweisungen werden gespeichert...",
+  "bookingAssignmentsSaved": "Zuweisungen erfolgreich gespeichert",
+  "bookingAssignmentsError": "Fehler: {error}",
+  "@bookingAssignmentsError": {
+    "description": "Error when assignments fail to save",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Ungültige Auswahl"
+      }
+    }
   }
 }

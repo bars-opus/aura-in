@@ -1233,5 +1233,54 @@
         "example": "Network error"
       }
     }
+  },
+
+  "bookingServiceAddress": "Service Address",
+  "bookingFindingAvailableTimes": "Finding available times...",
+  "bookingErrorLoadingWorkers": "Error loading workers: {error}",
+  "@bookingErrorLoadingWorkers": {
+    "description": "Error when workers fail to load during booking",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network timeout"
+      }
+    }
+  },
+  "bookingErrorValidatingDistance": "Error validating distance: {error}",
+  "@bookingErrorValidatingDistance": {
+    "description": "Error when distance validation fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Location not available"
+      }
+    }
+  },
+  "bookingAddSpecialRequirements": "Add",
+  "bookingCancelSpecialRequirements": "Cancel",
+  "bookingSaveSpecialRequirements": "Save",
+  "bookingFailedSaveRequirements": "Failed to save: {error}",
+  "@bookingFailedSaveRequirements": {
+    "description": "Error when special requirements fail to save",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "bookingInvitationSent": "Invitation sent successfully",
+  "bookingSavingAssignments": "Saving assignments...",
+  "bookingAssignmentsSaved": "Assignments saved successfully",
+  "bookingAssignmentsError": "Error: {error}",
+  "@bookingAssignmentsError": {
+    "description": "Error when assignments fail to save",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Invalid selection"
+      }
+    }
   }
 }

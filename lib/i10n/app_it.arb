@@ -1190,5 +1190,54 @@
         "example": "Errore di rete"
       }
     }
+  },
+
+  "bookingServiceAddress": "Indirizzo del servizio",
+  "bookingFindingAvailableTimes": "Ricerca degli orari disponibili...",
+  "bookingErrorLoadingWorkers": "Errore nel caricamento dei lavoratori: {error}",
+  "@bookingErrorLoadingWorkers": {
+    "description": "Error when workers fail to load during booking",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Timeout della rete"
+      }
+    }
+  },
+  "bookingErrorValidatingDistance": "Errore nella convalida della distanza: {error}",
+  "@bookingErrorValidatingDistance": {
+    "description": "Error when distance validation fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Posizione non disponibile"
+      }
+    }
+  },
+  "bookingAddSpecialRequirements": "Aggiungi",
+  "bookingCancelSpecialRequirements": "Annulla",
+  "bookingSaveSpecialRequirements": "Salva",
+  "bookingFailedSaveRequirements": "Errore nel salvataggio: {error}",
+  "@bookingFailedSaveRequirements": {
+    "description": "Error when special requirements fail to save",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Errore di rete"
+      }
+    }
+  },
+  "bookingInvitationSent": "Invito inviato con successo",
+  "bookingSavingAssignments": "Salvataggio delle assegnazioni...",
+  "bookingAssignmentsSaved": "Assegnazioni salvate con successo",
+  "bookingAssignmentsError": "Errore: {error}",
+  "@bookingAssignmentsError": {
+    "description": "Error when assignments fail to save",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Selezione non valida"
+      }
+    }
   }
 }

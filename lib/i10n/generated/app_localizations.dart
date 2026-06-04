@@ -3162,6 +3162,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to submit review: {error}'**
   String reviewsSubmitError(String error);
+
+  /// No description provided for @bookingServiceAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Address'**
+  String get bookingServiceAddress;
+
+  /// No description provided for @bookingFindingAvailableTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding available times...'**
+  String get bookingFindingAvailableTimes;
+
+  /// Error when workers fail to load during booking
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading workers: {error}'**
+  String bookingErrorLoadingWorkers(String error);
+
+  /// Error when distance validation fails
+  ///
+  /// In en, this message translates to:
+  /// **'Error validating distance: {error}'**
+  String bookingErrorValidatingDistance(String error);
+
+  /// No description provided for @bookingAddSpecialRequirements.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get bookingAddSpecialRequirements;
+
+  /// No description provided for @bookingCancelSpecialRequirements.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get bookingCancelSpecialRequirements;
+
+  /// No description provided for @bookingSaveSpecialRequirements.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get bookingSaveSpecialRequirements;
+
+  /// Error when special requirements fail to save
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save: {error}'**
+  String bookingFailedSaveRequirements(String error);
+
+  /// No description provided for @bookingInvitationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation sent successfully'**
+  String get bookingInvitationSent;
+
+  /// No description provided for @bookingSavingAssignments.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving assignments...'**
+  String get bookingSavingAssignments;
+
+  /// No description provided for @bookingAssignmentsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignments saved successfully'**
+  String get bookingAssignmentsSaved;
+
+  /// Error when assignments fail to save
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String bookingAssignmentsError(String error);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

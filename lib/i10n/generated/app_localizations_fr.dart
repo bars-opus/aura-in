@@ -1668,4 +1668,48 @@ class AppLocalizationsFr extends AppLocalizations {
   String reviewsSubmitError(String error) {
     return 'Impossible d\'envoyer l\'avis : $error';
   }
+
+  @override
+  String get bookingServiceAddress => 'Adresse du service';
+
+  @override
+  String get bookingFindingAvailableTimes => 'Recherche des créneaux disponibles...';
+
+  @override
+  String bookingErrorLoadingWorkers(String error) {
+    return 'Erreur lors du chargement des travailleurs : $error';
+  }
+
+  @override
+  String bookingErrorValidatingDistance(String error) {
+    return 'Erreur lors de la validation de la distance : $error';
+  }
+
+  @override
+  String get bookingAddSpecialRequirements => 'Ajouter';
+
+  @override
+  String get bookingCancelSpecialRequirements => 'Annuler';
+
+  @override
+  String get bookingSaveSpecialRequirements => 'Enregistrer';
+
+  @override
+  String bookingFailedSaveRequirements(String error) {
+    return 'Erreur lors de l\'enregistrement : $error';
+  }
+
+  @override
+  String get bookingInvitationSent => 'Invitation envoyée avec succès';
+
+  @override
+  String get bookingSavingAssignments => 'Enregistrement des affectations...';
+
+  @override
+  String get bookingAssignmentsSaved => 'Affectations enregistrées avec succès';
+
+  @override
+  String bookingAssignmentsError(String error) {
+    return 'Erreur : $error';
+  }
 }

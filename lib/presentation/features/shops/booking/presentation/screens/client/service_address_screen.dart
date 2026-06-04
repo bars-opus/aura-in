@@ -84,9 +84,10 @@ class _ServiceAddressScreenState extends ConsumerState<ServiceAddressScreen> {
       setState(() {
         _isLoading = false;
       });
+      final loc = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error validating distance: $e')));
+      ).showSnackBar(SnackBar(content: Text(loc.bookingErrorValidatingDistance(e.toString()))));
     }
   }
 
@@ -98,12 +99,13 @@ class _ServiceAddressScreenState extends ConsumerState<ServiceAddressScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Service Address'),
+        title: Text(loc.bookingServiceAddress),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
@@ -141,7 +143,7 @@ class _ServiceAddressScreenState extends ConsumerState<ServiceAddressScreen> {
 
             // Address input
             Text(
-              'Service Address',
+              loc.bookingServiceAddress,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),

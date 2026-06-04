@@ -48,7 +48,7 @@ class TimeSlotGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return _buildLoadingState();
+      return _buildLoadingState(context);
     }
 
     if (slots.isEmpty) {
@@ -185,14 +185,14 @@ class TimeSlotGrid extends StatelessWidget {
   //   );
   // }
 
-  Widget _buildLoadingState() {
+  Widget _buildLoadingState(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularLoadingIndicator(),
           SizedBox(height: Spacing.md.h),
-          Text('Finding available times...'),
+          Text(AppLocalizations.of(context)!.bookingFindingAvailableTimes),
         ],
       ),
     );
