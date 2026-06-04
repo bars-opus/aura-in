@@ -1239,5 +1239,9 @@
         "example": "Ungültige Auswahl"
       }
     }
-  }
+  },
+
+  "scheduleTitle": "Zeitplan",
+  "scheduleTabDaily": "Täglich",
+  "scheduleTabMonthly": "Monatlich"
 }

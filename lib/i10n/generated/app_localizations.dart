@@ -3234,6 +3234,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error: {error}'**
   String bookingAssignmentsError(String error);
+
+  /// No description provided for @scheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get scheduleTitle;
+
+  /// No description provided for @scheduleTabDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get scheduleTabDaily;
+
+  /// No description provided for @scheduleTabMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get scheduleTabMonthly;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

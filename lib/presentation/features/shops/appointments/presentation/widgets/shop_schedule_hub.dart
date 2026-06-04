@@ -30,7 +30,7 @@ class _ShopScheduleHubState extends ConsumerState<ShopScheduleHub>
     final loc = AppLocalizations.of(context)!;
     final tabs = [
       AppTabItem(
-        label: 'Daily',
+        label: loc.scheduleTabDaily,
         icon: Icons.view_day,
         content: DailyScheduleScreen(
           shopId: widget.shopId,
@@ -38,7 +38,7 @@ class _ShopScheduleHubState extends ConsumerState<ShopScheduleHub>
         ),
       ),
       AppTabItem(
-        label: 'Monthly',
+        label: loc.scheduleTabMonthly,
         icon: Icons.calendar_month,
         content: CalendarScreen(
           currentUserId: widget.shopId,
@@ -55,7 +55,7 @@ class _ShopScheduleHubState extends ConsumerState<ShopScheduleHub>
         automaticallyImplyLeading: false,
         centerTitle: false,
         title: Text(
-          'Shedule',
+          loc.scheduleTitle,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: colorScheme.onBackground,

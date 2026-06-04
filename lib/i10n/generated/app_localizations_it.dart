@@ -1712,4 +1712,13 @@ class AppLocalizationsIt extends AppLocalizations {
   String bookingAssignmentsError(String error) {
     return 'Errore: $error';
   }
+
+  @override
+  String get scheduleTitle => 'Orario';
+
+  @override
+  String get scheduleTabDaily => 'Giornaliero';
+
+  @override
+  String get scheduleTabMonthly => 'Mensile';
 }

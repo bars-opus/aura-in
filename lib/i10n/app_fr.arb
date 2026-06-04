@@ -1238,5 +1238,9 @@
         "example": "Sélection invalide"
       }
     }
-  }
+  },
+
+  "scheduleTitle": "Calendrier",
+  "scheduleTabDaily": "Quotidien",
+  "scheduleTabMonthly": "Mensuel"
 }

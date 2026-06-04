@@ -1239,5 +1239,9 @@
         "example": "Selezione non valida"
       }
     }
-  }
+  },
+
+  "scheduleTitle": "Orario",
+  "scheduleTabDaily": "Giornaliero",
+  "scheduleTabMonthly": "Mensile"
 }

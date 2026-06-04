@@ -1234,5 +1234,9 @@
         "example": "Selección inválida"
       }
     }
-  }
+  },
+
+  "scheduleTitle": "Cronograma",
+  "scheduleTabDaily": "Diario",
+  "scheduleTabMonthly": "Mensual"
 }
