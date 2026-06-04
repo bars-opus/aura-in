@@ -124,7 +124,11 @@ export async function handler(req: Request): Promise<Response> {
     supabase
       .from("appointment_slots")
       .select("id, service_name, description, duration, price, slot_type")
-      .eq("shop_id", shop.id),
+      .eq("shop_id", shop.id)
+      // Phase 11 archive filter: public link must not list archived
+      // services. Matches the SQL cascade in
+      // supabase/migrations/20260605000300_archive_filter_cascade.sql.
+      .is("archived_at", null),
     supabase
       .from("workers")
       .select(`
