@@ -8,6 +8,7 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/an
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/weekly_revenue.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/clients/client_profile.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/dashboard_metrics.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/lost_booking_metrics.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/export_report.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/performance_alert.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/quarterly_revenue.dart';
@@ -1640,11 +1641,24 @@ class SupabaseDashboardRepository implements DashboardRepository {
     int? limit = 50,
   }) async {
     try {
-      // First, get all unique user_ids from bookings for this shop
+      // Cap the bookings scan. Previously we pulled every booking the
+      // shop had ever received and aggregated in Dart — for a year-old
+      // shop this could be tens of MB and seconds of wall-clock time on
+      // every Clients tab open. Pulling the most-recent 2000 bookings is
+      // enough to surface the most-recently-active 50 clients (the page
+      // size below) with a wide safety margin, and the index
+      // idx_bookings_shop_id (shop_id, start_time DESC) covers the order.
+      //
+      // Real fix is a SQL-side GROUP BY in a dedicated view/RPC; tracked
+      // as a separate follow-up (checklist 3.1 / 3.2). This change is
+      // the minimum surgery to remove the OOM risk.
+      const bookingScanCap = 2000;
       final bookingsResponse = await _supabase
           .from('bookings')
           .select('user_id, total_amount, status, start_time')
-          .eq('shop_id', shopId);
+          .eq('shop_id', shopId)
+          .order('start_time', ascending: false)
+          .limit(bookingScanCap);
 
       final bookings = List<Map<String, dynamic>>.from(bookingsResponse);
 
@@ -2161,7 +2175,10 @@ class SupabaseDashboardRepository implements DashboardRepository {
     int? limit = 20,
   }) async {
     try {
-      var query = _supabase
+      // Compose with `dynamic` because Postgrest's builders return
+      // narrowing types as we add filters/order/limit — the same
+      // pattern used everywhere else in this file.
+      dynamic query = _supabase
           .from('performance_alerts')
           .select('*')
           .eq('shop_id', shopId);
@@ -2170,9 +2187,18 @@ class SupabaseDashboardRepository implements DashboardRepository {
         query = query.eq('is_read', false);
       }
 
-      final response = await query.order('created_at', ascending: false);
-      final alerts = List<Map<String, dynamic>>.from(response);
+      query = query.order('created_at', ascending: false);
 
+      // Apply the cap. The previous implementation accepted `limit`
+      // as a parameter but never called `.limit()` — so it returned
+      // every alert the shop has ever had, ignoring the default 20.
+      // Cap at 200 to keep response payloads bounded even if a future
+      // caller passes something unreasonable (checklist 2.5).
+      final effectiveLimit = (limit ?? 20).clamp(1, 200);
+      query = query.limit(effectiveLimit);
+
+      final response = await query;
+      final alerts = List<Map<String, dynamic>>.from(response);
       return alerts.map(PerformanceAlert.fromJson).toList();
     } catch (e) {
       throw DashboardRepositoryException(
@@ -2369,5 +2395,107 @@ class SupabaseDashboardRepository implements DashboardRepository {
   @override
   Future<List<ReportType>> getAvailableReports(String shopId) async {
     return ReportType.values.toList();
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Lost-booking metrics (Phase 10).
+  //
+  // All three call SECURITY DEFINER RPCs. Postgrest surfaces the RPC's
+  // RAISE EXCEPTION via PostgrestException; we map SQLSTATE codes to
+  // stable internal classifiers and throw a sanitized
+  // DashboardRepositoryException. The raw provider response is never
+  // echoed into the message (checklist 4.4, 5.5).
+  // ────────────────────────────────────────────────────────────────────
+
+  @override
+  Future<LostBookingSummary> getLostBookingSummary({
+    required String shopId,
+    int periodDays = 7,
+  }) async {
+    try {
+      final response = await _supabase.rpc(
+        'get_lost_booking_summary',
+        params: {'p_shop_id': shopId, 'p_period_days': periodDays},
+      );
+      return LostBookingSummary.fromJson(
+        Map<String, dynamic>.from(response as Map),
+      );
+    } on PostgrestException catch (e) {
+      throw DashboardRepositoryException(
+        _classifyLostBookingError(e),
+        originalError: e,
+      );
+    } catch (e) {
+      throw DashboardRepositoryException('load_failed', originalError: e);
+    }
+  }
+
+  @override
+  Future<List<LostBookingWeek>> getLostBookingWeeklySeries({
+    required String shopId,
+    int weeks = 12,
+  }) async {
+    try {
+      final response = await _supabase.rpc(
+        'get_lost_booking_weekly_series',
+        params: {'p_shop_id': shopId, 'p_weeks': weeks},
+      );
+      final map = Map<String, dynamic>.from(response as Map);
+      final list = (map['weeks'] as List? ?? const []);
+      return list
+          .map((row) =>
+              LostBookingWeek.fromJson(Map<String, dynamic>.from(row as Map)))
+          .toList();
+    } on PostgrestException catch (e) {
+      throw DashboardRepositoryException(
+        _classifyLostBookingError(e),
+        originalError: e,
+      );
+    } catch (e) {
+      throw DashboardRepositoryException('load_failed', originalError: e);
+    }
+  }
+
+  @override
+  Future<List<LostBookingOffender>> getLostBookingOffenders({
+    required String shopId,
+    int lookbackDays = 90,
+    int minLost = 2,
+  }) async {
+    try {
+      final response = await _supabase.rpc(
+        'get_lost_booking_offenders',
+        params: {
+          'p_shop_id': shopId,
+          'p_lookback_days': lookbackDays,
+          'p_min_lost': minLost,
+        },
+      );
+      final map = Map<String, dynamic>.from(response as Map);
+      final list = (map['offenders'] as List? ?? const []);
+      return list
+          .map((row) => LostBookingOffender.fromJson(
+              Map<String, dynamic>.from(row as Map)))
+          .toList();
+    } on PostgrestException catch (e) {
+      throw DashboardRepositoryException(
+        _classifyLostBookingError(e),
+        originalError: e,
+      );
+    } catch (e) {
+      throw DashboardRepositoryException('load_failed', originalError: e);
+    }
+  }
+
+  /// Maps a PostgrestException raised by one of the three lost-booking
+  /// RPCs to a stable internal classifier. The returned string is used
+  /// as the [DashboardRepositoryException.message] and MUST NOT contain
+  /// any element of the original provider payload — keeping it
+  /// classifier-only lets the controller drive UI copy from a known set
+  /// of cases.
+  String _classifyLostBookingError(PostgrestException e) {
+    if (e.code == '42501') return 'not_found';
+    if (e.code == '22023') return 'invalid_range';
+    return 'load_failed';
   }
 }

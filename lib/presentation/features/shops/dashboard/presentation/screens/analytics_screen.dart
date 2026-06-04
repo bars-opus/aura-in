@@ -4,6 +4,7 @@ import 'package:nano_embryo/presentation/features/settings/utility/settings_expo
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/top_service.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/analytics_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/analytics_loading_screen.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/lost_bookings/lost_booking_headline_card.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/quarterly_revenue_chart.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/quarterly_revenue_detail_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/revenue_comparison_card.dart';
@@ -149,6 +150,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                     0,
               ),
             ],
+            Gap(Spacing.md.h),
+            LostBookingHeadlineCard(shopId: widget.shopId),
             QuarterlyRevenueChart(
               data: state.quarterlyRevenue,
               maxRevenue: _getMaxRevenue(state),

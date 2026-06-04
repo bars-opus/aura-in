@@ -18,6 +18,9 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/c
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/export_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/heatmap_controller.dart'
     show HeatmapState, HeatmapController;
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/lost_bookings_controller.dart'
+    show LostBookingsState, LostBookingsController;
+import 'package:nano_embryo/presentation/features/shops/booking/presentation/providers/booking_mutation_signal.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/owner_dashboard_controller.dart'
     show OwnerDashboardState, OwnerDashboardController;
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/promotions_controller.dart';
@@ -103,6 +106,15 @@ class AttendanceParams extends Equatable {
   @override
   List<Object?> get props => [shopId];
 }
+
+class LostBookingsParams extends Equatable {
+  final String shopId;
+  final int periodDays;
+  const LostBookingsParams({required this.shopId, this.periodDays = 7});
+
+  @override
+  List<Object?> get props => [shopId, periodDays];
+}
 // ============ Controller Providers (NO autoDispose) ============
 
 final ownerDashboardControllerProviderFamily = StateNotifierProvider.family<
@@ -186,6 +198,25 @@ final heatmapControllerProviderFamily = StateNotifierProvider.family<
     shopId: params.shopId,
   );
   // ref.onDispose(controller.reset);
+  return controller;
+});
+
+final lostBookingsControllerProviderFamily = StateNotifierProvider.family<
+  LostBookingsController,
+  LostBookingsState,
+  LostBookingsParams
+>((ref, params) {
+  final repository = ref.watch(dashboardRepositoryProvider);
+  final controller = LostBookingsController(
+    repository: repository,
+    shopId: params.shopId,
+    periodDays: params.periodDays,
+  );
+  // ref.listen (NOT watch) — we react to the tick without tearing down
+  // the controller every time the signal bumps.
+  ref.listen<int>(bookingMutationProvider, (_, __) {
+    controller.refresh();
+  });
   return controller;
 });
 

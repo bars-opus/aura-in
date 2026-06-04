@@ -13,5 +13,6 @@ final dailyScheduleNotifierProvider = StateNotifierProviderFamily<DailyScheduleN
   return DailyScheduleNotifier(
     bookingRepository: bookingRepository,
     shopId: shopId,
+    ref: ref,
   );
 });

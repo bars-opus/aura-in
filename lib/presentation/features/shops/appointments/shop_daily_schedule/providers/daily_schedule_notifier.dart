@@ -1,19 +1,32 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/repositories/booking_repository.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/presentation/providers/booking_mutation_signal.dart';
 import 'package:nano_embryo/presentation/features/shops/calendar/data/models/shop_calendar_booking.dart';
 import 'daily_schedule_state.dart';
 
 class DailyScheduleNotifier extends StateNotifier<DailyScheduleState> {
   final BookingRepository _bookingRepository;
   final String _shopId;
+  final Ref _ref;
 
   DailyScheduleNotifier({
     required BookingRepository bookingRepository,
     required String shopId,
-  }) : _bookingRepository = bookingRepository,
-       _shopId = shopId,
-       super(DailyScheduleState(cache: {}, selectedDate: DateTime.now())) {
+    required Ref ref,
+  })  : _bookingRepository = bookingRepository,
+        _shopId = shopId,
+        _ref = ref,
+        super(DailyScheduleState(cache: {}, selectedDate: DateTime.now())) {
     _loadAppointmentsForDate(DateTime.now());
+  }
+
+  /// Bumps the booking-mutation tick so analytics-side controllers
+  /// (e.g. `lostBookingsControllerProviderFamily`) react to the change
+  /// without manual invalidation. Called from terminal-status transitions
+  /// only — anything that changes the lost-rate denominator or numerator.
+  void _bumpBookingMutationSignal() {
+    final notifier = _ref.read(bookingMutationProvider.notifier);
+    notifier.state = notifier.state + 1;
   }
 
   Future<void> _loadAppointmentsForDate(DateTime date) async {
@@ -73,6 +86,9 @@ class DailyScheduleNotifier extends StateNotifier<DailyScheduleState> {
   Future<void> markBookingAsCompleted(String bookingId, DateTime date) async {
     await _bookingRepository.markAsComplete(bookingId);
     await refreshDate(date);
+    // A completion increments honoured and shifts the lost-rate
+    // denominator — analytics must reflect it.
+    _bumpBookingMutationSignal();
   }
 
   Future<void> cancelBooking(
@@ -82,11 +98,13 @@ class DailyScheduleNotifier extends StateNotifier<DailyScheduleState> {
   }) async {
     await _bookingRepository.cancelBooking(bookingId, reason: reason);
     await refreshDate(date);
+    _bumpBookingMutationSignal();
   }
 
   Future<void> markBookingAsNoShow(String bookingId, DateTime date) async {
     // This should be added to BookingRepository
-    await _bookingRepository.markAsNoShow(bookingId,);
+    await _bookingRepository.markAsNoShow(bookingId);
     await refreshDate(date);
+    _bumpBookingMutationSignal();
   }
 }

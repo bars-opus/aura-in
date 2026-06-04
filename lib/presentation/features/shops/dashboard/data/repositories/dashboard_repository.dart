@@ -7,6 +7,7 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/an
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/weekly_revenue.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/clients/client_profile.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/dashboard_metrics.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/lost_booking_metrics.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/export_report.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/performance_alert.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/quarterly_revenue.dart';
@@ -281,4 +282,35 @@ abstract class DashboardRepository {
 
   /// Get weekly and monthly revenue comparisons
   Future<Map<String, dynamic>> getRevenueComparisons({required String shopId});
+
+  // ============ Lost-booking metrics (Phase 10) ============
+  //
+  // All three back the Analytics > Revenue headline card. They wrap
+  // SECURITY DEFINER RPCs that enforce auth.uid()-owns-shop. On error
+  // they throw [DashboardRepositoryException] with a sanitized message;
+  // implementations MUST NOT echo raw PostgrestException text.
+
+  /// Returns the lost-booking headline KPI and period-over-period delta
+  /// for [shopId] over the last [periodDays] (server-capped to [1, 90]).
+  Future<LostBookingSummary> getLostBookingSummary({
+    required String shopId,
+    int periodDays = 7,
+  });
+
+  /// Returns the per-ISO-week lost-booking series for the sparkline.
+  /// [weeks] is server-capped to [1, 52].
+  Future<List<LostBookingWeek>> getLostBookingWeeklySeries({
+    required String shopId,
+    int weeks = 12,
+  });
+
+  /// Returns the top 50 repeat-offender clients (by lost count) for
+  /// [shopId] over the last [lookbackDays]. Guests are excluded server-side
+  /// (no joinable identity). [lookbackDays] is server-capped to [7, 365];
+  /// [minLost] to [1, 50].
+  Future<List<LostBookingOffender>> getLostBookingOffenders({
+    required String shopId,
+    int lookbackDays = 90,
+    int minLost = 2,
+  });
 }
