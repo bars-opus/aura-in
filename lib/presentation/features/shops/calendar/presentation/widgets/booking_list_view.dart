@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 import 'package:nano_embryo/presentation/features/shops/calendar/providers/calendar_provider.dart';
 import 'client_booking_card.dart';
 
@@ -20,6 +21,7 @@ class BookingListView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     final state = ref.watch(
       calendarControllerProvider(
         userIdOrShopId: currentUserId,
@@ -30,7 +32,7 @@ class BookingListView extends ConsumerWidget {
     // Handle loading state
     if (state.isLoading) {
       return const Center(child: CircularLoadingIndicator(
-         
+
         ),);
     }
 
@@ -47,7 +49,7 @@ class BookingListView extends ConsumerWidget {
             ),
             SizedBox(height: Spacing.md.h),
             Text(
-              'Error loading bookings',
+              loc.calendarErrorLoadingBookings,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             SizedBox(height: Spacing.sm.h),
@@ -64,7 +66,7 @@ class BookingListView extends ConsumerWidget {
     // Handle no data
     if (!state.hasValue || state.value == null) {
       return const Center(child: CircularLoadingIndicator(
-         
+
         ),);
     }
 
@@ -99,7 +101,7 @@ class BookingListView extends ConsumerWidget {
             ),
             SizedBox(height: Spacing.md.h),
             Text(
-              'No bookings for this day',
+              loc.calendarNoBookingsDay,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               ),

@@ -180,6 +180,245 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginForgotPasswordPart3 => ' to reset your password?';
 
   @override
+  String get commonConfirmPasswordLabel => 'Confirm Password';
+
+  @override
+  String get commonConfirmPasswordHint => 'Please confirm your password';
+
+  @override
+  String get commonPasswordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get commonPasswordConfirmRequired => 'Please confirm your password';
+
+  @override
+  String commonFieldIsValid(String field) {
+    return '$field is valid';
+  }
+
+  @override
+  String get commonPleaseWait => 'Please wait for the current operation to complete';
+
+  @override
+  String get commonUnexpectedError => 'An unexpected error occurred. Please try again.';
+
+  @override
+  String get commonSomethingWentWrong => 'Something went wrong. Please try again.';
+
+  @override
+  String get commonEnterEmailAndRetry => 'Please enter your email address and try again';
+
+  @override
+  String get commonLearnMore => 'Learn more';
+
+  @override
+  String get authSignUpVerificationSent => 'Verification email sent! Please check your inbox.';
+
+  @override
+  String authSignUpFailed(String error) {
+    return 'Sign-up failed: $error';
+  }
+
+  @override
+  String get authForgotPasswordTitle => 'Forgot your password?';
+
+  @override
+  String get authForgotPasswordSubtitle => 'Enter your email and we\'ll send you a link to reset your password.';
+
+  @override
+  String get authSendResetLink => 'Send reset link';
+
+  @override
+  String get authBackToSignIn => 'Back to sign in';
+
+  @override
+  String get authUsernameScreenTitle => 'Choose your username';
+
+  @override
+  String get authUsernameScreenSubtitle => 'This is how others will see you. You can change it later.';
+
+  @override
+  String get authUsernameLabel => 'Username';
+
+  @override
+  String get authUsernameHint => 'Enter a username';
+
+  @override
+  String authUsernameMinLength(int min) {
+    return 'Username must be at least $min characters';
+  }
+
+  @override
+  String authUsernameMaxLength(int max) {
+    return 'Username must be at most $max characters';
+  }
+
+  @override
+  String get authUsernameFormatError => 'Only letters, numbers, and underscores are allowed';
+
+  @override
+  String get authUsernameTaken => 'This username is already taken';
+
+  @override
+  String get authUsernameCheckError => 'Unable to check username availability. Please try again.';
+
+  @override
+  String get authUsernameSaveError => 'Could not save your username. Please try again.';
+
+  @override
+  String get authUsernameSavedSuccess => 'Username saved successfully!';
+
+  @override
+  String get authUpdatePasswordTitle => 'Create new password';
+
+  @override
+  String get authUpdatePasswordButton => 'Update password';
+
+  @override
+  String get authUpdatePasswordSuccess => 'Password updated successfully. Please sign in again.';
+
+  @override
+  String get authPasswordResetSentTitle => 'Check your email';
+
+  @override
+  String get authPasswordResetSentBody => 'We sent a password reset link to';
+
+  @override
+  String get authPasswordResetSentNote => 'Tap the link in the email to set a new password. The link expires in 1 hour.';
+
+  @override
+  String get authGuestHello => 'Hello!';
+
+  @override
+  String authGuestOverview(String appName) {
+    return 'You are browsing $appName as a guest. Log in or create an account to start managing your shop — it takes less than 5 seconds. We have a variety of tools to help grow your business, all free of charge.';
+  }
+
+  @override
+  String authIntroTitle(String appName) {
+    return 'Welcome to\n$appName';
+  }
+
+  @override
+  String get authIntroSubtitle => 'Welcome to the platform we built for you. Enjoy and have fun — the best is waiting.';
+
+  @override
+  String get authReadLegalities => 'Read legalities';
+
+  @override
+  String get authPasswordRequired => 'Please enter your password';
+
+  @override
+  String get authCreatingAccount => 'Creating account...';
+
+  @override
+  String get authAccountCreatedSuccess => 'Account created successfully!';
+
+  @override
+  String get authCheckEmailToConfirm => 'Please check your email to confirm your account';
+
+  @override
+  String get authSigningInWithGoogle => 'Signing in with Google...';
+
+  @override
+  String authGoogleSignInFailed(String error) {
+    return 'Google sign-in failed: $error';
+  }
+
+  @override
+  String get authAuthenticatingWithApple => 'Authenticating with Apple...';
+
+  @override
+  String authAppleSignInFailed(String error) {
+    return 'Apple sign-in failed: $error';
+  }
+
+  @override
+  String get authSendingResetEmail => 'Sending reset email...';
+
+  @override
+  String get authResetEmailSent => 'Reset email sent. Check your inbox.';
+
+  @override
+  String authPasswordResetFailed(String error) {
+    return 'Password reset failed: $error';
+  }
+
+  @override
+  String get authVerifyEmailTitle => 'Check your email';
+
+  @override
+  String get authVerifyEmailSubtitle => 'We sent a confirmation link to';
+
+  @override
+  String get authVerifyEmailNote => 'Tap the link in the email to verify your account and continue.';
+
+  @override
+  String get authConfirmationResent => 'Confirmation email resent. Check your inbox.';
+
+  @override
+  String get authResendFailed => 'Failed to resend email. Please try again.';
+
+  @override
+  String get authResendEmailButton => 'Resend confirmation email';
+
+  @override
+  String authResendEmailCooldown(int seconds) {
+    return 'Resend email (${seconds}s)';
+  }
+
+  @override
+  String get currencySelectorPlaceholder => 'Select currency';
+
+  @override
+  String get currencySelectorNoSelected => 'No currency selected';
+
+  @override
+  String get currencySelectorTitle => 'Select Currency';
+
+  @override
+  String get currencySelectorSearchHint => 'Search by currency, code, or flag...';
+
+  @override
+  String get currencySelectorNoResults => 'No currencies found';
+
+  @override
+  String get discoverScreenTitle => 'Discover';
+
+  @override
+  String get discoverSearchHint => 'Search...';
+
+  @override
+  String get discoverAllShopsRegion => 'All shops in your region';
+
+  @override
+  String get discoverAllFreelancers => 'All freelancers near you';
+
+  @override
+  String get discoverMarketplaceTitle => 'Marketplace';
+
+  @override
+  String get discoverMarketplaceSubtitle => 'Shop beauty products with cash on delivery';
+
+  @override
+  String get discoverBrowseProducts => 'Browse products';
+
+  @override
+  String get discoverMyOrders => 'My orders';
+
+  @override
+  String get discoverCartTooltip => 'Cart';
+
+  @override
+  String get homeScheduleTabLabel => 'Schedule';
+
+  @override
+  String get homeDashboardTabLabel => 'Dashboard';
+
+  @override
+  String get homeMapTabLabel => 'Map';
+
+  @override
   String get validationRequired => 'This field is required';
 
   @override
@@ -233,7 +472,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editProfileBioFieldLabel => 'Tell us about yourself';
 
   @override
-  String get editProfileScreenTitle => 'Edit profile\n';
+  String get editProfileScreenTitle => 'Edit profile';
 
   @override
   String get editProfileSettingTitle => 'Account Settings';
@@ -665,4 +904,737 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get faqDashboard2Answer => 'Navigate to your dashboard and click on the \'Earnings\' section. From there, you\'ll see your current balance and a \'Request Payout\' button. Follow the prompts to complete your request.';
+
+  @override
+  String get profileScreenCantChatWithYourself => 'You can\'t chat with yourself';
+
+  @override
+  String get profileScreenStartingConversation => 'Starting conversation...';
+
+  @override
+  String get profileScreenNoActiveSession => 'No active session — please log in again.';
+
+  @override
+  String get profileScreenSignInToChatMessage => 'You have to sign in to send a message';
+
+  @override
+  String get profileScreenFollowFeatureComingSoon => 'Follow feature coming soon';
+
+  @override
+  String get profileScreenEnterBioPlaceholder => 'Enter a bio so people can know you';
+
+  @override
+  String get profileScreenNoBioYet => 'No bio yet';
+
+  @override
+  String get profileScreenErrorLoadingProfileBody => 'Unable to load profile. Check your internet and try again.';
+
+  @override
+  String get profileScreenLoadingNotifications => 'Loading...';
+
+  @override
+  String get profileHeaderBookingsStatLabel => 'Bookings';
+
+  @override
+  String get profileHeaderOrdersStatLabel => 'Orders';
+
+  @override
+  String get profileHeaderEditProfileButton => 'Edit profile';
+
+  @override
+  String get profileHeaderMessageButton => 'Message';
+
+  @override
+  String get editableProfileAvatarTakePhoto => 'Take a photo';
+
+  @override
+  String get editableProfileAvatarChooseGallery => 'Choose from gallery';
+
+  @override
+  String get editProfileScreenAccountTypeLabel => 'Account Type';
+
+  @override
+  String get editProfileScreenAccountTypeSubtitle => 'Select how you want to use this app. This determines what features are available to you.';
+
+  @override
+  String get editProfileScreenUpdatingAccountType => 'Updating account type...';
+
+  @override
+  String get editProfileScreenPleaseLogIn => 'Please log in';
+
+  @override
+  String get editProfileScreenNameLabel => 'Name';
+
+  @override
+  String get editProfileScreenNameHint => 'Enter your name';
+
+  @override
+  String get editProfileScreenUsernameLabel => 'Username';
+
+  @override
+  String get editProfileScreenUsernameHint => 'Enter username';
+
+  @override
+  String get editProfileScreenBioLabel => 'Bio';
+
+  @override
+  String get editProfileScreenBioHint => 'Tell something about yourself';
+
+  @override
+  String get editProfileScreenEditWorkProfileTitle => 'Edit work profile';
+
+  @override
+  String get profileTabsAppointments => 'Appointments';
+
+  @override
+  String get profileTabsBuys => 'Buys';
+
+  @override
+  String get profileTabsSaves => 'Saves';
+
+  @override
+  String get searchScreenSearchHint => 'Search shops, professionals, products...';
+
+  @override
+  String get searchScreenNoResultsFound => 'No results found';
+
+  @override
+  String searchScreenNoResultsCategory(String category) {
+    return 'No $category found';
+  }
+
+  @override
+  String searchScreenSearchedFor(String query) {
+    return 'Searched for: \"$query\"';
+  }
+
+  @override
+  String get searchScreenSomethingWentWrong => 'Something went wrong';
+
+  @override
+  String get searchAppBarSearchHint => 'Search...';
+
+  @override
+  String get searchSuggestionsHint => 'Search for shops, professionals for home service, or hair products to buy';
+
+  @override
+  String get searchSuggestionsRecentSearches => 'Recent Searches';
+
+  @override
+  String get searchSuggestionsClearAll => 'Clear All';
+
+  @override
+  String get searchEmptyStateNoResults => 'No results found';
+
+  @override
+  String searchEmptyStateCouldNotFind(String query) {
+    return 'We couldn\'t find anything for \"$query\"';
+  }
+
+  @override
+  String get searchEmptyStateTryThese => 'Try these instead:';
+
+  @override
+  String get searchResultsShopsHeader => 'Shops';
+
+  @override
+  String get searchResultsSeeAll => 'See all';
+
+  @override
+  String searchResultsTitle(String category) {
+    return '$category Results';
+  }
+
+  @override
+  String searchResultsSearchingFor(String query) {
+    return 'Searching for \"$query\"';
+  }
+
+  @override
+  String get searchResultsTryDifferent => 'Try different keywords or remove filters';
+
+  @override
+  String get searchResultsSomethingWentWrong => 'Something went wrong';
+
+  @override
+  String nearYouShopsTitle(int km) {
+    return 'Near You\nwithin ${km}km';
+  }
+
+  @override
+  String nearYouShopsBody(int km) {
+    return 'Shops located within $km km of your current location, shown from closest to farthest. Simply set your location once, and we\'ll show you what\'s nearby—whether you\'re at home, work, or exploring a new neighborhood. Handy for last‑minute bookings or when you prefer to walk.';
+  }
+
+  @override
+  String get nearYouShopsEmptyNoFilter => 'No shops found nearby';
+
+  @override
+  String nearYouShopsEmptyWithFilter(String luxury) {
+    return 'No $luxury shops found nearby';
+  }
+
+  @override
+  String nearYouShopsEmptySubtitle(String location) {
+    return 'Shops in $location would be shown here once they become available';
+  }
+
+  @override
+  String get premiumShopsScreenTitle => 'Premium Shops';
+
+  @override
+  String get premiumShopsEmpty => 'No premium shops found';
+
+  @override
+  String get premiumShopsHorizontalTitle => 'Premium shops\nfor premium looks';
+
+  @override
+  String get premiumShopsHorizontalBody => 'Handpicked high‑end salons and spas offering luxury experiences. These shops are classified as Luxury or Ultra‑Luxury based on their services, pricing, and customer reviews. Perfect when you\'re looking for that extra touch of elegance.';
+
+  @override
+  String get premiumShopsHorizontalEmptyNoFilter => 'No premium shops available';
+
+  @override
+  String premiumShopsHorizontalEmptyWithFilter(String luxury) {
+    return 'No $luxury premium shops available';
+  }
+
+  @override
+  String get premiumShopsHorizontalEmptySubtitle => 'Shops would be shown here once they become available';
+
+  @override
+  String get topRatedShopsHorizontalTitle => 'Top Rated';
+
+  @override
+  String topRatedShopsHorizontalTitleWithLocation(String location) {
+    return 'Top Rated \nin $location';
+  }
+
+  @override
+  String get topRatedShopsHorizontalBody => 'Shops with the highest customer ratings (4.5+ stars) and a solid number of reviews. These are the favorites among our community—consistently praised for quality, service, and professionalism. A great place to start if you want reliable, crowd‑approved options.';
+
+  @override
+  String get topRatedShopsHorizontalEmptyNoFilter => 'No top rated shops available';
+
+  @override
+  String topRatedShopsHorizontalEmptyWithFilter(String luxury) {
+    return 'No $luxury premium shops available';
+  }
+
+  @override
+  String get topRatedShopsHorizontalEmptySubtitle => 'Shops would be shown here once they become available';
+
+  @override
+  String get topRatedShopsScreenTitle => 'Top Rated Shops';
+
+  @override
+  String get topRatedShopsEmpty => 'No top rated shops found';
+
+  @override
+  String get nearYouFreelancersScreenTitle => 'Freelancers near you';
+
+  @override
+  String get nearYouFreelancersEmpty => 'No freelancers found nearby';
+
+  @override
+  String get nearYouFreelancersEmptySubtitle => 'Try expanding your search area or change location';
+
+  @override
+  String get topRatedFreelancersScreenTitle => 'Top rated freelancers';
+
+  @override
+  String get topRatedFreelancersEmpty => 'No top rated freelancers found';
+
+  @override
+  String get topRatedFreelancersEmptySubtitle => 'Try adjusting your search area';
+
+  @override
+  String topRatedFreelancersHorizontalTitle(String location) {
+    return 'Top Rated \nin $location';
+  }
+
+  @override
+  String get topRatedFreelancersHorizontalBody => 'Handpicked high‑end professionals offering luxury experiences. These freelancers are classified as top rated based on their work quality, pricing, and customer reviews. Perfect when you\'re looking for that extra touch of excellence.';
+
+  @override
+  String nearYouFreelancersHorizontalTitle(String location) {
+    return 'Freelancers Near You in $location';
+  }
+
+  @override
+  String get nearYouFreelancersHorizontalBody => 'Skilled professionals located near you. These freelancers are available for quick bookings and offer convenient, local service. Perfect when you\'re looking for reliability and proximity.';
+
+  @override
+  String get nearYouFreelancersHorizontalEmpty => 'No top rated freelancers available';
+
+  @override
+  String get nearYouFreelancersHorizontalEmptySubtitle => 'Freelancers would be shown here once they become available';
+
+  @override
+  String get shopNoLocationSetTitle => 'Set your location to discover';
+
+  @override
+  String get shopNoLocationSetContent => 'Set your location to discover premium and top rated shops near you.';
+
+  @override
+  String get providerTypeShops => 'Shops';
+
+  @override
+  String get providerTypeFreelancers => 'Freelancers';
+
+  @override
+  String get providerTypeBuy => 'Buy';
+
+  @override
+  String get luxuryLevelChipsAll => 'All';
+
+  @override
+  String get searchRadiusSliderTitle => 'Explore radius';
+
+  @override
+  String searchRadiusSliderSubtitle(int km) {
+    return 'Showing results within ${km}km of your location';
+  }
+
+  @override
+  String validationPasswordMaxLength(int max) {
+    return 'Password must be at most $max characters';
+  }
+
+  @override
+  String get validationPasswordRepeatingChars => 'Password contains too many repeating characters';
+
+  @override
+  String get validationPasswordSequential => 'Password contains sequential characters';
+
+  @override
+  String validationPhoneDigits(int digits) {
+    return 'Phone number must be $digits digits';
+  }
+
+  @override
+  String get validationPhoneUK => 'Invalid UK phone number';
+
+  @override
+  String validationUrlScheme(String schemes) {
+    return 'URL must start with $schemes';
+  }
+
+  @override
+  String get validationUrlDomain => 'Invalid domain name';
+
+  @override
+  String get validationUrlPublicAddress => 'URL must point to a public address';
+
+  @override
+  String validationNameMaxLength(String field, int max) {
+    return '$field must be at most $max characters';
+  }
+
+  @override
+  String validationNameConsecutiveChars(String field) {
+    return '$field cannot contain consecutive hyphens or spaces';
+  }
+
+  @override
+  String get validationCreditCardFormat => 'Please enter a valid credit card number';
+
+  @override
+  String get validationCreditCardInvalid => 'Invalid credit card number';
+
+  @override
+  String get validationDatePastNotAllowed => 'Date cannot be in the past';
+
+  @override
+  String get validationPostalCodeZip => 'Please enter a valid ZIP code (e.g., 12345 or 12345-6789)';
+
+  @override
+  String get validationPostalCodeCanadian => 'Please enter a valid Canadian postal code (e.g., A1A 1A1)';
+
+  @override
+  String get validationPostalCodeGeneric => 'Please enter a valid postal code';
+
+  @override
+  String get validationSSNFormat => 'Please enter a valid SSN (e.g., 123-45-6789)';
+
+  @override
+  String get validationSSNInvalid => 'Invalid SSN';
+
+  @override
+  String get validationEmailTooLong => 'Email is too long (max 254 characters)';
+
+  @override
+  String get validationEmailLocalPartTooLong => 'Local part of email is too long';
+
+  @override
+  String get categoriesAll => 'All';
+
+  @override
+  String get categoriesSalon => 'Salons';
+
+  @override
+  String get categoriesBarbershop => 'Barbershops';
+
+  @override
+  String get categoriesSpa => 'Spas';
+
+  @override
+  String get categoriesNailSalon => 'Nail Salons';
+
+  @override
+  String get categoriesLashStudio => 'Lash Studios';
+
+  @override
+  String get categoriesWaxing => 'Waxing';
+
+  @override
+  String get categoriesMassage => 'Massage';
+
+  @override
+  String get categoriesMakeup => 'Makeup';
+
+  @override
+  String get categoriesSkincare => 'Skincare';
+
+  @override
+  String get luxuryLevelModerate => 'Moderate';
+
+  @override
+  String get luxuryLevelLuxury => 'Luxury';
+
+  @override
+  String get luxuryLevelUltraLuxury => 'Ultra Luxury';
+
+  @override
+  String get dashboardTabRevenue => 'Revenue';
+
+  @override
+  String get dashboardTabAnalytics => 'Analytics';
+
+  @override
+  String get dashboardTabInsights => 'Insights';
+
+  @override
+  String get dashboardTabTools => 'Tools';
+
+  @override
+  String get dashboardTabClients => 'Clients';
+
+  @override
+  String get dashboardTabStaff => 'Staff';
+
+  @override
+  String get walletRecentTransactions => 'Recent Transactions';
+
+  @override
+  String get walletLoadError => 'We couldn\'t load your wallet right now.';
+
+  @override
+  String get walletTransactionLoadError => 'Couldn\'t load recent transactions.';
+
+  @override
+  String get walletPaymentProcessing => 'Kindly wait for the payment to finish processing and return to your app to complete your booking.';
+
+  @override
+  String get analyticsRevenue => 'Revenue';
+
+  @override
+  String get analyticsServices => 'Services';
+
+  @override
+  String get analyticsWorkers => 'Workers';
+
+  @override
+  String get analyticsLoadError => 'Failed to load analytics';
+
+  @override
+  String get analyticsEmpty => 'No data available for analytics.';
+
+  @override
+  String get analyticsEmptySubtitle => 'Booking and revenue statistics would appear here';
+
+  @override
+  String get insightsReports => 'Reports';
+
+  @override
+  String get insightsSeeAll => 'See All';
+
+  @override
+  String get insightsLoadError => 'Couldn\'t load reports. Pull to refresh.';
+
+  @override
+  String get insightsNoAlerts => 'All good! No alerts';
+
+  @override
+  String get insightsHeatmapError => 'Couldn\'t load the booking heatmap right now.';
+
+  @override
+  String get insightsNoHeatmapData => 'No heatmap data available';
+
+  @override
+  String get toolsAdminTools => 'Admin Tools';
+
+  @override
+  String get toolsConfigure => 'Configure →';
+
+  @override
+  String get toolsManage => 'Manage →';
+
+  @override
+  String get toolsExport => 'Export →';
+
+  @override
+  String get toolsAutomatedReminders => 'Automated Reminders';
+
+  @override
+  String get toolsPromotionsManager => 'Promotions Manager';
+
+  @override
+  String get toolsExportReports => 'Export Reports';
+
+  @override
+  String get toolsPaymentSettings => 'Payment Settings';
+
+  @override
+  String get toolsLoadingDetails => 'Loading shop details…';
+
+  @override
+  String get toolsBusinessHours => 'Business Hours';
+
+  @override
+  String get toolsServiceManagement => 'Service Management';
+
+  @override
+  String get clientsSearchHint => 'Search by name...';
+
+  @override
+  String get clientsLoadError => 'Failed to load clients';
+
+  @override
+  String get clientsNotFound => 'No Clients Match';
+
+  @override
+  String get clientsEmpty => 'No Clients Yet';
+
+  @override
+  String clientsSearchEmpty(String query) {
+    return 'No clients match \"$query\"';
+  }
+
+  @override
+  String get clientsEmptySubtitle => 'Clients will appear here when they make their first booking.';
+
+  @override
+  String get walletLabel => 'Wallet';
+
+  @override
+  String get walletAvailableBalance => 'Available Balance';
+
+  @override
+  String get walletWithdrawFunds => 'Withdraw Funds';
+
+  @override
+  String get walletTotalEarned => 'Total Earned';
+
+  @override
+  String get walletTotalWithdrawn => 'Total Withdrawn';
+
+  @override
+  String get transactionDepositReceived => 'Deposit Received';
+
+  @override
+  String get transactionServicePayment => 'Service Payment';
+
+  @override
+  String get transactionWithdrawal => 'Withdrawal';
+
+  @override
+  String get transactionRefund => 'Refund';
+
+  @override
+  String get transactionPlatformFee => 'Platform Fee';
+
+  @override
+  String get transactionAdjustment => 'Adjustment';
+
+  @override
+  String get transactionToday => 'Today';
+
+  @override
+  String get transactionYesterday => 'Yesterday';
+
+  @override
+  String get withdrawalTitle => 'Withdraw';
+
+  @override
+  String withdrawalInfo(double fee, String currency, double minFee) {
+    return 'Withdrawals are processed immediately and sent to your connected account. A $fee% fee (min $currency $minFee) applies.';
+  }
+
+  @override
+  String withdrawalAvailableBalance(String currency, String amount) {
+    return 'Available balance: $currency $amount';
+  }
+
+  @override
+  String withdrawalAmountInputLabel(String currency) {
+    return 'Amount ($currency)';
+  }
+
+  @override
+  String get withdrawalAmountHint => 'Enter amount to withdraw';
+
+  @override
+  String get withdrawalAmountRequired => 'Please enter an amount';
+
+  @override
+  String get withdrawalAmountInvalid => 'Please enter a valid amount';
+
+  @override
+  String withdrawalMinimum(String currency, double min) {
+    return 'Minimum withdrawal is $currency $min';
+  }
+
+  @override
+  String withdrawalMaximum(String currency, double max) {
+    return 'Maximum withdrawal per transaction is $currency $max';
+  }
+
+  @override
+  String withdrawalInsufficientBalance(String currency, String available) {
+    return 'Insufficient balance. Available: $currency $available';
+  }
+
+  @override
+  String get withdrawalBreakdownAmount => 'Withdrawal amount:';
+
+  @override
+  String withdrawalFeeLabel(Object fee) {
+    return 'Fee ($fee%):';
+  }
+
+  @override
+  String get withdrawalNetAmount => 'You will receive:';
+
+  @override
+  String get withdrawalProcessing => 'Processing...';
+
+  @override
+  String get withdrawalRequestButton => 'Request Withdrawal';
+
+  @override
+  String get withdrawalNoPaymentMethod => 'No payment method connected';
+
+  @override
+  String get withdrawalSuccess => 'Withdrawal request submitted successfully!';
+
+  @override
+  String get deadLetterTitle => 'Withdrawal needs review';
+
+  @override
+  String deadLetterSingle(String currency, String amount) {
+    return '$currency $amount stuck — tap for details';
+  }
+
+  @override
+  String deadLetterMultiple(String currency, String amount, int count) {
+    return '$currency $amount stuck across $count withdrawals — tap for details';
+  }
+
+  @override
+  String get deadLetterReason => 'Reason:';
+
+  @override
+  String get deadLetterContactSupport => 'Contact support';
+
+  @override
+  String get paymentSetupTitle => 'Complete payout setup';
+
+  @override
+  String get paymentSetupContent => 'Connect your payout account to start withdrawing money from your wallet. This could be your mobile money number or your bank account.';
+
+  @override
+  String get calendarErrorLoading => 'Error loading calendar';
+
+  @override
+  String get calendarErrorLoadingBookings => 'Error loading bookings';
+
+  @override
+  String get calendarNoAppointmentsDay => 'No appointments for this day';
+
+  @override
+  String get calendarNoBookingsDay => 'No bookings for this day';
+
+  @override
+  String calendarAppointmentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'appointments',
+      one: 'appointment',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String get monthJanuary => 'Jan';
+
+  @override
+  String get monthFebruary => 'Feb';
+
+  @override
+  String get monthMarch => 'Mar';
+
+  @override
+  String get monthApril => 'Apr';
+
+  @override
+  String get monthMay => 'May';
+
+  @override
+  String get monthJune => 'Jun';
+
+  @override
+  String get monthJuly => 'Jul';
+
+  @override
+  String get monthAugust => 'Aug';
+
+  @override
+  String get monthSeptember => 'Sep';
+
+  @override
+  String get monthOctober => 'Oct';
+
+  @override
+  String get monthNovember => 'Nov';
+
+  @override
+  String get monthDecember => 'Dec';
+
+  @override
+  String get dayMonday => 'Mon';
+
+  @override
+  String get dayTuesday => 'Tue';
+
+  @override
+  String get dayWednesday => 'Wed';
+
+  @override
+  String get dayThursday => 'Thu';
+
+  @override
+  String get dayFriday => 'Fri';
+
+  @override
+  String get daySaturday => 'Sat';
+
+  @override
+  String get daySunday => 'Sun';
+
+  @override
+  String calendarNoAppointmentsSnackbar(String date) {
+    return 'No appointments on this day\n$date';
+  }
 }

@@ -91,7 +91,180 @@
   "loginForgotPasswordPart1": "Haben Sie Ihr Passwort vergessen? ",
   "loginForgotPasswordPart2": "Hier tippen",
   "loginForgotPasswordPart3": " um Ihr Passwort zurückzusetzen?",
-  
+
+  "commonConfirmPasswordLabel": "Passwort bestätigen",
+  "commonConfirmPasswordHint": "Bitte bestätigen Sie Ihr Passwort",
+  "commonPasswordsDoNotMatch": "Passwörter stimmen nicht überein",
+  "commonPasswordConfirmRequired": "Bitte bestätigen Sie Ihr Passwort",
+  "commonFieldIsValid": "{field} ist gültig",
+  "@commonFieldIsValid": {
+    "description": "Snackbar angezeigt, wenn ein Feld erfolgreich validiert wird",
+    "placeholders": {
+      "field": {
+        "type": "String",
+        "example": "E-Mail"
+      }
+    }
+  },
+  "commonPleaseWait": "Bitte warten Sie, bis der aktuelle Vorgang abgeschlossen ist",
+  "commonUnexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+  "commonSomethingWentWrong": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+  "commonEnterEmailAndRetry": "Bitte geben Sie Ihre E-Mail-Adresse ein und versuchen Sie es erneut",
+  "commonLearnMore": "Mehr erfahren",
+
+  "authSignUpVerificationSent": "Bestätigungsmail gesendet! Bitte überprüfen Sie Ihren Posteingang.",
+  "authSignUpFailed": "Registrierung fehlgeschlagen: {error}",
+  "@authSignUpFailed": {
+    "description": "Fehlgeschlagene Registrierungsmeldung mit Fehlerdetails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "E-Mail wird bereits verwendet"
+      }
+    }
+  },
+
+  "authForgotPasswordTitle": "Passwort vergessen?",
+  "authForgotPasswordSubtitle": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.",
+  "authSendResetLink": "Zurücksetzen-Link senden",
+  "authBackToSignIn": "Zurück zur Anmeldung",
+
+  "authUsernameScreenTitle": "Benutzernamen wählen",
+  "authUsernameScreenSubtitle": "So sehen dich andere. Du kannst es später ändern.",
+  "authUsernameLabel": "Benutzername",
+  "authUsernameHint": "Geben Sie einen Benutzernamen ein",
+  "authUsernameMinLength": "Benutzername muss mindestens {min} Zeichen lang sein",
+  "@authUsernameMinLength": {
+    "description": "Validierungsfehler für minimale Benutzernamenslänge",
+    "placeholders": {
+      "min": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "authUsernameMaxLength": "Benutzername darf höchstens {max} Zeichen lang sein",
+  "@authUsernameMaxLength": {
+    "description": "Validierungsfehler für maximale Benutzernamenslänge",
+    "placeholders": {
+      "max": {
+        "type": "int",
+        "example": "30"
+      }
+    }
+  },
+  "authUsernameFormatError": "Nur Buchstaben, Zahlen und Unterstriche sind erlaubt",
+  "authUsernameTaken": "Dieser Benutzername ist bereits vergeben",
+  "authUsernameCheckError": "Verfügbarkeit konnte nicht überprüft werden. Bitte versuchen Sie es erneut.",
+  "authUsernameSaveError": "Konnte Ihren Benutzernamen nicht speichern. Bitte versuchen Sie es erneut.",
+  "authUsernameSavedSuccess": "Benutzername erfolgreich gespeichert!",
+
+  "authUpdatePasswordTitle": "Neues Passwort erstellen",
+  "authUpdatePasswordButton": "Passwort aktualisieren",
+  "authUpdatePasswordSuccess": "Passwort erfolgreich aktualisiert. Bitte melden Sie sich erneut an.",
+
+  "authPasswordResetSentTitle": "Überprüfen Sie Ihre E-Mail",
+  "authPasswordResetSentBody": "Wir haben einen Link zum Zurücksetzen des Passworts gesendet an",
+  "authPasswordResetSentNote": "Tippen Sie auf den Link in der E-Mail, um ein neues Passwort festzulegen. Der Link verfällt in 1 Stunde.",
+
+  "authGuestHello": "Hallo!",
+  "authGuestOverview": "Sie durchsuchen {appName} als Gast. Melden Sie sich an oder erstellen Sie ein Konto, um Ihren Shop zu verwalten – es dauert weniger als 5 Sekunden. Wir haben eine Vielzahl von Tools, um Ihr Geschäft zu entwickeln, alle kostenlos.",
+  "@authGuestOverview": {
+    "description": "Willkommenstext für Gastbenutzer auf dem Login-Profilbildschirm",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "NanoEmbryo"
+      }
+    }
+  },
+
+  "authIntroTitle": "Willkommen bei\n{appName}",
+  "@authIntroTitle": {
+    "description": "Haupttitel auf dem Intro-Bildschirm mit App-Namen",
+    "placeholders": {
+      "appName": {
+        "type": "String",
+        "example": "NanoEmbryo"
+      }
+    }
+  },
+  "authIntroSubtitle": "Willkommen auf der Plattform, die wir für Sie gebaut haben. Genießen Sie und haben Sie Spaß – das Beste wartet auf Sie.",
+  "authReadLegalities": "Rechtliche Bestimmungen lesen",
+
+  "authPasswordRequired": "Bitte geben Sie Ihr Passwort ein",
+  "authCreatingAccount": "Konto wird erstellt...",
+  "authAccountCreatedSuccess": "Konto erfolgreich erstellt!",
+  "authCheckEmailToConfirm": "Bitte überprüfen Sie Ihre E-Mail, um Ihr Konto zu bestätigen",
+  "authSigningInWithGoogle": "Mit Google anmelden...",
+  "authGoogleSignInFailed": "Google-Anmeldung fehlgeschlagen: {error}",
+  "@authGoogleSignInFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Benutzer abgebrochen"
+      }
+    }
+  },
+  "authAuthenticatingWithApple": "Mit Apple authentifizieren...",
+  "authAppleSignInFailed": "Apple-Anmeldung fehlgeschlagen: {error}",
+  "@authAppleSignInFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Benutzer abgebrochen"
+      }
+    }
+  },
+  "authSendingResetEmail": "Zurücksetzen-E-Mail wird gesendet...",
+  "authResetEmailSent": "Zurücksetzen-E-Mail gesendet. Überprüfen Sie Ihren Posteingang.",
+  "authPasswordResetFailed": "Passwort zurücksetzen fehlgeschlagen: {error}",
+  "@authPasswordResetFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Benutzer nicht gefunden"
+      }
+    }
+  },
+
+  "authVerifyEmailTitle": "Überprüfen Sie Ihre E-Mail",
+  "authVerifyEmailSubtitle": "Wir haben einen Bestätigungslink gesendet an",
+  "authVerifyEmailNote": "Tippen Sie auf den Link in der E-Mail, um Ihr Konto zu bestätigen und fortzufahren.",
+  "authConfirmationResent": "Bestätigungsmail erneut gesendet. Überprüfen Sie Ihren Posteingang.",
+  "authResendFailed": "Fehler beim erneuten Senden der E-Mail. Bitte versuchen Sie es erneut.",
+  "authResendEmailButton": "Bestätigungsmail erneut senden",
+  "authResendEmailCooldown": "E-Mail erneut senden ({seconds}s)",
+  "@authResendEmailCooldown": {
+    "description": "Schaltflächenbezeichnung mit verbleibenden Sekunden für Neuversand-Wartezeit",
+    "placeholders": {
+      "seconds": {
+        "type": "int",
+        "example": "30"
+      }
+    }
+  },
+
+  "currencySelectorPlaceholder": "Währung wählen",
+  "currencySelectorNoSelected": "Keine Währung ausgewählt",
+  "currencySelectorTitle": "Währung wählen",
+  "currencySelectorSearchHint": "Nach Währung, Code oder Flagge suchen...",
+  "currencySelectorNoResults": "Keine Währungen gefunden",
+
+  "discoverScreenTitle": "Entdecken",
+  "discoverSearchHint": "Suchen...",
+  "discoverAllShopsRegion": "Alle Shops in Ihrer Region",
+  "discoverAllFreelancers": "Alle Freiberufler in Ihrer Nähe",
+  "discoverMarketplaceTitle": "Marktplatz",
+  "discoverMarketplaceSubtitle": "Kaufen Sie Schönheitsprodukte mit Nachnahme",
+  "discoverBrowseProducts": "Produkte durchsuchen",
+  "discoverMyOrders": "Meine Bestellungen",
+  "discoverCartTooltip": "Einkaufskorb",
+
+  "homeScheduleTabLabel": "Zeitplan",
+  "homeDashboardTabLabel": "Dashboard",
+  "homeMapTabLabel": "Karte",
+
   "validationRequired": "Dieses Feld ist erforderlich",
   "validationEmailInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
   "validationPasswordLength": "Das Passwort muss mindestens {minLength} Zeichen lang sein",
@@ -120,6 +293,8 @@
   "editProfileScreenEditShopSubtitle": "Ändern Sie Ihre Shop-Informationen",
   
   "languageScreenSubtitle": "Wählen Sie Ihre bevorzugte Sprache für die App-Oberfläche. Dies wirkt sich nicht auf die Geräteeinstellungen aus.",
+  "languageScreeUseDeviceLang": "Gerätsprache verwenden.",
+  "languageScreeUseDeviceLangNote": "Dies wird auf Ihre Gerätesystemsprache zurückgesetzt.",
   "languageScreenUseDeviceLang": "Gerätesprache verwenden",
   "languageScreenUseDeviceLangNote": "Dies wird zurückgesetzt, um der Systemsprache Ihres Geräts zu entsprechen.",
 
@@ -449,6 +624,542 @@
       "minLength": {
         "type": "int",
         "example": "8"
+      }
+    }
+  },
+
+  "profileScreenCantChatWithYourself": "Du kannst nicht mit dir selbst chatten",
+  "profileScreenStartingConversation": "Unterhaltung wird gestartet...",
+  "profileScreenNoActiveSession": "Keine aktive Sitzung — bitte melden Sie sich erneut an.",
+  "profileScreenSignInToChatMessage": "Sie müssen sich anmelden, um eine Nachricht zu senden",
+  "profileScreenFollowFeatureComingSoon": "Follow-Funktion kommt bald",
+  "profileScreenEnterBioPlaceholder": "Geben Sie eine Biografie ein, damit die Leute Sie kennen",
+  "profileScreenNoBioYet": "Noch keine Biografie",
+  "profileScreenErrorLoadingProfileBody": "Profil konnte nicht geladen werden. Überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
+  "profileScreenLoadingNotifications": "Wird geladen...",
+
+  "profileHeaderBookingsStatLabel": "Buchungen",
+  "profileHeaderOrdersStatLabel": "Bestellungen",
+  "profileHeaderEditProfileButton": "Profil bearbeiten",
+  "profileHeaderMessageButton": "Nachricht",
+
+  "editableProfileAvatarTakePhoto": "Ein Foto machen",
+  "editableProfileAvatarChooseGallery": "Aus der Galerie auswählen",
+
+  "editProfileScreenAccountTypeLabel": "Kontotyp",
+  "editProfileScreenAccountTypeSubtitle": "Wählen Sie, wie Sie diese App nutzen möchten. Dies bestimmt, welche Funktionen für Sie verfügbar sind.",
+  "editProfileScreenUpdatingAccountType": "Kontotyp wird aktualisiert...",
+  "editProfileScreenPleaseLogIn": "Bitte melden Sie sich an",
+  "editProfileScreenTitle": "Profil bearbeiten",
+  "editProfileScreenNameLabel": "Name",
+  "editProfileScreenNameHint": "Geben Sie Ihren Namen ein",
+  "editProfileScreenUsernameLabel": "Benutzername",
+  "editProfileScreenUsernameHint": "Benutzername eingeben",
+  "editProfileScreenBioLabel": "Biografie",
+  "editProfileScreenBioHint": "Erzählen Sie etwas über sich selbst",
+  "editProfileScreenEditWorkProfileTitle": "Arbeitsprofil bearbeiten",
+
+  "profileTabsAppointments": "Termine",
+  "profileTabsBuys": "Käufe",
+  "profileTabsSaves": "Speichert",
+
+  "searchScreenSearchHint": "Nach Geschäften, Profis, Produkten suchen...",
+  "searchScreenNoResultsFound": "Keine Ergebnisse gefunden",
+  "searchScreenNoResultsCategory": "Keine {category} gefunden",
+  "searchScreenSearchedFor": "Gesucht nach: \"{query}\"",
+  "searchScreenSomethingWentWrong": "Etwas ist schiefgelaufen",
+
+  "searchAppBarSearchHint": "Suchen...",
+
+  "searchSuggestionsHint": "Suchen Sie nach Geschäften, Profis für Heimservice oder Haarprodukten zum Kaufen",
+  "searchSuggestionsRecentSearches": "Letzte Suchen",
+  "searchSuggestionsClearAll": "Alles löschen",
+
+  "searchEmptyStateNoResults": "Keine Ergebnisse gefunden",
+  "searchEmptyStateCouldNotFind": "Wir konnten nichts für \"{query}\" finden",
+  "searchEmptyStateTryThese": "Versuchen Sie stattdessen diese:",
+
+  "searchResultsShopsHeader": "Geschäfte",
+  "searchResultsSeeAll": "Alle anzeigen",
+
+  "searchResultsTitle": "{category} Ergebnisse",
+  "searchResultsSearchingFor": "Suche nach \"{query}\"",
+  "searchResultsTryDifferent": "Versuchen Sie andere Schlüsselwörter oder entfernen Sie Filter",
+  "searchResultsSomethingWentWrong": "Etwas ist schiefgelaufen",
+
+  "nearYouShopsTitle": "In Ihrer Nähe\ninnerhalb von {km}km",
+  "@nearYouShopsTitle": {
+    "description": "Title for nearby shops section showing distance radius",
+    "placeholders": {
+      "km": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "nearYouShopsBody": "Geschäfte in einem Umkreis von {km} km von Ihrem aktuellen Standort, sortiert von nächster zu ferner Entfernung. Stellen Sie Ihren Standort einfach einmal ein, und wir zeigen Ihnen, was in der Nähe ist – ob zu Hause, bei der Arbeit oder während Sie eine neue Gegend erkunden. Praktisch für kurzfristige Buchungen oder wenn Sie gerne zu Fuß gehen.",
+  "@nearYouShopsBody": {
+    "description": "Description of nearby shops feature",
+    "placeholders": {
+      "km": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "nearYouShopsEmptyNoFilter": "Keine Geschäfte in der Nähe gefunden",
+  "nearYouShopsEmptyWithFilter": "Keine {luxury} Geschäfte in der Nähe gefunden",
+  "@nearYouShopsEmptyWithFilter": {
+    "description": "Empty state message when no shops found for selected luxury level",
+    "placeholders": {
+      "luxury": {
+        "type": "String",
+        "example": "luxury"
+      }
+    }
+  },
+  "nearYouShopsEmptySubtitle": "Geschäfte in {location} würden hier angezeigt, sobald sie verfügbar sind",
+  "@nearYouShopsEmptySubtitle": {
+    "description": "Empty state subtitle with location placeholder",
+    "placeholders": {
+      "location": {
+        "type": "String",
+        "example": "New York"
+      }
+    }
+  },
+
+  "premiumShopsScreenTitle": "Premium Geschäfte",
+  "premiumShopsEmpty": "Keine Premium Geschäfte gefunden",
+
+  "premiumShopsHorizontalTitle": "Premium-Geschäfte\nfür Premium-Looks",
+  "premiumShopsHorizontalBody": "Handverlesene High-End-Salons und Spas mit Luxuserfahrungen. Diese Geschäfte werden basierend auf ihren Dienstleistungen, Preisen und Kundenrezensionen als Luxus oder Ultra-Luxus klassifiziert. Perfekt für die extra Prise Eleganz.",
+  "premiumShopsHorizontalEmptyNoFilter": "Keine Premium Geschäfte verfügbar",
+  "premiumShopsHorizontalEmptyWithFilter": "Keine {luxury} Premium Geschäfte verfügbar",
+  "@premiumShopsHorizontalEmptyWithFilter": {
+    "description": "Empty state for premium shops with luxury level filter",
+    "placeholders": {
+      "luxury": {
+        "type": "String",
+        "example": "luxury"
+      }
+    }
+  },
+  "premiumShopsHorizontalEmptySubtitle": "Geschäfte würden hier angezeigt, sobald sie verfügbar sind",
+
+  "topRatedShopsHorizontalTitle": "Top bewertet",
+  "topRatedShopsHorizontalTitleWithLocation": "Top bewertet \nin {location}",
+  "@topRatedShopsHorizontalTitleWithLocation": {
+    "description": "Top rated shops title with location",
+    "placeholders": {
+      "location": {
+        "type": "String",
+        "example": "New York"
+      }
+    }
+  },
+  "topRatedShopsHorizontalBody": "Geschäfte mit den höchsten Kundenbewertungen (4,5+ Sterne) und einer großen Anzahl von Rezensionen. Das sind die Favoriten unserer Community—durchgehend für Qualität, Service und Professionalität gelobt. Ein großartiger Ort zum Starten, wenn Sie zuverlässige, von der Crowd bestätigte Optionen mögen.",
+  "topRatedShopsHorizontalEmptyNoFilter": "Keine Top bewerteten Geschäfte verfügbar",
+  "topRatedShopsHorizontalEmptyWithFilter": "Keine {luxury} Premium Geschäfte verfügbar",
+  "@topRatedShopsHorizontalEmptyWithFilter": {
+    "description": "Empty state for top rated shops with luxury level filter",
+    "placeholders": {
+      "luxury": {
+        "type": "String",
+        "example": "luxury"
+      }
+    }
+  },
+  "topRatedShopsHorizontalEmptySubtitle": "Geschäfte würden hier angezeigt, sobald sie verfügbar sind",
+
+  "topRatedShopsScreenTitle": "Top bewertete Geschäfte",
+  "topRatedShopsEmpty": "Keine Top bewerteten Geschäfte gefunden",
+
+  "nearYouFreelancersScreenTitle": "Freiberufler in Ihrer Nähe",
+  "nearYouFreelancersEmpty": "Keine Freiberufler in der Nähe gefunden",
+  "nearYouFreelancersEmptySubtitle": "Versuchen Sie, Ihren Suchbereich zu erweitern oder den Standort zu ändern",
+
+  "topRatedFreelancersScreenTitle": "Top bewertete Freiberufler",
+  "topRatedFreelancersEmpty": "Keine Top bewerteten Freiberufler gefunden",
+  "topRatedFreelancersEmptySubtitle": "Versuchen Sie, Ihren Suchbereich anzupassen",
+
+  "topRatedFreelancersHorizontalTitle": "Top bewertet \nin {location}",
+  "@topRatedFreelancersHorizontalTitle": {
+    "description": "Top rated freelancers title with location",
+    "placeholders": {
+      "location": {
+        "type": "String",
+        "example": "New York"
+      }
+    }
+  },
+  "topRatedFreelancersHorizontalBody": "Handverlesene hochwertige Fachleute mit Luxuserfahrungen. Diese Freiberufler werden basierend auf ihrer Arbeitsqualität, ihren Preisen und Kundenrezensionen als Top bewertet klassifiziert. Perfekt für die Extra-Prise Exzellenz.",
+
+  "nearYouFreelancersHorizontalTitle": "Freiberufler in Ihrer Nähe in {location}",
+  "@nearYouFreelancersHorizontalTitle": {
+    "description": "Freelancers near you title with location",
+    "placeholders": {
+      "location": {
+        "type": "String",
+        "example": "New York"
+      }
+    }
+  },
+  "nearYouFreelancersHorizontalBody": "Fachleute in Ihrer Nähe. Diese Freiberufler sind für schnelle Buchungen verfügbar und bieten bequemen, lokalen Service. Perfekt, wenn Sie Zuverlässigkeit und Nähe suchen.",
+  "nearYouFreelancersHorizontalEmpty": "Keine Top bewerteten Freiberufler verfügbar",
+  "nearYouFreelancersHorizontalEmptySubtitle": "Freiberufler würden hier angezeigt, sobald sie verfügbar sind",
+
+  "shopNoLocationSetTitle": "Standort festlegen zum Entdecken",
+  "shopNoLocationSetContent": "Legen Sie Ihren Standort fest, um Premium- und top bewertete Geschäfte in Ihrer Nähe zu entdecken.",
+
+  "providerTypeShops": "Geschäfte",
+  "providerTypeFreelancers": "Freiberufler",
+  "providerTypeBuy": "Kaufen",
+
+  "luxuryLevelChipsAll": "Alle",
+
+  "searchRadiusSliderTitle": "Erkundungsradius",
+  "searchRadiusSliderSubtitle": "Ergebnisse anzeigen innerhalb von {km}km von Ihrem Standort",
+  "@searchRadiusSliderSubtitle": {
+    "description": "Subtitle showing current search radius",
+    "placeholders": {
+      "km": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+
+  "validationPasswordMaxLength": "Passwort darf maximal {max} Zeichen lang sein",
+  "@validationPasswordMaxLength": {
+    "description": "Validation error for maximum password length",
+    "placeholders": {
+      "max": {
+        "type": "int",
+        "example": "128"
+      }
+    }
+  },
+  "validationPasswordRepeatingChars": "Passwort enthält zu viele wiederholte Zeichen",
+  "validationPasswordSequential": "Passwort enthält aufeinanderfolgende Zeichen",
+  "validationPhoneDigits": "Telefonnummer muss {digits} Ziffern haben",
+  "@validationPhoneDigits": {
+    "description": "Validation error for specific phone number digit requirement",
+    "placeholders": {
+      "digits": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "validationPhoneUK": "Ungültige britische Telefonnummer",
+  "validationUrlScheme": "URL muss mit {schemes} beginnen",
+  "@validationUrlScheme": {
+    "description": "Validation error for URL scheme requirement",
+    "placeholders": {
+      "schemes": {
+        "type": "String",
+        "example": "http or https"
+      }
+    }
+  },
+  "validationUrlDomain": "Ungültiger Domänenname",
+  "validationUrlPublicAddress": "URL muss auf eine öffentliche Adresse verweisen",
+  "validationNameMaxLength": "{field} darf maximal {max} Zeichen lang sein",
+  "@validationNameMaxLength": {
+    "description": "Validation error for maximum name length",
+    "placeholders": {
+      "field": {
+        "type": "String",
+        "example": "Name"
+      },
+      "max": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "validationNameConsecutiveChars": "{field} darf keine aufeinanderfolgenden Bindestriche oder Leerzeichen enthalten",
+  "@validationNameConsecutiveChars": {
+    "description": "Validation error for consecutive special characters in name",
+    "placeholders": {
+      "field": {
+        "type": "String",
+        "example": "Name"
+      }
+    }
+  },
+  "validationCreditCardFormat": "Bitte geben Sie eine gültige Kreditkartennummer ein",
+  "validationCreditCardInvalid": "Ungültige Kreditkartennummer",
+  "validationDatePastNotAllowed": "Datum darf nicht in der Vergangenheit liegen",
+  "validationPostalCodeZip": "Bitte geben Sie eine gültige Postleitzahl ein (z.B. 12345 oder 12345-6789)",
+  "validationPostalCodeCanadian": "Bitte geben Sie eine gültige kanadische Postleitzahl ein (z.B. A1A 1A1)",
+  "validationPostalCodeGeneric": "Bitte geben Sie eine gültige Postleitzahl ein",
+  "validationSSNFormat": "Bitte geben Sie eine gültige Sozialversicherungsnummer ein (z.B. 123-45-6789)",
+  "validationSSNInvalid": "Ungültige Sozialversicherungsnummer",
+  "validationEmailTooLong": "E-Mail ist zu lang (max. 254 Zeichen)",
+  "validationEmailLocalPartTooLong": "Lokaler Teil der E-Mail ist zu lang",
+
+  "categoriesAll": "Alle",
+  "categoriesSalon": "Salons",
+  "categoriesBarbershop": "Friseursalons",
+  "categoriesSpa": "Spas",
+  "categoriesNailSalon": "Nagelstudios",
+  "categoriesLashStudio": "Wimpernstudios",
+  "categoriesWaxing": "Haarentfernung",
+  "categoriesMassage": "Massage",
+  "categoriesMakeup": "Make-up",
+  "categoriesSkincare": "Hautpflege",
+
+  "luxuryLevelModerate": "Moderat",
+  "luxuryLevelLuxury": "Luxus",
+  "luxuryLevelUltraLuxury": "Ultra Luxus",
+
+  "dashboardTabRevenue": "Einnahmen",
+  "dashboardTabAnalytics": "Analytik",
+  "dashboardTabInsights": "Einblicke",
+  "dashboardTabTools": "Werkzeuge",
+  "dashboardTabClients": "Kunden",
+  "dashboardTabStaff": "Personal",
+  "dashboardTitle": "Dashboard",
+
+  "walletRecentTransactions": "Letzte Transaktionen",
+  "walletLoadError": "Wir konnten Ihr Wallet gerade nicht laden.",
+  "walletTransactionLoadError": "Konnte letzte Transaktionen nicht laden.",
+  "walletPaymentProcessing": "Bitte warten Sie, bis die Zahlung verarbeitet ist, und kehren Sie zu Ihrer App zurück, um Ihre Buchung abzuschließen.",
+
+  "analyticsRevenue": "Einnahmen",
+  "analyticsServices": "Dienstleistungen",
+  "analyticsWorkers": "Mitarbeiter",
+  "analyticsLoadError": "Analytik konnte nicht geladen werden",
+  "analyticsEmpty": "Keine Daten für Analytik verfügbar.",
+  "analyticsEmptySubtitle": "Buchungs- und Umsatzstatistiken würden hier angezeigt",
+
+  "insightsReports": "Berichte",
+  "insightsSeeAll": "Alles anzeigen",
+  "insightsLoadError": "Berichte konnten nicht geladen werden. Zum Aktualisieren ziehen Sie nach unten.",
+  "insightsNoAlerts": "Alles gut! Keine Benachrichtigungen",
+  "insightsHeatmapError": "Buchungs-Heatmap konnte nicht geladen werden.",
+  "insightsNoHeatmapData": "Keine Heatmap-Daten verfügbar",
+
+  "toolsAdminTools": "Admin-Tools",
+  "toolsConfigure": "Konfigurieren →",
+  "toolsManage": "Verwalten →",
+  "toolsExport": "Exportieren →",
+  "toolsAutomatedReminders": "Automatisierte Erinnerungen",
+  "toolsPromotionsManager": "Promotions-Manager",
+  "toolsExportReports": "Berichte exportieren",
+  "toolsPaymentSettings": "Zahlungseinstellungen",
+  "toolsLoadingDetails": "Ladendetails werden geladen…",
+  "toolsBusinessHours": "Öffnungszeiten",
+  "toolsServiceManagement": "Serviceverwaltung",
+
+  "clientsSearchHint": "Nach Name suchen...",
+  "clientsLoadError": "Kunden konnten nicht geladen werden",
+  "clientsNotFound": "Keine passenden Kunden",
+  "clientsEmpty": "Noch keine Kunden",
+  "clientsSearchEmpty": "Keine Kunden gefunden, die \"{query}\" entsprechen",
+  "@clientsSearchEmpty": {
+    "description": "Message shown when search returns no results",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "John"
+      }
+    }
+  },
+  "clientsEmptySubtitle": "Kunden werden angezeigt, sobald sie ihre erste Buchung vornehmen.",
+
+  "walletLabel": "Geldbörse",
+  "walletAvailableBalance": "Verfügbarer Saldo",
+  "walletWithdrawFunds": "Geldmittel abheben",
+  "walletTotalEarned": "Gesamtverdient",
+  "walletTotalWithdrawn": "Gesamt abgehoben",
+
+  "transactionDepositReceived": "Einzahlung erhalten",
+  "transactionServicePayment": "Dienstleistungszahlung",
+  "transactionWithdrawal": "Auszahlung",
+  "transactionRefund": "Rückerstattung",
+  "transactionPlatformFee": "Plattformgebühr",
+  "transactionAdjustment": "Anpassung",
+  "transactionToday": "Heute",
+  "transactionYesterday": "Gestern",
+
+  "withdrawalTitle": "Abheben",
+  "withdrawalInfo": "Auszahlungen werden sofort bearbeitet und auf Ihr verbundenes Konto übertragen. Es fällt eine Gebühr von {fee}% (min {currency} {minFee}) an.",
+  "@withdrawalInfo": {
+    "description": "Withdrawal information message with fee details",
+    "placeholders": {
+      "fee": {
+        "type": "double",
+        "example": "2.0"
+      },
+      "currency": {
+        "type": "String",
+        "example": "GHS"
+      },
+      "minFee": {
+        "type": "double",
+        "example": "1.0"
+      }
+    }
+  },
+  "withdrawalAvailableBalance": "Verfügbarer Saldo: {currency} {amount}",
+  "@withdrawalAvailableBalance": {
+    "description": "Shows available balance for withdrawal",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "GHS"
+      },
+      "amount": {
+        "type": "String",
+        "example": "1000.00"
+      }
+    }
+  },
+  "withdrawalAmountInputLabel": "Betrag ({currency})",
+  "@withdrawalAmountInputLabel": {
+    "description": "Amount input field label with currency code",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "GHS"
+      }
+    }
+  },
+  "withdrawalAmountHint": "Abhebungsbetrag eingeben",
+  "withdrawalAmountRequired": "Bitte geben Sie einen Betrag ein",
+  "withdrawalAmountInvalid": "Bitte geben Sie einen gültigen Betrag ein",
+  "withdrawalMinimum": "Mindestabhebung ist {currency} {min}",
+  "@withdrawalMinimum": {
+    "description": "Minimum withdrawal validation error",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "GHS"
+      },
+      "min": {
+        "type": "double",
+        "example": "50"
+      }
+    }
+  },
+  "withdrawalMaximum": "Maximale Abhebung pro Transaktion ist {currency} {max}",
+  "@withdrawalMaximum": {
+    "description": "Maximum withdrawal validation error",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "GHS"
+      },
+      "max": {
+        "type": "double",
+        "example": "5000"
+      }
+    }
+  },
+  "withdrawalInsufficientBalance": "Unzureichendes Guthaben. Verfügbar: {currency} {available}",
+  "@withdrawalInsufficientBalance": {
+    "description": "Insufficient balance validation error",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "GHS"
+      },
+      "available": {
+        "type": "String",
+        "example": "500.00"
+      }
+    }
+  },
+  "withdrawalBreakdownAmount": "Abhebungsbetrag:",
+  "withdrawalFeeLabel": "Gebühr ({fee}%):",
+  "withdrawalNetAmount": "Sie erhalten:",
+  "withdrawalProcessing": "Wird verarbeitet...",
+  "withdrawalRequestButton": "Abhebung anfordern",
+  "withdrawalNoPaymentMethod": "Keine Zahlungsmethode verbunden",
+  "withdrawalSuccess": "Abhebungsanfrage erfolgreich eingereicht!",
+
+  "deadLetterTitle": "Auszahlung benötigt Überprüfung",
+  "deadLetterSingle": "{currency} {amount} hängen fest — zum Anzeigen tippen",
+  "@deadLetterSingle": {
+    "description": "Single stuck withdrawal message",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "GHS"
+      },
+      "amount": {
+        "type": "String",
+        "example": "500.00"
+      }
+    }
+  },
+  "deadLetterMultiple": "{currency} {amount} hängen über {count} Auszahlungen fest — zum Anzeigen tippen",
+  "@deadLetterMultiple": {
+    "description": "Multiple stuck withdrawals message",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "GHS"
+      },
+      "amount": {
+        "type": "String",
+        "example": "1500.00"
+      },
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deadLetterReason": "Grund:",
+  "deadLetterContactSupport": "Support kontaktieren",
+
+  "paymentSetupTitle": "Auszahlungseinrichtung abschließen",
+  "paymentSetupContent": "Verbinden Sie Ihr Auszahlungskonto, um Geld aus Ihrem Geldbeutel abheben zu können. Dies könnte Ihre Mobilfunknummer oder Ihr Bankkonto sein.",
+
+  "calendarErrorLoading": "Fehler beim Laden des Kalenders",
+  "calendarErrorLoadingBookings": "Fehler beim Laden der Buchungen",
+  "calendarNoAppointmentsDay": "Keine Termine für diesen Tag",
+  "calendarNoBookingsDay": "Keine Buchungen für diesen Tag",
+  "calendarAppointmentCount": "{count} {count, plural, one{Termin} other{Termine}}",
+  "@calendarAppointmentCount": {
+    "description": "Number of appointments with plural handling",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "monthJanuary": "Jan",
+  "monthFebruary": "Feb",
+  "monthMarch": "Mär",
+  "monthApril": "Apr",
+  "monthMay": "Mai",
+  "monthJune": "Jun",
+  "monthJuly": "Jul",
+  "monthAugust": "Aug",
+  "monthSeptember": "Sep",
+  "monthOctober": "Okt",
+  "monthNovember": "Nov",
+  "monthDecember": "Dez",
+  "dayMonday": "Mo",
+  "dayTuesday": "Di",
+  "dayWednesday": "Mi",
+  "dayThursday": "Do",
+  "dayFriday": "Fr",
+  "daySaturday": "Sa",
+  "daySunday": "So",
+  "calendarNoAppointmentsSnackbar": "Keine Termine an diesem Tag\n{date}",
+  "@calendarNoAppointmentsSnackbar": {
+    "description": "Snackbar message when no appointments found for selected day",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Mo, 15. Jan 2026"
       }
     }
   }

@@ -433,6 +433,444 @@ abstract class AppLocalizations {
   /// **' to reset your password?'**
   String get loginForgotPasswordPart3;
 
+  /// No description provided for @commonConfirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get commonConfirmPasswordLabel;
+
+  /// No description provided for @commonConfirmPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm your password'**
+  String get commonConfirmPasswordHint;
+
+  /// No description provided for @commonPasswordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get commonPasswordsDoNotMatch;
+
+  /// No description provided for @commonPasswordConfirmRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm your password'**
+  String get commonPasswordConfirmRequired;
+
+  /// Snackbar shown when a field passes validation
+  ///
+  /// In en, this message translates to:
+  /// **'{field} is valid'**
+  String commonFieldIsValid(String field);
+
+  /// No description provided for @commonPleaseWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait for the current operation to complete'**
+  String get commonPleaseWait;
+
+  /// No description provided for @commonUnexpectedError.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred. Please try again.'**
+  String get commonUnexpectedError;
+
+  /// No description provided for @commonSomethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get commonSomethingWentWrong;
+
+  /// No description provided for @commonEnterEmailAndRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email address and try again'**
+  String get commonEnterEmailAndRetry;
+
+  /// No description provided for @commonLearnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn more'**
+  String get commonLearnMore;
+
+  /// No description provided for @authSignUpVerificationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification email sent! Please check your inbox.'**
+  String get authSignUpVerificationSent;
+
+  /// Sign-up failure message with error details
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-up failed: {error}'**
+  String authSignUpFailed(String error);
+
+  /// No description provided for @authForgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your password?'**
+  String get authForgotPasswordTitle;
+
+  /// No description provided for @authForgotPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email and we\'ll send you a link to reset your password.'**
+  String get authForgotPasswordSubtitle;
+
+  /// No description provided for @authSendResetLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get authSendResetLink;
+
+  /// No description provided for @authBackToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get authBackToSignIn;
+
+  /// No description provided for @authUsernameScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your username'**
+  String get authUsernameScreenTitle;
+
+  /// No description provided for @authUsernameScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This is how others will see you. You can change it later.'**
+  String get authUsernameScreenSubtitle;
+
+  /// No description provided for @authUsernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get authUsernameLabel;
+
+  /// No description provided for @authUsernameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a username'**
+  String get authUsernameHint;
+
+  /// Validation error for minimum username length
+  ///
+  /// In en, this message translates to:
+  /// **'Username must be at least {min} characters'**
+  String authUsernameMinLength(int min);
+
+  /// Validation error for maximum username length
+  ///
+  /// In en, this message translates to:
+  /// **'Username must be at most {max} characters'**
+  String authUsernameMaxLength(int max);
+
+  /// No description provided for @authUsernameFormatError.
+  ///
+  /// In en, this message translates to:
+  /// **'Only letters, numbers, and underscores are allowed'**
+  String get authUsernameFormatError;
+
+  /// No description provided for @authUsernameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This username is already taken'**
+  String get authUsernameTaken;
+
+  /// No description provided for @authUsernameCheckError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to check username availability. Please try again.'**
+  String get authUsernameCheckError;
+
+  /// No description provided for @authUsernameSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your username. Please try again.'**
+  String get authUsernameSaveError;
+
+  /// No description provided for @authUsernameSavedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Username saved successfully!'**
+  String get authUsernameSavedSuccess;
+
+  /// No description provided for @authUpdatePasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new password'**
+  String get authUpdatePasswordTitle;
+
+  /// No description provided for @authUpdatePasswordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Update password'**
+  String get authUpdatePasswordButton;
+
+  /// No description provided for @authUpdatePasswordSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Password updated successfully. Please sign in again.'**
+  String get authUpdatePasswordSuccess;
+
+  /// No description provided for @authPasswordResetSentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get authPasswordResetSentTitle;
+
+  /// No description provided for @authPasswordResetSentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a password reset link to'**
+  String get authPasswordResetSentBody;
+
+  /// No description provided for @authPasswordResetSentNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the link in the email to set a new password. The link expires in 1 hour.'**
+  String get authPasswordResetSentNote;
+
+  /// No description provided for @authGuestHello.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello!'**
+  String get authGuestHello;
+
+  /// Welcome text for guest users on the login profile screen
+  ///
+  /// In en, this message translates to:
+  /// **'You are browsing {appName} as a guest. Log in or create an account to start managing your shop — it takes less than 5 seconds. We have a variety of tools to help grow your business, all free of charge.'**
+  String authGuestOverview(String appName);
+
+  /// Main title on the intro screen with app name
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to\n{appName}'**
+  String authIntroTitle(String appName);
+
+  /// No description provided for @authIntroSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to the platform we built for you. Enjoy and have fun — the best is waiting.'**
+  String get authIntroSubtitle;
+
+  /// No description provided for @authReadLegalities.
+  ///
+  /// In en, this message translates to:
+  /// **'Read legalities'**
+  String get authReadLegalities;
+
+  /// No description provided for @authPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your password'**
+  String get authPasswordRequired;
+
+  /// No description provided for @authCreatingAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating account...'**
+  String get authCreatingAccount;
+
+  /// No description provided for @authAccountCreatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account created successfully!'**
+  String get authAccountCreatedSuccess;
+
+  /// No description provided for @authCheckEmailToConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your email to confirm your account'**
+  String get authCheckEmailToConfirm;
+
+  /// No description provided for @authSigningInWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in with Google...'**
+  String get authSigningInWithGoogle;
+
+  /// No description provided for @authGoogleSignInFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in failed: {error}'**
+  String authGoogleSignInFailed(String error);
+
+  /// No description provided for @authAuthenticatingWithApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticating with Apple...'**
+  String get authAuthenticatingWithApple;
+
+  /// No description provided for @authAppleSignInFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple sign-in failed: {error}'**
+  String authAppleSignInFailed(String error);
+
+  /// No description provided for @authSendingResetEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending reset email...'**
+  String get authSendingResetEmail;
+
+  /// No description provided for @authResetEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset email sent. Check your inbox.'**
+  String get authResetEmailSent;
+
+  /// No description provided for @authPasswordResetFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset failed: {error}'**
+  String authPasswordResetFailed(String error);
+
+  /// No description provided for @authVerifyEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get authVerifyEmailTitle;
+
+  /// No description provided for @authVerifyEmailSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a confirmation link to'**
+  String get authVerifyEmailSubtitle;
+
+  /// No description provided for @authVerifyEmailNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the link in the email to verify your account and continue.'**
+  String get authVerifyEmailNote;
+
+  /// No description provided for @authConfirmationResent.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation email resent. Check your inbox.'**
+  String get authConfirmationResent;
+
+  /// No description provided for @authResendFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to resend email. Please try again.'**
+  String get authResendFailed;
+
+  /// No description provided for @authResendEmailButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend confirmation email'**
+  String get authResendEmailButton;
+
+  /// Button label with seconds remaining for resend cooldown
+  ///
+  /// In en, this message translates to:
+  /// **'Resend email ({seconds}s)'**
+  String authResendEmailCooldown(int seconds);
+
+  /// No description provided for @currencySelectorPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Select currency'**
+  String get currencySelectorPlaceholder;
+
+  /// No description provided for @currencySelectorNoSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'No currency selected'**
+  String get currencySelectorNoSelected;
+
+  /// No description provided for @currencySelectorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Currency'**
+  String get currencySelectorTitle;
+
+  /// No description provided for @currencySelectorSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by currency, code, or flag...'**
+  String get currencySelectorSearchHint;
+
+  /// No description provided for @currencySelectorNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No currencies found'**
+  String get currencySelectorNoResults;
+
+  /// No description provided for @discoverScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover'**
+  String get discoverScreenTitle;
+
+  /// No description provided for @discoverSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search...'**
+  String get discoverSearchHint;
+
+  /// No description provided for @discoverAllShopsRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'All shops in your region'**
+  String get discoverAllShopsRegion;
+
+  /// No description provided for @discoverAllFreelancers.
+  ///
+  /// In en, this message translates to:
+  /// **'All freelancers near you'**
+  String get discoverAllFreelancers;
+
+  /// No description provided for @discoverMarketplaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Marketplace'**
+  String get discoverMarketplaceTitle;
+
+  /// No description provided for @discoverMarketplaceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop beauty products with cash on delivery'**
+  String get discoverMarketplaceSubtitle;
+
+  /// No description provided for @discoverBrowseProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse products'**
+  String get discoverBrowseProducts;
+
+  /// No description provided for @discoverMyOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'My orders'**
+  String get discoverMyOrders;
+
+  /// No description provided for @discoverCartTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart'**
+  String get discoverCartTooltip;
+
+  /// No description provided for @homeScheduleTabLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get homeScheduleTabLabel;
+
+  /// No description provided for @homeDashboardTabLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get homeDashboardTabLabel;
+
+  /// No description provided for @homeMapTabLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get homeMapTabLabel;
+
   /// No description provided for @validationRequired.
   ///
   /// In en, this message translates to:
@@ -538,7 +976,7 @@ abstract class AppLocalizations {
   /// No description provided for @editProfileScreenTitle.
   ///
   /// In en, this message translates to:
-  /// **'Edit profile\n'**
+  /// **'Edit profile'**
   String get editProfileScreenTitle;
 
   /// No description provided for @editProfileSettingTitle.
@@ -1344,6 +1782,1332 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Navigate to your dashboard and click on the \'Earnings\' section. From there, you\'ll see your current balance and a \'Request Payout\' button. Follow the prompts to complete your request.'**
   String get faqDashboard2Answer;
+
+  /// No description provided for @profileScreenCantChatWithYourself.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t chat with yourself'**
+  String get profileScreenCantChatWithYourself;
+
+  /// No description provided for @profileScreenStartingConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting conversation...'**
+  String get profileScreenStartingConversation;
+
+  /// No description provided for @profileScreenNoActiveSession.
+  ///
+  /// In en, this message translates to:
+  /// **'No active session — please log in again.'**
+  String get profileScreenNoActiveSession;
+
+  /// No description provided for @profileScreenSignInToChatMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You have to sign in to send a message'**
+  String get profileScreenSignInToChatMessage;
+
+  /// No description provided for @profileScreenFollowFeatureComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow feature coming soon'**
+  String get profileScreenFollowFeatureComingSoon;
+
+  /// No description provided for @profileScreenEnterBioPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a bio so people can know you'**
+  String get profileScreenEnterBioPlaceholder;
+
+  /// No description provided for @profileScreenNoBioYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No bio yet'**
+  String get profileScreenNoBioYet;
+
+  /// No description provided for @profileScreenErrorLoadingProfileBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load profile. Check your internet and try again.'**
+  String get profileScreenErrorLoadingProfileBody;
+
+  /// No description provided for @profileScreenLoadingNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get profileScreenLoadingNotifications;
+
+  /// No description provided for @profileHeaderBookingsStatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get profileHeaderBookingsStatLabel;
+
+  /// No description provided for @profileHeaderOrdersStatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get profileHeaderOrdersStatLabel;
+
+  /// No description provided for @profileHeaderEditProfileButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get profileHeaderEditProfileButton;
+
+  /// No description provided for @profileHeaderMessageButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get profileHeaderMessageButton;
+
+  /// No description provided for @editableProfileAvatarTakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get editableProfileAvatarTakePhoto;
+
+  /// No description provided for @editableProfileAvatarChooseGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get editableProfileAvatarChooseGallery;
+
+  /// No description provided for @editProfileScreenAccountTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Type'**
+  String get editProfileScreenAccountTypeLabel;
+
+  /// No description provided for @editProfileScreenAccountTypeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select how you want to use this app. This determines what features are available to you.'**
+  String get editProfileScreenAccountTypeSubtitle;
+
+  /// No description provided for @editProfileScreenUpdatingAccountType.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating account type...'**
+  String get editProfileScreenUpdatingAccountType;
+
+  /// No description provided for @editProfileScreenPleaseLogIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Please log in'**
+  String get editProfileScreenPleaseLogIn;
+
+  /// No description provided for @editProfileScreenNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get editProfileScreenNameLabel;
+
+  /// No description provided for @editProfileScreenNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name'**
+  String get editProfileScreenNameHint;
+
+  /// No description provided for @editProfileScreenUsernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get editProfileScreenUsernameLabel;
+
+  /// No description provided for @editProfileScreenUsernameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter username'**
+  String get editProfileScreenUsernameHint;
+
+  /// No description provided for @editProfileScreenBioLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bio'**
+  String get editProfileScreenBioLabel;
+
+  /// No description provided for @editProfileScreenBioHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell something about yourself'**
+  String get editProfileScreenBioHint;
+
+  /// No description provided for @editProfileScreenEditWorkProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit work profile'**
+  String get editProfileScreenEditWorkProfileTitle;
+
+  /// No description provided for @profileTabsAppointments.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointments'**
+  String get profileTabsAppointments;
+
+  /// No description provided for @profileTabsBuys.
+  ///
+  /// In en, this message translates to:
+  /// **'Buys'**
+  String get profileTabsBuys;
+
+  /// No description provided for @profileTabsSaves.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves'**
+  String get profileTabsSaves;
+
+  /// No description provided for @searchScreenSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search shops, professionals, products...'**
+  String get searchScreenSearchHint;
+
+  /// No description provided for @searchScreenNoResultsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get searchScreenNoResultsFound;
+
+  /// Empty state message for search with category placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'No {category} found'**
+  String searchScreenNoResultsCategory(String category);
+
+  /// Search query display in empty state
+  ///
+  /// In en, this message translates to:
+  /// **'Searched for: \"{query}\"'**
+  String searchScreenSearchedFor(String query);
+
+  /// No description provided for @searchScreenSomethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get searchScreenSomethingWentWrong;
+
+  /// No description provided for @searchAppBarSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search...'**
+  String get searchAppBarSearchHint;
+
+  /// No description provided for @searchSuggestionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for shops, professionals for home service, or hair products to buy'**
+  String get searchSuggestionsHint;
+
+  /// No description provided for @searchSuggestionsRecentSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Searches'**
+  String get searchSuggestionsRecentSearches;
+
+  /// No description provided for @searchSuggestionsClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get searchSuggestionsClearAll;
+
+  /// No description provided for @searchEmptyStateNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get searchEmptyStateNoResults;
+
+  /// Empty state message when no search results found
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find anything for \"{query}\"'**
+  String searchEmptyStateCouldNotFind(String query);
+
+  /// No description provided for @searchEmptyStateTryThese.
+  ///
+  /// In en, this message translates to:
+  /// **'Try these instead:'**
+  String get searchEmptyStateTryThese;
+
+  /// No description provided for @searchResultsShopsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Shops'**
+  String get searchResultsShopsHeader;
+
+  /// No description provided for @searchResultsSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get searchResultsSeeAll;
+
+  /// Category results screen title
+  ///
+  /// In en, this message translates to:
+  /// **'{category} Results'**
+  String searchResultsTitle(String category);
+
+  /// Subtitle showing search query in results screen
+  ///
+  /// In en, this message translates to:
+  /// **'Searching for \"{query}\"'**
+  String searchResultsSearchingFor(String query);
+
+  /// No description provided for @searchResultsTryDifferent.
+  ///
+  /// In en, this message translates to:
+  /// **'Try different keywords or remove filters'**
+  String get searchResultsTryDifferent;
+
+  /// No description provided for @searchResultsSomethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get searchResultsSomethingWentWrong;
+
+  /// Title for nearby shops section showing distance radius
+  ///
+  /// In en, this message translates to:
+  /// **'Near You\nwithin {km}km'**
+  String nearYouShopsTitle(int km);
+
+  /// Description of nearby shops feature
+  ///
+  /// In en, this message translates to:
+  /// **'Shops located within {km} km of your current location, shown from closest to farthest. Simply set your location once, and we\'ll show you what\'s nearby—whether you\'re at home, work, or exploring a new neighborhood. Handy for last‑minute bookings or when you prefer to walk.'**
+  String nearYouShopsBody(int km);
+
+  /// No description provided for @nearYouShopsEmptyNoFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'No shops found nearby'**
+  String get nearYouShopsEmptyNoFilter;
+
+  /// Empty state message when no shops found for selected luxury level
+  ///
+  /// In en, this message translates to:
+  /// **'No {luxury} shops found nearby'**
+  String nearYouShopsEmptyWithFilter(String luxury);
+
+  /// Empty state subtitle with location placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'Shops in {location} would be shown here once they become available'**
+  String nearYouShopsEmptySubtitle(String location);
+
+  /// No description provided for @premiumShopsScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Shops'**
+  String get premiumShopsScreenTitle;
+
+  /// No description provided for @premiumShopsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No premium shops found'**
+  String get premiumShopsEmpty;
+
+  /// No description provided for @premiumShopsHorizontalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium shops\nfor premium looks'**
+  String get premiumShopsHorizontalTitle;
+
+  /// No description provided for @premiumShopsHorizontalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Handpicked high‑end salons and spas offering luxury experiences. These shops are classified as Luxury or Ultra‑Luxury based on their services, pricing, and customer reviews. Perfect when you\'re looking for that extra touch of elegance.'**
+  String get premiumShopsHorizontalBody;
+
+  /// No description provided for @premiumShopsHorizontalEmptyNoFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'No premium shops available'**
+  String get premiumShopsHorizontalEmptyNoFilter;
+
+  /// Empty state for premium shops with luxury level filter
+  ///
+  /// In en, this message translates to:
+  /// **'No {luxury} premium shops available'**
+  String premiumShopsHorizontalEmptyWithFilter(String luxury);
+
+  /// No description provided for @premiumShopsHorizontalEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shops would be shown here once they become available'**
+  String get premiumShopsHorizontalEmptySubtitle;
+
+  /// No description provided for @topRatedShopsHorizontalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Rated'**
+  String get topRatedShopsHorizontalTitle;
+
+  /// Top rated shops title with location
+  ///
+  /// In en, this message translates to:
+  /// **'Top Rated \nin {location}'**
+  String topRatedShopsHorizontalTitleWithLocation(String location);
+
+  /// No description provided for @topRatedShopsHorizontalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Shops with the highest customer ratings (4.5+ stars) and a solid number of reviews. These are the favorites among our community—consistently praised for quality, service, and professionalism. A great place to start if you want reliable, crowd‑approved options.'**
+  String get topRatedShopsHorizontalBody;
+
+  /// No description provided for @topRatedShopsHorizontalEmptyNoFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'No top rated shops available'**
+  String get topRatedShopsHorizontalEmptyNoFilter;
+
+  /// Empty state for top rated shops with luxury level filter
+  ///
+  /// In en, this message translates to:
+  /// **'No {luxury} premium shops available'**
+  String topRatedShopsHorizontalEmptyWithFilter(String luxury);
+
+  /// No description provided for @topRatedShopsHorizontalEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shops would be shown here once they become available'**
+  String get topRatedShopsHorizontalEmptySubtitle;
+
+  /// No description provided for @topRatedShopsScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Rated Shops'**
+  String get topRatedShopsScreenTitle;
+
+  /// No description provided for @topRatedShopsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No top rated shops found'**
+  String get topRatedShopsEmpty;
+
+  /// No description provided for @nearYouFreelancersScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Freelancers near you'**
+  String get nearYouFreelancersScreenTitle;
+
+  /// No description provided for @nearYouFreelancersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No freelancers found nearby'**
+  String get nearYouFreelancersEmpty;
+
+  /// No description provided for @nearYouFreelancersEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try expanding your search area or change location'**
+  String get nearYouFreelancersEmptySubtitle;
+
+  /// No description provided for @topRatedFreelancersScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Top rated freelancers'**
+  String get topRatedFreelancersScreenTitle;
+
+  /// No description provided for @topRatedFreelancersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No top rated freelancers found'**
+  String get topRatedFreelancersEmpty;
+
+  /// No description provided for @topRatedFreelancersEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try adjusting your search area'**
+  String get topRatedFreelancersEmptySubtitle;
+
+  /// Top rated freelancers title with location
+  ///
+  /// In en, this message translates to:
+  /// **'Top Rated \nin {location}'**
+  String topRatedFreelancersHorizontalTitle(String location);
+
+  /// No description provided for @topRatedFreelancersHorizontalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Handpicked high‑end professionals offering luxury experiences. These freelancers are classified as top rated based on their work quality, pricing, and customer reviews. Perfect when you\'re looking for that extra touch of excellence.'**
+  String get topRatedFreelancersHorizontalBody;
+
+  /// Freelancers near you title with location
+  ///
+  /// In en, this message translates to:
+  /// **'Freelancers Near You in {location}'**
+  String nearYouFreelancersHorizontalTitle(String location);
+
+  /// No description provided for @nearYouFreelancersHorizontalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Skilled professionals located near you. These freelancers are available for quick bookings and offer convenient, local service. Perfect when you\'re looking for reliability and proximity.'**
+  String get nearYouFreelancersHorizontalBody;
+
+  /// No description provided for @nearYouFreelancersHorizontalEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No top rated freelancers available'**
+  String get nearYouFreelancersHorizontalEmpty;
+
+  /// No description provided for @nearYouFreelancersHorizontalEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Freelancers would be shown here once they become available'**
+  String get nearYouFreelancersHorizontalEmptySubtitle;
+
+  /// No description provided for @shopNoLocationSetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your location to discover'**
+  String get shopNoLocationSetTitle;
+
+  /// No description provided for @shopNoLocationSetContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your location to discover premium and top rated shops near you.'**
+  String get shopNoLocationSetContent;
+
+  /// No description provided for @providerTypeShops.
+  ///
+  /// In en, this message translates to:
+  /// **'Shops'**
+  String get providerTypeShops;
+
+  /// No description provided for @providerTypeFreelancers.
+  ///
+  /// In en, this message translates to:
+  /// **'Freelancers'**
+  String get providerTypeFreelancers;
+
+  /// No description provided for @providerTypeBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get providerTypeBuy;
+
+  /// No description provided for @luxuryLevelChipsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get luxuryLevelChipsAll;
+
+  /// No description provided for @searchRadiusSliderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore radius'**
+  String get searchRadiusSliderTitle;
+
+  /// Subtitle showing current search radius
+  ///
+  /// In en, this message translates to:
+  /// **'Showing results within {km}km of your location'**
+  String searchRadiusSliderSubtitle(int km);
+
+  /// Validation error for maximum password length
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at most {max} characters'**
+  String validationPasswordMaxLength(int max);
+
+  /// No description provided for @validationPasswordRepeatingChars.
+  ///
+  /// In en, this message translates to:
+  /// **'Password contains too many repeating characters'**
+  String get validationPasswordRepeatingChars;
+
+  /// No description provided for @validationPasswordSequential.
+  ///
+  /// In en, this message translates to:
+  /// **'Password contains sequential characters'**
+  String get validationPasswordSequential;
+
+  /// Validation error for specific phone number digit requirement
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number must be {digits} digits'**
+  String validationPhoneDigits(int digits);
+
+  /// No description provided for @validationPhoneUK.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid UK phone number'**
+  String get validationPhoneUK;
+
+  /// Validation error for URL scheme requirement
+  ///
+  /// In en, this message translates to:
+  /// **'URL must start with {schemes}'**
+  String validationUrlScheme(String schemes);
+
+  /// No description provided for @validationUrlDomain.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid domain name'**
+  String get validationUrlDomain;
+
+  /// No description provided for @validationUrlPublicAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'URL must point to a public address'**
+  String get validationUrlPublicAddress;
+
+  /// Validation error for maximum name length
+  ///
+  /// In en, this message translates to:
+  /// **'{field} must be at most {max} characters'**
+  String validationNameMaxLength(String field, int max);
+
+  /// Validation error for consecutive special characters in name
+  ///
+  /// In en, this message translates to:
+  /// **'{field} cannot contain consecutive hyphens or spaces'**
+  String validationNameConsecutiveChars(String field);
+
+  /// No description provided for @validationCreditCardFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid credit card number'**
+  String get validationCreditCardFormat;
+
+  /// No description provided for @validationCreditCardInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid credit card number'**
+  String get validationCreditCardInvalid;
+
+  /// No description provided for @validationDatePastNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Date cannot be in the past'**
+  String get validationDatePastNotAllowed;
+
+  /// No description provided for @validationPostalCodeZip.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid ZIP code (e.g., 12345 or 12345-6789)'**
+  String get validationPostalCodeZip;
+
+  /// No description provided for @validationPostalCodeCanadian.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid Canadian postal code (e.g., A1A 1A1)'**
+  String get validationPostalCodeCanadian;
+
+  /// No description provided for @validationPostalCodeGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid postal code'**
+  String get validationPostalCodeGeneric;
+
+  /// No description provided for @validationSSNFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid SSN (e.g., 123-45-6789)'**
+  String get validationSSNFormat;
+
+  /// No description provided for @validationSSNInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid SSN'**
+  String get validationSSNInvalid;
+
+  /// No description provided for @validationEmailTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Email is too long (max 254 characters)'**
+  String get validationEmailTooLong;
+
+  /// No description provided for @validationEmailLocalPartTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Local part of email is too long'**
+  String get validationEmailLocalPartTooLong;
+
+  /// No description provided for @categoriesAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get categoriesAll;
+
+  /// No description provided for @categoriesSalon.
+  ///
+  /// In en, this message translates to:
+  /// **'Salons'**
+  String get categoriesSalon;
+
+  /// No description provided for @categoriesBarbershop.
+  ///
+  /// In en, this message translates to:
+  /// **'Barbershops'**
+  String get categoriesBarbershop;
+
+  /// No description provided for @categoriesSpa.
+  ///
+  /// In en, this message translates to:
+  /// **'Spas'**
+  String get categoriesSpa;
+
+  /// No description provided for @categoriesNailSalon.
+  ///
+  /// In en, this message translates to:
+  /// **'Nail Salons'**
+  String get categoriesNailSalon;
+
+  /// No description provided for @categoriesLashStudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Lash Studios'**
+  String get categoriesLashStudio;
+
+  /// No description provided for @categoriesWaxing.
+  ///
+  /// In en, this message translates to:
+  /// **'Waxing'**
+  String get categoriesWaxing;
+
+  /// No description provided for @categoriesMassage.
+  ///
+  /// In en, this message translates to:
+  /// **'Massage'**
+  String get categoriesMassage;
+
+  /// No description provided for @categoriesMakeup.
+  ///
+  /// In en, this message translates to:
+  /// **'Makeup'**
+  String get categoriesMakeup;
+
+  /// No description provided for @categoriesSkincare.
+  ///
+  /// In en, this message translates to:
+  /// **'Skincare'**
+  String get categoriesSkincare;
+
+  /// No description provided for @luxuryLevelModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get luxuryLevelModerate;
+
+  /// No description provided for @luxuryLevelLuxury.
+  ///
+  /// In en, this message translates to:
+  /// **'Luxury'**
+  String get luxuryLevelLuxury;
+
+  /// No description provided for @luxuryLevelUltraLuxury.
+  ///
+  /// In en, this message translates to:
+  /// **'Ultra Luxury'**
+  String get luxuryLevelUltraLuxury;
+
+  /// No description provided for @dashboardTabRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue'**
+  String get dashboardTabRevenue;
+
+  /// No description provided for @dashboardTabAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get dashboardTabAnalytics;
+
+  /// No description provided for @dashboardTabInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Insights'**
+  String get dashboardTabInsights;
+
+  /// No description provided for @dashboardTabTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get dashboardTabTools;
+
+  /// No description provided for @dashboardTabClients.
+  ///
+  /// In en, this message translates to:
+  /// **'Clients'**
+  String get dashboardTabClients;
+
+  /// No description provided for @dashboardTabStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get dashboardTabStaff;
+
+  /// No description provided for @walletRecentTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Transactions'**
+  String get walletRecentTransactions;
+
+  /// No description provided for @walletLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load your wallet right now.'**
+  String get walletLoadError;
+
+  /// No description provided for @walletTransactionLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load recent transactions.'**
+  String get walletTransactionLoadError;
+
+  /// No description provided for @walletPaymentProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Kindly wait for the payment to finish processing and return to your app to complete your booking.'**
+  String get walletPaymentProcessing;
+
+  /// No description provided for @analyticsRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue'**
+  String get analyticsRevenue;
+
+  /// No description provided for @analyticsServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get analyticsServices;
+
+  /// No description provided for @analyticsWorkers.
+  ///
+  /// In en, this message translates to:
+  /// **'Workers'**
+  String get analyticsWorkers;
+
+  /// No description provided for @analyticsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load analytics'**
+  String get analyticsLoadError;
+
+  /// No description provided for @analyticsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No data available for analytics.'**
+  String get analyticsEmpty;
+
+  /// No description provided for @analyticsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking and revenue statistics would appear here'**
+  String get analyticsEmptySubtitle;
+
+  /// No description provided for @insightsReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get insightsReports;
+
+  /// No description provided for @insightsSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See All'**
+  String get insightsSeeAll;
+
+  /// No description provided for @insightsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load reports. Pull to refresh.'**
+  String get insightsLoadError;
+
+  /// No description provided for @insightsNoAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'All good! No alerts'**
+  String get insightsNoAlerts;
+
+  /// No description provided for @insightsHeatmapError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the booking heatmap right now.'**
+  String get insightsHeatmapError;
+
+  /// No description provided for @insightsNoHeatmapData.
+  ///
+  /// In en, this message translates to:
+  /// **'No heatmap data available'**
+  String get insightsNoHeatmapData;
+
+  /// No description provided for @toolsAdminTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Tools'**
+  String get toolsAdminTools;
+
+  /// No description provided for @toolsConfigure.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure →'**
+  String get toolsConfigure;
+
+  /// No description provided for @toolsManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage →'**
+  String get toolsManage;
+
+  /// No description provided for @toolsExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export →'**
+  String get toolsExport;
+
+  /// No description provided for @toolsAutomatedReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Automated Reminders'**
+  String get toolsAutomatedReminders;
+
+  /// No description provided for @toolsPromotionsManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotions Manager'**
+  String get toolsPromotionsManager;
+
+  /// No description provided for @toolsExportReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Reports'**
+  String get toolsExportReports;
+
+  /// No description provided for @toolsPaymentSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Settings'**
+  String get toolsPaymentSettings;
+
+  /// No description provided for @toolsLoadingDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading shop details…'**
+  String get toolsLoadingDetails;
+
+  /// No description provided for @toolsBusinessHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Business Hours'**
+  String get toolsBusinessHours;
+
+  /// No description provided for @toolsServiceManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Management'**
+  String get toolsServiceManagement;
+
+  /// No description provided for @clientsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name...'**
+  String get clientsSearchHint;
+
+  /// No description provided for @clientsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load clients'**
+  String get clientsLoadError;
+
+  /// No description provided for @clientsNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No Clients Match'**
+  String get clientsNotFound;
+
+  /// No description provided for @clientsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No Clients Yet'**
+  String get clientsEmpty;
+
+  /// Message shown when search returns no results
+  ///
+  /// In en, this message translates to:
+  /// **'No clients match \"{query}\"'**
+  String clientsSearchEmpty(String query);
+
+  /// No description provided for @clientsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clients will appear here when they make their first booking.'**
+  String get clientsEmptySubtitle;
+
+  /// No description provided for @walletLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get walletLabel;
+
+  /// No description provided for @walletAvailableBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Balance'**
+  String get walletAvailableBalance;
+
+  /// No description provided for @walletWithdrawFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw Funds'**
+  String get walletWithdrawFunds;
+
+  /// No description provided for @walletTotalEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Earned'**
+  String get walletTotalEarned;
+
+  /// No description provided for @walletTotalWithdrawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Withdrawn'**
+  String get walletTotalWithdrawn;
+
+  /// No description provided for @transactionDepositReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit Received'**
+  String get transactionDepositReceived;
+
+  /// No description provided for @transactionServicePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Payment'**
+  String get transactionServicePayment;
+
+  /// No description provided for @transactionWithdrawal.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal'**
+  String get transactionWithdrawal;
+
+  /// No description provided for @transactionRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get transactionRefund;
+
+  /// No description provided for @transactionPlatformFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Fee'**
+  String get transactionPlatformFee;
+
+  /// No description provided for @transactionAdjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment'**
+  String get transactionAdjustment;
+
+  /// No description provided for @transactionToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get transactionToday;
+
+  /// No description provided for @transactionYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get transactionYesterday;
+
+  /// No description provided for @withdrawalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw'**
+  String get withdrawalTitle;
+
+  /// Withdrawal information message with fee details
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawals are processed immediately and sent to your connected account. A {fee}% fee (min {currency} {minFee}) applies.'**
+  String withdrawalInfo(double fee, String currency, double minFee);
+
+  /// Shows available balance for withdrawal
+  ///
+  /// In en, this message translates to:
+  /// **'Available balance: {currency} {amount}'**
+  String withdrawalAvailableBalance(String currency, String amount);
+
+  /// Amount input field label with currency code
+  ///
+  /// In en, this message translates to:
+  /// **'Amount ({currency})'**
+  String withdrawalAmountInputLabel(String currency);
+
+  /// No description provided for @withdrawalAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter amount to withdraw'**
+  String get withdrawalAmountHint;
+
+  /// No description provided for @withdrawalAmountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter an amount'**
+  String get withdrawalAmountRequired;
+
+  /// No description provided for @withdrawalAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid amount'**
+  String get withdrawalAmountInvalid;
+
+  /// Minimum withdrawal validation error
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum withdrawal is {currency} {min}'**
+  String withdrawalMinimum(String currency, double min);
+
+  /// Maximum withdrawal validation error
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum withdrawal per transaction is {currency} {max}'**
+  String withdrawalMaximum(String currency, double max);
+
+  /// Insufficient balance validation error
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient balance. Available: {currency} {available}'**
+  String withdrawalInsufficientBalance(String currency, String available);
+
+  /// No description provided for @withdrawalBreakdownAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal amount:'**
+  String get withdrawalBreakdownAmount;
+
+  /// No description provided for @withdrawalFeeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee ({fee}%):'**
+  String withdrawalFeeLabel(Object fee);
+
+  /// No description provided for @withdrawalNetAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'You will receive:'**
+  String get withdrawalNetAmount;
+
+  /// No description provided for @withdrawalProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing...'**
+  String get withdrawalProcessing;
+
+  /// No description provided for @withdrawalRequestButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Withdrawal'**
+  String get withdrawalRequestButton;
+
+  /// No description provided for @withdrawalNoPaymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'No payment method connected'**
+  String get withdrawalNoPaymentMethod;
+
+  /// No description provided for @withdrawalSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal request submitted successfully!'**
+  String get withdrawalSuccess;
+
+  /// No description provided for @deadLetterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal needs review'**
+  String get deadLetterTitle;
+
+  /// Single stuck withdrawal message
+  ///
+  /// In en, this message translates to:
+  /// **'{currency} {amount} stuck — tap for details'**
+  String deadLetterSingle(String currency, String amount);
+
+  /// Multiple stuck withdrawals message
+  ///
+  /// In en, this message translates to:
+  /// **'{currency} {amount} stuck across {count} withdrawals — tap for details'**
+  String deadLetterMultiple(String currency, String amount, int count);
+
+  /// No description provided for @deadLetterReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason:'**
+  String get deadLetterReason;
+
+  /// No description provided for @deadLetterContactSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact support'**
+  String get deadLetterContactSupport;
+
+  /// No description provided for @paymentSetupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete payout setup'**
+  String get paymentSetupTitle;
+
+  /// No description provided for @paymentSetupContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect your payout account to start withdrawing money from your wallet. This could be your mobile money number or your bank account.'**
+  String get paymentSetupContent;
+
+  /// No description provided for @calendarErrorLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading calendar'**
+  String get calendarErrorLoading;
+
+  /// No description provided for @calendarErrorLoadingBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading bookings'**
+  String get calendarErrorLoadingBookings;
+
+  /// No description provided for @calendarNoAppointmentsDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No appointments for this day'**
+  String get calendarNoAppointmentsDay;
+
+  /// No description provided for @calendarNoBookingsDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookings for this day'**
+  String get calendarNoBookingsDay;
+
+  /// Number of appointments with plural handling
+  ///
+  /// In en, this message translates to:
+  /// **'{count} {count, plural, one{appointment} other{appointments}}'**
+  String calendarAppointmentCount(int count);
+
+  /// No description provided for @monthJanuary.
+  ///
+  /// In en, this message translates to:
+  /// **'Jan'**
+  String get monthJanuary;
+
+  /// No description provided for @monthFebruary.
+  ///
+  /// In en, this message translates to:
+  /// **'Feb'**
+  String get monthFebruary;
+
+  /// No description provided for @monthMarch.
+  ///
+  /// In en, this message translates to:
+  /// **'Mar'**
+  String get monthMarch;
+
+  /// No description provided for @monthApril.
+  ///
+  /// In en, this message translates to:
+  /// **'Apr'**
+  String get monthApril;
+
+  /// No description provided for @monthMay.
+  ///
+  /// In en, this message translates to:
+  /// **'May'**
+  String get monthMay;
+
+  /// No description provided for @monthJune.
+  ///
+  /// In en, this message translates to:
+  /// **'Jun'**
+  String get monthJune;
+
+  /// No description provided for @monthJuly.
+  ///
+  /// In en, this message translates to:
+  /// **'Jul'**
+  String get monthJuly;
+
+  /// No description provided for @monthAugust.
+  ///
+  /// In en, this message translates to:
+  /// **'Aug'**
+  String get monthAugust;
+
+  /// No description provided for @monthSeptember.
+  ///
+  /// In en, this message translates to:
+  /// **'Sep'**
+  String get monthSeptember;
+
+  /// No description provided for @monthOctober.
+  ///
+  /// In en, this message translates to:
+  /// **'Oct'**
+  String get monthOctober;
+
+  /// No description provided for @monthNovember.
+  ///
+  /// In en, this message translates to:
+  /// **'Nov'**
+  String get monthNovember;
+
+  /// No description provided for @monthDecember.
+  ///
+  /// In en, this message translates to:
+  /// **'Dec'**
+  String get monthDecember;
+
+  /// No description provided for @dayMonday.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get dayMonday;
+
+  /// No description provided for @dayTuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get dayTuesday;
+
+  /// No description provided for @dayWednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get dayWednesday;
+
+  /// No description provided for @dayThursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get dayThursday;
+
+  /// No description provided for @dayFriday.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get dayFriday;
+
+  /// No description provided for @daySaturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get daySaturday;
+
+  /// No description provided for @daySunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get daySunday;
+
+  /// Snackbar message when no appointments found for selected day
+  ///
+  /// In en, this message translates to:
+  /// **'No appointments on this day\n{date}'**
+  String calendarNoAppointmentsSnackbar(String date);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

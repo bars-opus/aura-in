@@ -54,14 +54,7 @@ class ClientBookingCard extends StatelessWidget {
             targetDate: endTime,
             // textStyle: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
           ),
-          // Text(
-          //   'Today',
-            // style: textTheme.labelMedium?.copyWith(
-            //   color: colorScheme.primary,
-            //   // fontWeight: FontWeight.w700,
-            //   // fontSize: 20.sp,
-            // ),
-          // ),
+         
           Gap(10.h),
           StatusWidget(status: status, showLabel: false),
         ],

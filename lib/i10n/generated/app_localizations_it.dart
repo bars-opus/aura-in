@@ -180,6 +180,245 @@ class AppLocalizationsIt extends AppLocalizations {
   String get loginForgotPasswordPart3 => ' per reimpostare la tua password?';
 
   @override
+  String get commonConfirmPasswordLabel => 'Conferma password';
+
+  @override
+  String get commonConfirmPasswordHint => 'Conferma la tua password';
+
+  @override
+  String get commonPasswordsDoNotMatch => 'Le password non coincidono';
+
+  @override
+  String get commonPasswordConfirmRequired => 'Conferma la tua password';
+
+  @override
+  String commonFieldIsValid(String field) {
+    return '$field è valido';
+  }
+
+  @override
+  String get commonPleaseWait => 'Attendi il completamento dell\'operazione corrente';
+
+  @override
+  String get commonUnexpectedError => 'Si è verificato un errore imprevisto. Per favore riprova.';
+
+  @override
+  String get commonSomethingWentWrong => 'Qualcosa è andato storto. Per favore riprova.';
+
+  @override
+  String get commonEnterEmailAndRetry => 'Inserisci il tuo indirizzo email e riprova';
+
+  @override
+  String get commonLearnMore => 'Scopri di più';
+
+  @override
+  String get authSignUpVerificationSent => 'Email di verifica inviata! Controlla la tua posta in arrivo.';
+
+  @override
+  String authSignUpFailed(String error) {
+    return 'Registrazione fallita: $error';
+  }
+
+  @override
+  String get authForgotPasswordTitle => 'Password dimenticata?';
+
+  @override
+  String get authForgotPasswordSubtitle => 'Inserisci la tua email e ti invieremo un collegamento per ripristinare la tua password.';
+
+  @override
+  String get authSendResetLink => 'Invia link di ripristino';
+
+  @override
+  String get authBackToSignIn => 'Torna all\'accesso';
+
+  @override
+  String get authUsernameScreenTitle => 'Scegli il tuo nome utente';
+
+  @override
+  String get authUsernameScreenSubtitle => 'Così è come ti vedono gli altri. Puoi cambiarlo in seguito.';
+
+  @override
+  String get authUsernameLabel => 'Nome utente';
+
+  @override
+  String get authUsernameHint => 'Inserisci un nome utente';
+
+  @override
+  String authUsernameMinLength(int min) {
+    return 'Il nome utente deve contenere almeno $min caratteri';
+  }
+
+  @override
+  String authUsernameMaxLength(int max) {
+    return 'Il nome utente deve contenere al massimo $max caratteri';
+  }
+
+  @override
+  String get authUsernameFormatError => 'Sono consentiti solo lettere, numeri e trattini bassi';
+
+  @override
+  String get authUsernameTaken => 'Questo nome utente è già stato preso';
+
+  @override
+  String get authUsernameCheckError => 'Impossibile controllare la disponibilità. Per favore riprova.';
+
+  @override
+  String get authUsernameSaveError => 'Impossibile salvare il tuo nome utente. Per favore riprova.';
+
+  @override
+  String get authUsernameSavedSuccess => 'Nome utente salvato con successo!';
+
+  @override
+  String get authUpdatePasswordTitle => 'Crea una nuova password';
+
+  @override
+  String get authUpdatePasswordButton => 'Aggiorna password';
+
+  @override
+  String get authUpdatePasswordSuccess => 'Password aggiornata con successo. Per favore accedi di nuovo.';
+
+  @override
+  String get authPasswordResetSentTitle => 'Controlla la tua email';
+
+  @override
+  String get authPasswordResetSentBody => 'Abbiamo inviato un collegamento di ripristino password a';
+
+  @override
+  String get authPasswordResetSentNote => 'Tocca il collegamento nell\'email per impostare una nuova password. Il collegamento scade in 1 ora.';
+
+  @override
+  String get authGuestHello => 'Ciao!';
+
+  @override
+  String authGuestOverview(String appName) {
+    return 'Stai navigando $appName come ospite. Accedi o crea un account per iniziare a gestire il tuo negozio – ci vogliono meno di 5 secondi. Abbiamo una varietà di strumenti per aiutare la crescita della tua attività, il tutto gratuitamente.';
+  }
+
+  @override
+  String authIntroTitle(String appName) {
+    return 'Benvenuto in\n$appName';
+  }
+
+  @override
+  String get authIntroSubtitle => 'Benvenuto sulla piattaforma che abbiamo creato per te. Divertiti – il meglio ti aspetta.';
+
+  @override
+  String get authReadLegalities => 'Leggi le informazioni legali';
+
+  @override
+  String get authPasswordRequired => 'Per favore inserisci la tua password';
+
+  @override
+  String get authCreatingAccount => 'Creazione dell\'account in corso...';
+
+  @override
+  String get authAccountCreatedSuccess => 'Account creato con successo!';
+
+  @override
+  String get authCheckEmailToConfirm => 'Controlla la tua email per confermare il tuo account';
+
+  @override
+  String get authSigningInWithGoogle => 'Accesso con Google...';
+
+  @override
+  String authGoogleSignInFailed(String error) {
+    return 'Accesso Google non riuscito: $error';
+  }
+
+  @override
+  String get authAuthenticatingWithApple => 'Autenticazione con Apple...';
+
+  @override
+  String authAppleSignInFailed(String error) {
+    return 'Accesso Apple non riuscito: $error';
+  }
+
+  @override
+  String get authSendingResetEmail => 'Invio dell\'email di ripristino...';
+
+  @override
+  String get authResetEmailSent => 'Email di ripristino inviata. Controlla la tua posta in arrivo.';
+
+  @override
+  String authPasswordResetFailed(String error) {
+    return 'Ripristino password non riuscito: $error';
+  }
+
+  @override
+  String get authVerifyEmailTitle => 'Controlla la tua email';
+
+  @override
+  String get authVerifyEmailSubtitle => 'Abbiamo inviato un collegamento di conferma a';
+
+  @override
+  String get authVerifyEmailNote => 'Tocca il collegamento nell\'email per verificare il tuo account e continuare.';
+
+  @override
+  String get authConfirmationResent => 'Email di conferma reinviata. Controlla la tua posta in arrivo.';
+
+  @override
+  String get authResendFailed => 'Impossibile inviare l\'email. Per favore riprova.';
+
+  @override
+  String get authResendEmailButton => 'Reinvia email di conferma';
+
+  @override
+  String authResendEmailCooldown(int seconds) {
+    return 'Reinvia email (${seconds}s)';
+  }
+
+  @override
+  String get currencySelectorPlaceholder => 'Seleziona valuta';
+
+  @override
+  String get currencySelectorNoSelected => 'Nessuna valuta selezionata';
+
+  @override
+  String get currencySelectorTitle => 'Seleziona valuta';
+
+  @override
+  String get currencySelectorSearchHint => 'Cerca per valuta, codice o bandiera...';
+
+  @override
+  String get currencySelectorNoResults => 'Nessuna valuta trovata';
+
+  @override
+  String get discoverScreenTitle => 'Scopri';
+
+  @override
+  String get discoverSearchHint => 'Cerca...';
+
+  @override
+  String get discoverAllShopsRegion => 'Tutti i negozi nella tua regione';
+
+  @override
+  String get discoverAllFreelancers => 'Tutti i freelance vicino a te';
+
+  @override
+  String get discoverMarketplaceTitle => 'Mercato';
+
+  @override
+  String get discoverMarketplaceSubtitle => 'Acquista prodotti di bellezza con consegna alla ricezione';
+
+  @override
+  String get discoverBrowseProducts => 'Sfoglia prodotti';
+
+  @override
+  String get discoverMyOrders => 'I miei ordini';
+
+  @override
+  String get discoverCartTooltip => 'Carrello';
+
+  @override
+  String get homeScheduleTabLabel => 'Calendario';
+
+  @override
+  String get homeDashboardTabLabel => 'Pannello di controllo';
+
+  @override
+  String get homeMapTabLabel => 'Mappa';
+
+  @override
   String get validationRequired => 'Questo campo è obbligatorio';
 
   @override
@@ -251,10 +490,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get languageScreenSubtitle => 'Scegli la tua lingua preferita per l\'interfaccia dell\'app. Questo non influirà sulle impostazioni del tuo dispositivo.';
 
   @override
-  String get languageScreeUseDeviceLang => 'Use Device Language.';
+  String get languageScreeUseDeviceLang => 'Usa la lingua del dispositivo.';
 
   @override
-  String get languageScreeUseDeviceLangNote => 'This will reset to match your device system language.';
+  String get languageScreeUseDeviceLangNote => 'Questo verrà reimpostato per corrispondere alla lingua del sistema del tuo dispositivo.';
 
   @override
   String get settingsScreenTitle => 'Impostazioni';
@@ -619,7 +858,7 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get dashboardTitle => 'Dashboard';
+  String get dashboardTitle => 'Pannello di Controllo';
 
   @override
   String get dashboardSubtitle => 'Gestisci le attività del tuo negozio in modo efficiente';
@@ -665,4 +904,737 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get faqDashboard2Answer => 'Naviga nella tua dashboard e fai clic sulla sezione \'Guadagni\'. Da lì vedrai il tuo saldo attuale e un pulsante \'Richiedi Pagamento\'. Segui le istruzioni per completare la tua richiesta.';
+
+  @override
+  String get profileScreenCantChatWithYourself => 'Non puoi chattare con te stesso';
+
+  @override
+  String get profileScreenStartingConversation => 'Avvio della conversazione...';
+
+  @override
+  String get profileScreenNoActiveSession => 'Nessuna sessione attiva — accedi di nuovo.';
+
+  @override
+  String get profileScreenSignInToChatMessage => 'Devi accedere per inviare un messaggio';
+
+  @override
+  String get profileScreenFollowFeatureComingSoon => 'La funzione di follow arriva presto';
+
+  @override
+  String get profileScreenEnterBioPlaceholder => 'Inserisci una biografia in modo che le persone ti conoscano';
+
+  @override
+  String get profileScreenNoBioYet => 'Nessuna biografia ancora';
+
+  @override
+  String get profileScreenErrorLoadingProfileBody => 'Impossibile caricare il profilo. Controlla la tua connessione Internet e riprova.';
+
+  @override
+  String get profileScreenLoadingNotifications => 'Caricamento...';
+
+  @override
+  String get profileHeaderBookingsStatLabel => 'Prenotazioni';
+
+  @override
+  String get profileHeaderOrdersStatLabel => 'Ordini';
+
+  @override
+  String get profileHeaderEditProfileButton => 'Modifica profilo';
+
+  @override
+  String get profileHeaderMessageButton => 'Messaggio';
+
+  @override
+  String get editableProfileAvatarTakePhoto => 'Scatta una foto';
+
+  @override
+  String get editableProfileAvatarChooseGallery => 'Scegli dalla galleria';
+
+  @override
+  String get editProfileScreenAccountTypeLabel => 'Tipo di account';
+
+  @override
+  String get editProfileScreenAccountTypeSubtitle => 'Seleziona come desideri utilizzare questa app. Questo determina quali funzionalità sono disponibili per te.';
+
+  @override
+  String get editProfileScreenUpdatingAccountType => 'Aggiornamento del tipo di account...';
+
+  @override
+  String get editProfileScreenPleaseLogIn => 'Accedi per favore';
+
+  @override
+  String get editProfileScreenNameLabel => 'Nome';
+
+  @override
+  String get editProfileScreenNameHint => 'Inserisci il tuo nome';
+
+  @override
+  String get editProfileScreenUsernameLabel => 'Nome utente';
+
+  @override
+  String get editProfileScreenUsernameHint => 'Inserisci il nome utente';
+
+  @override
+  String get editProfileScreenBioLabel => 'Biografia';
+
+  @override
+  String get editProfileScreenBioHint => 'Raccontaci qualcosa su di te';
+
+  @override
+  String get editProfileScreenEditWorkProfileTitle => 'Modifica profilo di lavoro';
+
+  @override
+  String get profileTabsAppointments => 'Appuntamenti';
+
+  @override
+  String get profileTabsBuys => 'Acquisti';
+
+  @override
+  String get profileTabsSaves => 'Salvataggi';
+
+  @override
+  String get searchScreenSearchHint => 'Cerca negozi, professionisti, prodotti...';
+
+  @override
+  String get searchScreenNoResultsFound => 'Nessun risultato trovato';
+
+  @override
+  String searchScreenNoResultsCategory(String category) {
+    return 'Nessun $category trovato';
+  }
+
+  @override
+  String searchScreenSearchedFor(String query) {
+    return 'Ricercato: \"$query\"';
+  }
+
+  @override
+  String get searchScreenSomethingWentWrong => 'Qualcosa è andato storto';
+
+  @override
+  String get searchAppBarSearchHint => 'Cerca...';
+
+  @override
+  String get searchSuggestionsHint => 'Cerca negozi, professionisti di servizi a domicilio o prodotti per capelli da acquistare';
+
+  @override
+  String get searchSuggestionsRecentSearches => 'Ricerche recenti';
+
+  @override
+  String get searchSuggestionsClearAll => 'Cancella tutto';
+
+  @override
+  String get searchEmptyStateNoResults => 'Nessun risultato trovato';
+
+  @override
+  String searchEmptyStateCouldNotFind(String query) {
+    return 'Non abbiamo trovato nulla per \"$query\"';
+  }
+
+  @override
+  String get searchEmptyStateTryThese => 'Prova questi:';
+
+  @override
+  String get searchResultsShopsHeader => 'Negozi';
+
+  @override
+  String get searchResultsSeeAll => 'Vedi tutto';
+
+  @override
+  String searchResultsTitle(String category) {
+    return 'Risultati di $category';
+  }
+
+  @override
+  String searchResultsSearchingFor(String query) {
+    return 'Ricerca di \"$query\"';
+  }
+
+  @override
+  String get searchResultsTryDifferent => 'Prova parole chiave diverse o rimuovi i filtri';
+
+  @override
+  String get searchResultsSomethingWentWrong => 'Qualcosa è andato storto';
+
+  @override
+  String nearYouShopsTitle(int km) {
+    return 'Vicino a te\nentro ${km}km';
+  }
+
+  @override
+  String nearYouShopsBody(int km) {
+    return 'Negozi situati entro $km km dalla tua posizione attuale, mostrati dal più vicino al più lontano. Semplicemente imposta la tua posizione una volta, e ti mostreremo cosa c\'è vicino—sia che tu sia a casa, al lavoro o che stia esplorando un nuovo quartiere. Utile per prenotazioni last-minute o quando preferisci camminare.';
+  }
+
+  @override
+  String get nearYouShopsEmptyNoFilter => 'Nessun negozio trovato nelle vicinanze';
+
+  @override
+  String nearYouShopsEmptyWithFilter(String luxury) {
+    return 'Nessun negozio $luxury trovato nelle vicinanze';
+  }
+
+  @override
+  String nearYouShopsEmptySubtitle(String location) {
+    return 'I negozi a $location verranno mostrati qui una volta che saranno disponibili';
+  }
+
+  @override
+  String get premiumShopsScreenTitle => 'Negozi Premium';
+
+  @override
+  String get premiumShopsEmpty => 'Nessun negozio premium trovato';
+
+  @override
+  String get premiumShopsHorizontalTitle => 'Negozi premium\nper look premium';
+
+  @override
+  String get premiumShopsHorizontalBody => 'Saloni e spa di lusso selezionati che offrono esperienze lussuose. Questi negozi sono classificati come Lusso o Ultra-Lusso in base ai loro servizi, prezzi e recensioni dei clienti. Perfetto quando cerchi quel tocco extra di eleganza.';
+
+  @override
+  String get premiumShopsHorizontalEmptyNoFilter => 'Nessun negozio premium disponibile';
+
+  @override
+  String premiumShopsHorizontalEmptyWithFilter(String luxury) {
+    return 'Nessun negozio premium $luxury disponibile';
+  }
+
+  @override
+  String get premiumShopsHorizontalEmptySubtitle => 'I negozi verranno mostrati qui una volta disponibili';
+
+  @override
+  String get topRatedShopsHorizontalTitle => 'Meglio valutati';
+
+  @override
+  String topRatedShopsHorizontalTitleWithLocation(String location) {
+    return 'Meglio valutati \na $location';
+  }
+
+  @override
+  String get topRatedShopsHorizontalBody => 'Negozi con le valutazioni più alte dei clienti (4,5+ stelle) e molte recensioni. Questi sono i preferiti della nostra comunità—costantemente elogiati per qualità, servizio e professionalità. Un ottimo punto di partenza se cerchi opzioni affidabili e approvate dalla folla.';
+
+  @override
+  String get topRatedShopsHorizontalEmptyNoFilter => 'Nessun negozio meglio valutato disponibile';
+
+  @override
+  String topRatedShopsHorizontalEmptyWithFilter(String luxury) {
+    return 'Nessun negozio premium $luxury disponibile';
+  }
+
+  @override
+  String get topRatedShopsHorizontalEmptySubtitle => 'I negozi verranno mostrati qui una volta disponibili';
+
+  @override
+  String get topRatedShopsScreenTitle => 'Negozi Meglio Valutati';
+
+  @override
+  String get topRatedShopsEmpty => 'Nessun negozio meglio valutato trovato';
+
+  @override
+  String get nearYouFreelancersScreenTitle => 'Freelancer vicino a te';
+
+  @override
+  String get nearYouFreelancersEmpty => 'Nessun freelancer trovato nelle vicinanze';
+
+  @override
+  String get nearYouFreelancersEmptySubtitle => 'Prova ad espandere la tua area di ricerca o cambia posizione';
+
+  @override
+  String get topRatedFreelancersScreenTitle => 'Freelancer meglio valutati';
+
+  @override
+  String get topRatedFreelancersEmpty => 'Nessun freelancer meglio valutato trovato';
+
+  @override
+  String get topRatedFreelancersEmptySubtitle => 'Prova ad adattare la tua area di ricerca';
+
+  @override
+  String topRatedFreelancersHorizontalTitle(String location) {
+    return 'Meglio valutati \na $location';
+  }
+
+  @override
+  String get topRatedFreelancersHorizontalBody => 'Professionisti di alto livello selezionati che offrono esperienze lussuose. Questi freelancer sono classificati come meglio valutati in base alla qualità del loro lavoro, prezzi e recensioni dei clienti. Perfetto per quel tocco extra di eccellenza.';
+
+  @override
+  String nearYouFreelancersHorizontalTitle(String location) {
+    return 'Freelancer Vicino a Te a $location';
+  }
+
+  @override
+  String get nearYouFreelancersHorizontalBody => 'Professionisti qualificati ubicati vicino a te. Questi freelancer sono disponibili per prenotazioni rapide e offrono servizio locale conveniente. Perfetto quando cerchi affidabilità e prossimità.';
+
+  @override
+  String get nearYouFreelancersHorizontalEmpty => 'Nessun freelancer meglio valutato disponibile';
+
+  @override
+  String get nearYouFreelancersHorizontalEmptySubtitle => 'I freelancer verranno mostrati qui una volta disponibili';
+
+  @override
+  String get shopNoLocationSetTitle => 'Imposta la tua posizione per scoprire';
+
+  @override
+  String get shopNoLocationSetContent => 'Imposta la tua posizione per scoprire negozi premium e ben valutati vicino a te.';
+
+  @override
+  String get providerTypeShops => 'Negozi';
+
+  @override
+  String get providerTypeFreelancers => 'Freelancer';
+
+  @override
+  String get providerTypeBuy => 'Acquista';
+
+  @override
+  String get luxuryLevelChipsAll => 'Tutti';
+
+  @override
+  String get searchRadiusSliderTitle => 'Raggio di esplorazione';
+
+  @override
+  String searchRadiusSliderSubtitle(int km) {
+    return 'Visualizzazione risultati entro ${km}km dalla tua posizione';
+  }
+
+  @override
+  String validationPasswordMaxLength(int max) {
+    return 'La password non deve superare $max caratteri';
+  }
+
+  @override
+  String get validationPasswordRepeatingChars => 'La password contiene troppi caratteri ripetuti';
+
+  @override
+  String get validationPasswordSequential => 'La password contiene caratteri sequenziali';
+
+  @override
+  String validationPhoneDigits(int digits) {
+    return 'Il numero di telefono deve contenere $digits cifre';
+  }
+
+  @override
+  String get validationPhoneUK => 'Numero di telefono britannico non valido';
+
+  @override
+  String validationUrlScheme(String schemes) {
+    return 'L\'URL deve iniziare con $schemes';
+  }
+
+  @override
+  String get validationUrlDomain => 'Nome di dominio non valido';
+
+  @override
+  String get validationUrlPublicAddress => 'L\'URL deve puntare a un indirizzo pubblico';
+
+  @override
+  String validationNameMaxLength(String field, int max) {
+    return '$field non deve superare $max caratteri';
+  }
+
+  @override
+  String validationNameConsecutiveChars(String field) {
+    return '$field non può contenere trattini o spazi consecutivi';
+  }
+
+  @override
+  String get validationCreditCardFormat => 'Per favore inserisci un numero di carta di credito valido';
+
+  @override
+  String get validationCreditCardInvalid => 'Numero di carta di credito non valido';
+
+  @override
+  String get validationDatePastNotAllowed => 'La data non può essere nel passato';
+
+  @override
+  String get validationPostalCodeZip => 'Per favore inserisci un codice postale valido (es. 12345 o 12345-6789)';
+
+  @override
+  String get validationPostalCodeCanadian => 'Per favore inserisci un codice postale canadese valido (es. A1A 1A1)';
+
+  @override
+  String get validationPostalCodeGeneric => 'Per favore inserisci un codice postale valido';
+
+  @override
+  String get validationSSNFormat => 'Per favore inserisci un SSN valido (es. 123-45-6789)';
+
+  @override
+  String get validationSSNInvalid => 'SSN non valido';
+
+  @override
+  String get validationEmailTooLong => 'L\'indirizzo email è troppo lungo (max. 254 caratteri)';
+
+  @override
+  String get validationEmailLocalPartTooLong => 'La parte locale dell\'indirizzo email è troppo lunga';
+
+  @override
+  String get categoriesAll => 'Tutti';
+
+  @override
+  String get categoriesSalon => 'Saloni';
+
+  @override
+  String get categoriesBarbershop => 'Barberie';
+
+  @override
+  String get categoriesSpa => 'Spa';
+
+  @override
+  String get categoriesNailSalon => 'Saloni per Unghie';
+
+  @override
+  String get categoriesLashStudio => 'Studi di Ciglia';
+
+  @override
+  String get categoriesWaxing => 'Depilazione';
+
+  @override
+  String get categoriesMassage => 'Massaggio';
+
+  @override
+  String get categoriesMakeup => 'Trucco';
+
+  @override
+  String get categoriesSkincare => 'Cura della Pelle';
+
+  @override
+  String get luxuryLevelModerate => 'Moderato';
+
+  @override
+  String get luxuryLevelLuxury => 'Lusso';
+
+  @override
+  String get luxuryLevelUltraLuxury => 'Ultra Lusso';
+
+  @override
+  String get dashboardTabRevenue => 'Entrate';
+
+  @override
+  String get dashboardTabAnalytics => 'Analisi';
+
+  @override
+  String get dashboardTabInsights => 'Approfondimenti';
+
+  @override
+  String get dashboardTabTools => 'Strumenti';
+
+  @override
+  String get dashboardTabClients => 'Clienti';
+
+  @override
+  String get dashboardTabStaff => 'Personale';
+
+  @override
+  String get walletRecentTransactions => 'Transazioni Recenti';
+
+  @override
+  String get walletLoadError => 'Non siamo riusciti a caricare il tuo portafoglio in questo momento.';
+
+  @override
+  String get walletTransactionLoadError => 'Impossibile caricare le transazioni recenti.';
+
+  @override
+  String get walletPaymentProcessing => 'Attendi che il pagamento sia elaborato e torna all\'app per completare la tua prenotazione.';
+
+  @override
+  String get analyticsRevenue => 'Entrate';
+
+  @override
+  String get analyticsServices => 'Servizi';
+
+  @override
+  String get analyticsWorkers => 'Lavoratori';
+
+  @override
+  String get analyticsLoadError => 'Impossibile caricare le analisi';
+
+  @override
+  String get analyticsEmpty => 'Nessun dato disponibile per le analisi.';
+
+  @override
+  String get analyticsEmptySubtitle => 'Le statistiche di prenotazione e entrate apparirebbero qui';
+
+  @override
+  String get insightsReports => 'Report';
+
+  @override
+  String get insightsSeeAll => 'Visualizza Tutto';
+
+  @override
+  String get insightsLoadError => 'Impossibile caricare i report. Scorri per aggiornare.';
+
+  @override
+  String get insightsNoAlerts => 'Tutto bene! Nessun avviso';
+
+  @override
+  String get insightsHeatmapError => 'Impossibile caricare la mappa di calore delle prenotazioni.';
+
+  @override
+  String get insightsNoHeatmapData => 'Nessun dato della mappa di calore disponibile';
+
+  @override
+  String get toolsAdminTools => 'Strumenti di Amministrazione';
+
+  @override
+  String get toolsConfigure => 'Configura →';
+
+  @override
+  String get toolsManage => 'Gestisci →';
+
+  @override
+  String get toolsExport => 'Esporta →';
+
+  @override
+  String get toolsAutomatedReminders => 'Promemoria Automatici';
+
+  @override
+  String get toolsPromotionsManager => 'Gestore delle Promozioni';
+
+  @override
+  String get toolsExportReports => 'Esporta Report';
+
+  @override
+  String get toolsPaymentSettings => 'Impostazioni di Pagamento';
+
+  @override
+  String get toolsLoadingDetails => 'Caricamento dettagli negozio…';
+
+  @override
+  String get toolsBusinessHours => 'Orari di Apertura';
+
+  @override
+  String get toolsServiceManagement => 'Gestione dei Servizi';
+
+  @override
+  String get clientsSearchHint => 'Cerca per nome...';
+
+  @override
+  String get clientsLoadError => 'Impossibile caricare i clienti';
+
+  @override
+  String get clientsNotFound => 'Nessun Cliente Trovato';
+
+  @override
+  String get clientsEmpty => 'Nessun Cliente Ancora';
+
+  @override
+  String clientsSearchEmpty(String query) {
+    return 'Nessun cliente corrisponde a \"$query\"';
+  }
+
+  @override
+  String get clientsEmptySubtitle => 'I clienti appariranno qui quando effettuano la loro prima prenotazione.';
+
+  @override
+  String get walletLabel => 'Portafoglio';
+
+  @override
+  String get walletAvailableBalance => 'Saldo Disponibile';
+
+  @override
+  String get walletWithdrawFunds => 'Ritira Fondi';
+
+  @override
+  String get walletTotalEarned => 'Totale Guadagnato';
+
+  @override
+  String get walletTotalWithdrawn => 'Totale Prelevato';
+
+  @override
+  String get transactionDepositReceived => 'Deposito Ricevuto';
+
+  @override
+  String get transactionServicePayment => 'Pagamento del Servizio';
+
+  @override
+  String get transactionWithdrawal => 'Prelievo';
+
+  @override
+  String get transactionRefund => 'Rimborso';
+
+  @override
+  String get transactionPlatformFee => 'Commissione Piattaforma';
+
+  @override
+  String get transactionAdjustment => 'Rettifica';
+
+  @override
+  String get transactionToday => 'Oggi';
+
+  @override
+  String get transactionYesterday => 'Ieri';
+
+  @override
+  String get withdrawalTitle => 'Ritira';
+
+  @override
+  String withdrawalInfo(double fee, String currency, double minFee) {
+    return 'I prelievi vengono elaborati immediatamente e inviati al tuo conto collegato. Si applica una commissione di $fee% (min $currency $minFee).';
+  }
+
+  @override
+  String withdrawalAvailableBalance(String currency, String amount) {
+    return 'Saldo disponibile: $currency $amount';
+  }
+
+  @override
+  String withdrawalAmountInputLabel(String currency) {
+    return 'Importo ($currency)';
+  }
+
+  @override
+  String get withdrawalAmountHint => 'Inserisci l\'importo da prelevare';
+
+  @override
+  String get withdrawalAmountRequired => 'Inserisci un importo';
+
+  @override
+  String get withdrawalAmountInvalid => 'Inserisci un importo valido';
+
+  @override
+  String withdrawalMinimum(String currency, double min) {
+    return 'Il prelievo minimo è $currency $min';
+  }
+
+  @override
+  String withdrawalMaximum(String currency, double max) {
+    return 'Il prelievo massimo per transazione è $currency $max';
+  }
+
+  @override
+  String withdrawalInsufficientBalance(String currency, String available) {
+    return 'Saldo insufficiente. Disponibile: $currency $available';
+  }
+
+  @override
+  String get withdrawalBreakdownAmount => 'Importo da prelevare:';
+
+  @override
+  String withdrawalFeeLabel(Object fee) {
+    return 'Commissione ($fee%):';
+  }
+
+  @override
+  String get withdrawalNetAmount => 'Riceverai:';
+
+  @override
+  String get withdrawalProcessing => 'Elaborazione in corso...';
+
+  @override
+  String get withdrawalRequestButton => 'Richiedi Prelievo';
+
+  @override
+  String get withdrawalNoPaymentMethod => 'Nessun metodo di pagamento collegato';
+
+  @override
+  String get withdrawalSuccess => 'Richiesta di prelievo inviata con successo!';
+
+  @override
+  String get deadLetterTitle => 'Il prelievo necessita di revisione';
+
+  @override
+  String deadLetterSingle(String currency, String amount) {
+    return '$currency $amount bloccato — tocca per i dettagli';
+  }
+
+  @override
+  String deadLetterMultiple(String currency, String amount, int count) {
+    return '$currency $amount bloccato su $count prelievi — tocca per i dettagli';
+  }
+
+  @override
+  String get deadLetterReason => 'Motivo:';
+
+  @override
+  String get deadLetterContactSupport => 'Contatta il supporto';
+
+  @override
+  String get paymentSetupTitle => 'Completa la configurazione del pagamento';
+
+  @override
+  String get paymentSetupContent => 'Collega il tuo account di pagamento per iniziare a ritirare denaro dal tuo portafoglio. Potrebbe essere il tuo numero di cellulare o il tuo conto bancario.';
+
+  @override
+  String get calendarErrorLoading => 'Errore nel caricamento del calendario';
+
+  @override
+  String get calendarErrorLoadingBookings => 'Errore nel caricamento delle prenotazioni';
+
+  @override
+  String get calendarNoAppointmentsDay => 'Nessun appuntamento per questo giorno';
+
+  @override
+  String get calendarNoBookingsDay => 'Nessuna prenotazione per questo giorno';
+
+  @override
+  String calendarAppointmentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'appuntamenti',
+      one: 'appuntamento',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String get monthJanuary => 'Gen';
+
+  @override
+  String get monthFebruary => 'Feb';
+
+  @override
+  String get monthMarch => 'Mar';
+
+  @override
+  String get monthApril => 'Apr';
+
+  @override
+  String get monthMay => 'Mag';
+
+  @override
+  String get monthJune => 'Giu';
+
+  @override
+  String get monthJuly => 'Lug';
+
+  @override
+  String get monthAugust => 'Ago';
+
+  @override
+  String get monthSeptember => 'Set';
+
+  @override
+  String get monthOctober => 'Ott';
+
+  @override
+  String get monthNovember => 'Nov';
+
+  @override
+  String get monthDecember => 'Dic';
+
+  @override
+  String get dayMonday => 'Lun';
+
+  @override
+  String get dayTuesday => 'Mar';
+
+  @override
+  String get dayWednesday => 'Mer';
+
+  @override
+  String get dayThursday => 'Gio';
+
+  @override
+  String get dayFriday => 'Ven';
+
+  @override
+  String get daySaturday => 'Sab';
+
+  @override
+  String get daySunday => 'Dom';
+
+  @override
+  String calendarNoAppointmentsSnackbar(String date) {
+    return 'Nessun appuntamento in questo giorno\n$date';
+  }
 }

@@ -27,19 +27,16 @@ class CalendarMonthView extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
 
     // ✅ Only fetch data if isCurrentUser is true
-    final state =
-        isCurrentUser
-            ? ref.watch(
-              calendarControllerProvider(
-                userIdOrShopId: currentUserId,
-                isShopOwner: isShopOwner,
-              ),
-            )
-            : null; // No data fetching for other users
+    final state = ref.watch(
+      calendarControllerProvider(
+        userIdOrShopId: currentUserId,
+        isShopOwner: isShopOwner,
+      ),
+    ); // No data fetching for other users
 
     // Build events from state (only if we have data)
     final events = <DateTime, List<dynamic>>{};
-    if (isCurrentUser && state != null && state.hasValue) {
+    if (state != null && state.hasValue) {
       final calendarState = state.value!;
       for (final booking in calendarState.bookings) {
         final date = DateTime.utc(

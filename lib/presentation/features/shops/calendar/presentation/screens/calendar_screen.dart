@@ -141,7 +141,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
 
           return Center(
             child: ErrorStateWidget(
-              subtitle: 'Error loading calendar',
+              subtitle: AppLocalizations.of(context)!.calendarErrorLoading,
               onPrimaryAction: () {
                 controller.loadMonth(currentMonth);
               },
@@ -278,8 +278,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
         }).toList();
 
     if (dayBookings.isEmpty) {
+      final loc = AppLocalizations.of(context)!;
       context.showInfoSnackbar(
-        'No appointments on this day\n${MyDateFormat.toDate(selectedDay)}',
+        loc.calendarNoAppointmentsSnackbar(MyDateFormat.toDate(selectedDay)),
       );
 
       return;

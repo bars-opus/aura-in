@@ -17,6 +17,7 @@ class DayAppointmentsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -31,7 +32,7 @@ class DayAppointmentsSheet extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _formatDate(date),
+                  _formatDate(date, loc),
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface.withOpacity(0.6),
@@ -39,7 +40,7 @@ class DayAppointmentsSheet extends StatelessWidget {
                 ),
 
                 Text(
-                  '${bookings.length} ${bookings.length == 1 ? 'appointment' : 'appointments'}',
+                  loc.calendarAppointmentCount(bookings.length),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurface.withOpacity(0.6),
                   ),
@@ -58,7 +59,7 @@ class DayAppointmentsSheet extends StatelessWidget {
               bookings.isEmpty
                   ? Center(
                     child: EmptyStateWidget(
-                      subtitle: 'No appointments for this day',
+                      subtitle: loc.calendarNoAppointmentsDay,
                     ),
                   )
                   : ListView.separated(
@@ -108,22 +109,30 @@ class DayAppointmentsSheet extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
+  String _formatDate(DateTime date, AppLocalizations loc) {
+    final months = [
+      loc.monthJanuary,
+      loc.monthFebruary,
+      loc.monthMarch,
+      loc.monthApril,
+      loc.monthMay,
+      loc.monthJune,
+      loc.monthJuly,
+      loc.monthAugust,
+      loc.monthSeptember,
+      loc.monthOctober,
+      loc.monthNovember,
+      loc.monthDecember,
     ];
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final days = [
+      loc.dayMonday,
+      loc.dayTuesday,
+      loc.dayWednesday,
+      loc.dayThursday,
+      loc.dayFriday,
+      loc.daySaturday,
+      loc.daySunday,
+    ];
 
     return '${days[date.weekday - 1]}, ${months[date.month - 1]} ${date.day}, ${date.year}';
   }
