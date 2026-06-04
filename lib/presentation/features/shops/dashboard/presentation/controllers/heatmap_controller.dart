@@ -1,6 +1,7 @@
 // lib/features/dashboard/presentation/controllers/heatmap_controller.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equatable/equatable.dart';
+import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/booking_heatmap_data.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/repositories/dashboard_repository.dart';
 
@@ -92,7 +93,8 @@ class HeatmapController extends StateNotifier<HeatmapState> {
       state = state.copyWith(heatmapData: data, isLoading: false, error: null);
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isLoading: false, error: e.toString());
+      AppLogger.warn('heatmap.load_failed', fields: {'shop_id': _shopId, 'error': e.toString()});
+      state = state.copyWith(isLoading: false, error: 'load_failed');
     }
   }
 
@@ -112,7 +114,8 @@ class HeatmapController extends StateNotifier<HeatmapState> {
       state = state.copyWith(heatmapData: data, isRefreshing: false, error: null);
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isRefreshing: false, error: e.toString());
+      AppLogger.warn('heatmap.refresh_failed', fields: {'shop_id': _shopId, 'error': e.toString()});
+      state = state.copyWith(isRefreshing: false, error: 'refresh_failed');
     }
   }
 
@@ -132,7 +135,8 @@ class HeatmapController extends StateNotifier<HeatmapState> {
       state = state.copyWith(heatmapData: data, isLoading: false, error: null);
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isLoading: false, error: e.toString());
+      AppLogger.warn('heatmap.load_failed', fields: {'shop_id': _shopId, 'error': e.toString()});
+      state = state.copyWith(isLoading: false, error: 'load_failed');
     }
   }
 

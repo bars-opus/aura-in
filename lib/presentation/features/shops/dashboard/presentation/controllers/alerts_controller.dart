@@ -1,6 +1,7 @@
 // lib/features/dashboard/presentation/controllers/alerts_controller.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equatable/equatable.dart';
+import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/performance_alert.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/repositories/dashboard_repository.dart';
 
@@ -77,7 +78,8 @@ class AlertsController extends StateNotifier<AlertsState> {
       state = state.copyWith(alerts: alerts, isLoading: false, error: null);
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isLoading: false, error: e.toString());
+      AppLogger.warn('alerts.load_failed', fields: {'shop_id': state.shopId, 'error': e.toString()});
+      state = state.copyWith(isLoading: false, error: 'load_failed');
     }
   }
 
@@ -93,7 +95,8 @@ class AlertsController extends StateNotifier<AlertsState> {
       state = state.copyWith(alerts: alerts, isRefreshing: false, error: null);
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isRefreshing: false, error: e.toString());
+      AppLogger.warn('alerts.refresh_failed', fields: {'shop_id': state.shopId, 'error': e.toString()});
+      state = state.copyWith(isRefreshing: false, error: 'refresh_failed');
     }
   }
 
@@ -111,7 +114,8 @@ class AlertsController extends StateNotifier<AlertsState> {
       state = state.copyWith(alerts: updatedAlerts);
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(error: e.toString());
+      AppLogger.warn('alerts.mark_read_failed', fields: {'alert_id': alertId, 'error': e.toString()});
+      state = state.copyWith(error: 'mark_read_failed');
     }
   }
 
@@ -126,7 +130,8 @@ class AlertsController extends StateNotifier<AlertsState> {
       state = state.copyWith(alerts: updatedAlerts);
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(error: e.toString());
+      AppLogger.warn('alerts.resolve_failed', fields: {'alert_id': alertId, 'error': e.toString()});
+      state = state.copyWith(error: 'resolve_failed');
     }
   }
 
@@ -139,7 +144,8 @@ class AlertsController extends StateNotifier<AlertsState> {
       await loadAlerts();
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(error: e.toString());
+      AppLogger.warn('alerts.generate_failed', fields: {'shop_id': state.shopId, 'error': e.toString()});
+      state = state.copyWith(error: 'generate_failed');
     }
   }
 

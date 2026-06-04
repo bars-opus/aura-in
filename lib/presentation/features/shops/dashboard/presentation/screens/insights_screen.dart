@@ -103,7 +103,7 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
             ),
           )
         else if (state.hasError)
-          Center(child: ErrorStateWidget(subtitle: state.error!))
+          Center(child: ErrorStateWidget(subtitle: "Couldn't load reports. Pull to refresh."))
         else if (state.alerts.isEmpty)
           CardInkWell(
             elevation: 0,
@@ -141,7 +141,7 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
         else if (state.hasError)
           CardInkWell(
             onTap: () {},
-            child: ErrorStateWidget(subtitle: state.error!),
+            child: ErrorStateWidget(subtitle: "Couldn't load the booking heatmap right now."),
           )
         else if (state.heatmapData == null ||
             state.heatmapData!.dataPoints.isEmpty)

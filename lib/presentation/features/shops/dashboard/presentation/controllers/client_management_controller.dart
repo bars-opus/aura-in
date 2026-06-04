@@ -1,6 +1,7 @@
 // lib/features/dashboard/presentation/controllers/client_management_controller.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equatable/equatable.dart';
+import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/clients/client_profile.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/repositories/dashboard_repository.dart';
 
@@ -110,7 +111,8 @@ class ClientManagementController extends StateNotifier<ClientManagementState> {
       );
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isLoading: false, error: e.toString());
+      AppLogger.warn('clients.load_failed', fields: {'shop_id': state.shopId, 'error': e.toString()});
+      state = state.copyWith(isLoading: false, error: 'load_failed');
     }
   }
 
@@ -137,7 +139,8 @@ class ClientManagementController extends StateNotifier<ClientManagementState> {
       );
     } catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isRefreshing: false, error: e.toString());
+      AppLogger.warn('clients.refresh_failed', fields: {'shop_id': state.shopId, 'error': e.toString()});
+      state = state.copyWith(isRefreshing: false, error: 'refresh_failed');
     }
   }
 
