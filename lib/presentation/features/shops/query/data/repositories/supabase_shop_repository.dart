@@ -836,7 +836,11 @@ class SupabaseShopRepository implements ShopRepository {
             .select('*')
             .eq('shop_id', shopId)
             .order('day_of_week', ascending: true),
-        _client.from('appointment_slots').select('*').eq('shop_id', shopId),
+        _client
+            .from('appointment_slots')
+            .select('*')
+            .eq('shop_id', shopId)
+            .isFilter('archived_at', null),
         _client.from('shop_locations').select('*').eq('shop_id', shopId),
       ]);
 
@@ -956,6 +960,7 @@ class SupabaseShopRepository implements ShopRepository {
           .from('appointment_slots')
           .select('*')
           .eq('shop_id', shopId)
+          .isFilter('archived_at', null)
           .order('price', ascending: true);
 
       // Explicitly map to AppointmentSlotDTO
@@ -1003,9 +1008,10 @@ class SupabaseShopRepository implements ShopRepository {
           .select('''
             slot_id,
             worker_id,
-            appointment_slots!inner(shop_id)
+            appointment_slots!inner(shop_id, archived_at)
           ''')
-          .eq('appointment_slots.shop_id', shopId);
+          .eq('appointment_slots.shop_id', shopId)
+          .isFilter('appointment_slots.archived_at', null);
 
       final Map<String, List<String>> assignments = {};
       for (var row in response) {

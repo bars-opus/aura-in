@@ -1,13 +1,11 @@
 // lib/features/freelancer/data/repositories/supabase_freelancer_repository.dart
+import 'dart:developer' as developer;
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mime/mime.dart';
+import 'package:nano_embryo/core/repositories/repository_helpers.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/domain/models/freelancer_draft.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/models/freelancer_details_dto.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/models/nearby_freelancer_dto.dart';
-import 'package:nano_embryo/presentation/features/search/models/freelancer_search_result.dart';
-import 'package:nano_embryo/presentation/features/search/models/search_paginated_result.dart';
-import 'package:nano_embryo/presentation/features/shops/creation/domain/models/award_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/contact_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/document_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/opening_hours_draft.dart';
@@ -204,8 +202,13 @@ class SupabaseFreelancerRepository {
           .from(_storageBucket)
           .upload(path, image, fileOptions: const FileOptions(upsert: true));
       return _client.storage.from(_storageBucket).getPublicUrl(path);
-    } catch (e) {
-      print('Error uploading profile image: $e');
+    } catch (e, stack) {
+      developer.log(
+        'uploadProfileImage failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return null;
     }
   }
@@ -229,8 +232,13 @@ class SupabaseFreelancerRepository {
             .from(_storageBucket)
             .upload(path, image, fileOptions: const FileOptions(upsert: true));
         urls.add(_client.storage.from(_storageBucket).getPublicUrl(path));
-      } catch (e) {
-        print('Error uploading portfolio image $i: $e');
+      } catch (e, stack) {
+        developer.log(
+          'uploadPortfolioImage[$i] failed',
+          name: 'repository',
+          error: e,
+          stackTrace: stack,
+        );
       }
     }
     return urls;
@@ -255,8 +263,13 @@ class SupabaseFreelancerRepository {
             .from(_storageBucket)
             .upload(path, doc, fileOptions: const FileOptions(upsert: true));
         urls.add(_client.storage.from(_storageBucket).getPublicUrl(path));
-      } catch (e) {
-        print('Error uploading document $i: $e');
+      } catch (e, stack) {
+        developer.log(
+          'uploadDocument[$i] failed',
+          name: 'repository',
+          error: e,
+          stackTrace: stack,
+        );
       }
     }
     return urls;
@@ -273,10 +286,14 @@ class SupabaseFreelancerRepository {
       if (bucketIndex < pathSegments.length) {
         final filePath = pathSegments.sublist(bucketIndex + 1).join('/');
         await _client.storage.from(_storageBucket).remove([filePath]);
-        print('✅ Deleted from storage: $filePath');
       }
-    } catch (e) {
-      print('⚠️ Failed to delete from storage: $e');
+    } catch (e, stack) {
+      developer.log(
+        'deleteImageFromStorage failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
     }
   }
 
@@ -496,10 +513,18 @@ class SupabaseFreelancerRepository {
         }
       }
 
-      print('✅ Freelancer updated successfully: $workerId');
-    } catch (e) {
-      print('❌ Error updating freelancer: $e');
-      throw Exception('Failed to update freelancer: $e');
+    } catch (e, stack) {
+      developer.log(
+        'updateFreelancer failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
+      throw RepositoryException(
+        "Couldn't update freelancer. Please try again.",
+        cause: e,
+        stackTrace: stack,
+      );
     }
   }
 
@@ -516,8 +541,13 @@ class SupabaseFreelancerRepository {
 
       final List<dynamic> data = response as List;
       return data.map((json) => DocumentDraft.fromJson(json)).toList();
-    } catch (e) {
-      print('Error getting freelancer documents: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerDocuments failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return [];
     }
   }
@@ -531,13 +561,19 @@ class SupabaseFreelancerRepository {
           .from('appointment_slots')
           .select('*')
           .eq('shop_id', freelancerId)
+          .isFilter('archived_at', null)
           .order('created_at', ascending: true);
 
       return (response as List)
           .map((json) => AppointmentSlotDTO.fromJson(json))
           .toList();
-    } catch (e) {
-      print('Error getting freelancer services: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerServices failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return [];
     }
   }
@@ -559,8 +595,13 @@ class SupabaseFreelancerRepository {
 
       final List<dynamic> data = response as List;
       return data.map((json) => BookingReview.fromJson(json)).toList();
-    } catch (e) {
-      print('Error getting freelancer reviews: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerReviews failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return [];
     }
   }
@@ -577,8 +618,13 @@ class SupabaseFreelancerRepository {
 
       final List<dynamic> data = response as List;
       return data.map((json) => json['url'] as String).toList();
-    } catch (e) {
-      print('Error getting freelancer portfolio: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerPortfolio failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return [];
     }
   }
@@ -596,8 +642,13 @@ class SupabaseFreelancerRepository {
 
       final List<dynamic> data = response as List;
       return data.map((json) => OpeningHoursDraft.fromJson(json)).toList();
-    } catch (e) {
-      print('Error getting freelancer hours: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerHoursDraft failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return [];
     }
   }
@@ -612,8 +663,13 @@ class SupabaseFreelancerRepository {
 
       final List<dynamic> data = response as List;
       return data.map((json) => OpeningHoursDTO.fromJson(json)).toList();
-    } catch (e) {
-      print('Error getting freelancer hours: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerHours failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return [];
     }
   }
@@ -628,8 +684,13 @@ class SupabaseFreelancerRepository {
 
       final List<dynamic> data = response as List;
       return data.map((json) => ContactDraft.fromJson(json)).toList();
-    } catch (e) {
-      print('Error getting freelancer contacts: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerContacts failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return [];
     }
   }
@@ -646,8 +707,13 @@ class SupabaseFreelancerRepository {
 
       final List<dynamic> data = response as List;
       return data.map((json) => SocialLinkDraft.fromJson(json)).toList();
-    } catch (e) {
-      print('Error getting freelancer social links: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerSocialLinks failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return [];
     }
   }
@@ -656,8 +722,13 @@ class SupabaseFreelancerRepository {
   Future<void> _cleanupFailedCreation(String workerId) async {
     try {
       await _client.from('workers').delete().eq('id', workerId);
-    } catch (e) {
-      print('Cleanup failed: $e');
+    } catch (e, stack) {
+      developer.log(
+        'cleanupFailedCreation failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
     }
   }
 
@@ -674,7 +745,6 @@ class SupabaseFreelancerRepository {
               .maybeSingle();
 
       if (workerResponse == null) {
-        print('❌ No worker found');
         return null;
       }
 
@@ -693,8 +763,13 @@ class SupabaseFreelancerRepository {
       };
 
       return FreelancerDetailsDTO.fromJson(combinedResponse);
-    } catch (e) {
-      print('❌ Error: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerById failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return null;
     }
   }
@@ -734,8 +809,13 @@ class SupabaseFreelancerRepository {
 
       final List<dynamic> data = response as List;
       return data.map((json) => json['url'] as String).toList();
-    } catch (e) {
-      print('Error getting freelancer document URLs: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerDocumentUrls failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return [];
     }
   }
@@ -755,8 +835,13 @@ class SupabaseFreelancerRepository {
 
       final List<dynamic> data = response as List;
       return data.map((json) => SimpleMedia.fromJson(json)).toList();
-    } catch (e) {
-      print('Error getting freelancer image medias: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerImageMedias failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return [];
     }
   }
@@ -775,8 +860,13 @@ class SupabaseFreelancerRepository {
 
       final List<dynamic> data = response as List;
       return data.map((json) => SimpleMedia.fromJson(json)).toList();
-    } catch (e) {
-      print('Error getting freelancer document medias: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerDocumentMedias failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return [];
     }
   }
@@ -792,8 +882,13 @@ class SupabaseFreelancerRepository {
 
       final List<dynamic> data = response as List;
       return data.map((json) => AwardDTO.fromJson(json)).toList();
-    } catch (e) {
-      print('Error getting freelancer awards: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerAwards failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return [];
     }
   }
@@ -809,8 +904,13 @@ class SupabaseFreelancerRepository {
       return (response as List)
           .map((json) => json['tool_id'] as String)
           .toList();
-    } catch (e) {
-      print('Error getting freelancer tools: $e');
+    } catch (e, stack) {
+      developer.log(
+        'getFreelancerTools failed',
+        name: 'repository',
+        error: e,
+        stackTrace: stack,
+      );
       return [];
     }
   }
@@ -818,7 +918,6 @@ class SupabaseFreelancerRepository {
   // lib/features/freelancer/data/repositories/freelancer_repository.dart
 
   /// Get nearby freelancers
-  @override
   Future<List<NearbyFreelancerDTO>> getNearbyFreelancers({
     required double latitude,
     required double longitude,
@@ -828,36 +927,39 @@ class SupabaseFreelancerRepository {
     List<String>? freelancerTypes,
     double? minRating,
     String sortBy = 'distance',
-  }) async {
-    // Return empty if location not set
+  }) {
+    // No location → no nearby search possible. Return empty without erroring.
     if (latitude == 0 || longitude == 0) {
-      return [];
+      return Future.value(const []);
     }
 
-    try {
-      final response = await _client.rpc(
-        'get_nearby_freelancers',
-        params: {
-          'p_user_lat': latitude,
-          'p_user_lng': longitude,
-          'p_radius_km': radiusKm,
-          'p_freelancer_types': freelancerTypes,
-          'p_min_rating': minRating,
-          'p_sort_by': sortBy,
-          'p_page_limit': limit,
-          'p_page_offset': offset,
-        },
-      );
+    return runRepoQuery(
+      opName: 'getNearbyFreelancers',
+      userMessage: "Couldn't load nearby freelancers. Please try again.",
+      () async {
+        final clampedLimit = limit.clamp(1, 50);
+        final response = await _client.rpc(
+          'get_nearby_freelancers',
+          params: {
+            'p_user_lat': latitude,
+            'p_user_lng': longitude,
+            'p_radius_km': radiusKm,
+            'p_freelancer_types': freelancerTypes,
+            'p_min_rating': minRating,
+            'p_sort_by': sortBy,
+            'p_page_limit': clampedLimit,
+            'p_page_offset': offset,
+          },
+        );
 
-      final List<dynamic> data = response as List<dynamic>;
-      return data.map((json) => NearbyFreelancerDTO.fromJson(json)).toList();
-    } catch (e) {
-      print('Error fetching nearby freelancers: $e');
-      return []; // Return empty instead of throwing
-    }
+        final List<dynamic> data = response as List<dynamic>;
+        return data
+            .map((json) => NearbyFreelancerDTO.fromJson(json))
+            .toList();
+      },
+    );
   }
 
-  @override
   Future<PaginatedResult<NearbyFreelancerDTO>> getTopRatedFreelancersPaginated({
     required double latitude,
     required double longitude,
@@ -865,31 +967,200 @@ class SupabaseFreelancerRepository {
     int offset = 0,
     List<String>? freelancerTypes,
     int limit = 20,
-  }) async {
-    try {
-      // If location is not set (0,0), fetch top rated freelancers without location filter
-      final hasValidLocation = latitude != 0 && longitude != 0;
+  }) {
+    return runRepoQuery(
+      opName: 'getTopRatedFreelancersPaginated',
+      userMessage: "Couldn't load top rated freelancers. Please try again.",
+      () async {
+        final clampedLimit = limit.clamp(1, 50);
+        final hasValidLocation = latitude != 0 && longitude != 0;
 
-      dynamic response;
+        dynamic response;
+        if (hasValidLocation) {
+          response = await _client.rpc(
+            'get_nearby_freelancers',
+            params: {
+              'p_user_lat': latitude,
+              'p_user_lng': longitude,
+              'p_radius_km': radiusKm,
+              'p_page_limit': clampedLimit,
+              'p_page_offset': offset,
+              'p_freelancer_types': freelancerTypes,
+              'p_min_rating': 4.5,
+              'p_sort_by': 'rating',
+            },
+          );
+        } else {
+          // No location: fetch top rated freelancers globally.
+          response = await _client
+              .from('workers')
+              .select('''
+              id,
+              name,
+              bio,
+              profile_image_url,
+              specialties,
+              is_freelancer,
+              freelancer_details:freelancer_details(
+                freelancer_type,
+                freelancer_types,
+                tools,
+                can_travel,
+                travel_radius_km,
+                rating,
+                total_reviews,
+                total_bookings,
+                total_revenue,
+                base_latitude,
+                base_longitude,
+                is_identity_verified,
+                is_background_checked
+              )
+            ''')
+              .eq('is_freelancer', true)
+              .eq('is_active', true)
+              .order('freelancer_details->>rating', ascending: false)
+              .range(offset, offset + clampedLimit - 1);
+        }
 
-      if (hasValidLocation) {
-        // Use location-based query
-        response = await _client.rpc(
+        final List<dynamic> data = response as List<dynamic>;
+        final freelancers = data.map((json) {
+          if (hasValidLocation) {
+            return NearbyFreelancerDTO.fromJson(json);
+          }
+          return NearbyFreelancerDTO.fromJson(
+            _convertWorkerToNearbyFormat(json),
+          );
+        }).toList();
+
+        final nextOffset =
+            freelancers.length == clampedLimit ? offset + clampedLimit : null;
+
+        return PaginatedResult(
+          items: freelancers,
+          nextOffset: nextOffset,
+          totalCount: 0,
+        );
+      },
+    );
+  }
+
+  Future<PaginatedResult<NearbyFreelancerDTO>> getNearbyFreelancersPaginated({
+    required double latitude,
+    required double longitude,
+    double radiusKm = 5,
+    int offset = 0,
+    List<String>? freelancerTypes,
+    int limit = 20,
+  }) {
+    // No location → empty result (not an error condition).
+    if (latitude == 0 || longitude == 0) {
+      return Future.value(
+        PaginatedResult(items: const [], nextOffset: null, totalCount: 0),
+      );
+    }
+
+    return runRepoQuery(
+      opName: 'getNearbyFreelancersPaginated',
+      userMessage: "Couldn't load nearby freelancers. Please try again.",
+      () async {
+        final clampedLimit = limit.clamp(1, 50);
+        final response = await _client.rpc(
           'get_nearby_freelancers',
           params: {
             'p_user_lat': latitude,
             'p_user_lng': longitude,
             'p_radius_km': radiusKm,
-            'p_page_limit': limit,
+            'p_page_limit': clampedLimit,
             'p_page_offset': offset,
             'p_freelancer_types': freelancerTypes,
-            'p_min_rating': 4.5,
-            'p_sort_by': 'rating',
+            'p_sort_by': 'distance',
           },
         );
-      } else {
-        // No location: fetch top rated freelancers globally
-        response = await _client
+
+        final List<dynamic> data = response as List<dynamic>;
+        final freelancers = data
+            .map((json) => NearbyFreelancerDTO.fromJson(json))
+            .toList();
+
+        final nextOffset =
+            freelancers.length == clampedLimit ? offset + clampedLimit : null;
+
+        return PaginatedResult(
+          items: freelancers,
+          nextOffset: nextOffset,
+          totalCount: 0,
+        );
+      },
+    );
+  }
+
+  Future<PaginatedResult<NearbyFreelancerDTO>> getAllFreelancers({
+    required double latitude,
+    required double longitude,
+    required bool hasLocation,
+    int limit = 20,
+    int offset = 0,
+    List<String>? freelancerTypes,
+  }) {
+    return runRepoQuery(
+      opName: 'getAllFreelancers',
+      userMessage: "Couldn't load freelancers. Please try again.",
+      () async {
+        final clampedLimit = limit.clamp(1, 50);
+        List<dynamic> data;
+
+        if (hasLocation && latitude != 0 && longitude != 0) {
+          data = await _client.rpc(
+            'get_nearby_freelancers',
+            params: {
+              'p_user_lat': latitude,
+              'p_user_lng': longitude,
+              'p_radius_km': 100,
+              'p_page_limit': clampedLimit,
+              'p_page_offset': offset,
+              'p_freelancer_types': freelancerTypes,
+              'p_sort_by': 'distance',
+            },
+          );
+        } else {
+          data = await _client.rpc(
+            'get_top_rated_freelancers',
+            params: {
+              'p_page_limit': clampedLimit,
+              'p_page_offset': offset,
+              'p_freelancer_types': freelancerTypes,
+            },
+          );
+        }
+
+        final freelancers =
+            data.map((json) => NearbyFreelancerDTO.fromJson(json)).toList();
+
+        final nextOffset =
+            freelancers.length == clampedLimit ? offset + clampedLimit : null;
+
+        return PaginatedResult(
+          items: freelancers,
+          nextOffset: nextOffset,
+          totalCount: 0,
+        );
+      },
+    );
+  }
+
+  /// Search freelancers by name using direct database query.
+  Future<PaginatedResult<NearbyFreelancerDTO>> searchFreelancersByName({
+    required String query,
+    int limit = 20,
+    int offset = 0,
+  }) {
+    return runRepoQuery(
+      opName: 'searchFreelancersByName',
+      userMessage: "Couldn't search freelancers. Please try again.",
+      () async {
+        final clampedLimit = limit.clamp(1, 50);
+        dynamic queryBuilder = _client
             .from('workers')
             .select('''
             id,
@@ -915,210 +1186,46 @@ class SupabaseFreelancerRepository {
             )
           ''')
             .eq('is_freelancer', true)
-            .eq('is_active', true)
-            .order('freelancer_details->>rating', ascending: false)
-            .range(offset, offset + limit - 1);
-      }
+            // Escape ilike wildcards so user input "%" / "_" matches literally.
+            .ilike('name', '%${_escapeLike(query)}%');
 
-      final List<dynamic> data = response as List<dynamic>;
-      final freelancers =
-          data.map((json) {
-            // If from RPC, json is already in correct format
-            // If from direct query, convert the nested structure
-            if (hasValidLocation) {
-              return NearbyFreelancerDTO.fromJson(json);
-            } else {
-              final flattenedJson = _convertWorkerToNearbyFormat(json);
-              return NearbyFreelancerDTO.fromJson(flattenedJson);
-            }
-          }).toList();
+        queryBuilder = queryBuilder.order('name', ascending: true);
 
-      final nextOffset = freelancers.length == limit ? offset + limit : null;
+        if (offset > 0) {
+          final endOffset = offset + clampedLimit - 1;
+          queryBuilder = queryBuilder.range(offset, endOffset);
+        }
 
-      return PaginatedResult(
-        items: freelancers,
-        nextOffset: nextOffset,
-        totalCount: 0,
-      );
-    } catch (e) {
-      print('Error fetching top rated freelancers: $e');
-      return PaginatedResult(items: [], nextOffset: null, totalCount: 0);
-    }
-  }
+        // Request one extra to detect whether more pages exist.
+        final response = await queryBuilder.limit(clampedLimit + 1);
+        final List<dynamic> data = response as List;
 
-  @override
-  Future<PaginatedResult<NearbyFreelancerDTO>> getNearbyFreelancersPaginated({
-    required double latitude,
-    required double longitude,
-    double radiusKm = 5,
-    int offset = 0,
-    List<String>? freelancerTypes,
-    int limit = 20,
-  }) async {
-    // Return empty if location not set
-    if (latitude == 0 || longitude == 0) {
-      return PaginatedResult(items: [], nextOffset: null, totalCount: 0);
-    }
+        final hasMore = data.length > clampedLimit;
+        final itemsToTake = hasMore ? clampedLimit : data.length;
+        final freelancersData = data.take(itemsToTake).toList();
 
-    try {
-      final response = await _client.rpc(
-        'get_nearby_freelancers',
-        params: {
-          'p_user_lat': latitude,
-          'p_user_lng': longitude,
-          'p_radius_km': radiusKm,
-          'p_page_limit': limit,
-          'p_page_offset': offset,
-          'p_freelancer_types': freelancerTypes,
-          'p_sort_by': 'distance',
-        },
-      );
+        final results = <NearbyFreelancerDTO>[
+          for (final json in freelancersData)
+            NearbyFreelancerDTO.fromJson(_convertWorkerToNearbyFormat(json)),
+        ];
 
-      final List<dynamic> data = response as List<dynamic>;
-      final freelancers =
-          data.map((json) => NearbyFreelancerDTO.fromJson(json)).toList();
+        final nextOffset = hasMore ? offset + clampedLimit : null;
 
-      final nextOffset = freelancers.length == limit ? offset + limit : null;
-
-      return PaginatedResult(
-        items: freelancers,
-        nextOffset: nextOffset,
-        totalCount: 0,
-      );
-    } catch (e) {
-      print('Error fetching nearby freelancers: $e');
-      return PaginatedResult(items: [], nextOffset: null, totalCount: 0);
-    }
-  }
-
-  @override
-  Future<PaginatedResult<NearbyFreelancerDTO>> getAllFreelancers({
-    required double latitude,
-    required double longitude,
-    required bool hasLocation,
-    int limit = 20,
-    int offset = 0,
-    List<String>? freelancerTypes,
-  }) async {
-    try {
-      List<dynamic> data;
-
-      if (hasLocation && latitude != 0 && longitude != 0) {
-        // With location: fetch nearest to farthest using RPC
-        data = await _client.rpc(
-          'get_nearby_freelancers',
-          params: {
-            'p_user_lat': latitude,
-            'p_user_lng': longitude,
-            'p_radius_km': 100,
-            'p_page_limit': limit,
-            'p_page_offset': offset,
-            'p_freelancer_types': freelancerTypes,
-            'p_sort_by': 'distance',
-          },
+        return PaginatedResult(
+          items: results,
+          nextOffset: nextOffset,
+          totalCount: 0,
         );
-      } else {
-        // ✅ Without location: use the new RPC function
-        data = await _client.rpc(
-          'get_top_rated_freelancers',
-          params: {
-            'p_page_limit': limit,
-            'p_page_offset': offset,
-            'p_freelancer_types': freelancerTypes,
-          },
-        );
-      }
-
-      // Convert the response to DTOs
-      final freelancers =
-          data.map((json) => NearbyFreelancerDTO.fromJson(json)).toList();
-
-      final nextOffset = freelancers.length == limit ? offset + limit : null;
-
-      return PaginatedResult(
-        items: freelancers,
-        nextOffset: nextOffset,
-        totalCount: 0,
-      );
-    } catch (e) {
-      print('Error in getAllFreelancers: $e');
-      return PaginatedResult(items: [], nextOffset: null, totalCount: 0);
-    }
+      },
+    );
   }
 
-  /// Search freelancers by name using direct database query
-  Future<PaginatedResult<NearbyFreelancerDTO>> searchFreelancersByName({
-    required String query,
-    int limit = 20,
-    int offset = 0,
-  }) async {
-    try {
-      // Use dynamic type to handle both FilterBuilder and TransformBuilder
-      dynamic queryBuilder = _client
-          .from('workers')
-          .select('''
-          id,
-          name,
-          bio,
-          profile_image_url,
-          specialties,
-          is_freelancer,
-          freelancer_details:freelancer_details(
-            freelancer_type,
-            freelancer_types,
-            tools,
-            can_travel,
-            travel_radius_km,
-            rating,
-            total_reviews,
-            total_bookings,
-            total_revenue,
-            base_latitude,
-            base_longitude,
-            is_identity_verified,
-            is_background_checked
-          )
-        ''')
-          .eq('is_freelancer', true)
-          .ilike('name', '%$query%');
-
-      // Apply order first
-      queryBuilder = queryBuilder.order('name', ascending: true);
-
-      // Apply offset pagination using range (after order)
-      if (offset > 0) {
-        final endOffset = offset + limit - 1;
-        queryBuilder = queryBuilder.range(offset, endOffset);
-      }
-
-      // Request one extra to check for more results
-      final response = await queryBuilder.limit(limit + 1);
-
-      final List<dynamic> data = response as List;
-
-      // Check if there are more results
-      final hasMore = data.length > limit;
-      final itemsToTake = hasMore ? limit : data.length;
-      final freelancersData = data.take(itemsToTake).toList();
-
-      final results = <NearbyFreelancerDTO>[];
-
-      for (final json in freelancersData) {
-        final flattenedJson = _convertWorkerToNearbyFormat(json);
-        results.add(NearbyFreelancerDTO.fromJson(flattenedJson));
-      }
-
-      final nextOffset = hasMore ? offset + limit : null;
-
-      return PaginatedResult(
-        items: results,
-        nextOffset: nextOffset,
-        totalCount: 0,
-      );
-    } catch (e) {
-      print('Error searching freelancers by name: $e');
-      return PaginatedResult(items: [], nextOffset: null, totalCount: 0);
-    }
+  /// Escapes `%`, `_`, `\` so user-typed wildcards match literally in ilike.
+  static String _escapeLike(String input) {
+    return input
+        .replaceAll('\\', '\\\\')
+        .replaceAll('%', '\\%')
+        .replaceAll('_', '\\_');
   }
 
   /// Convert worker table JSON to NearbyFreelancerDTO format

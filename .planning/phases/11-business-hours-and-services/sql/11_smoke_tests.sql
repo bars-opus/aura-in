@@ -12,11 +12,13 @@
 BEGIN;
 
 -- ─── placeholders ──────────────────────────────────────────────────
-\set owner_uid '''00000000-0000-0000-0000-000000000001'''
-\set other_uid '''00000000-0000-0000-0000-000000000002'''
-\set shop_a    '''00000000-0000-0000-0000-000000000010'''
-\set slot_a    '''00000000-0000-0000-0000-000000000030'''
-\set test_user '''00000000-0000-0000-0000-000000000020'''
+-- All UUIDs below are inlined as literals (psql \set is not supported
+-- in the Supabase SQL Editor). For reference, the fixture identities:
+--   owner_uid = 00000000-0000-0000-0000-000000000001
+--   other_uid = 00000000-0000-0000-0000-000000000002
+--   shop_a    = 00000000-0000-0000-0000-000000000010
+--   slot_a    = 00000000-0000-0000-0000-000000000030
+--   test_user = 00000000-0000-0000-0000-000000000020
 
 -- ─── A. rebuild_shop_opening_hours authz ──────────────────────────
 SAVEPOINT a_authz;
