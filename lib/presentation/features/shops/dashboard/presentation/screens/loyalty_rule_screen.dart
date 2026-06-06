@@ -12,6 +12,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/widgets/feedback/snackbar_widget.dart';
+import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/promotion_exceptions.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/loyalty_rule_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/promotion_model.dart';
@@ -71,7 +72,7 @@ class _LoyaltyRuleScreenState extends ConsumerState<LoyaltyRuleScreen> {
       );
       ref.invalidate(loyaltyRuleProvider(widget.shopId));
       if (!mounted) return;
-      Snackbar.success(context, 'Loyalty rule saved');
+      Snackbar.success(context, AppLocalizations.of(context)!.loyaltySavedSnackbar);
       setState(() => _saving = false);
     } on PromotionException catch (e) {
       if (!mounted) return;
@@ -98,10 +99,11 @@ class _LoyaltyRuleScreenState extends ConsumerState<LoyaltyRuleScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     final ruleAsync = ref.watch(loyaltyRuleProvider(widget.shopId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Loyalty rule')),
+      appBar: AppBar(title: Text(loc.loyaltyTitle)),
       body: ruleAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Padding(
@@ -109,13 +111,12 @@ class _LoyaltyRuleScreenState extends ConsumerState<LoyaltyRuleScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("We couldn't load the loyalty rule.",
-                  style: theme.textTheme.bodyMedium),
+              Text(loc.loyaltyLoadFailed, style: theme.textTheme.bodyMedium),
               const SizedBox(height: 12),
               TextButton(
                 onPressed: () =>
                     ref.invalidate(loyaltyRuleProvider(widget.shopId)),
-                child: const Text('Retry'),
+                child: Text(loc.loyaltyRetry),
               ),
             ],
           ),
@@ -127,12 +128,11 @@ class _LoyaltyRuleScreenState extends ConsumerState<LoyaltyRuleScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Reward every Nth completed booking',
+                Text(loc.loyaltyRewardHeader,
                     style: theme.textTheme.titleMedium),
                 const SizedBox(height: 4),
                 Text(
-                  'Clients never see their progress. The discount auto-applies '
-                  'on the qualifying booking as a surprise reward.',
+                  loc.loyaltyRewardSubheader,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -140,7 +140,8 @@ class _LoyaltyRuleScreenState extends ConsumerState<LoyaltyRuleScreen> {
                 const SizedBox(height: 24),
 
                 // ── Trigger visit count ────────────────────────────
-                Text('Trigger every', style: theme.textTheme.titleSmall),
+                Text(loc.loyaltyTriggerSectionTitle,
+                    style: theme.textTheme.titleSmall),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -165,24 +166,25 @@ class _LoyaltyRuleScreenState extends ConsumerState<LoyaltyRuleScreen> {
                           : null,
                     ),
                     const SizedBox(width: 8),
-                    Text('completed bookings',
+                    Text(loc.loyaltyTriggerCompletedBookings,
                         style: theme.textTheme.bodyMedium),
                   ],
                 ),
                 const SizedBox(height: 24),
 
                 // ── Discount type ──────────────────────────────────
-                Text('Discount type', style: theme.textTheme.titleSmall),
+                Text(loc.loyaltyDiscountTypeTitle,
+                    style: theme.textTheme.titleSmall),
                 const SizedBox(height: 8),
                 SegmentedButton<DiscountType>(
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: DiscountType.percentage,
-                      label: Text('Percent'),
+                      label: Text(loc.loyaltyDiscountTypePercent),
                     ),
                     ButtonSegment(
                       value: DiscountType.fixed,
-                      label: Text('Fixed amount'),
+                      label: Text(loc.loyaltyDiscountTypeFixed),
                     ),
                   ],
                   selected: {_discountType},
@@ -194,8 +196,8 @@ class _LoyaltyRuleScreenState extends ConsumerState<LoyaltyRuleScreen> {
                 // ── Discount value ─────────────────────────────────
                 Text(
                   _discountType == DiscountType.percentage
-                      ? 'Percent off'
-                      : 'Amount off',
+                      ? loc.loyaltyPercentOff
+                      : loc.loyaltyAmountOff,
                   style: theme.textTheme.titleSmall,
                 ),
                 const SizedBox(height: 8),
@@ -220,9 +222,8 @@ class _LoyaltyRuleScreenState extends ConsumerState<LoyaltyRuleScreen> {
                 // ── Active toggle ──────────────────────────────────
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Active'),
-                  subtitle: const Text(
-                      'When off, no loyalty codes are generated for this shop.'),
+                  title: Text(loc.loyaltyActiveTitle),
+                  subtitle: Text(loc.loyaltyActiveSubtitle),
                   value: _isActive,
                   onChanged: (v) => setState(() => _isActive = v),
                 ),
@@ -242,7 +243,7 @@ class _LoyaltyRuleScreenState extends ConsumerState<LoyaltyRuleScreen> {
                       ),
                     FilledButton(
                       onPressed: (_isDirty && !_saving) ? _save : null,
-                      child: const Text('Save'),
+                      child: Text(loc.loyaltySave),
                     ),
                   ],
                 ),

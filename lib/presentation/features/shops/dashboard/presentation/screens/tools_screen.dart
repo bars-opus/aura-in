@@ -196,11 +196,9 @@ class ToolsScreen extends ConsumerWidget {
                     case 6:
                       // Phase 13: Loyalty rule editor — per-shop config
                       // for the silent visit-count loyalty engine.
-                      // Strings hardcoded; localization keys can land
-                      // in a Phase 13 follow-up.
                       return KpiCard(
-                        title: 'Configure',
-                        value: 'Loyalty rule',
+                        title: loc.toolsConfigure,
+                        value: loc.toolsLoyaltyRule,
                         icon: Icons.card_giftcard,
                         iconColor: colorScheme.primary,
                         onTap: () => Navigator.push(

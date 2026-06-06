@@ -3252,6 +3252,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Monthly'**
   String get scheduleTabMonthly;
+
+  /// Tools tab card label for the loyalty rule editor (Phase 13).
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty rule'**
+  String get toolsLoyaltyRule;
+
+  /// No description provided for @loyaltyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty rule'**
+  String get loyaltyTitle;
+
+  /// No description provided for @loyaltyRewardHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward every Nth completed booking'**
+  String get loyaltyRewardHeader;
+
+  /// No description provided for @loyaltyRewardSubheader.
+  ///
+  /// In en, this message translates to:
+  /// **'Clients never see their progress. The discount auto-applies on the qualifying booking as a surprise reward.'**
+  String get loyaltyRewardSubheader;
+
+  /// No description provided for @loyaltyTriggerSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger every'**
+  String get loyaltyTriggerSectionTitle;
+
+  /// No description provided for @loyaltyTriggerCompletedBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'completed bookings'**
+  String get loyaltyTriggerCompletedBookings;
+
+  /// No description provided for @loyaltyDiscountTypeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount type'**
+  String get loyaltyDiscountTypeTitle;
+
+  /// No description provided for @loyaltyDiscountTypePercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent'**
+  String get loyaltyDiscountTypePercent;
+
+  /// No description provided for @loyaltyDiscountTypeFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed amount'**
+  String get loyaltyDiscountTypeFixed;
+
+  /// No description provided for @loyaltyPercentOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent off'**
+  String get loyaltyPercentOff;
+
+  /// No description provided for @loyaltyAmountOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount off'**
+  String get loyaltyAmountOff;
+
+  /// No description provided for @loyaltyActiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get loyaltyActiveTitle;
+
+  /// No description provided for @loyaltyActiveSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When off, no loyalty codes are generated for this shop.'**
+  String get loyaltyActiveSubtitle;
+
+  /// No description provided for @loyaltyLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load the loyalty rule.'**
+  String get loyaltyLoadFailed;
+
+  /// No description provided for @loyaltyRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get loyaltyRetry;
+
+  /// No description provided for @loyaltySave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get loyaltySave;
+
+  /// No description provided for @loyaltySavedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty rule saved'**
+  String get loyaltySavedSnackbar;
+
+  /// No description provided for @promoFieldPerClientMaxLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Per-client redemption limit'**
+  String get promoFieldPerClientMaxLabel;
+
+  /// No description provided for @promoFieldPerClientMaxHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Times one client can use this code'**
+  String get promoFieldPerClientMaxHint;
+
+  /// No description provided for @promoFieldMinAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum booking amount (Optional)'**
+  String get promoFieldMinAmountLabel;
+
+  /// No description provided for @promoFieldMinAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Code only applies above this total'**
+  String get promoFieldMinAmountHint;
+
+  /// No description provided for @promoFieldServiceRestrictionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restrict to services (Optional)'**
+  String get promoFieldServiceRestrictionTitle;
+
+  /// No description provided for @promoFieldServiceRestrictionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to apply to any service. Pick one or more to restrict the discount to bookings that include them.'**
+  String get promoFieldServiceRestrictionSubtitle;
+
+  /// No description provided for @promoFieldServiceRestrictionLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load your services.'**
+  String get promoFieldServiceRestrictionLoadFailed;
+
+  /// No description provided for @promoFieldServiceRestrictionEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No services to restrict against yet.'**
+  String get promoFieldServiceRestrictionEmpty;
+
+  /// No description provided for @promoFieldArchivedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get promoFieldArchivedTitle;
+
+  /// No description provided for @promoFieldArchivedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived promotions are hidden from clients and frees up the code text for re-use.'**
+  String get promoFieldArchivedSubtitle;
+
+  /// No description provided for @promoValidationPerClientMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be at least 1'**
+  String get promoValidationPerClientMin;
+
+  /// No description provided for @promoValidationMinAmountNonNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be 0 or higher'**
+  String get promoValidationMinAmountNonNegative;
+
+  /// No description provided for @promoListShowSystemCodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Show system codes'**
+  String get promoListShowSystemCodes;
+
+  /// No description provided for @promoListHideSystemCodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide system codes'**
+  String get promoListHideSystemCodes;
+
+  /// No description provided for @promoSourceOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get promoSourceOwner;
+
+  /// No description provided for @promoSourceLoyalty.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty'**
+  String get promoSourceLoyalty;
+
+  /// No description provided for @promoSourceRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery'**
+  String get promoSourceRecovery;
+
+  /// No description provided for @promoSourceAutoGeneratedReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'auto-generated · read-only'**
+  String get promoSourceAutoGeneratedReadOnly;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

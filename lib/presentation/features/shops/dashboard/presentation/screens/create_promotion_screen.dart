@@ -5,8 +5,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
+import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/promotion_model.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dashboard_providers.dart';
+import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
 
 
 class CreatePromotionScreen extends ConsumerStatefulWidget {
@@ -35,11 +37,17 @@ class _CreatePromotionScreenState extends ConsumerState<CreatePromotionScreen> {
   late bool _isActive;
   bool _isLoading = false;
 
+  // ── Phase 13.1 — owner-facing fields wired through to the server ──
+  late TextEditingController _perClientMaxController;
+  late TextEditingController _minBookingAmountController;
+  Set<String> _serviceRestriction = {};
+  late bool _archived; // edit mode only
+
   @override
   void initState() {
     super.initState();
     final promotion = widget.promotion;
-    
+
     _nameController = TextEditingController(text: promotion?.name);
     _codeController = TextEditingController(text: promotion?.code);
     _discountType = promotion?.discountType ?? DiscountType.percentage;
@@ -52,6 +60,16 @@ class _CreatePromotionScreenState extends ConsumerState<CreatePromotionScreen> {
       text: promotion?.usageLimit?.toString(),
     );
     _isActive = promotion?.isActive ?? true;
+
+    // Phase 13.1 seeds.
+    _perClientMaxController =
+        TextEditingController(text: (promotion?.perClientMax ?? 1).toString());
+    _minBookingAmountController = TextEditingController(
+      text: promotion?.minBookingAmount?.toStringAsFixed(2) ?? '',
+    );
+    _serviceRestriction = (promotion?.serviceRestriction ?? const [])
+        .toSet();
+    _archived = promotion?.archivedAt != null;
   }
 
   @override
@@ -60,6 +78,8 @@ class _CreatePromotionScreenState extends ConsumerState<CreatePromotionScreen> {
     _codeController.dispose();
     _discountValueController.dispose();
     _usageLimitController.dispose();
+    _perClientMaxController.dispose();
+    _minBookingAmountController.dispose();
     super.dispose();
   }
 
@@ -67,6 +87,24 @@ class _CreatePromotionScreenState extends ConsumerState<CreatePromotionScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
+
+    // Phase 13.1: parse the new fields. Empty min_booking_amount = no
+    // floor (null). Empty per_client_max defaults to 1 (server CHECK
+    // mirrors this). service_restriction = null when the owner picked
+    // nothing (= any service).
+    final perClientMax = int.tryParse(_perClientMaxController.text.trim());
+    final minAmount = _minBookingAmountController.text.trim().isEmpty
+        ? null
+        : double.tryParse(_minBookingAmountController.text.trim());
+    final restriction = _serviceRestriction.isEmpty
+        ? null
+        : _serviceRestriction.toList();
+
+    // archived_at toggle. Edit-mode only — the server CHECK accepts
+    // null / non-null; we just flip between current value and now().
+    final archivedAt = !_archived
+        ? null
+        : (widget.promotion?.archivedAt ?? DateTime.now());
 
     final promotion = Promotion(
       id: widget.promotion?.id ?? '',
@@ -83,6 +121,14 @@ class _CreatePromotionScreenState extends ConsumerState<CreatePromotionScreen> {
       isActive: _isActive,
       createdAt: widget.promotion?.createdAt ?? DateTime.now(),
       updatedAt: DateTime.now(),
+      // Phase 13.1 additions.
+      source: widget.promotion?.source ?? PromoSource.ownerDefined,
+      targetUserId: widget.promotion?.targetUserId,
+      targetGuestProfileId: widget.promotion?.targetGuestProfileId,
+      perClientMax: perClientMax ?? 1,
+      minBookingAmount: minAmount,
+      serviceRestriction: restriction,
+      archivedAt: archivedAt,
     );
 
     try {
@@ -138,6 +184,7 @@ class _CreatePromotionScreenState extends ConsumerState<CreatePromotionScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.background,
@@ -307,6 +354,57 @@ class _CreatePromotionScreenState extends ConsumerState<CreatePromotionScreen> {
                     ),
                     Gap(Spacing.md.h),
 
+                    // ── Phase 13.1: per-client max ───────────────────
+                    TextFormField(
+                      controller: _perClientMaxController,
+                      decoration: InputDecoration(
+                        labelText: loc.promoFieldPerClientMaxLabel,
+                        hintText: loc.promoFieldPerClientMaxHint,
+                        prefixIcon: const Icon(Icons.person),
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return null;
+                        final n = int.tryParse(value);
+                        if (n == null || n < 1) {
+                          return loc.promoValidationPerClientMin;
+                        }
+                        return null;
+                      },
+                    ),
+                    Gap(Spacing.md.h),
+
+                    // ── Phase 13.1: minimum booking amount ───────────
+                    TextFormField(
+                      controller: _minBookingAmountController,
+                      decoration: InputDecoration(
+                        labelText: loc.promoFieldMinAmountLabel,
+                        hintText: loc.promoFieldMinAmountHint,
+                        prefixIcon: const Icon(Icons.payments_outlined),
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return null;
+                        final n = double.tryParse(value);
+                        if (n == null || n < 0) {
+                          return loc.promoValidationMinAmountNonNegative;
+                        }
+                        return null;
+                      },
+                    ),
+                    Gap(Spacing.md.h),
+
+                    // ── Phase 13.1: service restriction picker ────────
+                    _ServiceRestrictionPicker(
+                      shopId: widget.shopId,
+                      selected: _serviceRestriction,
+                      onChanged: (next) => setState(() {
+                        _serviceRestriction = next;
+                      }),
+                    ),
+                    Gap(Spacing.md.h),
+
                     // Active Toggle
                     SwitchListTile(
                       title: const Text('Active'),
@@ -317,6 +415,18 @@ class _CreatePromotionScreenState extends ConsumerState<CreatePromotionScreen> {
                       },
                       contentPadding: EdgeInsets.zero,
                     ),
+
+                    // ── Phase 13.1: archive toggle (edit mode only) ──
+                    if (widget.promotion != null)
+                      SwitchListTile(
+                        title: Text(loc.promoFieldArchivedTitle),
+                        subtitle: Text(loc.promoFieldArchivedSubtitle),
+                        value: _archived,
+                        onChanged: (value) {
+                          setState(() => _archived = value);
+                        },
+                        contentPadding: EdgeInsets.zero,
+                      ),
                     Gap(Spacing.lg.h),
 
                     // Save Button
@@ -338,5 +448,110 @@ class _CreatePromotionScreenState extends ConsumerState<CreatePromotionScreen> {
 
   String _formatDate(DateTime date) {
     return '${date.month}/${date.day}/${date.year}';
+  }
+}
+
+/// Phase 13.1 — multi-select for the shop's active services. Null
+/// (empty set on submit) = no restriction (any service eligible).
+///
+/// Loads the shop's services lazily via dashboardRepositoryProvider's
+/// `getActiveServices`. Failure to load degrades to an info card —
+/// owners can still save the promotion with no restriction.
+class _ServiceRestrictionPicker extends ConsumerStatefulWidget {
+  final String shopId;
+  final Set<String> selected;
+  final ValueChanged<Set<String>> onChanged;
+
+  const _ServiceRestrictionPicker({
+    required this.shopId,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  @override
+  ConsumerState<_ServiceRestrictionPicker> createState() =>
+      _ServiceRestrictionPickerState();
+}
+
+class _ServiceRestrictionPickerState
+    extends ConsumerState<_ServiceRestrictionPicker> {
+  late Future<List<AppointmentSlotDTO>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    final repo = ref.read(dashboardRepositoryProvider);
+    _future = repo.getActiveServices(widget.shopId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.filter_list, size: 20),
+            const SizedBox(width: 12),
+            Text(loc.promoFieldServiceRestrictionTitle,
+                style: theme.textTheme.titleSmall),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          loc.promoFieldServiceRestrictionSubtitle,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 8),
+        FutureBuilder<List<AppointmentSlotDTO>>(
+          future: _future,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: LinearProgressIndicator(),
+              );
+            }
+            if (snapshot.hasError ||
+                snapshot.data == null ||
+                snapshot.data!.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  snapshot.hasError
+                      ? loc.promoFieldServiceRestrictionLoadFailed
+                      : loc.promoFieldServiceRestrictionEmpty,
+                  style: theme.textTheme.bodySmall,
+                ),
+              );
+            }
+            return Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: snapshot.data!.map((slot) {
+                final isSelected = widget.selected.contains(slot.id);
+                return FilterChip(
+                  label: Text(slot.serviceName),
+                  selected: isSelected,
+                  onSelected: (value) {
+                    final next = Set<String>.from(widget.selected);
+                    if (value) {
+                      next.add(slot.id);
+                    } else {
+                      next.remove(slot.id);
+                    }
+                    widget.onChanged(next);
+                  },
+                );
+              }).toList(),
+            );
+          },
+        ),
+      ],
+    );
   }
 }
