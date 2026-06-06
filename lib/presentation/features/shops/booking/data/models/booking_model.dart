@@ -35,6 +35,11 @@ class BookingModel extends Equatable {
   final String id;
   final String userId;
   final String shopId;
+
+  /// Guest-booking identity. Mutually exclusive with [userId] at the
+  /// server (bookings_one_of_user_or_guest_chk). When non-null, the
+  /// booking is a guest booking and [userId] will be empty.
+  final String? guestProfileId;
   final DateTime bookingDate;
   final DateTime startTime;
   final DateTime endTime;
@@ -69,6 +74,7 @@ class BookingModel extends Equatable {
     required this.id,
     required this.userId,
     required this.shopId,
+    this.guestProfileId,
     required this.bookingDate,
     required this.startTime,
     required this.endTime,
@@ -127,6 +133,7 @@ class BookingModel extends Equatable {
       id: json['id'] as String? ?? '',
       userId: json['user_id'] as String? ?? '',
       shopId: json['shop_id'] as String? ?? '',
+      guestProfileId: json['guest_profile_id'] as String?,
 
       bookingDate:
           json['booking_date'] != null
@@ -211,6 +218,7 @@ class BookingModel extends Equatable {
       'id': id,
       'user_id': userId,
       'shop_id': shopId,
+      'guest_profile_id': guestProfileId,
       'booking_date': bookingDate.toIso8601String(),
       'start_time': startTime.toIso8601String(),
       'end_time': endTime.toIso8601String(),
@@ -240,6 +248,7 @@ class BookingModel extends Equatable {
     String? id,
     String? userId,
     String? shopId,
+    String? guestProfileId,
     DateTime? bookingDate,
     DateTime? startTime,
     DateTime? endTime,
@@ -268,6 +277,7 @@ class BookingModel extends Equatable {
       id: id ?? this.id,
       userId: userId ?? this.userId,
       shopId: shopId ?? this.shopId,
+      guestProfileId: guestProfileId ?? this.guestProfileId,
       bookingDate: bookingDate ?? this.bookingDate,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
@@ -313,6 +323,7 @@ class BookingModel extends Equatable {
     id,
     userId,
     shopId,
+    guestProfileId,
     bookingDate,
     startTime,
     endTime,

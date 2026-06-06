@@ -9,11 +9,11 @@
 // differs from the last server-loaded body. After save success the
 // snapshot updates and the button re-disables.
 //
-// Phase 12 limitation: BookingModel does not currently expose
-// guestProfileId. This widget renders for registered-user bookings
-// only (booking.userId is non-empty). Guest-booking sticky notes are
-// out of scope for v1 — adding them requires extending the booking
-// DTO to surface guest_profile_id.
+// Identity resolution: registered bookings have a non-empty
+// booking.userId; guest bookings have booking.guestProfileId. The
+// server's CHECK constraint guarantees exactly one is set. If both
+// are absent (a malformed booking shape), the widget renders nothing
+// rather than crash.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,24 +48,35 @@ class _ClientStickyNoteCardState extends ConsumerState<ClientStickyNoteCard> {
     super.dispose();
   }
 
-  ClientNoteKey get _key => ClientNoteKey(
-        shopId: widget.booking.shopId,
-        userId: widget.booking.userId,
-      );
+  /// Returns null when the booking has neither a registered nor a
+  /// guest identity (malformed shape — render nothing).
+  ClientNoteKey? get _key {
+    final userId = widget.booking.userId.isEmpty ? null : widget.booking.userId;
+    final guestId = widget.booking.guestProfileId;
+    if (userId == null && guestId == null) return null;
+    return ClientNoteKey(
+      shopId: widget.booking.shopId,
+      userId: userId,
+      guestProfileId: guestId,
+    );
+  }
 
   Future<void> _save() async {
     if (_saving) return;
+    final key = _key;
+    if (key == null) return;
     setState(() => _saving = true);
     try {
       final repo = ref.read(dashboardRepositoryProvider);
       final newBody = _controller.text;
       await repo.upsertClientNote(
         shopId: widget.booking.shopId,
-        userId: widget.booking.userId,
+        userId: key.userId,
+        guestProfileId: key.guestProfileId,
         body: newBody,
       );
       _initialBody = newBody;
-      ref.invalidate(clientNoteProvider(_key));
+      ref.invalidate(clientNoteProvider(key));
       if (!mounted) return;
       Snackbar.success(context, 'Note saved');
       setState(() => _saving = false);
@@ -82,13 +93,14 @@ class _ClientStickyNoteCardState extends ConsumerState<ClientStickyNoteCard> {
 
   @override
   Widget build(BuildContext context) {
-    // Skip rendering entirely for guest bookings — the BookingModel does
-    // not surface guestProfileId in this version. Guest sticky notes
-    // are a future-phase extension.
-    if (widget.booking.userId.isEmpty) return const SizedBox.shrink();
+    final key = _key;
+    // Malformed booking with neither identity — render nothing rather
+    // than crash. Defence in depth; the server CHECK guarantees one
+    // identity per booking.
+    if (key == null) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
-    final noteAsync = ref.watch(clientNoteProvider(_key));
+    final noteAsync = ref.watch(clientNoteProvider(key));
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -142,7 +154,7 @@ class _ClientStickyNoteCardState extends ConsumerState<ClientStickyNoteCard> {
                     const SizedBox(height: 8),
                     TextButton(
                       onPressed: () =>
-                          ref.invalidate(clientNoteProvider(_key)),
+                          ref.invalidate(clientNoteProvider(key)),
                       child: const Text('Retry'),
                     ),
                   ],

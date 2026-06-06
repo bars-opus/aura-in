@@ -40,6 +40,7 @@ class _MockDashboardRepository extends Mock implements DashboardRepository {}
 
 BookingModel _fixtureBooking({
   String userId = 'user-a',
+  String? guestProfileId,
   String shopId = 'shop-a',
 }) {
   final now = DateTime(2026, 6, 6, 12, 0);
@@ -47,6 +48,7 @@ BookingModel _fixtureBooking({
     id: 'booking-a',
     userId: userId,
     shopId: shopId,
+    guestProfileId: guestProfileId,
     bookingDate: now,
     startTime: now,
     endTime: now.add(const Duration(hours: 1)),
@@ -229,22 +231,75 @@ void main() {
     expect(textField.controller!.text.length, 2000);
   });
 
-  testWidgets('(g) guest booking (empty userId) renders nothing',
-      (tester) async {
-    final repo = _MockDashboardRepository();
-    // No stubs needed — getClientNote should never be called.
+  testWidgets(
+    '(g) guest booking (userId empty, guestProfileId set) calls repo with guest key',
+    (tester) async {
+      final repo = _MockDashboardRepository();
+      when(() => repo.getClientNote(
+            shopId: any(named: 'shopId'),
+            userId: any(named: 'userId'),
+            guestProfileId: any(named: 'guestProfileId'),
+          )).thenAnswer((_) async => null);
+      when(() => repo.upsertClientNote(
+            shopId: any(named: 'shopId'),
+            userId: any(named: 'userId'),
+            guestProfileId: any(named: 'guestProfileId'),
+            body: any(named: 'body'),
+          )).thenAnswer((_) async => 'note-a');
 
-    await tester.pumpWidget(
-      _harness(repo, booking: _fixtureBooking(userId: '')),
-    );
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        _harness(
+          repo,
+          booking: _fixtureBooking(userId: '', guestProfileId: 'guest-a'),
+        ),
+      );
+      await tester.pumpAndSettle();
 
-    expect(find.byType(TextField), findsNothing);
-    expect(find.text('Private note about this client'), findsNothing);
-    verifyNever(() => repo.getClientNote(
-          shopId: any(named: 'shopId'),
-          userId: any(named: 'userId'),
-          guestProfileId: any(named: 'guestProfileId'),
-        ));
-  });
+      // Card renders for guests.
+      expect(find.byType(TextField), findsOneWidget);
+      expect(find.text('Private note about this client'), findsOneWidget);
+
+      // The fetch went through with guest_profile_id, not user_id.
+      verify(() => repo.getClientNote(
+            shopId: 'shop-a',
+            userId: null,
+            guestProfileId: 'guest-a',
+          )).called(1);
+
+      // Save also propagates the guest key.
+      await tester.enterText(find.byType(TextField), 'guest note');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      verify(() => repo.upsertClientNote(
+            shopId: 'shop-a',
+            userId: null,
+            guestProfileId: 'guest-a',
+            body: 'guest note',
+          )).called(1);
+    },
+  );
+
+  testWidgets(
+    '(h) malformed booking (no identity) renders nothing',
+    (tester) async {
+      final repo = _MockDashboardRepository();
+      // No stubs — neither getClientNote nor upsertClientNote should
+      // ever be called for a booking with no identity.
+
+      await tester.pumpWidget(
+        _harness(repo, booking: _fixtureBooking(userId: '')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TextField), findsNothing);
+      expect(find.text('Private note about this client'), findsNothing);
+      verifyNever(() => repo.getClientNote(
+            shopId: any(named: 'shopId'),
+            userId: any(named: 'userId'),
+            guestProfileId: any(named: 'guestProfileId'),
+          ));
+    },
+  );
 }
