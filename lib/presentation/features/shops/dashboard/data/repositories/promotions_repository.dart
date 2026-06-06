@@ -15,8 +15,28 @@
 
 import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/promotion_exceptions.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/loyalty_rule_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/promotion_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+/// Phase 13 — server-authoritative result of validate_and_apply_promo.
+/// Returned by [PromotionsRepository.validateAndApplyPromo]. Client
+/// treats `amountOff` and `newTotal` as opaque (no client-side math).
+class PromoValidation {
+  final String promotionId;
+  final String code;
+  final double amountOff;
+  final double newTotal;
+  final PromoSource source;
+
+  const PromoValidation({
+    required this.promotionId,
+    required this.code,
+    required this.amountOff,
+    required this.newTotal,
+    required this.source,
+  });
+}
 
 class PromotionsRepository {
   final SupabaseClient _supabase;
@@ -191,6 +211,180 @@ class PromotionsRepository {
       };
     }
   }
+
+  // ── Phase 13 — checkout + loyalty surface ────────────────────────
+
+  /// Checkout hot path. Read-only — does NOT insert a redemption row.
+  /// Branches on [code]:
+  ///   * null/empty → auto-apply highest-discount silent code for
+  ///     (shopId, caller). Returns null when no silent code matches.
+  ///   * non-empty → manual entry with full eligibility chain.
+  ///
+  /// Raises typed PromotionException subtypes for each HINT code the
+  /// RPC raises. Never branches on string-matching.
+  Future<PromoValidation?> validateAndApplyPromo({
+    required String shopId,
+    String? code,
+    String? userId,
+    String? guestProfileId,
+    required double bookingTotal,
+    List<String>? serviceIds,
+  }) async {
+    assert(
+      (userId == null) != (guestProfileId == null),
+      'Exactly one of userId / guestProfileId must be non-null',
+    );
+    try {
+      final result = await _supabase.rpc(
+        'validate_and_apply_promo',
+        params: {
+          'p_shop_id': shopId,
+          'p_code': code,
+          'p_user_id': userId,
+          'p_guest_profile_id': guestProfileId,
+          'p_booking_total': bookingTotal,
+          'p_service_ids': serviceIds,
+        },
+      );
+      // RETURNS TABLE → arrives as a List<Map>. Empty when auto-apply
+      // path found no silent code; non-empty otherwise.
+      final rows = (result as List?) ?? const [];
+      if (rows.isEmpty) {
+        // Auto-apply path returning empty is the documented "no silent
+        // code matches" sentinel. Manual-entry path raises instead, so
+        // this branch only fires for code == null/empty.
+        return null;
+      }
+      final row = rows.first as Map<String, dynamic>;
+      return PromoValidation(
+        promotionId: row['promotion_id'] as String,
+        code: row['code'] as String,
+        amountOff: (row['amount_off'] as num).toDouble(),
+        newTotal: (row['new_total'] as num).toDouble(),
+        source: PromoSource.fromString(row['source'] as String),
+      );
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'promotion.validate_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw _classifyValidateError(e);
+    } catch (e) {
+      AppLogger.warn(
+        'promotion.validate_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw PromotionException('validate_and_apply_promo unexpected: $e',
+          code: 'PROMO_GENERIC');
+    }
+  }
+
+  PromotionException _classifyValidateError(PostgrestException e) {
+    final hint = e.hint ?? '';
+    // 42501 is the not-found / wrong-shop path.
+    if (e.code == '42501') {
+      return PromotionNotFoundException(hint);
+    }
+    // 22023 with HINT routes to specific Phase 13 subtypes.
+    if (e.code == '22023') {
+      switch (hint) {
+        case 'CODE_EXPIRED':
+          return PromoExpiredException();
+        case 'CODE_LIMIT_REACHED':
+          return PromotionLimitReachedException();
+        case 'CODE_PER_CLIENT_MAX':
+          return PromoPerClientMaxException();
+        case 'CODE_MIN_AMOUNT_NOT_MET':
+          return PromoMinAmountNotMetException();
+        case 'CODE_SERVICE_NOT_ELIGIBLE':
+          return PromoServiceNotEligibleException();
+        case 'CODE_WRONG_CLIENT':
+          return PromoWrongClientException();
+        default:
+          return InvalidDiscountAmountException();
+      }
+    }
+    return PromotionException('validate_and_apply_promo: ${e.code} ${e.message}',
+        code: 'PROMO_VALIDATE_FAILED');
+  }
+
+  /// Loads the shop's ACTIVE loyalty rule. Returns null when no rule
+  /// is configured (the trigger is then a no-op).
+  Future<LoyaltyRuleDTO?> getLoyaltyRule({required String shopId}) async {
+    try {
+      final row = await _supabase
+          .from('loyalty_rules')
+          .select('*')
+          .eq('shop_id', shopId)
+          .eq('is_active', true)
+          .maybeSingle();
+      if (row == null) return null;
+      return LoyaltyRuleDTO.fromJson(row);
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'loyalty_rule.fetch_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      // Read-side failures degrade to "no rule" rather than crashing
+      // the screen — same shape as the existing getPromotionStats
+      // fallback.
+      throw LoyaltyRuleSaveFailedException();
+    }
+  }
+
+  /// Upserts the shop's loyalty rule. Server deactivates any existing
+  /// active rule and inserts the new one atomically. Returns the new
+  /// rule id (or null when [isActive] was false, which only deactivates
+  /// without inserting).
+  Future<String?> upsertLoyaltyRule({
+    required String shopId,
+    required int triggerVisitCount,
+    required DiscountType discountType,
+    required double discountValue,
+    bool isActive = true,
+  }) async {
+    try {
+      final result = await _supabase.rpc(
+        'upsert_loyalty_rule',
+        params: {
+          'p_shop_id': shopId,
+          'p_trigger_visit_count': triggerVisitCount,
+          'p_discount_type': discountType.value,
+          'p_discount_value': discountValue,
+          'p_is_active': isActive,
+        },
+      );
+      return result as String?;
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'loyalty_rule.upsert_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      if (e.code == '42501') {
+        throw PromotionNotFoundException(shopId);
+      }
+      final hint = e.hint ?? '';
+      // Payload-validation hints map to the existing
+      // InvalidDiscountAmountException; everything else falls through
+      // to the dedicated loyalty save-failed exception.
+      if (e.code == '22023' &&
+          (hint == 'DISCOUNT_VALUE_NOT_POSITIVE' ||
+              hint == 'PERCENTAGE_OUT_OF_RANGE' ||
+              hint == 'INVALID_DISCOUNT_TYPE' ||
+              hint == 'TRIGGER_VISIT_COUNT_OUT_OF_RANGE')) {
+        throw InvalidDiscountAmountException();
+      }
+      throw LoyaltyRuleSaveFailedException();
+    } catch (e) {
+      AppLogger.warn(
+        'loyalty_rule.upsert_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw LoyaltyRuleSaveFailedException();
+    }
+  }
+
+  // ── Existing internal helpers (unchanged) ────────────────────────
 
   /// Total discount given out across all of a shop's promotions.
   ///

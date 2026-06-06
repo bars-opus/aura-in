@@ -35,6 +35,8 @@ class _PaymentIntent {
     required this.depositAmount,
     required this.platformFee,
     required this.paymentProvider,
+    this.promotionId,
+    this.promoAmountOff,
   });
 
   final String shopId;
@@ -48,6 +50,17 @@ class _PaymentIntent {
   final double depositAmount;
   final double platformFee;
   final String paymentProvider;
+
+  /// Phase 13 — the promo code id resolved by validate_and_apply_promo.
+  /// Null when no code was applied. Webhook reads this from
+  /// pending_payments.booking_data and calls redeem_promotion after the
+  /// booking row is created.
+  final String? promotionId;
+
+  /// Phase 13 — the discount amount in currency-major units. Server
+  /// already authoritative; this is the value we round-trip back to the
+  /// webhook so it can pass the same amount into redeem_promotion.
+  final double? promoAmountOff;
 }
 
 class PaymentController
@@ -100,6 +113,8 @@ class PaymentController
     required double platformFee,
     required String paymentProvider,
     required BuildContext context,
+    String? promotionId,
+    double? promoAmountOff,
   }) async {
     _lastIntent = _PaymentIntent(
       shopId: shopId,
@@ -113,6 +128,8 @@ class PaymentController
       depositAmount: depositAmount,
       platformFee: platformFee,
       paymentProvider: paymentProvider,
+      promotionId: promotionId,
+      promoAmountOff: promoAmountOff,
     );
     state = const AsyncValue.loading();
 
@@ -136,6 +153,11 @@ class PaymentController
         'idempotencyKey': idempotencyKey,
         'successUrl': _config.successDeepLink,
         'cancelUrl': _config.cancelDeepLink,
+        // Phase 13: promo identity carried through pending_payments.booking_data
+        // so the success webhook can call redeem_promotion. Null when no code
+        // applied — webhook reads `if (bookingData.promotionId)` before redeeming.
+        if (promotionId != null) 'promotionId': promotionId,
+        if (promoAmountOff != null) 'promoAmountOff': promoAmountOff,
       };
 
       final response = await _supabase.functions.invoke(
@@ -263,6 +285,8 @@ class PaymentController
       platformFee: intent.platformFee,
       paymentProvider: intent.paymentProvider,
       context: context,
+      promotionId: intent.promotionId,
+      promoAmountOff: intent.promoAmountOff,
     );
   }
 

@@ -26,6 +26,7 @@ import 'package:nano_embryo/presentation/features/settings/utility/settings_expo
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_details_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/business_hours_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/export_reports_screen.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/loyalty_rule_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/promotions_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/reminder_settings_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/service_management_screen.dart';
@@ -40,6 +41,7 @@ class ToolsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     final shopDetailsAsync = ref.watch(shopDetailsProvider(shopId));
     final shop = shopDetailsAsync.maybeWhen(
@@ -80,7 +82,7 @@ class ToolsScreen extends ConsumerWidget {
             Align(
               alignment: Alignment.topLeft,
               child: Text(
-                'Admin tools',
+                loc.toolsAdminTools,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: colorScheme.onSurface,
@@ -95,29 +97,29 @@ class ToolsScreen extends ConsumerWidget {
               child: ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 padding: EdgeInsets.symmetric(vertical: Spacing.sm.h),
-                itemCount: 6,
+                itemCount: 7,
                 itemBuilder: (context, index) {
                   switch (index) {
                     case 0:
                       return KpiCard(
-                        title: 'Configure →',
-                        value: 'Automated Reminders',
+                        title: loc.toolsConfigure,
+                        value: loc.toolsAutomatedReminders,
                         icon: Icons.notifications_active,
                         iconColor: colorScheme.error,
                         onTap: () => _openReminderSettings(context),
                       );
                     case 1:
                       return KpiCard(
-                        title: 'Manage →',
-                        value: 'Promotions Manager',
+                        title: loc.toolsManage,
+                        value: loc.toolsPromotionsManager,
                         icon: Icons.local_offer,
                         iconColor: colorScheme.success,
                         onTap: () => _openPromotions(context),
                       );
                     case 2:
                       return KpiCard(
-                        title: 'Export →',
-                        value: 'Export Reports',
+                        title: loc.toolsExport,
+                        value: loc.toolsExportReports,
                         icon: Icons.download,
                         iconColor: colorScheme.warning,
                         onTap: () => _openExport(context),
@@ -128,8 +130,8 @@ class ToolsScreen extends ConsumerWidget {
                       // open would otherwise push with empty extras.
                       final paymentEnabled = shop != null;
                       return KpiCard(
-                        title: 'Configure →',
-                        value: 'Payment Settings',
+                        title: loc.toolsConfigure,
+                        value: loc.toolsPaymentSettings,
                         icon: Icons.payment,
                         iconColor: colorScheme.info,
                         enabled: paymentEnabled,
@@ -137,7 +139,7 @@ class ToolsScreen extends ConsumerWidget {
                           if (shop == null) {
                             Snackbar.info(
                               context,
-                              'Loading shop details…',
+                              loc.toolsLoadingDetails,
                             );
                             return;
                           }
@@ -163,8 +165,8 @@ class ToolsScreen extends ConsumerWidget {
                       // DELETE+INSERT rebuild via the
                       // rebuild_shop_opening_hours RPC.
                       return KpiCard(
-                        title: 'Configure →',
-                        value: 'Business Hours',
+                        title: loc.toolsConfigure,
+                        value: loc.toolsBusinessHours,
                         icon: Icons.access_time,
                         iconColor: colorScheme.error,
                         onTap: () => Navigator.push(
@@ -179,8 +181,8 @@ class ToolsScreen extends ConsumerWidget {
                       // Phase 11: Service Management — list/edit/archive
                       // via the new ServiceManagementScreen.
                       return KpiCard(
-                        title: 'Manage →',
-                        value: 'Service Management',
+                        title: loc.toolsManage,
+                        value: loc.toolsServiceManagement,
                         icon: Icons.cut,
                         iconColor: colorScheme.error,
                         onTap: () => Navigator.push(
@@ -188,6 +190,24 @@ class ToolsScreen extends ConsumerWidget {
                           MaterialPageRoute(
                             builder: (_) =>
                                 ServiceManagementScreen(shopId: shopId),
+                          ),
+                        ),
+                      );
+                    case 6:
+                      // Phase 13: Loyalty rule editor — per-shop config
+                      // for the silent visit-count loyalty engine.
+                      // Strings hardcoded; localization keys can land
+                      // in a Phase 13 follow-up.
+                      return KpiCard(
+                        title: 'Configure',
+                        value: 'Loyalty rule',
+                        icon: Icons.card_giftcard,
+                        iconColor: colorScheme.primary,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                LoyaltyRuleScreen(shopId: shopId),
                           ),
                         ),
                       );

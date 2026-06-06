@@ -63,3 +63,68 @@ class InvalidDiscountAmountException extends PromotionException {
           userMessage: 'Please enter a valid discount amount.',
         );
 }
+
+// ── Phase 13 — validate_and_apply_promo eligibility rejections ───────
+//
+// Each subtype corresponds to one HINT code raised by the RPC. Dart
+// branches on the HINT, NOT on the message text. See
+// SupabaseDashboardRepository._classifyPromoError (or equivalent
+// classifier in PromotionsRepository) for the HINT-to-subtype routing.
+
+class PromoExpiredException extends PromotionException {
+  PromoExpiredException()
+      : super(
+          'Promo code outside its valid_from / valid_to window',
+          code: 'PROMO_EXPIRED',
+          userMessage: "This code has expired or isn't yet active.",
+        );
+}
+
+class PromoMinAmountNotMetException extends PromotionException {
+  PromoMinAmountNotMetException()
+      : super(
+          'Booking total is below the code min_booking_amount',
+          code: 'PROMO_MIN_AMOUNT',
+          userMessage:
+              'Your booking total is below the minimum for this code.',
+        );
+}
+
+class PromoServiceNotEligibleException extends PromotionException {
+  PromoServiceNotEligibleException()
+      : super(
+          'Booking services do not overlap with code service_restriction',
+          code: 'PROMO_SERVICE_RESTRICTION',
+          userMessage:
+              "This code doesn't apply to the selected service.",
+        );
+}
+
+class PromoPerClientMaxException extends PromotionException {
+  PromoPerClientMaxException()
+      : super(
+          'Caller has already redeemed this code per_client_max times',
+          code: 'PROMO_PER_CLIENT_MAX',
+          userMessage:
+              "You've already used this code the maximum number of times.",
+        );
+}
+
+class PromoWrongClientException extends PromotionException {
+  PromoWrongClientException()
+      : super(
+          'Silent code target_* does not match caller identity',
+          code: 'PROMO_WRONG_CLIENT',
+          userMessage: "This code isn't valid for your account.",
+        );
+}
+
+class LoyaltyRuleSaveFailedException extends PromotionException {
+  LoyaltyRuleSaveFailedException()
+      : super(
+          'upsert_loyalty_rule RPC failed (unmapped error)',
+          code: 'LOYALTY_SAVE_FAILED',
+          userMessage:
+              "We couldn't save the loyalty rule. Please try again.",
+        );
+}

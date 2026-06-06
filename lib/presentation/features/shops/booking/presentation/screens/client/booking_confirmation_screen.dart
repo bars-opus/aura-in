@@ -3,6 +3,7 @@ import 'package:nano_embryo/presentation/features/shops/booking/presentation/con
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/payment/config/payment_config.dart';
 import 'package:nano_embryo/payment/presentation/controllers/payment_controller.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/client_promo_code_field.dart';
 
 class BookingConfirmationScreen extends ConsumerStatefulWidget {
   final String shopType;
@@ -32,6 +33,13 @@ class BookingConfirmationScreen extends ConsumerStatefulWidget {
 class _BookingConfirmationScreenState
     extends ConsumerState<BookingConfirmationScreen> {
   bool _isProcessing = false;
+
+  // ── Phase 13 — applied promo code state ────────────────────────────
+  // Updated by ClientPromoCodeField via the onApplied callback. Null
+  // when no code is applied. processPayment reads these to pass through
+  // promotionId + promoAmountOff in the request body so the success
+  // webhook can call redeem_promotion.
+  AppliedPromo? _appliedPromo;
 
   @override
   Widget build(BuildContext context) {
@@ -188,6 +196,24 @@ class _BookingConfirmationScreenState
 
               Gap(Spacing.md.h),
 
+              // Phase 13: promo code field. Auto-applies any silent
+              // loyalty / recovery code on mount; manual entry replaces
+              // the auto-applied one. The widget passes back the
+              // promotionId + amountOff via _onPromoApplied.
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: Spacing.md.w),
+                child: ClientPromoCodeField(
+                  shopId: shopId,
+                  userId: profile?.id,
+                  guestProfileId: null,
+                  bookingTotal: totalPrice,
+                  serviceIds: services.map((s) => s.id).toList(),
+                  onApplied: _onPromoApplied,
+                ),
+              ),
+
+              Gap(Spacing.md.h),
+
               SemanticContainerWidget(
                 content:
                     _isProcessing
@@ -237,6 +263,7 @@ class _BookingConfirmationScreenState
   }
 
   Widget _buildErrorState(
+  
     ThemeData theme,
     ColorScheme colorScheme,
     bool isCombinedView,
@@ -263,6 +290,13 @@ class _BookingConfirmationScreenState
       Duration.zero,
       (sum, service) => sum + DurationUtils.parse(service.duration),
     );
+  }
+
+  /// Phase 13 — promo applied / cleared callback from ClientPromoCodeField.
+  /// State updates only; the discounted total is read directly from
+  /// _appliedPromo?.newTotal at processPayment time.
+  void _onPromoApplied(AppliedPromo? applied) {
+    setState(() => _appliedPromo = applied);
   }
 
   double _calculateTotalPrice(
@@ -297,6 +331,12 @@ class _BookingConfirmationScreenState
       final totalPrice = _calculateTotalPrice(services, quantities);
       final firstSlot = timeSlots.values.first;
 
+      // Phase 13: when a promo code is applied, the discounted total
+      // becomes the canonical totalAmount sent to the payment provider,
+      // and the platform fee recomputes against that new total. The
+      // pre-discount totalPrice is no longer used after this point.
+      final effectiveTotal = _appliedPromo?.newTotal ?? totalPrice;
+
       // Expand services by quantity so the server-side amount validation
       // (sum(priceAtBooking) == totalAmount) holds for group bookings.
       final servicesData = services
@@ -329,11 +369,16 @@ class _BookingConfirmationScreenState
         startTime: firstSlot.startTime,
         endTime: firstSlot.endTime,
         actualEndTime: firstSlot.actualEndTime,
-        totalAmount: totalPrice,
-        depositAmount: totalPrice * config.depositFraction,
-        platformFee: totalPrice * config.platformFeeFraction,
+        // Phase 13: discounted amounts. When no promo applied,
+        // effectiveTotal == totalPrice so the pre-Phase-13 behavior is
+        // preserved.
+        totalAmount: effectiveTotal,
+        depositAmount: effectiveTotal * config.depositFraction,
+        platformFee: effectiveTotal * config.platformFeeFraction,
         paymentProvider: paymentProvider,
         context: context,
+        promotionId: _appliedPromo?.promotionId,
+        promoAmountOff: _appliedPromo?.amountOff,
       );
 
       if (result != null && mounted) {

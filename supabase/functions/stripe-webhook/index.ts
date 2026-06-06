@@ -240,6 +240,25 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
   console.log('✅ Booking created from Stripe payment:', booking.id);
 
+  // Phase 13: record promo redemption if a code was applied at checkout.
+  // promotionId + promoAmountOff are carried through pending.booking_data
+  // from booking_confirmation_screen.dart → processPayment → create-booking.
+  // Non-fatal: if redemption fails, the booking still stands.
+  if (bookingData.promotionId) {
+    const { error: redeemError } = await supabase.rpc('redeem_promotion', {
+      p_promotion_id: bookingData.promotionId,
+      p_booking_id: booking.id,
+      p_user_id: booking.user_id,
+      p_guest_profile_id: booking.guest_profile_id,
+      p_discount_amount: bookingData.promoAmountOff ?? 0,
+    });
+    if (redeemError) {
+      console.error('⚠️ promo redemption failed (non-fatal):', redeemError);
+    } else {
+      console.log(`🎟️  Promo redemption recorded for booking ${booking.id}`);
+    }
+  }
+
   // NEW: record guest booking history for prefill cache
   if (pending.guest_profile_id && Array.isArray(bookingData.services)) {
     const { recordGuestBookingHistory } = await import("../_shared/booking_helpers.ts");
