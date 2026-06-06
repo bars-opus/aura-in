@@ -264,32 +264,10 @@ async function handlePaymentSuccess(transaction: any) {
             created_at: nowIso,
             updated_at: nowIso,
           },
-          {
-            ...refCols,
-            notification_type: "booking_reminder_24h",
-            guest_profile_id: pending.guest_profile_id,
-            scheduled_for: new Date(startTime.getTime() - 24 * 60 * 60 * 1000).toISOString(),
-            delivery_channel: "whatsapp",
-            whatsapp_template: "booking_reminder_24h_v1",
-            whatsapp_params: reminder24Params,
-            status: "pending",
-            metadata: baseMetadata,
-            created_at: nowIso,
-            updated_at: nowIso,
-          },
-          {
-            ...refCols,
-            notification_type: "booking_reminder_2h",
-            guest_profile_id: pending.guest_profile_id,
-            scheduled_for: new Date(startTime.getTime() - 2 * 60 * 60 * 1000).toISOString(),
-            delivery_channel: "whatsapp",
-            whatsapp_template: "booking_reminder_2h_v1",
-            whatsapp_params: reminder2Params,
-            status: "pending",
-            metadata: baseMetadata,
-            created_at: nowIso,
-            updated_at: nowIso,
-          },
+          // Phase 12: booking_reminder_24h + booking_reminder_2h removed.
+          // The AFTER INSERT/UPDATE trigger on bookings
+          // (migration 20260605130600) is now the SINGLE source of
+          // booking reminders. See .planning/phases/12-autonomous-retention-engine.
           {
             ...refCols,
             notification_type: "booking_review_prompt",
@@ -308,7 +286,7 @@ async function handlePaymentSuccess(transaction: any) {
       if (waSchedError) {
         console.error('⚠️ WhatsApp scheduled_notifications insert failed (non-fatal):', waSchedError);
       } else {
-        console.log(`📲 Scheduled 4 WhatsApp notifications for booking ${booking.id}`);
+        console.log(`📲 Scheduled 2 WhatsApp notifications (confirmation + review_prompt) for booking ${booking.id} — reminders handled by Phase 12 trigger.`);
       }
     } catch (waErr) {
       console.error('⚠️ WhatsApp scheduling failed (non-fatal):', waErr);
@@ -520,44 +498,14 @@ async function scheduleBookingNotifications(
       },
     ];
 
-    // Client reminders — only schedule if the time is still in the future
-    const clientReminders = [
-      {
-        type: 'booking_reminder_24h',
-        offsetMs: -24 * 60 * 60 * 1000,
-        title: 'Appointment Tomorrow',
-        body: `Your ${serviceNames} appointment is tomorrow at ${formattedTime}.`,
-      },
-      {
-        type: 'booking_reminder_1h',
-        offsetMs: -60 * 60 * 1000,
-        title: 'Appointment in 1 Hour',
-        body: `Your ${serviceNames} appointment starts in 1 hour.`,
-      },
-      {
-        type: 'booking_reminder_5min',
-        offsetMs: -5 * 60 * 1000,
-        title: 'Appointment Starting Soon',
-        body: `Your ${serviceNames} appointment starts in 5 minutes!`,
-      },
-    ];
-
-    for (const { type, offsetMs, title, body } of clientReminders) {
-      const scheduledFor = new Date(startTime.getTime() + offsetMs);
-      if (scheduledFor > now) {
-        scheduledRows.push({
-          user_id: clientUserId,
-          notification_type: type,
-          booking_id: booking.id,
-          shop_id: shopId,
-          scheduled_for: scheduledFor.toISOString(),
-          status: 'pending',
-          metadata: { title, body, booking_id: booking.id },
-          created_at: now.toISOString(),
-          updated_at: now.toISOString(),
-        });
-      }
-    }
+    // Phase 12: client reminder scheduling moved to the
+    // schedule_booking_reminders AFTER INSERT trigger on bookings
+    // (migration 20260605130600). The trigger emits the canonical
+    // booking_reminder_24h + booking_reminder_2h pair for both
+    // registered and guest bookings. The 1h and 5min variants are
+    // sunset per the consolidated cadence; see
+    // .planning/phases/12-autonomous-retention-engine/12-PLAN.md
+    // §"Out of scope (carry-over gaps)".
 
     // Review request 30 min after appointment ends
     const tReview = new Date(endTime.getTime() + 30 * 60 * 1000);

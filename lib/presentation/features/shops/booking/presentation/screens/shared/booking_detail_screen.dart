@@ -2,6 +2,7 @@ import 'package:nano_embryo/presentation/features/shops/booking/data/models/stat
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/appointment_actions.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/status_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/client_sticky_note_card.dart';
 
 class BookingDetailScreen extends ConsumerStatefulWidget {
   final DateTime startTime;
@@ -195,6 +196,10 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
                             shopCurrency: widget.shopCurrency,
                             booking: bookingDetail,
                           ),
+                          if (widget.isShopOwner) ...[
+                            Gap(Spacing.sm.h),
+                            ClientStickyNoteCard(booking: bookingDetail),
+                          ],
                           if (!widget.isShopOwner)
                             BookingShopInfoCard(
                               shopType: widget.shopType,

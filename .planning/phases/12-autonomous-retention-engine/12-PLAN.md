@@ -35,16 +35,16 @@ Verbatim from SPEC §"Out of scope (locked)" lines 85–97:
 
 **NEW (SQL — strict timestamp order)**
 
-- `supabase/migrations/20260605120000_add_phase12_notification_types.sql`
-- `supabase/migrations/20260605120100_client_notes_table.sql`
-- `supabase/migrations/20260605120200_upsert_client_note_rpc.sql`
-- `supabase/migrations/20260605120300_shop_rebook_cadence_view.sql`
-- `supabase/migrations/20260605120400_enqueue_booking_reminder_helper.sql`
-- `supabase/migrations/20260605120500_cancel_and_followup_helper.sql`
-- `supabase/migrations/20260605120600_booking_lifecycle_triggers.sql`
-- `supabase/migrations/20260605120700_wire_terminal_rpcs.sql`
-- `supabase/migrations/20260605120800_consolidate_reminder_scheduling_backfill.sql`
-- `supabase/migrations/20260605120900_enqueue_rebook_nudges_rpc.sql`
+- `supabase/migrations/20260605130000_add_phase12_notification_types.sql`
+- `supabase/migrations/20260605130100_client_notes_table.sql`
+- `supabase/migrations/20260605130200_upsert_client_note_rpc.sql`
+- `supabase/migrations/20260605130300_shop_rebook_cadence_view.sql`
+- `supabase/migrations/20260605130400_enqueue_booking_reminder_helper.sql`
+- `supabase/migrations/20260605130500_cancel_and_followup_helper.sql`
+- `supabase/migrations/20260605130600_booking_lifecycle_triggers.sql`
+- `supabase/migrations/20260605130700_wire_terminal_rpcs.sql`
+- `supabase/migrations/20260605130800_consolidate_reminder_scheduling_backfill.sql`
+- `supabase/migrations/20260605130900_enqueue_rebook_nudges_rpc.sql`
 
 **NEW (Dart)**
 
@@ -78,7 +78,7 @@ Verbatim from SPEC §"Out of scope (locked)" lines 85–97:
 
 Ten new SQL migrations, applied in strict timestamp order. Edge-function diffs ship in the same release but are not migrations. Every RPC body follows the Phase 11 hardening template (`supabase/migrations/20260603001500_harden_dashboard_rpcs.sql` lines 29–108) byte-for-byte: `LANGUAGE plpgsql`, `SECURITY DEFINER`, `SET search_path = public`, authz ownership gate FIRST, validation second, `'not_found'` raises with `ERRCODE = '42501'`, `'invalid_*'` raises with `ERRCODE = '22023'` + `HINT = '...'`, then `REVOKE ALL ... FROM PUBLIC`, `GRANT EXECUTE ... TO authenticated`, and `COMMENT ON FUNCTION ... IS '... Big-O ...'`.
 
-### 1. `20260605120000_add_phase12_notification_types.sql`
+### 1. `20260605130000_add_phase12_notification_types.sql`
 
 `notification_type` is a custom enum in the live DB (typname = `notification_type`, confirmed 2026-06-05). The defensive discovery DO block from RESEARCH §2 lines 46–69 is **not needed** — three direct `ALTER TYPE ... ADD VALUE IF NOT EXISTS` calls are sufficient. (SPEC §"Research-phase resolutions" line 259; SPEC migration #1 description lines 125–126.)
 
@@ -92,7 +92,7 @@ ALTER TYPE notification_type ADD VALUE IF NOT EXISTS 'review_request';
 ALTER TYPE notification_type ADD VALUE IF NOT EXISTS 'recovery_checkin';
 ```
 
-### 2. `20260605120100_client_notes_table.sql`
+### 2. `20260605130100_client_notes_table.sql`
 
 New table mirroring the wallet-owner-only RLS template verbatim. The exactly-one-of-user-or-guest constraint is enforced both as a table CHECK and again inside the RPC (defence in depth — RESEARCH §12 step 4). UNIQUE on `(shop_id, COALESCE(user_id::text, guest_profile_id::text))` is the upsert key.
 
@@ -150,7 +150,7 @@ COMMENT ON TABLE public.client_notes IS
   'Per-shop / per-client sticky note. Owner-authored only; client never sees it. Last-write-wins (no history). Square parity.';
 ```
 
-### 3. `20260605120200_upsert_client_note_rpc.sql`
+### 3. `20260605130200_upsert_client_note_rpc.sql`
 
 Hardening template byte-for-byte. Authz FIRST (caller must own `p_shop_id`). Payload validation with HINT codes per RESEARCH §12 lines 363–382. Empty body is the soft-delete sentinel — allowed; only `> 2000` chars raises.
 
@@ -216,7 +216,7 @@ COMMENT ON FUNCTION public.upsert_client_note(UUID, UUID, UUID, TEXT) IS
   'Upsert a per-shop / per-client sticky note. SECURITY DEFINER with shops.user_id=auth.uid() gate. Defence-in-depth exactly-one-of identity check. O(1) by unique index lookup.';
 ```
 
-### 4. `20260605120300_shop_rebook_cadence_view.sql`
+### 4. `20260605130300_shop_rebook_cadence_view.sql`
 
 Materialized view per RESEARCH §8 lines 215–271. Floor 7d, ceiling 90d, default 30d when sample size < 5. UNIQUE index required for `REFRESH MATERIALIZED VIEW CONCURRENTLY`. Nightly pg_cron job at 03:15 UTC.
 
@@ -274,7 +274,7 @@ DO $$ BEGIN
 END $$;
 ```
 
-### 5. `20260605120400_enqueue_booking_reminder_helper.sql`
+### 5. `20260605130400_enqueue_booking_reminder_helper.sql`
 
 Single channel-branching helper. Reads booking + shop + (guest_profile if needed), writes the right row shape into `scheduled_notifications`. Used by both the AFTER INSERT trigger (24h + 2h reminders) and the `cancel_and_followup` helper (review_request, recovery_checkin). Per RESEARCH §17 lines 454–527, denormalized guest fields (`bookings.guest_phone`, `bookings.guest_name`) take precedence; fall back to `guest_profiles` JOIN.
 
@@ -376,7 +376,7 @@ COMMENT ON FUNCTION public.enqueue_booking_reminder(UUID, notification_type, TIM
   'Channel-branching writer for scheduled_notifications. Single source of metadata + whatsapp_params for the five Phase 12 categories. SECURITY DEFINER; not exposed to clients. O(1).';
 ```
 
-### 6. `20260605120500_cancel_and_followup_helper.sql`
+### 6. `20260605130500_cancel_and_followup_helper.sql`
 
 The named helper from SPEC migration #5 lines 138–140. Called inline from the three terminal-state RPCs in Migration 7. Cancels pending reminders, then enqueues the next-stage row idempotently (the partial unique index from Migration 10 enforces dedupe for `recovery_checkin`).
 
@@ -421,7 +421,7 @@ COMMENT ON FUNCTION public.cancel_and_followup(UUID, TEXT) IS
   'Idempotent terminal-status handler. Cancels pending reminders, schedules the next-stage row (review_request for completed; recovery_checkin for cancelled/no_show). SECURITY DEFINER; called from cancel_booking / mark_booking_complete / mark_booking_no_show. The narrowly-scoped EXCEPTION WHEN unique_violation block is the idempotency contract: re-invoking this function for the same booking (re-cancellation, double webhook fire, retry storm) is a no-op rather than a duplicate insert. All other errors propagate to the caller for transaction rollback. O(reminders for booking).';
 ```
 
-### 7. `20260605120600_booking_lifecycle_triggers.sql`
+### 7. `20260605130600_booking_lifecycle_triggers.sql`
 
 ONE AFTER INSERT OR UPDATE trigger on `bookings`, scoped to `status = 'confirmed'`. Reminder scheduling only — no terminal-state handling here (that lives in the RPCs per RESEARCH §4 recommendation a). The WHEN clause filters to first-confirmed transition; the function body skips re-runs and past windows.
 
@@ -471,7 +471,7 @@ COMMENT ON FUNCTION public.schedule_booking_reminders() IS
   'Phase 12: single source of booking_reminder_24h + booking_reminder_2h rows. Fires on transition INTO confirmed. Skips rebookings of an already-confirmed booking. O(1) per booking.';
 ```
 
-### 8. `20260605120700_wire_terminal_rpcs.sql`
+### 8. `20260605130700_wire_terminal_rpcs.sql`
 
 Wire `cancel_and_followup` into the three existing terminal RPCs. Per RESEARCH §4 recommendation a: simpler, more explicit, easier to test than a generic UPDATE trigger. The three RPCs are `CREATE OR REPLACE`d in full (Postgres has no partial rewrite); the executor copies each current body verbatim from `supabase/migrations/20260517020000_booking_hardening.sql` and inserts the single new `PERFORM cancel_and_followup(...)` call as the **last** statement before the audit-log INSERT.
 
@@ -485,7 +485,7 @@ Each rewrite ends with the standard `REVOKE ALL ... FROM PUBLIC; GRANT EXECUTE .
 
 (Body templates omitted for length — the executor copies the current bodies verbatim and inserts the documented single-line PERFORM call.)
 
-### 9. `20260605120800_consolidate_reminder_scheduling_backfill.sql`
+### 9. `20260605130800_consolidate_reminder_scheduling_backfill.sql`
 
 One-time backfill. After the trigger is live (Migration 7) and BEFORE the webhook diffs land (Task 4), every existing `confirmed` + future booking that does NOT already have a pending `booking_reminder_24h` row gets one inserted. Idempotent — if the row exists, `ON CONFLICT DO NOTHING` skips. Safe to re-run.
 
@@ -545,7 +545,7 @@ BEGIN
 END $$;
 ```
 
-### 10. `20260605120900_enqueue_rebook_nudges_rpc.sql`
+### 10. `20260605130900_enqueue_rebook_nudges_rpc.sql`
 
 The nightly SQL function + pg_cron schedule. Idempotency via the partial unique index from RESEARCH §9 lines 282–291 plus the 30-day cooldown EXISTS clause from §9 lines 301–315. Defence in depth: the index handles same-day re-runs; the EXISTS handles the 30-day window explicitly.
 
@@ -671,21 +671,21 @@ Atomic. Each touches ≤ 3 files. Each maps to ≥ 1 acceptance test in the Veri
 ### Wave 0 — Schema groundwork
 
 **Task 0.1 — Add three notification_type enum values**
-- File(s): `supabase/migrations/20260605120000_add_phase12_notification_types.sql` (NEW)
+- File(s): `supabase/migrations/20260605130000_add_phase12_notification_types.sql` (NEW)
 - Description: Per Migration Plan §1. Three `ALTER TYPE notification_type ADD VALUE IF NOT EXISTS` calls. No defensive discovery DO block — live DB confirmed enum 2026-06-05.
 - Acceptance: `psql staging -c "SELECT unnest(enum_range(NULL::notification_type))"` lists `rebook_nudge`, `review_request`, `recovery_checkin`. Re-running the migration is a no-op (`IF NOT EXISTS`).
 - Rollback: enum values cannot be dropped without recreating the type. Acceptable — Phase 12 rollback strategy is forward-only on the enum.
 - Estimate: 10
 
 **Task 0.2 — Create `client_notes` table + RLS + UNIQUE index**
-- File(s): `supabase/migrations/20260605120100_client_notes_table.sql` (NEW)
+- File(s): `supabase/migrations/20260605130100_client_notes_table.sql` (NEW)
 - Description: Per Migration Plan §2. Four-policy RLS (SELECT / INSERT / UPDATE; no DELETE) per RESEARCH §6. CHECK on `(user_id IS NULL) <> (guest_profile_id IS NULL)`. CHECK on `char_length(body) <= 2000`. Partial-style UNIQUE index keyed on `(shop_id, COALESCE(user_id::text, guest_profile_id::text))`.
 - Acceptance: `psql -c "\d public.client_notes"` shows the three CHECKs + the UNIQUE index. `SELECT polname FROM pg_policies WHERE tablename='client_notes'` returns exactly 3 rows (`client_notes_select_owner`, `client_notes_insert_owner`, `client_notes_update_owner`). Smoke §D (RLS-deny on another shop's owner) passes.
 - Rollback: `DROP TABLE public.client_notes CASCADE`. Safe — no production data depended on it before Phase 12.
 - Estimate: 30
 
 **Task 0.3 — Create `shop_rebook_cadence` materialized view + pg_cron refresh**
-- File(s): `supabase/migrations/20260605120300_shop_rebook_cadence_view.sql` (NEW)
+- File(s): `supabase/migrations/20260605130300_shop_rebook_cadence_view.sql` (NEW)
 - Description: Per Migration Plan §4. `CREATE MATERIALIZED VIEW IF NOT EXISTS` with the percentile_cont median + GREATEST(7, LEAST(90, ...)) clamping + default-30 when sample size < 5. UNIQUE index `shop_rebook_cadence_pk` for `REFRESH ... CONCURRENTLY`. `pg_cron.schedule('refresh-shop-rebook-cadence', '15 3 * * *', ...)` guarded by `IF EXISTS pg_extension WHERE extname='pg_cron'`.
 - Acceptance: `SELECT shop_id, median_gap_days, sample_size FROM shop_rebook_cadence LIMIT 5` returns ≥ 1 row per shop. A shop with 1 completed booking returns `median_gap_days = 30, sample_size = 0` (default branch). `SELECT * FROM cron.job WHERE jobname='refresh-shop-rebook-cadence'` returns 1 row.
 - Rollback: `DROP MATERIALIZED VIEW shop_rebook_cadence; SELECT cron.unschedule('refresh-shop-rebook-cadence')`.
@@ -694,44 +694,44 @@ Atomic. Each touches ≤ 3 files. Each maps to ≥ 1 acceptance test in the Veri
 ### Wave 1 — Server logic (depends on Wave 0)
 
 **Task 1.1 — Create `upsert_client_note` RPC**
-- File(s): `supabase/migrations/20260605120200_upsert_client_note_rpc.sql` (NEW)
+- File(s): `supabase/migrations/20260605130200_upsert_client_note_rpc.sql` (NEW)
 - Description: Per Migration Plan §3. Hardening template byte-for-byte. Authz FIRST. HINT codes: `EXACTLY_ONE_OF_USER_OR_GUEST`, `BODY_NULL_NOT_ALLOWED`, `NOTE_TOO_LONG`. UPSERT on the unique-index expression `(shop_id, COALESCE(user_id::text, guest_profile_id::text))`. `REVOKE ALL FROM PUBLIC; GRANT EXECUTE TO authenticated`.
 - Acceptance: Smoke §E–§H print `OK:`: §E non-owner → 42501; §F both ids → 22023 / EXACTLY_ONE_OF_USER_OR_GUEST; §G body > 2000 chars → 22023 / NOTE_TOO_LONG; §H happy path upserts then second call updates same row (id stable).
 - Rollback: `DROP FUNCTION public.upsert_client_note(UUID, UUID, UUID, TEXT)`.
 - Estimate: 35
 
 **Task 1.2 — Create `enqueue_booking_reminder` helper**
-- File(s): `supabase/migrations/20260605120400_enqueue_booking_reminder_helper.sql` (NEW)
+- File(s): `supabase/migrations/20260605130400_enqueue_booking_reminder_helper.sql` (NEW)
 - Description: Per Migration Plan §5. Channel branching: `user_id IS NOT NULL` → push (metadata.title / body, no whatsapp_template); else → WhatsApp (whatsapp_template = `<type>_v1`, whatsapp_params = `{1: client_name, 2: shop_name}`, metadata.phone). Title + body per RESEARCH §10 lines 322–327. Returns the inserted row id. Not GRANTed to `authenticated` — internal only.
 - Acceptance: Helper inserts the right row shape for a registered booking (delivery_channel='push', whatsapp_template IS NULL, metadata.title + body present). Helper inserts the right shape for a guest booking (delivery_channel='whatsapp', whatsapp_template='booking_reminder_24h_v1', metadata.phone present, whatsapp_params has '1' and '2' keys). Verified via a direct SELECT after a PERFORM call in §J of the smoke SQL.
 - Rollback: `DROP FUNCTION public.enqueue_booking_reminder(UUID, notification_type, TIMESTAMPTZ)`.
 - Estimate: 50
 
 **Task 1.3 — Create `cancel_and_followup` helper**
-- File(s): `supabase/migrations/20260605120500_cancel_and_followup_helper.sql` (NEW)
+- File(s): `supabase/migrations/20260605130500_cancel_and_followup_helper.sql` (NEW)
 - Description: Per Migration Plan §6. Validates `p_terminal_status IN ('cancelled', 'no_show', 'completed')`. Calls `cancel_booking_notifications(p_booking_id)` then conditionally enqueues review_request (completed, +2h) or recovery_checkin (cancelled/no_show, +7d). Wrapped in a `BEGIN ... EXCEPTION WHEN unique_violation ... END` to swallow cool-down dedupe from the partial unique index (Migration 10).
 - Acceptance: Smoke §B and §C (post-Migration 7) print `OK:`. Unknown status → 22023 / UNKNOWN_TERMINAL_STATUS. Calling twice for the same `completed` booking inserts only one `review_request` (no cooldown index covers it — duplicates allowed; caller of the helper is the RPC, called once per status flip).
 - Rollback: `DROP FUNCTION public.cancel_and_followup(UUID, TEXT)`.
 - Estimate: 30
 
 **Task 1.4 — Create AFTER INSERT/UPDATE trigger on `bookings`**
-- File(s): `supabase/migrations/20260605120600_booking_lifecycle_triggers.sql` (NEW)
+- File(s): `supabase/migrations/20260605130600_booking_lifecycle_triggers.sql` (NEW)
 - Description: Per Migration Plan §7. ONE trigger function `schedule_booking_reminders`. `WHEN (NEW.status = 'confirmed')`. Skips re-confirmation (UPDATE where OLD.status was already 'confirmed'). Skips when `start_time <= now() + INTERVAL '2 hours'` (the 2h-or-past short-circuit from SPEC line 73). Schedules 24h reminder only if `start_time > now() + INTERVAL '24 hours'`; always schedules 2h reminder otherwise. Verified: zero existing triggers on `bookings` (RESEARCH §15 line 430) — no conflict.
 - Acceptance: Smoke §A prints `OK:` (insert a confirmed booking 26h out → exactly 2 pending rows materialize). Inserting an `unconfirmed` (e.g. `pending`) booking → ZERO pending rows. Updating `status` from `pending` → `confirmed` on a 26h-out booking → 2 rows. Re-updating `confirmed` → `confirmed` (audit no-op) → 0 additional rows.
 - Rollback: `DROP TRIGGER trg_bookings_schedule_reminders ON public.bookings; DROP FUNCTION public.schedule_booking_reminders()`.
 - Estimate: 45
 
 **Task 1.5 — Wire `cancel_and_followup` into `cancel_booking`, `mark_booking_complete`, `mark_booking_no_show`**
-- File(s): `supabase/migrations/20260605120700_wire_terminal_rpcs.sql` (NEW)
+- File(s): `supabase/migrations/20260605130700_wire_terminal_rpcs.sql` (NEW)
 - Description: Per Migration Plan §8. Open the new file, copy the current body of `cancel_booking` from `supabase/migrations/20260517020000_booking_hardening.sql:393-440` verbatim, and insert `PERFORM public.cancel_and_followup(p_booking_id, 'cancelled');` after the status UPDATE (around line 426) and BEFORE the audit-log INSERT. Append the REVOKE/GRANT/COMMENT trio with `'Phase 12: cancel_and_followup wired. ...'`. Repeat for `mark_booking_complete` (line 471 region — insert `PERFORM ... 'completed'`) and `mark_booking_no_show` (line 522 region — insert `PERFORM ... 'no_show'`). Signatures byte-for-byte preserved. The function-body `FOR UPDATE` row locks already at the top of each RPC keep the status flip + followup atomic with the booking row (RESEARCH §4 line 126).
-- Acceptance: Smoke §B prints `OK:` (cancel a confirmed booking → 2 reminder rows flip to `cancelled` AND 1 `recovery_checkin` row appears scheduled for now()+7d). Smoke §C prints `OK:` (mark_booking_complete on a confirmed booking → reminders cancelled AND 1 `review_request` row at now()+2h). `grep -c 'cancel_and_followup' supabase/migrations/20260605120700_wire_terminal_rpcs.sql | grep -v '^--'` returns at least 3 (one per surface).
+- Acceptance: Smoke §B prints `OK:` (cancel a confirmed booking → 2 reminder rows flip to `cancelled` AND 1 `recovery_checkin` row appears scheduled for now()+7d). Smoke §C prints `OK:` (mark_booking_complete on a confirmed booking → reminders cancelled AND 1 `review_request` row at now()+2h). `grep -c 'cancel_and_followup' supabase/migrations/20260605130700_wire_terminal_rpcs.sql | grep -v '^--'` returns at least 3 (one per surface).
 - Rollback: Ship a follow-up migration that recreates the three RPCs from their original bodies in `20260517020000_booking_hardening.sql`. Do NOT drop `cancel_and_followup` — bookings already in a terminal state would orphan their pending reminders.
 - Estimate: 55
 
 ### Wave 2 — Backfill + webhook diffs (depends on Wave 1)
 
 **Task 2.1 — One-time reminder consolidation backfill**
-- File(s): `supabase/migrations/20260605120800_consolidate_reminder_scheduling_backfill.sql` (NEW)
+- File(s): `supabase/migrations/20260605130800_consolidate_reminder_scheduling_backfill.sql` (NEW)
 - Description: Per Migration Plan §9. Two `DO $$ ... FOR ... LOOP ...` blocks. First loop: every `confirmed` booking with `start_time > now() + 24h` that has no pending/processing/sent `booking_reminder_24h` row gets one inserted via `enqueue_booking_reminder`. Second loop: same for `booking_reminder_2h` with `> now() + 2h` filter. NOT EXISTS guard makes it idempotent — re-running is a no-op.
 - Acceptance: After migration, `SELECT COUNT(*) FROM scheduled_notifications WHERE notification_type='booking_reminder_24h' AND status='pending'` is ≥ the count of `confirmed` bookings with `start_time > now() + 24h`. Re-running the migration leaves the count unchanged (idempotent).
 - Rollback: There is no clean rollback for the backfill — the inserted rows are now part of the canonical pipeline. If something goes wrong, manually `DELETE FROM scheduled_notifications WHERE notification_type IN ('booking_reminder_24h', 'booking_reminder_2h') AND status='pending' AND created_at > '<backfill-deploy-ts>'`. Document the cutoff timestamp in the PR.
@@ -754,7 +754,7 @@ Atomic. Each touches ≤ 3 files. Each maps to ≥ 1 acceptance test in the Veri
 ### Wave 3 — Nightly cron (depends on Wave 0 for the view, Wave 1 for the helper)
 
 **Task 3.1 — Create `enqueue_rebook_nudges()` SQL function + partial unique index + pg_cron schedule**
-- File(s): `supabase/migrations/20260605120900_enqueue_rebook_nudges_rpc.sql` (NEW)
+- File(s): `supabase/migrations/20260605130900_enqueue_rebook_nudges_rpc.sql` (NEW)
 - Description: Per Migration Plan §10. First create the partial unique index `scheduled_notifications_rebook_idem` keyed on `(shop_id, COALESCE(user_id, guest_profile_id), notification_type, (scheduled_for::date))` WHERE `notification_type IN ('rebook_nudge', 'recovery_checkin') AND status IN ('pending', 'processing')`. Then the function: CTE `eligible` (per-client last completed start_time), join to `shop_rebook_cadence` for `median_gap_days`, filter to `(last_completed + median_gap)::date = current_date`, filter out clients with any future pending/confirmed booking on the books, filter out clients with a `rebook_nudge` row in the last 30 days, insert one row per (shop, client) with `ON CONFLICT ... DO NOTHING` against the partial unique index. Schedule via `cron.schedule('enqueue-rebook-nudges', '30 3 * * *', ...)` guarded by `IF EXISTS pg_extension WHERE extname='pg_cron'`.
 - Acceptance: Smoke §I prints `OK:` (insert a completed booking N=30 days ago for a shop with default 30d cadence, no future booking; call `enqueue_rebook_nudges()` → returns 1; call again same day → returns 0; idempotency proven). `EXPLAIN ANALYZE SELECT public.enqueue_rebook_nudges()` runs in < 30s against staging.
 - Rollback: `SELECT cron.unschedule('enqueue-rebook-nudges'); DROP FUNCTION public.enqueue_rebook_nudges(); DROP INDEX scheduled_notifications_rebook_idem`.
@@ -898,7 +898,7 @@ Atomic. Each touches ≤ 3 files. Each maps to ≥ 1 acceptance test in the Veri
 | 1.2 | Smoke §J (channel branching) prints `OK:` — registered booking → push row, guest booking → WhatsApp row with template + params. |
 | 1.3 | Helper function exists; covered indirectly by Smoke §B, §C in Task 1.5. |
 | 1.4 | Smoke §A prints `OK:` — confirmed booking 26h out → exactly 2 rows. |
-| 1.5 | Smoke §B + §C print `OK:`. `grep -v '^--' supabase/migrations/20260605120700_wire_terminal_rpcs.sql | grep -c 'cancel_and_followup'` ≥ 3. |
+| 1.5 | Smoke §B + §C print `OK:`. `grep -v '^--' supabase/migrations/20260605130700_wire_terminal_rpcs.sql | grep -c 'cancel_and_followup'` ≥ 3. |
 | 2.1 | Re-running the backfill leaves the row count unchanged. `SELECT COUNT(*) FROM scheduled_notifications WHERE notification_type='booking_reminder_24h' AND status='pending'` ≥ baseline. |
 | 2.2 | `grep -n 'booking_reminder_24h\|booking_reminder_2h\|booking_reminder_1h\|booking_reminder_5min' supabase/functions/paystack-webhook/index.ts | grep -v '^//'` returns 0. `booking_confirmation` still present. |
 | 2.3 | Same grep on stripe-webhook and verify-payment returns 0. `booking_confirmation` still present. |
@@ -937,16 +937,16 @@ Atomic. Each touches ≤ 3 files. Each maps to ≥ 1 acceptance test in the Veri
 
 1. **Submit WhatsApp templates to Meta** (Task 6.1) at least 12 hours before SQL migrations land. Templates can sit in `SUBMITTED` indefinitely without affecting production.
 2. **Push SQL migrations in strict timestamp order** to staging:
-   - `20260605120000_add_phase12_notification_types.sql` (Task 0.1)
-   - `20260605120100_client_notes_table.sql` (Task 0.2)
-   - `20260605120200_upsert_client_note_rpc.sql` (Task 1.1)
-   - `20260605120300_shop_rebook_cadence_view.sql` (Task 0.3)
-   - `20260605120400_enqueue_booking_reminder_helper.sql` (Task 1.2)
-   - `20260605120500_cancel_and_followup_helper.sql` (Task 1.3)
-   - `20260605120600_booking_lifecycle_triggers.sql` (Task 1.4)
-   - `20260605120700_wire_terminal_rpcs.sql` (Task 1.5)
-   - `20260605120800_consolidate_reminder_scheduling_backfill.sql` (Task 2.1)
-   - `20260605120900_enqueue_rebook_nudges_rpc.sql` (Task 3.1)
+   - `20260605130000_add_phase12_notification_types.sql` (Task 0.1)
+   - `20260605130100_client_notes_table.sql` (Task 0.2)
+   - `20260605130200_upsert_client_note_rpc.sql` (Task 1.1)
+   - `20260605130300_shop_rebook_cadence_view.sql` (Task 0.3)
+   - `20260605130400_enqueue_booking_reminder_helper.sql` (Task 1.2)
+   - `20260605130500_cancel_and_followup_helper.sql` (Task 1.3)
+   - `20260605130600_booking_lifecycle_triggers.sql` (Task 1.4)
+   - `20260605130700_wire_terminal_rpcs.sql` (Task 1.5)
+   - `20260605130800_consolidate_reminder_scheduling_backfill.sql` (Task 2.1)
+   - `20260605130900_enqueue_rebook_nudges_rpc.sql` (Task 3.1)
    Verify with smoke §A–§J against staging. Only after every `OK:` fires do we push to prod.
 3. **Ship the three webhook diffs** (Tasks 2.2 + 2.3): `supabase functions deploy paystack-webhook stripe-webhook verify-payment`. After deploy, smoke-check by paying for a new test booking and watching `scheduled_notifications` — exactly 2 reminders should appear (from the trigger), zero from the webhook.
 4. **Ship the Dart code** as one commit. The widget changes are additive: the new card only renders under `isShopOwner`; pre-Phase-12 builds simply don't show it.
@@ -997,8 +997,8 @@ This plan is internally consistent when every item below holds. Reviewer asserts
   - [ ] `grep -rn 'client_for_booking' supabase/migrations/ lib/` returns `0` (view explicitly dropped from scope).
   - [ ] `grep -rn 'debounce\|Timer.periodic' lib/presentation/features/shops/dashboard/presentation/widgets/client_sticky_note_card.dart` returns `0`.
   - [ ] `grep -rn 'e\.toString()\.contains' lib/presentation/features/shops/dashboard/data/repositories/supabase_dashboard_repository.dart` returns `0`.
-  - [ ] `grep -v '^--' supabase/migrations/20260605120700_wire_terminal_rpcs.sql | grep -c 'cancel_and_followup'` returns at least `3`.
-  - [ ] **RPC-body drift gate**: the three terminal RPC bodies in `20260605120700_wire_terminal_rpcs.sql` are byte-for-byte the original `20260517020000_booking_hardening.sql` bodies plus EXACTLY one `PERFORM public.cancel_and_followup(...)` line each. Verify by extracting each function body, stripping the new `PERFORM` line, and `diff`-ing against the original source. Mechanical check: `for fn in cancel_booking mark_booking_complete mark_booking_no_show; do diff <(awk "/CREATE OR REPLACE FUNCTION public.$fn/,/^\\\$function\\\$;/" supabase/migrations/20260605120700_wire_terminal_rpcs.sql | grep -v 'cancel_and_followup') <(awk "/CREATE OR REPLACE FUNCTION public.$fn/,/^\\\$function\\\$;/" supabase/migrations/20260517020000_booking_hardening.sql); done` must produce ONLY the expected `+`/`-` lines for the `Phase 12:` COMMENT and no other changes.
+  - [ ] `grep -v '^--' supabase/migrations/20260605130700_wire_terminal_rpcs.sql | grep -c 'cancel_and_followup'` returns at least `3`.
+  - [ ] **RPC-body drift gate**: the three terminal RPC bodies in `20260605130700_wire_terminal_rpcs.sql` are byte-for-byte the original `20260517020000_booking_hardening.sql` bodies plus EXACTLY one `PERFORM public.cancel_and_followup(...)` line each. Verify by extracting each function body, stripping the new `PERFORM` line, and `diff`-ing against the original source. Mechanical check: `for fn in cancel_booking mark_booking_complete mark_booking_no_show; do diff <(awk "/CREATE OR REPLACE FUNCTION public.$fn/,/^\\\$function\\\$;/" supabase/migrations/20260605130700_wire_terminal_rpcs.sql | grep -v 'cancel_and_followup') <(awk "/CREATE OR REPLACE FUNCTION public.$fn/,/^\\\$function\\\$;/" supabase/migrations/20260517020000_booking_hardening.sql); done` must produce ONLY the expected `+`/`-` lines for the `Phase 12:` COMMENT and no other changes.
   - [ ] `grep -n 'ClientStickyNoteCard' lib/presentation/features/shops/booking/presentation/screens/shared/booking_detail_screen.dart` returns at least `1`.
 - [ ] Cron jobs verified live in `cron.job` 24h after deploy.
 - [ ] PR description flags the reminder-ownership consolidation as the highest-risk delta and documents the rollback plan (per §Rollout step 7).

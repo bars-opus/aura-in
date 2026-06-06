@@ -11,6 +11,8 @@ import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/opening_hours_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/business_hours_exceptions.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/service_management_exceptions.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/client_notes_exceptions.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/client_note_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/dashboard_metrics.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/lost_booking_metrics.dart';
@@ -2615,5 +2617,104 @@ class SupabaseDashboardRepository implements DashboardRepository {
       );
       throw ServiceArchiveFailedException();
     }
+  }
+
+  // ── Phase 12 — Client sticky notes ────────────────────────────────
+  //
+  // Read path: direct table SELECT keyed on (shop_id, user_id |
+  // guest_profile_id). RLS enforces shop-owner-only access; the
+  // implementation does not re-check authz in Dart.
+  //
+  // Write path: SECURITY DEFINER RPC upsert_client_note. Errors are
+  // mapped via PostgrestException.code + .hint to the typed
+  // ClientNoteException subtypes. NO string-matching on .message.
+
+  @override
+  Future<ClientNoteDTO?> getClientNote({
+    required String shopId,
+    String? userId,
+    String? guestProfileId,
+  }) async {
+    assert(
+      (userId == null) != (guestProfileId == null),
+      'Exactly one of userId / guestProfileId must be non-null',
+    );
+    try {
+      final query = _supabase
+          .from('client_notes')
+          .select('*')
+          .eq('shop_id', shopId);
+      final filtered = userId != null
+          ? query.eq('user_id', userId)
+          : query.eq('guest_profile_id', guestProfileId!);
+      final row = await filtered.maybeSingle();
+      if (row == null) return null;
+      return ClientNoteDTO.fromJson(row);
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'client_note.fetch_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      if (e.code == '42501' || e.code == 'P0002') {
+        throw NoteAccessDeniedException();
+      }
+      throw NoteSaveFailedException();
+    } catch (e) {
+      AppLogger.warn(
+        'client_note.fetch_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw NoteSaveFailedException();
+    }
+  }
+
+  @override
+  Future<String> upsertClientNote({
+    required String shopId,
+    String? userId,
+    String? guestProfileId,
+    required String body,
+  }) async {
+    assert(
+      (userId == null) != (guestProfileId == null),
+      'Exactly one of userId / guestProfileId must be non-null',
+    );
+    try {
+      final result = await _supabase.rpc(
+        'upsert_client_note',
+        params: {
+          'p_shop_id': shopId,
+          'p_user_id': userId,
+          'p_guest_profile_id': guestProfileId,
+          'p_body': body,
+        },
+      );
+      return result as String;
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'client_note.upsert_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw _classifyNoteError(e);
+    } catch (e) {
+      AppLogger.warn(
+        'client_note.upsert_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw NoteSaveFailedException();
+    }
+  }
+
+  /// Maps PostgrestException raised by `upsert_client_note` to the
+  /// typed exception subtype the widget switches on. NO string-matching
+  /// on `e.message` — branching is exclusively on `e.code` + `e.hint`.
+  ClientNoteException _classifyNoteError(PostgrestException e) {
+    if (e.code == '42501') return NoteAccessDeniedException();
+    final hint = e.hint ?? '';
+    if (e.code == '22023' && hint == 'NOTE_TOO_LONG') {
+      return NoteTooLongException();
+    }
+    if (e.code == '22023') return NotePayloadInvalidException();
+    return NoteSaveFailedException();
   }
 }

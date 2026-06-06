@@ -294,24 +294,10 @@ async function scheduleBookingNotifications(
       },
     ];
 
-    const clientReminders = [
-      { type: 'booking_reminder_24h', offsetMs: -24 * 60 * 60 * 1000, title: 'Appointment Tomorrow', body: `Your ${serviceNames} appointment is tomorrow at ${formattedTime}.` },
-      { type: 'booking_reminder_1h', offsetMs: -60 * 60 * 1000, title: 'Appointment in 1 Hour', body: `Your ${serviceNames} appointment starts in 1 hour.` },
-      { type: 'booking_reminder_5min', offsetMs: -5 * 60 * 1000, title: 'Appointment Starting Soon', body: `Your ${serviceNames} appointment starts in 5 minutes!` },
-    ];
-
-    for (const { type, offsetMs, title, body } of clientReminders) {
-      const scheduledFor = new Date(startTime.getTime() + offsetMs);
-      if (scheduledFor > now) {
-        scheduledRows.push({
-          user_id: clientUserId, notification_type: type,
-          booking_id: booking.id, shop_id: shopId,
-          scheduled_for: scheduledFor.toISOString(), status: 'pending',
-          metadata: { title, body, booking_id: booking.id },
-          created_at: now.toISOString(), updated_at: now.toISOString(),
-        });
-      }
-    }
+    // Phase 12: client reminder scheduling moved to the
+    // schedule_booking_reminders AFTER INSERT trigger on bookings
+    // (migration 20260605130600). The 1h and 5min variants are sunset
+    // per the consolidated cadence.
 
     const tReview = new Date(endTime.getTime() + 30 * 60 * 1000);
     if (tReview > now) {

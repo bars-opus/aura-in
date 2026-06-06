@@ -18,6 +18,7 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/to
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/workers/worker_attendance.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/workers/worker_performance.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/workers/worker_profile.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/client_note_dto.dart';
 
 /// Exception thrown by dashboard repository operations
 class DashboardRepositoryException implements Exception {
@@ -342,4 +343,34 @@ abstract class DashboardRepository {
   /// [ServiceNotFoundException] (authz failure or unknown id) or
   /// [ServiceArchiveFailedException].
   Future<void> archiveAppointmentSlot(String slotId);
+
+  // ── Phase 12 — Client sticky notes ────────────────────────────────
+  //
+  // Owner-private memory attached to a (shop, client) pair. Read +
+  // upsert paths gated by RLS / SECURITY DEFINER on shops.user_id =
+  // auth.uid(). Throws typed [ClientNoteException] subtypes; raw
+  // PostgrestException text MUST NOT reach the UI.
+
+  /// Fetch the existing sticky note for a (shop, client) pair.
+  /// Exactly one of [userId] / [guestProfileId] must be non-null —
+  /// asserted by the implementation. Returns null when no note has
+  /// been saved yet. Throws [NoteAccessDeniedException] when the
+  /// caller is not the shop owner.
+  Future<ClientNoteDTO?> getClientNote({
+    required String shopId,
+    String? userId,
+    String? guestProfileId,
+  });
+
+  /// Upsert (insert or update) the sticky note for a (shop, client)
+  /// pair. Returns the row id. Empty body is the soft-clear sentinel
+  /// (the server accepts it). Throws [NoteAccessDeniedException],
+  /// [NoteTooLongException], [NotePayloadInvalidException], or
+  /// [NoteSaveFailedException].
+  Future<String> upsertClientNote({
+    required String shopId,
+    String? userId,
+    String? guestProfileId,
+    required String body,
+  });
 }
