@@ -89,6 +89,7 @@ export function buildConfirmationParams(args: {
   address: string;
   depositAmount: string;
   remainingAmount: string;
+  bookingUrl: string;
 }): Record<string, string> {
   // Meta rejects (#131008) any template send where a body param is empty.
   // Default missing strings to an em-dash so the message still goes through
@@ -101,6 +102,7 @@ export function buildConfirmationParams(args: {
     "4": safe(args.address),
     "5": safe(args.depositAmount),
     "6": safe(args.remainingAmount),
+    "7": safe(args.bookingUrl), // booking_confirmation_v2: "View details: {{7}}"
   };
 }
 

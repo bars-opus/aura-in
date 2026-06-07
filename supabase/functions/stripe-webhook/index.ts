@@ -298,6 +298,8 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       ).toFixed(2);
       const depositAmount = bookingData.depositAmount.toFixed(2);
 
+      const bookingUrl = `https://aurain.barsopus.com/booking/${booking.id}`;
+
       const confirmationParams = buildConfirmationParams({
         guestName: bookingData.guestName,
         targetName,
@@ -305,6 +307,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         address,
         depositAmount,
         remainingAmount,
+        bookingUrl,
       });
 
       // Meta rejects (#131008) any empty body param. Default to em-dash.
@@ -344,7 +347,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
             guest_profile_id: pending.guest_profile_id,
             scheduled_for: nowIso,
             delivery_channel: "whatsapp",
-            whatsapp_template: "booking_confirmation_v1",
+            whatsapp_template: "booking_confirmation_v2",
             whatsapp_params: confirmationParams,
             status: "pending",
             metadata: baseMetadata,
