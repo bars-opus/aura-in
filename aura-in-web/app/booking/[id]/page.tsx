@@ -99,8 +99,79 @@ export default async function BookingDetailPage({ params }: Props) {
           <p className="text-sm text-slate-900">
             {data.client_address ?? data.shop?.address ?? "—"}
           </p>
+          {(() => {
+            // Maps link: prefer coords (precise pin), fall back to a
+            // text search over the address. Works in Google Maps + iOS
+            // routes through to Apple Maps via the universal handoff.
+            const lat = data.shop?.latitude;
+            const lng = data.shop?.longitude;
+            const addr = data.client_address ?? data.shop?.address;
+            const mapsUrl =
+              lat != null && lng != null
+                ? `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+                : addr
+                ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`
+                : null;
+            if (!mapsUrl) return null;
+            return (
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-sky-600 hover:text-sky-700"
+              >
+                <span aria-hidden>📍</span>
+                Open in Maps
+              </a>
+            );
+          })()}
         </div>
       </section>
+
+      {/* Contact the shop. Phone uses tel: (native dialer); WhatsApp
+          uses wa.me which opens the right app on every platform. Both
+          buttons hidden when the shop hasn't published a contact yet. */}
+      {(data.shop?.phone || data.shop?.whatsapp) && (
+        <section className="max-w-md mx-auto px-4 pt-3">
+          <div className="bg-white rounded-xl border border-slate-200 p-4">
+            <h2 className="text-xs uppercase tracking-wide text-slate-500 mb-3 font-medium">
+              Contact {data.shop?.name ?? "the shop"}
+            </h2>
+            <div className="flex flex-col gap-2">
+              {data.shop?.phone && (
+                <a
+                  href={`tel:${data.shop.phone}`}
+                  className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 hover:bg-slate-100"
+                >
+                  <span className="flex items-center gap-2">
+                    <span aria-hidden>📞</span>
+                    Call
+                  </span>
+                  <span className="text-slate-500 tabular-nums">
+                    {data.shop.phone}
+                  </span>
+                </a>
+              )}
+              {data.shop?.whatsapp && (
+                <a
+                  href={`https://wa.me/${data.shop.whatsapp.replace(/[^\d]/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5 text-sm text-emerald-900 hover:bg-emerald-100"
+                >
+                  <span className="flex items-center gap-2">
+                    <span aria-hidden>💬</span>
+                    WhatsApp
+                  </span>
+                  <span className="text-emerald-700 tabular-nums">
+                    {data.shop.whatsapp}
+                  </span>
+                </a>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {data.services.length > 0 && (
         <section className="max-w-md mx-auto px-4 pt-3">

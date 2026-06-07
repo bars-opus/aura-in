@@ -235,6 +235,10 @@ export interface BookingDetail {
     logo_url: string | null;
     address: string | null;
     country: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    phone: string | null;
+    whatsapp: string | null;
   } | null;
   services: Array<{
     name: string;
