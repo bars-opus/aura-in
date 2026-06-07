@@ -7,8 +7,9 @@
 // Server component — fetches the booking on the server, returns notFound()
 // for unknown IDs so the existing /not-found page is shown.
 
-import { fetchBookingDetail } from "@/lib/api";
+import { fetchBookingDetail, fetchBookingReview } from "@/lib/api";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { formatMoney } from "@/lib/format";
 
 interface Props {
@@ -30,7 +31,10 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function BookingDetailPage({ params }: Props) {
   const { id } = await params;
-  const data = await fetchBookingDetail(id);
+  const [data, review] = await Promise.all([
+    fetchBookingDetail(id),
+    fetchBookingReview(id),
+  ]);
   if (!data) notFound();
 
   const remaining = data.total_amount - data.deposit_amount;
@@ -160,6 +164,48 @@ export default async function BookingDetailPage({ params }: Props) {
           </div>
         </section>
       )}
+
+      {/* Review section mirrors the in-app RatingSection: shows the
+          existing review when one exists, or a CTA to write one when
+          the booking is completed. Pre-completion this section is
+          hidden — clients shouldn't review what hasn't happened. */}
+      {review ? (
+        <section className="max-w-md mx-auto px-4 pt-3">
+          <div className="bg-white rounded-xl border border-slate-200 p-4">
+            <h2 className="text-xs uppercase tracking-wide text-slate-500 mb-2 font-medium">
+              Your review
+            </h2>
+            <div className="flex items-center gap-1" aria-label={`${review.rating} out of 5 stars`}>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <span
+                  key={i}
+                  className={
+                    i <= review.rating
+                      ? "text-amber-400 text-lg leading-none"
+                      : "text-slate-200 text-lg leading-none"
+                  }
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+            {review.review && (
+              <p className="mt-2 text-sm text-slate-700 whitespace-pre-wrap">
+                {review.review}
+              </p>
+            )}
+          </div>
+        </section>
+      ) : data.status === "completed" ? (
+        <section className="max-w-md mx-auto px-4 pt-3">
+          <Link
+            href={`/r/${data.id}`}
+            className="block bg-slate-900 text-white text-sm font-medium rounded-xl py-3 text-center"
+          >
+            ★ Rate your visit
+          </Link>
+        </section>
+      ) : null}
 
       <p className="max-w-md mx-auto px-4 pt-6 text-xs text-slate-400 text-center">
         Reference: {data.id.slice(0, 8)}

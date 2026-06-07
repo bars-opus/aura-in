@@ -207,6 +207,17 @@ export interface CreateBookingResponse {
  * Shape returned by get_booking_detail RPC. Used by the /booking/[id] page
  * accessible from the WhatsApp confirmation link. Phone is server-redacted.
  */
+export interface BookingReview {
+  id: string;
+  rating: number;
+  review: string | null;
+  shop_response?: string | null;
+  responded_at?: string | null;
+  created_at: string;
+  updated_at?: string;
+  already_submitted?: boolean;
+}
+
 export interface BookingDetail {
   id: string;
   status: string;

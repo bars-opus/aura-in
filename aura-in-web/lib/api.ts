@@ -18,6 +18,7 @@ import type {
   GetSlotsRequest,
   GetSlotsResponse,
   BookingDetail,
+  BookingReview,
 } from "./types";
 
 /**
@@ -227,4 +228,59 @@ export async function fetchBookingDetail(
   if (!res.ok) return null;
   const data = (await res.json().catch(() => null)) as BookingDetail | null;
   return data;
+}
+
+/**
+ * Fetch the existing review for a booking, or null if none yet.
+ * Backed by get_booking_review SECURITY DEFINER RPC.
+ */
+export async function fetchBookingReview(
+  bookingId: string,
+): Promise<BookingReview | null> {
+  const { supabaseUrl, anonKey } = getSupabaseEnv();
+  const res = await fetch(`${supabaseUrl}/rest/v1/rpc/get_booking_review`, {
+    method: "POST",
+    headers: {
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ p_booking_id: bookingId }),
+    cache: "no-store",
+  });
+  if (!res.ok) return null;
+  const data = (await res.json().catch(() => null)) as BookingReview | null;
+  return data;
+}
+
+/**
+ * Submit a guest review for a booking. Idempotent: a second submit for
+ * the same booking returns the existing review with already_submitted=true.
+ */
+export async function submitGuestReview(
+  bookingId: string,
+  rating: number,
+  review: string,
+): Promise<{ ok: boolean; review?: BookingReview; error?: string }> {
+  const { supabaseUrl, anonKey } = getSupabaseEnv();
+  const res = await fetch(`${supabaseUrl}/rest/v1/rpc/submit_guest_review`, {
+    method: "POST",
+    headers: {
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      p_booking_id: bookingId,
+      p_rating: rating,
+      p_review: review,
+    }),
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    return { ok: false, error: err?.message ?? "Could not submit review." };
+  }
+  const data = (await res.json().catch(() => null)) as BookingReview | null;
+  return { ok: true, review: data ?? undefined };
 }
