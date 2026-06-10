@@ -14,7 +14,9 @@
 //   * getPromotions caps at 200 rows server-side (checklist 3.1, 2.5).
 
 import 'package:nano_embryo/core/utils/logging/app_logger.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/broadcast_exceptions.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/promotion_exceptions.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/broadcast_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/loyalty_rule_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/promotion_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -413,5 +415,138 @@ class PromotionsRepository {
       );
       return 0.0;
     }
+  }
+
+  // ── Phase 14 — Broadcasts ─────────────────────────────────────────
+  //
+  // Three methods extend this repository in place (Phase 14 SPEC line
+  // 129 + planner brief locked) rather than introducing a separate
+  // broadcasts_repository.dart. The classifier follows the same HINT-
+  // driven pattern as _classifyPromotionError — no string matching.
+
+  Future<List<BroadcastDTO>> getBroadcasts(String shopId) async {
+    try {
+      final rows = await _supabase
+          .from('broadcasts')
+          .select()
+          .eq('shop_id', shopId)
+          .order('created_at', ascending: false);
+      return (rows as List)
+          .map((r) => BroadcastDTO.fromJson(r as Map<String, dynamic>))
+          .toList();
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'broadcasts.list_failed',
+        fields: {
+          'shop_id': shopId,
+          'error_code': e.code ?? '',
+          'error': e.toString(),
+        },
+      );
+      throw _classifyBroadcastError(e);
+    }
+  }
+
+  Future<int> previewBroadcastAudience({
+    required String shopId,
+    required BroadcastAudience audienceType,
+    String? audienceParam,
+  }) async {
+    try {
+      final res = await _supabase.rpc(
+        'preview_broadcast_audience',
+        params: {
+          'p_shop_id': shopId,
+          'p_audience_type': audienceType.sqlValue,
+          'p_audience_param': audienceParam,
+        },
+      );
+      return (res as int?) ?? 0;
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'broadcasts.preview_failed',
+        fields: {
+          'shop_id': shopId,
+          'audience_type': audienceType.sqlValue,
+          'error_code': e.code ?? '',
+          'error': e.toString(),
+        },
+      );
+      throw _classifyBroadcastError(e);
+    }
+  }
+
+  /// Returns the new broadcast's id and the actual recipient_count
+  /// (post-dedup, post-opt-out filtering). The server reflects the
+  /// truth — callers should not re-derive from local audience estimates.
+  Future<({String broadcastId, int recipientCount})> sendBroadcast({
+    required String shopId,
+    required String subject,
+    required String body,
+    required BroadcastAudience audienceType,
+    String? audienceParam,
+    String? promotionId,
+  }) async {
+    try {
+      final res = await _supabase.rpc(
+        'send_broadcast',
+        params: {
+          'p_shop_id': shopId,
+          'p_subject': subject,
+          'p_body': body,
+          'p_audience_type': audienceType.sqlValue,
+          'p_audience_param': audienceParam,
+          'p_promotion_id': promotionId,
+        },
+      );
+      // RPC RETURNS TABLE — Supabase returns a List<Map> (one row).
+      final row = (res as List).first as Map<String, dynamic>;
+      return (
+        broadcastId: row['broadcast_id'] as String,
+        recipientCount: (row['recipient_count'] as num).toInt(),
+      );
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'broadcasts.send_failed',
+        fields: {
+          'shop_id': shopId,
+          'audience_type': audienceType.sqlValue,
+          'error_code': e.code ?? '',
+          'error': e.toString(),
+        },
+      );
+      throw _classifyBroadcastError(e);
+    }
+  }
+
+  /// Routes PostgrestException → typed BroadcastException via the
+  /// (code, hint) tuple. Mirrors _classifyPromotionError's HINT-driven
+  /// pattern — never branches on `e.message` text.
+  BroadcastException _classifyBroadcastError(PostgrestException e) {
+    final code = e.code;
+    final hint = e.hint;
+
+    if (code == '55P03') {
+      if (hint == 'BROADCAST_DAILY_LIMIT') return BroadcastRateLimitException();
+      if (hint == 'BROADCAST_IN_FLIGHT') return BroadcastInFlightException();
+    }
+    if (code == '22023') {
+      switch (hint) {
+        case 'AUDIENCE_TYPE_INVALID':
+        case 'AUDIENCE_PARAM_REQUIRED':
+        case 'AUDIENCE_PARAM_FORBIDDEN':
+          return BroadcastInvalidAudienceException();
+        case 'PROMO_NOT_VALID':
+          return BroadcastPromoInvalidException();
+        case 'BROADCAST_CAP_EXCEEDED':
+          return BroadcastCapExceededException();
+        case 'SUBJECT_TOO_LONG':
+        case 'BODY_TOO_LONG':
+        case 'REQUIRED_FIELD_MISSING':
+          return BroadcastSaveFailedException();
+      }
+    }
+    // 42501 sanitized not_found, plus anything unmapped.
+    return BroadcastSaveFailedException();
   }
 }

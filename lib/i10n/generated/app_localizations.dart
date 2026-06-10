@@ -1291,6 +1291,18 @@ abstract class AppLocalizations {
   /// **''**
   String get accountActionsSectionSubtitle;
 
+  /// No description provided for @updatePasswordItemTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update password'**
+  String get updatePasswordItemTitle;
+
+  /// No description provided for @updatePasswordItemSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change your current account password'**
+  String get updatePasswordItemSubtitle;
+
   /// No description provided for @deactivateItemTitle.
   ///
   /// In en, this message translates to:
@@ -1300,7 +1312,7 @@ abstract class AppLocalizations {
   /// No description provided for @deactivateItemSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Deactivate out of your account'**
+  /// **'Temporarily hide and deactivate your account'**
   String get deactivateItemSubtitle;
 
   /// No description provided for @deleteItemTitle.
@@ -1312,7 +1324,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteItemSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Permanently remove your account'**
+  /// **'Request permanent account deletion'**
   String get deleteItemSubtitle;
 
   /// No description provided for @logoutItemTitle.
@@ -1326,6 +1338,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign out of your account'**
   String get logoutItemSubtitle;
+
+  /// No description provided for @logoutConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to log out?'**
+  String get logoutConfirmTitle;
+
+  /// No description provided for @logoutConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You will need to log in again to access your account and data.'**
+  String get logoutConfirmMessage;
+
+  /// No description provided for @logoutConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get logoutConfirmButton;
+
+  /// No description provided for @logoutSuccessMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed out successfully'**
+  String get logoutSuccessMessage;
+
+  /// No description provided for @logoutFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out failed: {error}'**
+  String logoutFailedMessage(String error);
+
+  /// No description provided for @accountDeactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate account'**
+  String get accountDeactivateTitle;
+
+  /// No description provided for @accountDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get accountDeleteTitle;
+
+  /// No description provided for @accountRestoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore account'**
+  String get accountRestoreTitle;
+
+  /// No description provided for @accountDeactivateWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account will be hidden'**
+  String get accountDeactivateWarningTitle;
+
+  /// No description provided for @accountDeactivateWarningBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile, shops, products, freelancer listing, and booking links will be hidden. You can restore access by signing in again.'**
+  String get accountDeactivateWarningBody;
+
+  /// No description provided for @accountDeleteWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletion is scheduled for 30 days'**
+  String get accountDeleteWarningTitle;
+
+  /// No description provided for @accountDeleteWarningBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your public presence will be hidden now. You can restore your account within 30 days; after that, personal profile data is removed.'**
+  String get accountDeleteWarningBody;
+
+  /// No description provided for @accountPasswordConfirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get accountPasswordConfirmLabel;
+
+  /// No description provided for @accountPasswordConfirmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password'**
+  String get accountPasswordConfirmHint;
+
+  /// No description provided for @accountPhraseConfirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {phrase} to confirm'**
+  String accountPhraseConfirmLabel(String phrase);
+
+  /// No description provided for @accountReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get accountReasonLabel;
+
+  /// No description provided for @accountReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us why you are leaving'**
+  String get accountReasonHint;
+
+  /// No description provided for @accountPhraseMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {phrase} to continue'**
+  String accountPhraseMismatch(String phrase);
+
+  /// No description provided for @accountActionBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve active bookings, orders, or withdrawals before continuing.'**
+  String get accountActionBlocked;
+
+  /// No description provided for @accountActionLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not load account requirements. Please try again.'**
+  String get accountActionLoadFailed;
+
+  /// No description provided for @accountActionGenericError.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not complete this account action. Please try again.'**
+  String get accountActionGenericError;
+
+  /// No description provided for @accountRecentAuthRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in again before continuing.'**
+  String get accountRecentAuthRequired;
+
+  /// No description provided for @accountReasonTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason must be 1000 characters or fewer.'**
+  String get accountReasonTooLong;
+
+  /// No description provided for @accountDeactivateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate account'**
+  String get accountDeactivateButton;
+
+  /// No description provided for @accountDeleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Request deletion'**
+  String get accountDeleteButton;
+
+  /// No description provided for @accountDeactivatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been deactivated.'**
+  String get accountDeactivatedSuccess;
+
+  /// No description provided for @accountDeletionRequestedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion has been scheduled.'**
+  String get accountDeletionRequestedSuccess;
+
+  /// No description provided for @accountRestoreButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore account'**
+  String get accountRestoreButton;
+
+  /// No description provided for @accountRestoredSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been restored.'**
+  String get accountRestoredSuccess;
+
+  /// No description provided for @accountRestoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not restore this account.'**
+  String get accountRestoreFailed;
+
+  /// No description provided for @accountRestoreMissingProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not load your profile.'**
+  String get accountRestoreMissingProfile;
+
+  /// No description provided for @accountDeactivatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deactivated'**
+  String get accountDeactivatedTitle;
+
+  /// No description provided for @accountDeactivatedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is hidden. Restore it to continue using the app.'**
+  String get accountDeactivatedBody;
+
+  /// No description provided for @accountPendingDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account pending deletion'**
+  String get accountPendingDeleteTitle;
+
+  /// No description provided for @accountPendingDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is scheduled for deletion on {date}. Restore it before then to keep your account.'**
+  String accountPendingDeleteBody(String date);
+
+  /// No description provided for @accountDeletedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deleted'**
+  String get accountDeletedTitle;
+
+  /// No description provided for @accountDeletedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has been deleted and can no longer be restored.'**
+  String get accountDeletedBody;
+
+  /// No description provided for @accountBlockersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve these first'**
+  String get accountBlockersTitle;
+
+  /// No description provided for @accountBlockerActiveBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} active booking(s)'**
+  String accountBlockerActiveBookings(int count);
+
+  /// No description provided for @accountBlockerOwnedShopActiveBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} active shop booking(s)'**
+  String accountBlockerOwnedShopActiveBookings(int count);
+
+  /// No description provided for @accountBlockerActiveOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} active order(s)'**
+  String accountBlockerActiveOrders(int count);
+
+  /// No description provided for @accountBlockerOwnedShopActiveOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} active shop order(s)'**
+  String accountBlockerOwnedShopActiveOrders(int count);
+
+  /// No description provided for @accountBlockerActiveWithdrawals.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pending withdrawal(s)'**
+  String accountBlockerActiveWithdrawals(int count);
 
   /// No description provided for @loadingDefaultMessage.
   ///
@@ -3462,6 +3732,360 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'auto-generated · read-only'**
   String get promoSourceAutoGeneratedReadOnly;
+
+  /// No description provided for @broadcastsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcasts'**
+  String get broadcastsTitle;
+
+  /// No description provided for @broadcastsToolsCardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcasts'**
+  String get broadcastsToolsCardLabel;
+
+  /// No description provided for @broadcastsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No broadcasts yet'**
+  String get broadcastsEmptyTitle;
+
+  /// No description provided for @broadcastsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to send your first. You can broadcast once per day to up to 1000 clients.'**
+  String get broadcastsEmptyBody;
+
+  /// No description provided for @broadcastsFabTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'New broadcast'**
+  String get broadcastsFabTooltip;
+
+  /// No description provided for @broadcastsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load your broadcasts.'**
+  String get broadcastsLoadFailed;
+
+  /// No description provided for @broadcastsRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get broadcastsRetry;
+
+  /// No description provided for @broadcastCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New broadcast'**
+  String get broadcastCreateTitle;
+
+  /// No description provided for @broadcastSubjectLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get broadcastSubjectLabel;
+
+  /// No description provided for @broadcastSubjectHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown as the push notification title.'**
+  String get broadcastSubjectHelper;
+
+  /// No description provided for @broadcastSubjectRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject is required.'**
+  String get broadcastSubjectRequired;
+
+  /// No description provided for @broadcastBodyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get broadcastBodyLabel;
+
+  /// No description provided for @broadcastBodyHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain text only. WhatsApp recipients also see your shop name and an opt-out line.'**
+  String get broadcastBodyHelper;
+
+  /// No description provided for @broadcastBodyRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Message is required.'**
+  String get broadcastBodyRequired;
+
+  /// No description provided for @broadcastAudienceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Audience'**
+  String get broadcastAudienceLabel;
+
+  /// No description provided for @broadcastAudienceAllClients.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get broadcastAudienceAllClients;
+
+  /// No description provided for @broadcastAudienceRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get broadcastAudienceRecent;
+
+  /// No description provided for @broadcastAudienceLapsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Lapsed'**
+  String get broadcastAudienceLapsed;
+
+  /// No description provided for @broadcastAudienceByService.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get broadcastAudienceByService;
+
+  /// No description provided for @broadcastServiceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get broadcastServiceLabel;
+
+  /// No description provided for @broadcastServicePickRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a service.'**
+  String get broadcastServicePickRequired;
+
+  /// No description provided for @broadcastServiceLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load your services.'**
+  String get broadcastServiceLoadFailed;
+
+  /// No description provided for @broadcastServiceEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No active services to pick from.'**
+  String get broadcastServiceEmpty;
+
+  /// No description provided for @broadcastPromoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach a promo code (optional)'**
+  String get broadcastPromoLabel;
+
+  /// No description provided for @broadcastPromoHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Only your own promo codes can be attached. Loyalty and recovery codes aren\'t shown.'**
+  String get broadcastPromoHelper;
+
+  /// No description provided for @broadcastPromoNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get broadcastPromoNone;
+
+  /// No description provided for @broadcastPreviewResolving.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolving audience…'**
+  String get broadcastPreviewResolving;
+
+  /// No description provided for @broadcastPreviewPickAudience.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an audience to preview.'**
+  String get broadcastPreviewPickAudience;
+
+  /// No description provided for @broadcastPreviewPickService.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a service to preview.'**
+  String get broadcastPreviewPickService;
+
+  /// No description provided for @broadcastPreviewCount.
+  ///
+  /// In en, this message translates to:
+  /// **'This will send to {count} people.'**
+  String broadcastPreviewCount(Object count);
+
+  /// No description provided for @broadcastPreviewCapWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Audience exceeds the 1000-recipient cap. Try a narrower preset.'**
+  String get broadcastPreviewCapWarning;
+
+  /// No description provided for @broadcastPreviewFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t preview audience.'**
+  String get broadcastPreviewFailed;
+
+  /// No description provided for @broadcastSendButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get broadcastSendButton;
+
+  /// No description provided for @broadcastConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send broadcast?'**
+  String get broadcastConfirmTitle;
+
+  /// No description provided for @broadcastConfirmBodyAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to {count} all clients? This cannot be undone.'**
+  String broadcastConfirmBodyAll(Object count);
+
+  /// No description provided for @broadcastConfirmBodyRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to {count} recent clients? This cannot be undone.'**
+  String broadcastConfirmBodyRecent(Object count);
+
+  /// No description provided for @broadcastConfirmBodyLapsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to {count} lapsed clients? This cannot be undone.'**
+  String broadcastConfirmBodyLapsed(Object count);
+
+  /// No description provided for @broadcastConfirmBodyService.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to {count} clients of this service? This cannot be undone.'**
+  String broadcastConfirmBodyService(Object count);
+
+  /// No description provided for @broadcastConfirmBodyWithPromoSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **' A promo code will be attached.'**
+  String get broadcastConfirmBodyWithPromoSuffix;
+
+  /// No description provided for @broadcastConfirmCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get broadcastConfirmCancel;
+
+  /// No description provided for @broadcastConfirmSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get broadcastConfirmSend;
+
+  /// No description provided for @broadcastSentToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to {count} people.'**
+  String broadcastSentToast(Object count);
+
+  /// No description provided for @broadcastStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get broadcastStatusPending;
+
+  /// No description provided for @broadcastStatusDelivering.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending'**
+  String get broadcastStatusDelivering;
+
+  /// No description provided for @broadcastStatusDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get broadcastStatusDelivered;
+
+  /// No description provided for @broadcastStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get broadcastStatusFailed;
+
+  /// No description provided for @broadcastDeliveringTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp template approval is pending. This usually resolves within 24h.'**
+  String get broadcastDeliveringTooltip;
+
+  /// No description provided for @broadcastAudienceLabelShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Audience: {audience}'**
+  String broadcastAudienceLabelShort(Object audience);
+
+  /// No description provided for @broadcastPromoLabelShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Promo attached: {id}'**
+  String broadcastPromoLabelShort(Object id);
+
+  /// No description provided for @broadcastRecipientsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipients: {count}'**
+  String broadcastRecipientsLabel(Object count);
+
+  /// No description provided for @broadcastDeliveredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered: {when}'**
+  String broadcastDeliveredLabel(Object when);
+
+  /// No description provided for @broadcastStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: {status}'**
+  String broadcastStatusLabel(Object status);
+
+  /// No description provided for @broadcastDetailClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get broadcastDetailClose;
+
+  /// No description provided for @broadcastRateLimitMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve already sent a broadcast today. Try again tomorrow.'**
+  String get broadcastRateLimitMessage;
+
+  /// No description provided for @broadcastInFlightMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Another broadcast is being processed. Please wait a moment.'**
+  String get broadcastInFlightMessage;
+
+  /// No description provided for @broadcastInvalidAudienceMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please pick a valid audience and (if \'By service\') a service.'**
+  String get broadcastInvalidAudienceMessage;
+
+  /// No description provided for @broadcastPromoInvalidMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This code is no longer valid. Pick another or remove the code.'**
+  String get broadcastPromoInvalidMessage;
+
+  /// No description provided for @broadcastCapExceededMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This audience is larger than the 1000-recipient cap. Try a narrower audience.'**
+  String get broadcastCapExceededMessage;
+
+  /// No description provided for @broadcastSaveFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send broadcast. Please try again.'**
+  String get broadcastSaveFailedMessage;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

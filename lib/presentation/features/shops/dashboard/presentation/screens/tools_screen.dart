@@ -24,6 +24,7 @@ import 'package:nano_embryo/core/link/providers/link_providers.dart';
 import 'package:nano_embryo/core/link/widgets/shareable_link_section.dart';
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_details_provider.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/broadcasts_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/business_hours_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/export_reports_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/loyalty_rule_screen.dart';
@@ -97,7 +98,7 @@ class ToolsScreen extends ConsumerWidget {
               child: ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 padding: EdgeInsets.symmetric(vertical: Spacing.sm.h),
-                itemCount: 7,
+                itemCount: 8,
                 itemBuilder: (context, index) {
                   switch (index) {
                     case 0:
@@ -206,6 +207,22 @@ class ToolsScreen extends ConsumerWidget {
                           MaterialPageRoute(
                             builder: (_) =>
                                 LoyaltyRuleScreen(shopId: shopId),
+                          ),
+                        ),
+                      );
+                    case 7:
+                      // Phase 14: Broadcasts — owner-driven messaging
+                      // surface (push for registered, WhatsApp for guests).
+                      return KpiCard(
+                        title: loc.toolsConfigure,
+                        value: loc.broadcastsToolsCardLabel,
+                        icon: Icons.campaign_outlined,
+                        iconColor: colorScheme.secondary,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                BroadcastsScreen(shopId: shopId),
                           ),
                         ),
                       );

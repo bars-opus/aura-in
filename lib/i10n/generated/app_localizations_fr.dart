@@ -633,22 +633,175 @@ class AppLocalizationsFr extends AppLocalizations {
   String get accountActionsSectionSubtitle => '';
 
   @override
+  String get updatePasswordItemTitle => 'Mettre à jour le mot de passe';
+
+  @override
+  String get updatePasswordItemSubtitle => 'Modifiez le mot de passe actuel de votre compte';
+
+  @override
   String get deactivateItemTitle => 'Désactiver';
 
   @override
-  String get deactivateItemSubtitle => 'Désactivez votre compte';
+  String get deactivateItemSubtitle => 'Masquez et désactivez temporairement votre compte';
 
   @override
   String get deleteItemTitle => 'Supprimer le compte';
 
   @override
-  String get deleteItemSubtitle => 'Supprimez définitivement votre compte';
+  String get deleteItemSubtitle => 'Demandez la suppression définitive de votre compte';
 
   @override
   String get logoutItemTitle => 'Déconnexion';
 
   @override
   String get logoutItemSubtitle => 'Déconnectez-vous de votre compte';
+
+  @override
+  String get logoutConfirmTitle => 'Voulez-vous vraiment vous déconnecter ?';
+
+  @override
+  String get logoutConfirmMessage => 'Vous devrez vous reconnecter pour accéder à votre compte et à vos données.';
+
+  @override
+  String get logoutConfirmButton => 'Déconnexion';
+
+  @override
+  String get logoutSuccessMessage => 'Déconnexion réussie';
+
+  @override
+  String logoutFailedMessage(String error) {
+    return 'Échec de la déconnexion : $error';
+  }
+
+  @override
+  String get accountDeactivateTitle => 'Désactiver le compte';
+
+  @override
+  String get accountDeleteTitle => 'Supprimer le compte';
+
+  @override
+  String get accountRestoreTitle => 'Restaurer le compte';
+
+  @override
+  String get accountDeactivateWarningTitle => 'Votre compte sera masqué';
+
+  @override
+  String get accountDeactivateWarningBody => 'Votre profil, vos boutiques, produits, profil freelance et liens de réservation seront masqués. Vous pouvez restaurer l’accès en vous reconnectant.';
+
+  @override
+  String get accountDeleteWarningTitle => 'La suppression est programmée pendant 30 jours';
+
+  @override
+  String get accountDeleteWarningBody => 'Votre présence publique sera masquée maintenant. Vous pouvez restaurer votre compte dans les 30 jours; ensuite les données personnelles du profil seront supprimées.';
+
+  @override
+  String get accountPasswordConfirmLabel => 'Confirmer le mot de passe';
+
+  @override
+  String get accountPasswordConfirmHint => 'Entrez votre mot de passe';
+
+  @override
+  String accountPhraseConfirmLabel(String phrase) {
+    return 'Tapez $phrase pour confirmer';
+  }
+
+  @override
+  String get accountReasonLabel => 'Raison (facultatif)';
+
+  @override
+  String get accountReasonHint => 'Dites-nous pourquoi vous partez';
+
+  @override
+  String accountPhraseMismatch(String phrase) {
+    return 'Tapez $phrase pour continuer';
+  }
+
+  @override
+  String get accountActionBlocked => 'Résolvez les réservations, commandes ou retraits actifs avant de continuer.';
+
+  @override
+  String get accountActionLoadFailed => 'Nous n’avons pas pu charger les exigences du compte. Réessayez.';
+
+  @override
+  String get accountActionGenericError => 'Nous n’avons pas pu terminer cette action de compte. Réessayez.';
+
+  @override
+  String get accountRecentAuthRequired => 'Veuillez vous reconnecter avant de continuer.';
+
+  @override
+  String get accountReasonTooLong => 'La raison doit contenir 1000 caractères ou moins.';
+
+  @override
+  String get accountDeactivateButton => 'Désactiver le compte';
+
+  @override
+  String get accountDeleteButton => 'Demander la suppression';
+
+  @override
+  String get accountDeactivatedSuccess => 'Votre compte a été désactivé.';
+
+  @override
+  String get accountDeletionRequestedSuccess => 'La suppression du compte a été programmée.';
+
+  @override
+  String get accountRestoreButton => 'Restaurer le compte';
+
+  @override
+  String get accountRestoredSuccess => 'Votre compte a été restauré.';
+
+  @override
+  String get accountRestoreFailed => 'Nous n’avons pas pu restaurer ce compte.';
+
+  @override
+  String get accountRestoreMissingProfile => 'Nous n’avons pas pu charger votre profil.';
+
+  @override
+  String get accountDeactivatedTitle => 'Compte désactivé';
+
+  @override
+  String get accountDeactivatedBody => 'Votre compte est masqué. Restaurez-le pour continuer à utiliser l’application.';
+
+  @override
+  String get accountPendingDeleteTitle => 'Compte en attente de suppression';
+
+  @override
+  String accountPendingDeleteBody(String date) {
+    return 'Votre compte est programmé pour suppression le $date. Restaurez-le avant cette date pour le conserver.';
+  }
+
+  @override
+  String get accountDeletedTitle => 'Compte supprimé';
+
+  @override
+  String get accountDeletedBody => 'Ce compte a été supprimé et ne peut plus être restauré.';
+
+  @override
+  String get accountBlockersTitle => 'Résolvez d\'abord ces éléments';
+
+  @override
+  String accountBlockerActiveBookings(int count) {
+    return '$count réservation(s) active(s)';
+  }
+
+  @override
+  String accountBlockerOwnedShopActiveBookings(int count) {
+    return '$count réservation(s) active(s) de boutique';
+  }
+
+  @override
+  String accountBlockerActiveOrders(int count) {
+    return '$count commande(s) active(s)';
+  }
+
+  @override
+  String accountBlockerOwnedShopActiveOrders(int count) {
+    return '$count commande(s) active(s) de boutique';
+  }
+
+  @override
+  String accountBlockerActiveWithdrawals(int count) {
+    return '$count retrait(s) en attente';
+  }
 
   @override
   String get loadingDefaultMessage => 'Chargement...';
@@ -1826,4 +1979,203 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get promoSourceAutoGeneratedReadOnly => 'auto-generated · read-only';
+
+  @override
+  String get broadcastsTitle => 'Broadcasts';
+
+  @override
+  String get broadcastsToolsCardLabel => 'Broadcasts';
+
+  @override
+  String get broadcastsEmptyTitle => 'No broadcasts yet';
+
+  @override
+  String get broadcastsEmptyBody => 'Tap + to send your first. You can broadcast once per day to up to 1000 clients.';
+
+  @override
+  String get broadcastsFabTooltip => 'New broadcast';
+
+  @override
+  String get broadcastsLoadFailed => 'We couldn\'t load your broadcasts.';
+
+  @override
+  String get broadcastsRetry => 'Retry';
+
+  @override
+  String get broadcastCreateTitle => 'New broadcast';
+
+  @override
+  String get broadcastSubjectLabel => 'Subject';
+
+  @override
+  String get broadcastSubjectHelper => 'Shown as the push notification title.';
+
+  @override
+  String get broadcastSubjectRequired => 'Subject is required.';
+
+  @override
+  String get broadcastBodyLabel => 'Message';
+
+  @override
+  String get broadcastBodyHelper => 'Plain text only. WhatsApp recipients also see your shop name and an opt-out line.';
+
+  @override
+  String get broadcastBodyRequired => 'Message is required.';
+
+  @override
+  String get broadcastAudienceLabel => 'Audience';
+
+  @override
+  String get broadcastAudienceAllClients => 'All';
+
+  @override
+  String get broadcastAudienceRecent => 'Recent';
+
+  @override
+  String get broadcastAudienceLapsed => 'Lapsed';
+
+  @override
+  String get broadcastAudienceByService => 'Service';
+
+  @override
+  String get broadcastServiceLabel => 'Service';
+
+  @override
+  String get broadcastServicePickRequired => 'Pick a service.';
+
+  @override
+  String get broadcastServiceLoadFailed => 'We couldn\'t load your services.';
+
+  @override
+  String get broadcastServiceEmpty => 'No active services to pick from.';
+
+  @override
+  String get broadcastPromoLabel => 'Attach a promo code (optional)';
+
+  @override
+  String get broadcastPromoHelper => 'Only your own promo codes can be attached. Loyalty and recovery codes aren\'t shown.';
+
+  @override
+  String get broadcastPromoNone => 'None';
+
+  @override
+  String get broadcastPreviewResolving => 'Resolving audience…';
+
+  @override
+  String get broadcastPreviewPickAudience => 'Pick an audience to preview.';
+
+  @override
+  String get broadcastPreviewPickService => 'Pick a service to preview.';
+
+  @override
+  String broadcastPreviewCount(Object count) {
+    return 'This will send to $count people.';
+  }
+
+  @override
+  String get broadcastPreviewCapWarning => 'Audience exceeds the 1000-recipient cap. Try a narrower preset.';
+
+  @override
+  String get broadcastPreviewFailed => 'Couldn\'t preview audience.';
+
+  @override
+  String get broadcastSendButton => 'Send';
+
+  @override
+  String get broadcastConfirmTitle => 'Send broadcast?';
+
+  @override
+  String broadcastConfirmBodyAll(Object count) {
+    return 'Send to $count all clients? This cannot be undone.';
+  }
+
+  @override
+  String broadcastConfirmBodyRecent(Object count) {
+    return 'Send to $count recent clients? This cannot be undone.';
+  }
+
+  @override
+  String broadcastConfirmBodyLapsed(Object count) {
+    return 'Send to $count lapsed clients? This cannot be undone.';
+  }
+
+  @override
+  String broadcastConfirmBodyService(Object count) {
+    return 'Send to $count clients of this service? This cannot be undone.';
+  }
+
+  @override
+  String get broadcastConfirmBodyWithPromoSuffix => ' A promo code will be attached.';
+
+  @override
+  String get broadcastConfirmCancel => 'Cancel';
+
+  @override
+  String get broadcastConfirmSend => 'Send';
+
+  @override
+  String broadcastSentToast(Object count) {
+    return 'Sent to $count people.';
+  }
+
+  @override
+  String get broadcastStatusPending => 'Pending';
+
+  @override
+  String get broadcastStatusDelivering => 'Sending';
+
+  @override
+  String get broadcastStatusDelivered => 'Sent';
+
+  @override
+  String get broadcastStatusFailed => 'Failed';
+
+  @override
+  String get broadcastDeliveringTooltip => 'WhatsApp template approval is pending. This usually resolves within 24h.';
+
+  @override
+  String broadcastAudienceLabelShort(Object audience) {
+    return 'Audience: $audience';
+  }
+
+  @override
+  String broadcastPromoLabelShort(Object id) {
+    return 'Promo attached: $id';
+  }
+
+  @override
+  String broadcastRecipientsLabel(Object count) {
+    return 'Recipients: $count';
+  }
+
+  @override
+  String broadcastDeliveredLabel(Object when) {
+    return 'Delivered: $when';
+  }
+
+  @override
+  String broadcastStatusLabel(Object status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String get broadcastDetailClose => 'Close';
+
+  @override
+  String get broadcastRateLimitMessage => 'You\'ve already sent a broadcast today. Try again tomorrow.';
+
+  @override
+  String get broadcastInFlightMessage => 'Another broadcast is being processed. Please wait a moment.';
+
+  @override
+  String get broadcastInvalidAudienceMessage => 'Please pick a valid audience and (if \'By service\') a service.';
+
+  @override
+  String get broadcastPromoInvalidMessage => 'This code is no longer valid. Pick another or remove the code.';
+
+  @override
+  String get broadcastCapExceededMessage => 'This audience is larger than the 1000-recipient cap. Try a narrower audience.';
+
+  @override
+  String get broadcastSaveFailedMessage => 'Could not send broadcast. Please try again.';
 }

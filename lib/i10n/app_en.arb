@@ -373,15 +373,134 @@
   
   "accountActionsSectionTitle": "Account Actions",
   "accountActionsSectionSubtitle": "",
+
+  "updatePasswordItemTitle": "Update password",
+  "updatePasswordItemSubtitle": "Change your current account password",
   
   "deactivateItemTitle": "Deactivate",
-  "deactivateItemSubtitle": "Deactivate out of your account",
+  "deactivateItemSubtitle": "Temporarily hide and deactivate your account",
   
   "deleteItemTitle": "Delete Account",
-  "deleteItemSubtitle": "Permanently remove your account",
+  "deleteItemSubtitle": "Request permanent account deletion",
   
   "logoutItemTitle": "Log Out",
   "logoutItemSubtitle": "Sign out of your account",
+  "logoutConfirmTitle": "Are you sure you want to log out?",
+  "logoutConfirmMessage": "You will need to log in again to access your account and data.",
+  "logoutConfirmButton": "Log out",
+  "logoutSuccessMessage": "Signed out successfully",
+  "logoutFailedMessage": "Sign out failed: {error}",
+  "@logoutFailedMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+
+  "accountDeactivateTitle": "Deactivate account",
+  "accountDeleteTitle": "Delete account",
+  "accountRestoreTitle": "Restore account",
+  "accountDeactivateWarningTitle": "Your account will be hidden",
+  "accountDeactivateWarningBody": "Your profile, shops, products, freelancer listing, and booking links will be hidden. You can restore access by signing in again.",
+  "accountDeleteWarningTitle": "Deletion is scheduled for 30 days",
+  "accountDeleteWarningBody": "Your public presence will be hidden now. You can restore your account within 30 days; after that, personal profile data is removed.",
+  "accountPasswordConfirmLabel": "Confirm password",
+  "accountPasswordConfirmHint": "Enter your password",
+  "accountPhraseConfirmLabel": "Type {phrase} to confirm",
+  "@accountPhraseConfirmLabel": {
+    "placeholders": {
+      "phrase": {
+        "type": "String",
+        "example": "DELETE"
+      }
+    }
+  },
+  "accountReasonLabel": "Reason (optional)",
+  "accountReasonHint": "Tell us why you are leaving",
+  "accountPhraseMismatch": "Type {phrase} to continue",
+  "@accountPhraseMismatch": {
+    "placeholders": {
+      "phrase": {
+        "type": "String",
+        "example": "DELETE"
+      }
+    }
+  },
+  "accountActionBlocked": "Resolve active bookings, orders, or withdrawals before continuing.",
+  "accountActionLoadFailed": "We could not load account requirements. Please try again.",
+  "accountActionGenericError": "We could not complete this account action. Please try again.",
+  "accountRecentAuthRequired": "Please sign in again before continuing.",
+  "accountReasonTooLong": "Reason must be 1000 characters or fewer.",
+  "accountDeactivateButton": "Deactivate account",
+  "accountDeleteButton": "Request deletion",
+  "accountDeactivatedSuccess": "Your account has been deactivated.",
+  "accountDeletionRequestedSuccess": "Account deletion has been scheduled.",
+  "accountRestoreButton": "Restore account",
+  "accountRestoredSuccess": "Your account has been restored.",
+  "accountRestoreFailed": "We could not restore this account.",
+  "accountRestoreMissingProfile": "We could not load your profile.",
+  "accountDeactivatedTitle": "Account deactivated",
+  "accountDeactivatedBody": "Your account is hidden. Restore it to continue using the app.",
+  "accountPendingDeleteTitle": "Account pending deletion",
+  "accountPendingDeleteBody": "Your account is scheduled for deletion on {date}. Restore it before then to keep your account.",
+  "@accountPendingDeleteBody": {
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Jun 9, 2026"
+      }
+    }
+  },
+  "accountDeletedTitle": "Account deleted",
+  "accountDeletedBody": "This account has been deleted and can no longer be restored.",
+  "accountBlockersTitle": "Resolve these first",
+  "accountBlockerActiveBookings": "{count} active booking(s)",
+  "@accountBlockerActiveBookings": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "accountBlockerOwnedShopActiveBookings": "{count} active shop booking(s)",
+  "@accountBlockerOwnedShopActiveBookings": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "accountBlockerActiveOrders": "{count} active order(s)",
+  "@accountBlockerActiveOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "accountBlockerOwnedShopActiveOrders": "{count} active shop order(s)",
+  "@accountBlockerOwnedShopActiveOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "accountBlockerActiveWithdrawals": "{count} pending withdrawal(s)",
+  "@accountBlockerActiveWithdrawals": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
 
   "loadingDefaultMessage": "Loading...",
 
@@ -1328,5 +1447,69 @@
   "promoSourceOwner": "Owner",
   "promoSourceLoyalty": "Loyalty",
   "promoSourceRecovery": "Recovery",
-  "promoSourceAutoGeneratedReadOnly": "auto-generated · read-only"
+  "promoSourceAutoGeneratedReadOnly": "auto-generated · read-only",
+
+  "broadcastsTitle": "Broadcasts",
+  "broadcastsToolsCardLabel": "Broadcasts",
+  "broadcastsEmptyTitle": "No broadcasts yet",
+  "broadcastsEmptyBody": "Tap + to send your first. You can broadcast once per day to up to 1000 clients.",
+  "broadcastsFabTooltip": "New broadcast",
+  "broadcastsLoadFailed": "We couldn't load your broadcasts.",
+  "broadcastsRetry": "Retry",
+
+  "broadcastCreateTitle": "New broadcast",
+  "broadcastSubjectLabel": "Subject",
+  "broadcastSubjectHelper": "Shown as the push notification title.",
+  "broadcastSubjectRequired": "Subject is required.",
+  "broadcastBodyLabel": "Message",
+  "broadcastBodyHelper": "Plain text only. WhatsApp recipients also see your shop name and an opt-out line.",
+  "broadcastBodyRequired": "Message is required.",
+  "broadcastAudienceLabel": "Audience",
+  "broadcastAudienceAllClients": "All",
+  "broadcastAudienceRecent": "Recent",
+  "broadcastAudienceLapsed": "Lapsed",
+  "broadcastAudienceByService": "Service",
+  "broadcastServiceLabel": "Service",
+  "broadcastServicePickRequired": "Pick a service.",
+  "broadcastServiceLoadFailed": "We couldn't load your services.",
+  "broadcastServiceEmpty": "No active services to pick from.",
+  "broadcastPromoLabel": "Attach a promo code (optional)",
+  "broadcastPromoHelper": "Only your own promo codes can be attached. Loyalty and recovery codes aren't shown.",
+  "broadcastPromoNone": "None",
+  "broadcastPreviewResolving": "Resolving audience…",
+  "broadcastPreviewPickAudience": "Pick an audience to preview.",
+  "broadcastPreviewPickService": "Pick a service to preview.",
+  "broadcastPreviewCount": "This will send to {count} people.",
+  "broadcastPreviewCapWarning": "Audience exceeds the 1000-recipient cap. Try a narrower preset.",
+  "broadcastPreviewFailed": "Couldn't preview audience.",
+  "broadcastSendButton": "Send",
+  "broadcastConfirmTitle": "Send broadcast?",
+  "broadcastConfirmBodyAll": "Send to {count} all clients? This cannot be undone.",
+  "broadcastConfirmBodyRecent": "Send to {count} recent clients? This cannot be undone.",
+  "broadcastConfirmBodyLapsed": "Send to {count} lapsed clients? This cannot be undone.",
+  "broadcastConfirmBodyService": "Send to {count} clients of this service? This cannot be undone.",
+  "broadcastConfirmBodyWithPromoSuffix": " A promo code will be attached.",
+  "broadcastConfirmCancel": "Cancel",
+  "broadcastConfirmSend": "Send",
+  "broadcastSentToast": "Sent to {count} people.",
+
+  "broadcastStatusPending": "Pending",
+  "broadcastStatusDelivering": "Sending",
+  "broadcastStatusDelivered": "Sent",
+  "broadcastStatusFailed": "Failed",
+  "broadcastDeliveringTooltip": "WhatsApp template approval is pending. This usually resolves within 24h.",
+
+  "broadcastAudienceLabelShort": "Audience: {audience}",
+  "broadcastPromoLabelShort": "Promo attached: {id}",
+  "broadcastRecipientsLabel": "Recipients: {count}",
+  "broadcastDeliveredLabel": "Delivered: {when}",
+  "broadcastStatusLabel": "Status: {status}",
+  "broadcastDetailClose": "Close",
+
+  "broadcastRateLimitMessage": "You've already sent a broadcast today. Try again tomorrow.",
+  "broadcastInFlightMessage": "Another broadcast is being processed. Please wait a moment.",
+  "broadcastInvalidAudienceMessage": "Please pick a valid audience and (if 'By service') a service.",
+  "broadcastPromoInvalidMessage": "This code is no longer valid. Pick another or remove the code.",
+  "broadcastCapExceededMessage": "This audience is larger than the 1000-recipient cap. Try a narrower audience.",
+  "broadcastSaveFailedMessage": "Could not send broadcast. Please try again."
 }
