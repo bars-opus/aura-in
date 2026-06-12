@@ -73,6 +73,7 @@ class _BookingConfirmationScreenState
     final totalPrice = _calculateTotalPrice(
       selectedServices,
       selectedQuantities,
+      selectedTimeSlots,
     );
 
     // Check if anything is missing - UPDATED LOGIC
@@ -299,13 +300,21 @@ class _BookingConfirmationScreenState
     setState(() => _appliedPromo = applied);
   }
 
+  /// Phase 15 — effective price per service comes from the time-slot
+  /// resolver (post-pricing-override). Falls back to `service.price` when
+  /// the slot isn't in `timeSlots` (defensive — should not happen in
+  /// the confirmation flow). Zero-override shops see `effective == base`.
   double _calculateTotalPrice(
     List<AppointmentSlotDTO> services,
     Map<String, int> quantities,
+    Map<String, TimeSlotModel> timeSlots,
   ) {
     return services.fold<double>(
       0,
-      (sum, service) => sum + service.price * (quantities[service.id] ?? 1),
+      (sum, service) {
+        final effective = timeSlots[service.id]?.price ?? service.price;
+        return sum + effective * (quantities[service.id] ?? 1);
+      },
     );
   }
 
@@ -328,7 +337,7 @@ class _BookingConfirmationScreenState
       final workers = ref.read(selectedWorkersProvider);
       final quantities = ref.read(serviceQuantityProvider);
       final timeSlots = ref.read(selectedTimeSlotsProvider);
-      final totalPrice = _calculateTotalPrice(services, quantities);
+      final totalPrice = _calculateTotalPrice(services, quantities, timeSlots);
       final firstSlot = timeSlots.values.first;
 
       // Phase 13: when a promo code is applied, the discounted total
@@ -339,16 +348,18 @@ class _BookingConfirmationScreenState
 
       // Expand services by quantity so the server-side amount validation
       // (sum(priceAtBooking) == totalAmount) holds for group bookings.
+      // Phase 15: priceAtBooking carries the EFFECTIVE price (post-override).
       final servicesData = services
           .expand<Map<String, dynamic>>((service) {
             final qty = quantities[service.id] ?? 1;
             final workerEntries = workers[service.id] ?? [];
+            final effectivePrice = timeSlots[service.id]?.price ?? service.price;
             return List.generate(qty, (i) {
               final worker = i < workerEntries.length ? workerEntries[i] : null;
               return {
                 'slotId': service.id,
                 'workerId': worker?['id'],
-                'priceAtBooking': service.price,
+                'priceAtBooking': effectivePrice,
                 'durationMinutes':
                     DurationUtils.parse(service.duration).inMinutes,
                 'serviceName': service.serviceName,

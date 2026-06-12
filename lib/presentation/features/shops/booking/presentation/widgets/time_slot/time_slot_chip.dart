@@ -1,5 +1,6 @@
 // lib/features/booking/presentation/widgets/time_slot/time_slot_chip.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 /// A beautiful chip for displaying individual time slots.
 ///
@@ -131,18 +132,34 @@ class TimeSlotChip extends ConsumerWidget {
                                       ? colorScheme.onPrimary
                                       : colorScheme.onBackground,
                             ),
-                          ),
+                          )
+                        else
+                          const SizedBox.shrink(),
 
-                        // Text(
-                        //   '$currency ${slot.price.toStringAsFixed(2)}',
-                        // style: theme.textTheme.titleSmall?.copyWith(
-                        //   fontWeight: FontWeight.w700,
-                        //   color:
-                        //       isSelected
-                        //           ? colorScheme.onPrimary
-                        //           : colorScheme.primary,
-                        // ),
-                        // ),
+                        // Phase 15: price + optional discount/surcharge chip.
+                        // The chip only renders when basePrice is non-null AND
+                        // differs from price — i.e. a pricing_override applied.
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '$currency ${slot.price.toStringAsFixed(2)}',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? colorScheme.onPrimary
+                                    : colorScheme.primary,
+                              ),
+                            ),
+                            if (slot.hasAdjustedPrice) ...[
+                              const SizedBox(width: 6),
+                              _AdjustmentBadge(
+                                isDiscount: slot.isDiscounted,
+                                isSelected: isSelected,
+                              ),
+                            ],
+                          ],
+                        ),
                       ],
                     ),
 
@@ -241,5 +258,47 @@ class TimeSlotChip extends ConsumerWidget {
     if (remaining < requested) return colorScheme.error;
     if (remaining <= 2) return colorScheme.tertiary;
     return colorScheme.primary;
+  }
+}
+
+/// Phase 15 — small pill that signals to the client whether a slot is
+/// discounted or surcharged versus its base price. Owner-defined `name`
+/// is NEVER surfaced (SPEC line 90) — only the kind shows.
+class _AdjustmentBadge extends StatelessWidget {
+  final bool isDiscount;
+  final bool isSelected;
+
+  const _AdjustmentBadge({
+    required this.isDiscount,
+    required this.isSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    // Discount → tertiary (positive green-ish in M3 defaults).
+    // Surcharge → error (a soft red signal that price is up).
+    final base = isDiscount ? scheme.tertiary : scheme.error;
+    final fg = isSelected ? scheme.onPrimary : base;
+    final bg = isSelected
+        ? scheme.onPrimary.withOpacity(0.18)
+        : base.withOpacity(0.15);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        isDiscount
+            ? AppLocalizations.of(context)!.pricingChipDiscount
+            : AppLocalizations.of(context)!.pricingChipSurcharge,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: fg,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
   }
 }

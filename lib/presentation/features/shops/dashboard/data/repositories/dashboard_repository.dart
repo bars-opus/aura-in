@@ -19,6 +19,8 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/wo
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/workers/worker_performance.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/workers/worker_profile.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/client_note_dto.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/daily_report_dto.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/pricing_override_dto.dart';
 
 /// Exception thrown by dashboard repository operations
 class DashboardRepositoryException implements Exception {
@@ -372,5 +374,77 @@ abstract class DashboardRepository {
     String? userId,
     String? guestProfileId,
     required String body,
+  });
+
+  // ── Phase 15 — Pricing overrides ──────────────────────────────────
+  //
+  // Per-(slot, day_of_week, time_window) rules that the slot-generation
+  // RPC applies to produce the effective price. Owner-only via slot →
+  // shop chain. All mutations route through SECURITY DEFINER RPCs.
+  // Throws typed [PricingOverrideException] subtypes — HINT-driven, no
+  // string matching.
+
+  /// List active (non-archived) pricing overrides for a slot. Sorted
+  /// most-recent first.
+  Future<List<PricingOverrideDTO>> getPricingOverrides({
+    required String slotId,
+  });
+
+  /// Create a new override. Returns the new row id. Throws typed
+  /// subtypes per validation HINT.
+  Future<String> createPricingOverride({
+    required String slotId,
+    required String name,
+    int? dayOfWeek,
+    required String timeWindowStart,
+    required String timeWindowEnd,
+    required AdjustmentKind kind,
+    required double value,
+    DateTime? validFrom,
+    DateTime? validUntil,
+  });
+
+  /// Partial update. Null parameters leave fields unchanged.
+  /// v1 LIMITATION: dayOfWeek and validUntil cannot be cleared via
+  /// this RPC — owner workaround is archive + recreate.
+  Future<void> updatePricingOverride({
+    required String overrideId,
+    String? name,
+    int? dayOfWeek,
+    String? timeWindowStart,
+    String? timeWindowEnd,
+    AdjustmentKind? kind,
+    double? value,
+    DateTime? validFrom,
+    DateTime? validUntil,
+    bool? isActive,
+  });
+
+  /// Idempotent soft-delete. No-op when row is already archived.
+  Future<void> archivePricingOverride({required String overrideId});
+
+  // ── Phase 16 — Daily close-out report ────────────────────────
+
+  /// Read one persisted daily report. Returns null when no row exists
+  /// (the owner can tap Re-generate to build it).
+  Future<DailyReportDTO?> getDailyReport({
+    required String shopId,
+    required DateTime reportDate,
+  });
+
+  /// Keyset-paginated history. `beforeDate` is the cursor (NULL = first page).
+  /// `pageSize` is clamped to [10, 50] server-side; default 30.
+  Future<List<DailyReportSummaryDTO>> listDailyReports({
+    required String shopId,
+    DateTime? beforeDate,
+    int pageSize = 30,
+  });
+
+  /// Manually re-generate (or first-generate) the report for a given date.
+  /// Idempotent — second call REPLACES the snapshot. Returns the new
+  /// `daily_reports.id`.
+  Future<String> regenerateDailyReport({
+    required String shopId,
+    required DateTime reportDate,
   });
 }

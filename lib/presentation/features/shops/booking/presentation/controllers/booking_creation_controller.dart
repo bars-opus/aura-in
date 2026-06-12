@@ -124,7 +124,7 @@ class BookingCreationController extends _$BookingCreationController {
       );
       BookingValidators.validateNoDuplicateWorkers(workers);
 
-      final totalAmount = _calculateTotalAmount(services, quantities);
+      final totalAmount = _calculateTotalAmount(services, quantities, timeSlots);
       final depositAmount = totalAmount * _kDepositPercent;
 
       // start_time = earliest selected; end_time = latest selected.
@@ -267,7 +267,7 @@ class BookingCreationController extends _$BookingCreationController {
         }
       }
 
-      final totalAmount = _calculateTotalAmount(services, quantities);
+      final totalAmount = _calculateTotalAmount(services, quantities, timeSlots);
       final depositAmount = totalAmount * _kDepositPercent;
 
       final sortedSlots = BookingValidators.sortedByStart(timeSlots.values);
@@ -422,13 +422,19 @@ class BookingCreationController extends _$BookingCreationController {
     }
   }
 
+  /// Phase 15 — effective price (post-override) per service comes from
+  /// the resolved time slot. Falls back to base when no slot is mapped.
   double _calculateTotalAmount(
     List<AppointmentSlotDTO> services,
     Map<String, int> quantities,
+    Map<String, TimeSlotModel> timeSlots,
   ) {
     return services.fold<double>(
       0,
-      (sum, service) => sum + (service.price * (quantities[service.id] ?? 1)),
+      (sum, service) {
+        final effective = timeSlots[service.id]?.price ?? service.price;
+        return sum + (effective * (quantities[service.id] ?? 1));
+      },
     );
   }
 
@@ -448,6 +454,10 @@ class BookingCreationController extends _$BookingCreationController {
       final duration = DurationUtils.parse(service.duration);
       final timeSlot = timeSlots[service.id];
 
+      // Phase 15: effective price (post-override) from the resolved
+      // time-slot. Falls back to base price when no slot in the map.
+      final effectivePrice = timeSlot?.price ?? service.price;
+
       for (var i = 0; i < quantity; i++) {
         final entry = workerEntries.length > i
             ? workerEntries[i]
@@ -459,7 +469,7 @@ class BookingCreationController extends _$BookingCreationController {
             bookingId: bookingId,
             slotId: service.id,
             workerId: entry['id'],
-            priceAtBooking: service.price,
+            priceAtBooking: effectivePrice,
             durationMinutes: duration.inMinutes,
             createdAt: DateTime.now(),
             serviceName: service.serviceName,
@@ -485,6 +495,8 @@ class BookingCreationController extends _$BookingCreationController {
       final quantity = quantities[service.id] ?? 1;
       final timeSlot = timeSlots[service.id];
       final duration = DurationUtils.parse(service.duration);
+      // Phase 15: effective price (post-override) from the resolved slot.
+      final effectivePrice = timeSlot?.price ?? service.price;
 
       for (var i = 0; i < quantity; i++) {
         all.add(
@@ -493,7 +505,7 @@ class BookingCreationController extends _$BookingCreationController {
             bookingId: bookingId,
             slotId: service.id,
             workerId: null,
-            priceAtBooking: service.price,
+            priceAtBooking: effectivePrice,
             durationMinutes: duration.inMinutes,
             createdAt: DateTime.now(),
             serviceName: service.serviceName,

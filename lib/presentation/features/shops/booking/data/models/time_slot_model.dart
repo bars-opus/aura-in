@@ -27,7 +27,19 @@ class TimeSlotModel extends Equatable {
   final DateTime endTime;
   final String slotId;
   final String serviceName;
+
+  /// Effective (post-override) price. This is what the client pays.
+  /// Pre-Phase 15 this was the slot's base price; from Phase 15 the
+  /// server applies any matching pricing_override and emits the
+  /// adjusted value here.
   final double price;
+
+  /// Phase 15: pre-override base price (unmodified `slot.price`).
+  /// Null when the RPC predates Phase 15 (back-compat shim — the chip
+  /// silently does not render). When non-null and `basePrice != price`,
+  /// the slot card surfaces a "Discount" or "Surcharge" chip.
+  final double? basePrice;
+
   final List<WorkerDTO> availableWorkers;
   final int? remainingSpots; // For group slots with max_clients > 1
   final bool requiresWorkerSelection;
@@ -41,6 +53,7 @@ class TimeSlotModel extends Equatable {
     required this.serviceName,
     required this.actualEndTime, // New field
     required this.price,
+    this.basePrice, // Phase 15
     required this.availableWorkers,
     this.remainingSpots,
     required this.requiresWorkerSelection,
@@ -55,6 +68,7 @@ class TimeSlotModel extends Equatable {
       actualEndTime: DateTime.parse(json['actual_end_time'] as String),
       serviceName: json['service_name'] as String,
       price: (json['price'] as num).toDouble(),
+      basePrice: (json['base_price'] as num?)?.toDouble(),
       availableWorkers:
           (json['available_workers'] as List<dynamic>)
               .map(
@@ -67,6 +81,18 @@ class TimeSlotModel extends Equatable {
       bufferMinutes: json['buffer_minutes'] as int? ?? 0,
     );
   }
+
+  /// Phase 15: true when this slot's effective price differs from its
+  /// base (an override applied). Drives the "Discount" / "Surcharge"
+  /// chip in the time-picker card.
+  bool get hasAdjustedPrice =>
+      basePrice != null && (basePrice! - price).abs() > 0.001;
+
+  /// Phase 15: true when this slot is discounted.
+  bool get isDiscounted => hasAdjustedPrice && price < basePrice!;
+
+  /// Phase 15: true when this slot is surcharged.
+  bool get isSurcharged => hasAdjustedPrice && price > basePrice!;
 
   /// Creates a display-friendly time range string.
   ///
@@ -118,6 +144,7 @@ class TimeSlotModel extends Equatable {
     slotId,
     serviceName,
     price,
+    basePrice,
     availableWorkers,
     remainingSpots,
     requiresWorkerSelection,

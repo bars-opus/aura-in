@@ -12,7 +12,11 @@ import 'package:nano_embryo/presentation/features/shops/creation/domain/models/o
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/business_hours_exceptions.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/service_management_exceptions.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/client_notes_exceptions.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/daily_report_exceptions.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/pricing_override_exceptions.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/client_note_dto.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/daily_report_dto.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/pricing_override_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/dashboard_metrics.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/lost_booking_metrics.dart';
@@ -2716,5 +2720,293 @@ class SupabaseDashboardRepository implements DashboardRepository {
     }
     if (e.code == '22023') return NotePayloadInvalidException();
     return NoteSaveFailedException();
+  }
+
+  // ── Phase 15 — Pricing overrides ──────────────────────────────────
+  //
+  // Four methods backing the owner-facing pricing-rules surface. List +
+  // create + update + archive. Errors funnel through
+  // `_classifyPricingOverrideError` which is HINT-driven and never
+  // branches on `e.message`.
+
+  @override
+  Future<List<PricingOverrideDTO>> getPricingOverrides({
+    required String slotId,
+  }) async {
+    try {
+      final response = await _supabase
+          .from('pricing_overrides')
+          .select('*')
+          .eq('slot_id', slotId)
+          .isFilter('archived_at', null)
+          .order('created_at', ascending: false);
+      final rows = List<Map<String, dynamic>>.from(response);
+      return rows.map(PricingOverrideDTO.fromJson).toList();
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'pricing_override.list_failed',
+        fields: {'slot_id': slotId, 'error': e.toString()},
+      );
+      throw _classifyPricingOverrideError(e);
+    } catch (e) {
+      AppLogger.warn(
+        'pricing_override.list_failed',
+        fields: {'slot_id': slotId, 'error': e.toString()},
+      );
+      throw OverrideSaveFailedException();
+    }
+  }
+
+  @override
+  Future<String> createPricingOverride({
+    required String slotId,
+    required String name,
+    int? dayOfWeek,
+    required String timeWindowStart,
+    required String timeWindowEnd,
+    required AdjustmentKind kind,
+    required double value,
+    DateTime? validFrom,
+    DateTime? validUntil,
+  }) async {
+    try {
+      final result = await _supabase.rpc(
+        'create_pricing_override',
+        params: {
+          'p_slot_id': slotId,
+          'p_name': name,
+          'p_day_of_week': dayOfWeek,
+          'p_time_window_start': timeWindowStart,
+          'p_time_window_end': timeWindowEnd,
+          'p_adjustment_kind': kind.sqlValue,
+          'p_adjustment_value': value,
+          'p_valid_from': validFrom?.toIso8601String(),
+          'p_valid_until': validUntil?.toIso8601String(),
+        },
+      );
+      return result as String;
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'pricing_override.create_failed',
+        fields: {'slot_id': slotId, 'error': e.toString()},
+      );
+      throw _classifyPricingOverrideError(e);
+    } catch (e) {
+      AppLogger.warn(
+        'pricing_override.create_failed',
+        fields: {'slot_id': slotId, 'error': e.toString()},
+      );
+      throw OverrideSaveFailedException();
+    }
+  }
+
+  @override
+  Future<void> updatePricingOverride({
+    required String overrideId,
+    String? name,
+    int? dayOfWeek,
+    String? timeWindowStart,
+    String? timeWindowEnd,
+    AdjustmentKind? kind,
+    double? value,
+    DateTime? validFrom,
+    DateTime? validUntil,
+    bool? isActive,
+  }) async {
+    try {
+      await _supabase.rpc(
+        'update_pricing_override',
+        params: {
+          'p_override_id': overrideId,
+          'p_name': name,
+          'p_day_of_week': dayOfWeek,
+          'p_time_window_start': timeWindowStart,
+          'p_time_window_end': timeWindowEnd,
+          'p_adjustment_kind': kind?.sqlValue,
+          'p_adjustment_value': value,
+          'p_valid_from': validFrom?.toIso8601String(),
+          'p_valid_until': validUntil?.toIso8601String(),
+          'p_is_active': isActive,
+        },
+      );
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'pricing_override.update_failed',
+        fields: {'override_id': overrideId, 'error': e.toString()},
+      );
+      throw _classifyPricingOverrideError(e);
+    } catch (e) {
+      AppLogger.warn(
+        'pricing_override.update_failed',
+        fields: {'override_id': overrideId, 'error': e.toString()},
+      );
+      throw OverrideSaveFailedException();
+    }
+  }
+
+  @override
+  Future<void> archivePricingOverride({required String overrideId}) async {
+    try {
+      await _supabase.rpc(
+        'archive_pricing_override',
+        params: {'p_override_id': overrideId},
+      );
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'pricing_override.archive_failed',
+        fields: {'override_id': overrideId, 'error': e.toString()},
+      );
+      throw _classifyPricingOverrideError(e);
+    } catch (e) {
+      AppLogger.warn(
+        'pricing_override.archive_failed',
+        fields: {'override_id': overrideId, 'error': e.toString()},
+      );
+      throw OverrideSaveFailedException();
+    }
+  }
+
+  /// Maps PostgrestException raised by the three pricing_override RPCs
+  /// to the typed exception subtype the screen switches on. NO
+  /// string-matching on `e.message` — branching is exclusively on
+  /// `e.code` + `e.hint`. Phase 15 RESEARCH §9.
+  PricingOverrideException _classifyPricingOverrideError(
+      PostgrestException e) {
+    if (e.code == '42501') return OverrideAccessDeniedException();
+    final hint = e.hint ?? '';
+    if (e.code == '22023') {
+      switch (hint) {
+        case 'WINDOW_NOT_ORDERED':
+          return OverrideWindowInvalidException();
+        case 'DAY_OF_WEEK_OUT_OF_RANGE':
+          return OverrideDayOfWeekInvalidException();
+        case 'ADJUSTMENT_KIND_INVALID':
+        case 'ADJUSTMENT_VALUE_INVALID':
+        case 'PERCENT_OUT_OF_RANGE':
+          return OverrideAdjustmentInvalidException();
+        case 'VALIDITY_NOT_ORDERED':
+          return OverrideValidityInvalidException();
+        case 'OVERRIDE_CAP_EXCEEDED':
+          return OverrideCapExceededException();
+        default:
+          return OverrideSaveFailedException();
+      }
+    }
+    return OverrideSaveFailedException();
+  }
+
+  // ── Phase 16 — Daily close-out report ────────────────────────
+  //
+  // Three methods + one HINT-driven classifier. Mirrors Phase 15's
+  // shape exactly. RLS owner-only SELECT covers getDailyReport; the
+  // RPC owner check covers the other two.
+
+  String _dateOnlyIso(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  @override
+  Future<DailyReportDTO?> getDailyReport({
+    required String shopId,
+    required DateTime reportDate,
+  }) async {
+    try {
+      final row = await _supabase
+          .from('daily_reports')
+          .select('shop_id, report_date, payload, generated_at')
+          .eq('shop_id', shopId)
+          .eq('report_date', _dateOnlyIso(reportDate))
+          .maybeSingle();
+      if (row == null) return null;
+      return DailyReportDTO.fromJson(
+        shopId: row['shop_id'] as String,
+        reportDate: DateTime.parse(row['report_date'] as String),
+        payload: row['payload'] as Map<String, dynamic>,
+        generatedAt: DateTime.parse(row['generated_at'] as String),
+      );
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'daily_report.get_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw _classifyReportError(e);
+    } catch (e) {
+      AppLogger.warn(
+        'daily_report.get_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw ReportGenerationFailedException();
+    }
+  }
+
+  @override
+  Future<List<DailyReportSummaryDTO>> listDailyReports({
+    required String shopId,
+    DateTime? beforeDate,
+    int pageSize = 30,
+  }) async {
+    try {
+      final result = await _supabase.rpc('list_daily_reports', params: {
+        'p_shop_id': shopId,
+        'p_before_date':
+            beforeDate == null ? null : _dateOnlyIso(beforeDate),
+        'p_page_size': pageSize,
+      });
+      final rows = List<Map<String, dynamic>>.from(result as List);
+      return rows.map(DailyReportSummaryDTO.fromRow).toList(growable: false);
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'daily_report.list_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw _classifyReportError(e);
+    } catch (e) {
+      AppLogger.warn(
+        'daily_report.list_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw ReportGenerationFailedException();
+    }
+  }
+
+  @override
+  Future<String> regenerateDailyReport({
+    required String shopId,
+    required DateTime reportDate,
+  }) async {
+    try {
+      final result = await _supabase.rpc('generate_daily_report', params: {
+        'p_shop_id': shopId,
+        'p_report_date': _dateOnlyIso(reportDate),
+      });
+      return result as String;
+    } on PostgrestException catch (e) {
+      AppLogger.warn(
+        'daily_report.regenerate_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw _classifyReportError(e);
+    } catch (e) {
+      AppLogger.warn(
+        'daily_report.regenerate_failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
+      throw ReportGenerationFailedException();
+    }
+  }
+
+  /// HINT-driven classifier. Never string-matches on `e.message`. Mirrors
+  /// the Phase 15 _classifyPricingOverrideError pattern.
+  DailyReportException _classifyReportError(PostgrestException e) {
+    switch (e.hint) {
+      case 'OWNER_NOT_FOUND':
+      case 'SHOP_NOT_FOUND':
+        return ReportAccessDeniedException();
+      case 'REPORT_DATE_INVALID':
+        return ReportDateInvalidException();
+      case 'REPORT_RPC_FAILED':
+        return ReportGenerationFailedException();
+    }
+    if (e.code == '42501') return ReportAccessDeniedException();
+    return ReportGenerationFailedException();
   }
 }

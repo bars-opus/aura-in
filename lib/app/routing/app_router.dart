@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/app/routing/routing_notifier.dart';
 import 'package:nano_embryo/app/splash_screen.dart';
+import 'package:nano_embryo/core/account_lifecycle/utils/account_lifecycle_router_guard.dart';
 import 'package:nano_embryo/core/link/models/link_models.dart';
 import 'package:nano_embryo/core/link/providers/link_providers.dart';
 import 'package:nano_embryo/core/utils/location/location_search_mode.dart';
@@ -27,6 +28,9 @@ import 'package:nano_embryo/presentation/features/profile/models/profile_search_
 import 'package:nano_embryo/presentation/features/profile/widgets/profile_screen.dart';
 import 'package:nano_embryo/presentation/features/settings/screens/language_screen.dart';
 import 'package:nano_embryo/presentation/features/settings/screens/theme_screen.dart';
+import 'package:nano_embryo/core/account_lifecycle/presentation/screens/deactivate_account_screen.dart';
+import 'package:nano_embryo/core/account_lifecycle/presentation/screens/delete_account_screen.dart';
+import 'package:nano_embryo/core/account_lifecycle/presentation/screens/restore_account_screen.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/chat/domain/entities/conversation.dart';
 import 'package:nano_embryo/presentation/features/chat/presentation/screens/chat_channel_loader.dart';
@@ -47,6 +51,8 @@ import 'package:nano_embryo/presentation/features/shops/creation/presentation/sc
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/screens/preview_shop_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/screens/set_hours_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/screens/shop_creation.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/daily_report_history_screen.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/daily_report_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/owner_dashboard_screen.dart';
 import 'package:nano_embryo/payment/presentation/screens/payment_settings_screen.dart';
 import 'package:nano_embryo/payment/presentation/widgets/paystack_connection_screen.dart';
@@ -56,7 +62,6 @@ import 'package:nano_embryo/presentation/features/shops/query/presentation/scree
 import 'package:nano_embryo/presentation/features/shops/query/presentation/screens/shop_details_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/screens/top_rated_shops_screen.dart';
 import 'package:nano_embryo/presentation/features/auth/log_in/presentation/screens/update_password_screen.dart';
-import 'package:nano_embryo/presentation/features/auth/verify_email/verify_email_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/screens/shop_reviews_screen.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/screens/marketplace_screen.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/screens/product_detail_screen.dart';
@@ -120,6 +125,8 @@ class RouteNames {
   static const String shopScheduleHub = '/shopScheduleHub';
   static const String allShopWorkersScreen = '/allShopWorkersScreen';
   static const String ownerDashboardScreen = '/ownerDashboardScreen';
+  static const String dailyReportScreen = '/dailyReportScreen';
+  static const String dailyReportHistoryScreen = '/dailyReportHistoryScreen';
   static const String paystackConnectionScreen = '/paystackConnectionScreen';
   static const String paymentSettingsScreen = '/paymentSettingsScreen';
   static const String freelancerCreationDashboard =
@@ -132,6 +139,9 @@ class RouteNames {
   static const String topRatedFreelancersScreen = '/topRatedFreelancersScreen';
   static const String nearYouFreelancersScreen = '/nearYouFreelancersScreen';
   static const String updatePasswordScreen = '/updatePasswordScreen';
+  static const String deactivateAccount = '/deactivateAccount';
+  static const String deleteAccount = '/deleteAccount';
+  static const String restoreAccount = '/restoreAccount';
 
   static const String passwordResetSentScreen = '/passwordResetSentScreen';
 
@@ -252,8 +262,9 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
       // Password-recovery deep link — send the user to the update screen and
       // stay there until they complete the flow (isRecoveryMode cleared on success).
       if (routingNotifier.isRecoveryMode) {
-        if (state.matchedLocation == RouteNames.updatePasswordScreen)
+        if (state.matchedLocation == RouteNames.updatePasswordScreen) {
           return null;
+        }
         return RouteNames.updatePasswordScreen;
       }
 
@@ -301,7 +312,8 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
       // /book/<slug> link from WhatsApp should reach the booking resolver,
       // which routes them into the guest booking flow (name + phone) rather
       // than being forced through /intro and losing the slug.
-      final isDeepLink = state.matchedLocation.startsWith('/book/') ||
+      final isDeepLink =
+          state.matchedLocation.startsWith('/book/') ||
           state.matchedLocation.startsWith('/l/');
 
       // 1. FIRST LAUNCH
@@ -341,6 +353,14 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
       // completes; without this guard an authenticated user would be
       // incorrectly redirected to createUsername on every login.
       if (profile == null) return null;
+
+      final accountGuard = accountLifecycleGuard(
+        profile: profile,
+        currentLocation: state.matchedLocation,
+        restoreRoute: RouteNames.restoreAccount,
+        homeRoute: RouteNames.home,
+      );
+      if (accountGuard.shouldRedirect) return accountGuard.route;
 
       if (!hasUsername) {
         if (state.matchedLocation == RouteNames.createUsername) return null;
@@ -438,14 +458,14 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         name: 'createUsername',
         builder: (context, state) => const UsernameCreationScreen(),
       ),
-      GoRoute(
-        path: RouteNames.verifyEmail,
-        name: 'verifyEmail',
-        builder: (context, state) {
-          final email = state.extra as String? ?? '';
-          return VerifyEmailScreen(email: email);
-        },
-      ),
+      // GoRoute(
+      //   path: RouteNames.verifyEmail,
+      //   name: 'verifyEmail',
+      //   builder: (context, state) {
+      //     final email = state.extra as String? ?? '';
+      //     return VerifyEmailScreen(email: email);
+      //   },
+      // ),
       GoRoute(
         path: RouteNames.home,
         name: 'home',
@@ -524,6 +544,33 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         pageBuilder:
             (context, state) =>
                 MaterialPage(key: state.pageKey, child: const ThemeScreen()),
+      ),
+      GoRoute(
+        path: RouteNames.deactivateAccount,
+        name: 'deactivateAccount',
+        pageBuilder:
+            (context, state) => MaterialPage(
+              key: state.pageKey,
+              child: const DeactivateAccountScreen(),
+            ),
+      ),
+      GoRoute(
+        path: RouteNames.deleteAccount,
+        name: 'deleteAccount',
+        pageBuilder:
+            (context, state) => MaterialPage(
+              key: state.pageKey,
+              child: const DeleteAccountScreen(),
+            ),
+      ),
+      GoRoute(
+        path: RouteNames.restoreAccount,
+        name: 'restoreAccount',
+        pageBuilder:
+            (context, state) => MaterialPage(
+              key: state.pageKey,
+              child: const RestoreAccountScreen(),
+            ),
       ),
       GoRoute(
         path: RouteNames.licenses,
@@ -739,6 +786,32 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
             shopCurrencyCode: params['shopCurrencyCode'] ?? '',
             shopCountry: params['shopCountry'] ?? '',
             isFreelancer: params['shopCountry'] ?? false,
+          );
+        },
+      ),
+
+      GoRoute(
+        path: RouteNames.dailyReportScreen,
+        name: 'dailyReportScreen',
+        builder: (context, state) {
+          final params = state.extra as Map<String, dynamic>;
+          final reportDate = params['reportDate'] is DateTime
+              ? params['reportDate'] as DateTime
+              : DateTime.parse(params['reportDate'] as String);
+          return DailyReportScreen(
+            shopId: params['shopId'] as String? ?? '',
+            reportDate: reportDate,
+          );
+        },
+      ),
+
+      GoRoute(
+        path: RouteNames.dailyReportHistoryScreen,
+        name: 'dailyReportHistoryScreen',
+        builder: (context, state) {
+          final params = state.extra as Map<String, dynamic>;
+          return DailyReportHistoryScreen(
+            shopId: params['shopId'] as String? ?? '',
           );
         },
       ),

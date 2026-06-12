@@ -22,7 +22,9 @@ import 'package:nano_embryo/core/widgets/feedback/snackbar_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/opening_hours_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/service_form_modal.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_details_provider.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/service_management_exceptions.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/pricing_overrides_list_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -122,6 +124,21 @@ class ServiceEditScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEdit ? 'Edit service' : 'New service'),
+        actions: [
+          if (_isEdit && initial != null)
+            IconButton(
+              tooltip: AppLocalizations.of(context)!.pricingOverridesTitle,
+              icon: const Icon(Icons.price_change_outlined),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => PricingOverridesListScreen(
+                    shopId: shopId,
+                    slot: initial!,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
       body: shopAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),

@@ -6,11 +6,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:nano_embryo/app/app.dart';
 import 'package:nano_embryo/app/routing/routing_notifier.dart';
+import 'package:nano_embryo/core/account_lifecycle/config/account_lifecycle_config.dart';
+import 'package:nano_embryo/core/account_lifecycle/config/feature/account_lifecycle_config.dart';
 import 'package:nano_embryo/core/config/env.dart';
 import 'package:nano_embryo/core/link/config/aurain_link_config.dart';
 import 'package:nano_embryo/core/link/providers/link_providers.dart';
-import 'package:nano_embryo/core/map/config/feature/map_config.dart' show mapConfigProvider;
-import 'package:nano_embryo/core/map/config/map_config.dart' show buildNanoEmbryoMapConfig;
+import 'package:nano_embryo/core/map/config/feature/map_config.dart'
+    show mapConfigProvider;
+import 'package:nano_embryo/core/map/config/map_config.dart'
+    show buildNanoEmbryoMapConfig;
 import 'package:nano_embryo/core/notifications/config/feature/notification_config.dart';
 import 'package:nano_embryo/core/notifications/config/notification_config.dart';
 import 'package:nano_embryo/presentation/features/chat/config/chat_config.dart';
@@ -39,7 +43,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-
     // 2. Initialize SharedPreferences
     final sharedPreferences = await SharedPreferences.getInstance();
 
@@ -125,6 +128,11 @@ Future<void> main() async {
             buildNanoEmbryoNotificationConfig(),
           ),
 
+          // Account lifecycle engine config — routes, localized copy, cleanup
+          accountLifecycleConfigProvider.overrideWithValue(
+            buildNanoEmbryoAccountLifecycleConfig(),
+          ),
+
           // Chat engine config — Sendbird app ID + optional UI customisation
           chatConfigProvider.overrideWithValue(
             ChatConfig(appId: Environment.sendbirdAppId),
@@ -136,8 +144,8 @@ Future<void> main() async {
               appScheme: 'aurain',
               brandName: 'NanoEmbryo',
               defaultCurrency: 'GHS',
-              paymentErrorBuilder: (context, info) =>
-                  PaymentFailureScreen(info: info),
+              paymentErrorBuilder:
+                  (context, info) => PaymentFailureScreen(info: info),
             ),
           ),
 
@@ -219,8 +227,15 @@ void _setupOneSignalHandlers() {
     final bookingId = additionalData?['booking_id'] as String?;
     final shopId = additionalData?['shop_id'] as String?;
     final channelUrl = additionalData?['channel_url'] as String?;
+    final reportDate = additionalData?['report_date'] as String?;
 
-    _handleNotificationNavigation(type, bookingId, shopId, channelUrl: channelUrl);
+    _handleNotificationNavigation(
+      type,
+      bookingId,
+      shopId,
+      channelUrl: channelUrl,
+      reportDate: reportDate,
+    );
   });
 
   // Handle when a notification is received while app is in foreground
@@ -246,6 +261,7 @@ void _handleNotificationNavigation(
   String? bookingId,
   String? shopId, {
   String? channelUrl,
+  String? reportDate,
 }) {
   final router = _appRouter;
   if (router == null) return;
@@ -275,6 +291,19 @@ void _handleNotificationNavigation(
       if (channelUrl != null && channelUrl.isNotEmpty) {
         router.push(
           '${RouteNames.chatChannel}?url=${Uri.encodeComponent(channelUrl)}',
+        );
+      } else {
+        router.go(RouteNames.home);
+      }
+
+    case 'daily_report':
+      if (shopId != null &&
+          shopId.isNotEmpty &&
+          reportDate != null &&
+          reportDate.isNotEmpty) {
+        router.push(
+          RouteNames.dailyReportScreen,
+          extra: {'shopId': shopId, 'reportDate': reportDate},
         );
       } else {
         router.go(RouteNames.home);
@@ -341,7 +370,9 @@ bool _isOAuthCallback(Uri uri) {
 /// On cold start this runs before runApp(), so the router is created with
 /// isRecoveryMode already true and redirects immediately to UpdatePasswordScreen.
 Future<void> _handleOAuthCallback(
-    Uri uri, RoutingNotifier routingNotifier) async {
+  Uri uri,
+  RoutingNotifier routingNotifier,
+) async {
   final params = uri.queryParameters;
   final isRecoveryUrl = params['type'] == 'recovery';
   final tokenHash = params['token_hash'];
@@ -375,10 +406,9 @@ Future<void> _handleOAuthCallback(
       // Supabase email OTP format: ?token_hash=XXX&type=recovery
       // getSessionFromUrl only handles ?code= (PKCE) and #access_token=
       // (implicit) — it would throw "No code detected" for token_hash URLs.
-      await Supabase.instance.client.auth.verifyOTP(
-        tokenHash: tokenHash,
-        type: OtpType.recovery,
-      ).timeout(const Duration(seconds: 30));
+      await Supabase.instance.client.auth
+          .verifyOTP(tokenHash: tokenHash, type: OtpType.recovery)
+          .timeout(const Duration(seconds: 30));
       debugPrint('✅ Recovery OTP verified from deep link');
     } else {
       // PKCE (?code=) or implicit (#access_token=) — standard exchange.
@@ -389,7 +419,9 @@ Future<void> _handleOAuthCallback(
     }
   } catch (e) {
     // Log only the exception type — the message may include the full URL with tokens.
-    debugPrint('❌ Failed to establish OAuth session from deep link: ${e.runtimeType}');
+    debugPrint(
+      '❌ Failed to establish OAuth session from deep link: ${e.runtimeType}',
+    );
     cancelAll();
     if (isRecoveryUrl) routingNotifier.setRecoveryMode(false);
   }
@@ -419,8 +451,7 @@ void _processDeepLink(String link, RoutingNotifier routingNotifier) {
       debugPrint('📱 Extracted type: $linkType from custom scheme');
     }
   } else if (uri.scheme == 'https' &&
-      (uri.host == 'aurain.barsopus.com' ||
-          uri.host.contains('localhost'))) {
+      (uri.host == 'aurain.barsopus.com' || uri.host.contains('localhost'))) {
     // HTTPS universal/web links: path segments contain ['l', 'slug']
     final segments = uri.pathSegments;
     if (segments.isNotEmpty && segments[0] == 'l' && segments.length >= 2) {
@@ -436,7 +467,8 @@ void _processDeepLink(String link, RoutingNotifier routingNotifier) {
   // setPendingDeepLink plumbing (which has no consumer) entirely.
   final productionDomain = AuraInLinkConfig.production.baseDomain;
   final isProductionHost = uri.host == productionDomain;
-  final isBookPath = uri.pathSegments.length >= 2 &&
+  final isBookPath =
+      uri.pathSegments.length >= 2 &&
       (uri.pathSegments[0] == 'book' || uri.pathSegments[0] == 'l');
   if (uri.scheme == 'https' && isProductionHost && isBookPath) {
     final webSlug = uri.pathSegments[1];

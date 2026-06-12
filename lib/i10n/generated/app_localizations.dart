@@ -4086,6 +4086,726 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not send broadcast. Please try again.'**
   String get broadcastSaveFailedMessage;
+
+  /// No description provided for @pricingChipDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get pricingChipDiscount;
+
+  /// No description provided for @pricingChipSurcharge.
+  ///
+  /// In en, this message translates to:
+  /// **'Surcharge'**
+  String get pricingChipSurcharge;
+
+  /// No description provided for @pricingOverridesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pricing rules'**
+  String get pricingOverridesTitle;
+
+  /// No description provided for @pricingOverridesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No rules yet'**
+  String get pricingOverridesEmptyTitle;
+
+  /// No description provided for @pricingOverridesEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a time-based discount or surcharge for {serviceName}.'**
+  String pricingOverridesEmptyBody(String serviceName);
+
+  /// No description provided for @pricingOverridesEmptyCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Create rule'**
+  String get pricingOverridesEmptyCta;
+
+  /// No description provided for @pricingOverridesNewCta.
+  ///
+  /// In en, this message translates to:
+  /// **'New rule'**
+  String get pricingOverridesNewCta;
+
+  /// No description provided for @pricingOverridesRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get pricingOverridesRefresh;
+
+  /// No description provided for @pricingOverridesLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load pricing rules.'**
+  String get pricingOverridesLoadFailed;
+
+  /// No description provided for @pricingOverridesRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get pricingOverridesRetry;
+
+  /// No description provided for @pricingOverrideArchiveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive rule?'**
+  String get pricingOverrideArchiveConfirmTitle;
+
+  /// No description provided for @pricingOverrideArchiveConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" will stop applying to new bookings. Existing bookings keep the price they were confirmed at.'**
+  String pricingOverrideArchiveConfirmBody(String name);
+
+  /// No description provided for @pricingOverrideArchiveConfirmCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get pricingOverrideArchiveConfirmCancel;
+
+  /// No description provided for @pricingOverrideArchiveConfirmArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get pricingOverrideArchiveConfirmArchive;
+
+  /// No description provided for @pricingOverrideArchiveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Rule archived'**
+  String get pricingOverrideArchiveSuccess;
+
+  /// No description provided for @pricingOverrideArchiveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not archive the rule. Please try again.'**
+  String get pricingOverrideArchiveFailed;
+
+  /// No description provided for @pricingOverrideRowActionsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions'**
+  String get pricingOverrideRowActionsTooltip;
+
+  /// No description provided for @pricingOverrideRowEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get pricingOverrideRowEdit;
+
+  /// No description provided for @pricingOverrideRowArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get pricingOverrideRowArchive;
+
+  /// No description provided for @pricingOverrideAllWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'All week'**
+  String get pricingOverrideAllWeek;
+
+  /// No description provided for @pricingOverrideFormTitleNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New rule'**
+  String get pricingOverrideFormTitleNew;
+
+  /// No description provided for @pricingOverrideFormTitleEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit rule'**
+  String get pricingOverrideFormTitleEdit;
+
+  /// No description provided for @pricingOverrideFormName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get pricingOverrideFormName;
+
+  /// No description provided for @pricingOverrideFormNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Off-peak Tuesday morning'**
+  String get pricingOverrideFormNameHint;
+
+  /// No description provided for @pricingOverrideFormNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get pricingOverrideFormNameRequired;
+
+  /// No description provided for @pricingOverrideFormNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Max 80 characters'**
+  String get pricingOverrideFormNameTooLong;
+
+  /// No description provided for @pricingOverrideFormDayOfWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of week'**
+  String get pricingOverrideFormDayOfWeek;
+
+  /// No description provided for @pricingOverrideFormTimeWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Time window'**
+  String get pricingOverrideFormTimeWindow;
+
+  /// No description provided for @pricingOverrideFormStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get pricingOverrideFormStart;
+
+  /// No description provided for @pricingOverrideFormEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get pricingOverrideFormEnd;
+
+  /// No description provided for @pricingOverrideFormWindowError.
+  ///
+  /// In en, this message translates to:
+  /// **'End time must be after start time'**
+  String get pricingOverrideFormWindowError;
+
+  /// No description provided for @pricingOverrideFormAdjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment'**
+  String get pricingOverrideFormAdjustment;
+
+  /// No description provided for @pricingOverrideFormKindPercentDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'% off'**
+  String get pricingOverrideFormKindPercentDiscount;
+
+  /// No description provided for @pricingOverrideFormKindPercentSurcharge.
+  ///
+  /// In en, this message translates to:
+  /// **'% up'**
+  String get pricingOverrideFormKindPercentSurcharge;
+
+  /// No description provided for @pricingOverrideFormKindFixedDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'\$ off'**
+  String get pricingOverrideFormKindFixedDiscount;
+
+  /// No description provided for @pricingOverrideFormKindFixedSurcharge.
+  ///
+  /// In en, this message translates to:
+  /// **'\$ up'**
+  String get pricingOverrideFormKindFixedSurcharge;
+
+  /// No description provided for @pricingOverrideFormValueRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get pricingOverrideFormValueRequired;
+
+  /// No description provided for @pricingOverrideFormValueMustBePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be greater than 0'**
+  String get pricingOverrideFormValueMustBePositive;
+
+  /// No description provided for @pricingOverrideFormValuePercentRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent must be 0.01–100'**
+  String get pricingOverrideFormValuePercentRange;
+
+  /// No description provided for @pricingOverrideFormValidity.
+  ///
+  /// In en, this message translates to:
+  /// **'Validity (optional)'**
+  String get pricingOverrideFormValidity;
+
+  /// No description provided for @pricingOverrideFormValidityStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get pricingOverrideFormValidityStarts;
+
+  /// No description provided for @pricingOverrideFormValidityEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get pricingOverrideFormValidityEnds;
+
+  /// No description provided for @pricingOverrideFormValidityNoExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'No expiry'**
+  String get pricingOverrideFormValidityNoExpiry;
+
+  /// No description provided for @pricingOverrideFormValidityToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get pricingOverrideFormValidityToday;
+
+  /// No description provided for @pricingOverrideFormValidityError.
+  ///
+  /// In en, this message translates to:
+  /// **'End date must be after start date'**
+  String get pricingOverrideFormValidityError;
+
+  /// No description provided for @pricingOverrideFormClearDayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To clear the day filter, archive this rule and create a new one.'**
+  String get pricingOverrideFormClearDayHint;
+
+  /// No description provided for @pricingOverrideFormClearValidUntilHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To clear the end date, archive this rule and create a new one.'**
+  String get pricingOverrideFormClearValidUntilHint;
+
+  /// No description provided for @pricingOverrideFormPreviewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get pricingOverrideFormPreviewLabel;
+
+  /// No description provided for @pricingOverrideFormPreviewPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Base {base} · enter a value to see the effective price.'**
+  String pricingOverrideFormPreviewPrompt(String base);
+
+  /// No description provided for @pricingOverrideFormPreviewDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'(saved {delta} vs {base} base)'**
+  String pricingOverrideFormPreviewDiscount(String delta, String base);
+
+  /// No description provided for @pricingOverrideFormPreviewSurcharge.
+  ///
+  /// In en, this message translates to:
+  /// **'(+{delta} vs {base} base)'**
+  String pricingOverrideFormPreviewSurcharge(String delta, String base);
+
+  /// No description provided for @pricingOverrideFormSoftWarnPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a +{value}% surcharge. Double-check before saving.'**
+  String pricingOverrideFormSoftWarnPercent(String value);
+
+  /// No description provided for @pricingOverrideFormSoftWarnFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'This surcharge is more than 5× the base price. Double-check before saving.'**
+  String get pricingOverrideFormSoftWarnFixed;
+
+  /// No description provided for @pricingOverrideFormSaveNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Create rule'**
+  String get pricingOverrideFormSaveNew;
+
+  /// No description provided for @pricingOverrideFormSaveEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get pricingOverrideFormSaveEdit;
+
+  /// No description provided for @pricingOverrideFormDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get pricingOverrideFormDiscardTitle;
+
+  /// No description provided for @pricingOverrideFormDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your edits will be lost.'**
+  String get pricingOverrideFormDiscardBody;
+
+  /// No description provided for @pricingOverrideFormDiscardKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get pricingOverrideFormDiscardKeep;
+
+  /// No description provided for @pricingOverrideFormDiscardConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get pricingOverrideFormDiscardConfirm;
+
+  /// No description provided for @pricingOverrideCreatedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Rule created'**
+  String get pricingOverrideCreatedToast;
+
+  /// No description provided for @pricingOverrideUpdatedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Rule updated'**
+  String get pricingOverrideUpdatedToast;
+
+  /// No description provided for @pricingOverrideErrorWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'The end time must be after the start time.'**
+  String get pricingOverrideErrorWindow;
+
+  /// No description provided for @pricingOverrideErrorDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Please pick a valid day of the week.'**
+  String get pricingOverrideErrorDay;
+
+  /// No description provided for @pricingOverrideErrorAdjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Please re-check the discount amount.'**
+  String get pricingOverrideErrorAdjustment;
+
+  /// No description provided for @pricingOverrideErrorValidity.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date must be after the start date.'**
+  String get pricingOverrideErrorValidity;
+
+  /// No description provided for @pricingOverrideErrorCap.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached the 50-rule limit on this service. Archive an old rule to free a slot.'**
+  String get pricingOverrideErrorCap;
+
+  /// No description provided for @pricingOverrideErrorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that pricing rule.'**
+  String get pricingOverrideErrorNotFound;
+
+  /// No description provided for @pricingOverrideErrorSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t save the rule. Please try again.'**
+  String get pricingOverrideErrorSaveFailed;
+
+  /// No description provided for @pricingOverrideDayMonday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get pricingOverrideDayMonday;
+
+  /// No description provided for @pricingOverrideDayTuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get pricingOverrideDayTuesday;
+
+  /// No description provided for @pricingOverrideDayWednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get pricingOverrideDayWednesday;
+
+  /// No description provided for @pricingOverrideDayThursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get pricingOverrideDayThursday;
+
+  /// No description provided for @pricingOverrideDayFriday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get pricingOverrideDayFriday;
+
+  /// No description provided for @pricingOverrideDaySaturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get pricingOverrideDaySaturday;
+
+  /// No description provided for @pricingOverrideDaySunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get pricingOverrideDaySunday;
+
+  /// No description provided for @pricingOverrideDayShortMon.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get pricingOverrideDayShortMon;
+
+  /// No description provided for @pricingOverrideDayShortTue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get pricingOverrideDayShortTue;
+
+  /// No description provided for @pricingOverrideDayShortWed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get pricingOverrideDayShortWed;
+
+  /// No description provided for @pricingOverrideDayShortThu.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get pricingOverrideDayShortThu;
+
+  /// No description provided for @pricingOverrideDayShortFri.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get pricingOverrideDayShortFri;
+
+  /// No description provided for @pricingOverrideDayShortSat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get pricingOverrideDayShortSat;
+
+  /// No description provided for @pricingOverrideDayShortSun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get pricingOverrideDayShortSun;
+
+  /// No description provided for @dailyReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s report'**
+  String get dailyReportTitle;
+
+  /// No description provided for @dailyReportHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Past reports'**
+  String get dailyReportHistoryTitle;
+
+  /// No description provided for @dailyReportNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s report is ready'**
+  String get dailyReportNotificationTitle;
+
+  /// No description provided for @dailyReportRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get dailyReportRefresh;
+
+  /// No description provided for @dailyReportRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get dailyReportRetry;
+
+  /// No description provided for @dailyReportLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load the report.'**
+  String get dailyReportLoadFailed;
+
+  /// No description provided for @dailyReportHistoryLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load history.'**
+  String get dailyReportHistoryLoadFailed;
+
+  /// No description provided for @dailyReportRevenueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue'**
+  String get dailyReportRevenueLabel;
+
+  /// No description provided for @dailyReportBookingsCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get dailyReportBookingsCompleted;
+
+  /// No description provided for @dailyReportBookingsNoShow.
+  ///
+  /// In en, this message translates to:
+  /// **'No-show'**
+  String get dailyReportBookingsNoShow;
+
+  /// No description provided for @dailyReportBookingsCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get dailyReportBookingsCancelled;
+
+  /// No description provided for @dailyReportBookingsConfirmedPastEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed past end'**
+  String get dailyReportBookingsConfirmedPastEnd;
+
+  /// No description provided for @dailyReportComparisonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Comparison'**
+  String get dailyReportComparisonTitle;
+
+  /// No description provided for @dailyReportComparisonYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'vs yesterday'**
+  String get dailyReportComparisonYesterday;
+
+  /// No description provided for @dailyReportComparisonLastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'vs same day last week'**
+  String get dailyReportComparisonLastWeek;
+
+  /// No description provided for @dailyReportComparisonNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get dailyReportComparisonNoData;
+
+  /// No description provided for @dailyReportPerWorkerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'By staff'**
+  String get dailyReportPerWorkerTitle;
+
+  /// No description provided for @dailyReportPerServiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'By service'**
+  String get dailyReportPerServiceTitle;
+
+  /// No description provided for @dailyReportWorkerUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Unassigned'**
+  String get dailyReportWorkerUnassigned;
+
+  /// No description provided for @dailyReportTomorrowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get dailyReportTomorrowTitle;
+
+  /// No description provided for @dailyReportTomorrowFirstBookingAt.
+  ///
+  /// In en, this message translates to:
+  /// **'First booking at {time}'**
+  String dailyReportTomorrowFirstBookingAt(String time);
+
+  /// No description provided for @dailyReportTomorrowCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} bookings'**
+  String dailyReportTomorrowCount(int count);
+
+  /// No description provided for @dailyReportTomorrowGroupFlag.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes group bookings'**
+  String get dailyReportTomorrowGroupFlag;
+
+  /// No description provided for @dailyReportTomorrowEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookings tomorrow.'**
+  String get dailyReportTomorrowEmpty;
+
+  /// No description provided for @dailyReportFollowUpsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs your attention'**
+  String get dailyReportFollowUpsTitle;
+
+  /// No description provided for @dailyReportFollowUpConfirmedPastEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed but never closed out'**
+  String get dailyReportFollowUpConfirmedPastEnd;
+
+  /// No description provided for @dailyReportFollowUpUnpaidBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpaid balance'**
+  String get dailyReportFollowUpUnpaidBalance;
+
+  /// No description provided for @dailyReportFollowUpNoShowNoAction.
+  ///
+  /// In en, this message translates to:
+  /// **'No-show — no note logged'**
+  String get dailyReportFollowUpNoShowNoAction;
+
+  /// No description provided for @dailyReportRegenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-generate'**
+  String get dailyReportRegenerate;
+
+  /// No description provided for @dailyReportRegenerateConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-generate this report?'**
+  String get dailyReportRegenerateConfirmTitle;
+
+  /// No description provided for @dailyReportRegenerateConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This rebuilds the report from the current data. The previous version is overwritten.'**
+  String get dailyReportRegenerateConfirmBody;
+
+  /// No description provided for @dailyReportRegenerateConfirmCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get dailyReportRegenerateConfirmCancel;
+
+  /// No description provided for @dailyReportRegenerateConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-generate'**
+  String get dailyReportRegenerateConfirmAction;
+
+  /// No description provided for @dailyReportRegenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Report updated.'**
+  String get dailyReportRegenerated;
+
+  /// No description provided for @dailyReportEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No report yet'**
+  String get dailyReportEmptyTitle;
+
+  /// No description provided for @dailyReportEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookings recorded for this date. Tap Re-generate to build an empty report.'**
+  String get dailyReportEmptyBody;
+
+  /// No description provided for @dailyReportHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No past reports yet.'**
+  String get dailyReportHistoryEmpty;
+
+  /// No description provided for @dailyReportErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t build the report. Please try again.'**
+  String get dailyReportErrorGeneric;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

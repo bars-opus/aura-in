@@ -2178,4 +2178,380 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get broadcastSaveFailedMessage => 'Could not send broadcast. Please try again.';
+
+  @override
+  String get pricingChipDiscount => 'Discount';
+
+  @override
+  String get pricingChipSurcharge => 'Surcharge';
+
+  @override
+  String get pricingOverridesTitle => 'Pricing rules';
+
+  @override
+  String get pricingOverridesEmptyTitle => 'No rules yet';
+
+  @override
+  String pricingOverridesEmptyBody(String serviceName) {
+    return 'Add a time-based discount or surcharge for $serviceName.';
+  }
+
+  @override
+  String get pricingOverridesEmptyCta => 'Create rule';
+
+  @override
+  String get pricingOverridesNewCta => 'New rule';
+
+  @override
+  String get pricingOverridesRefresh => 'Refresh';
+
+  @override
+  String get pricingOverridesLoadFailed => 'Could not load pricing rules.';
+
+  @override
+  String get pricingOverridesRetry => 'Retry';
+
+  @override
+  String get pricingOverrideArchiveConfirmTitle => 'Archive rule?';
+
+  @override
+  String pricingOverrideArchiveConfirmBody(String name) {
+    return '\"$name\" will stop applying to new bookings. Existing bookings keep the price they were confirmed at.';
+  }
+
+  @override
+  String get pricingOverrideArchiveConfirmCancel => 'Cancel';
+
+  @override
+  String get pricingOverrideArchiveConfirmArchive => 'Archive';
+
+  @override
+  String get pricingOverrideArchiveSuccess => 'Rule archived';
+
+  @override
+  String get pricingOverrideArchiveFailed => 'Could not archive the rule. Please try again.';
+
+  @override
+  String get pricingOverrideRowActionsTooltip => 'Actions';
+
+  @override
+  String get pricingOverrideRowEdit => 'Edit';
+
+  @override
+  String get pricingOverrideRowArchive => 'Archive';
+
+  @override
+  String get pricingOverrideAllWeek => 'All week';
+
+  @override
+  String get pricingOverrideFormTitleNew => 'New rule';
+
+  @override
+  String get pricingOverrideFormTitleEdit => 'Edit rule';
+
+  @override
+  String get pricingOverrideFormName => 'Name';
+
+  @override
+  String get pricingOverrideFormNameHint => 'e.g. Off-peak Tuesday morning';
+
+  @override
+  String get pricingOverrideFormNameRequired => 'Required';
+
+  @override
+  String get pricingOverrideFormNameTooLong => 'Max 80 characters';
+
+  @override
+  String get pricingOverrideFormDayOfWeek => 'Day of week';
+
+  @override
+  String get pricingOverrideFormTimeWindow => 'Time window';
+
+  @override
+  String get pricingOverrideFormStart => 'Start';
+
+  @override
+  String get pricingOverrideFormEnd => 'End';
+
+  @override
+  String get pricingOverrideFormWindowError => 'End time must be after start time';
+
+  @override
+  String get pricingOverrideFormAdjustment => 'Adjustment';
+
+  @override
+  String get pricingOverrideFormKindPercentDiscount => '% off';
+
+  @override
+  String get pricingOverrideFormKindPercentSurcharge => '% up';
+
+  @override
+  String get pricingOverrideFormKindFixedDiscount => '\$ off';
+
+  @override
+  String get pricingOverrideFormKindFixedSurcharge => '\$ up';
+
+  @override
+  String get pricingOverrideFormValueRequired => 'Required';
+
+  @override
+  String get pricingOverrideFormValueMustBePositive => 'Must be greater than 0';
+
+  @override
+  String get pricingOverrideFormValuePercentRange => 'Percent must be 0.01–100';
+
+  @override
+  String get pricingOverrideFormValidity => 'Validity (optional)';
+
+  @override
+  String get pricingOverrideFormValidityStarts => 'Starts';
+
+  @override
+  String get pricingOverrideFormValidityEnds => 'Ends';
+
+  @override
+  String get pricingOverrideFormValidityNoExpiry => 'No expiry';
+
+  @override
+  String get pricingOverrideFormValidityToday => 'Today';
+
+  @override
+  String get pricingOverrideFormValidityError => 'End date must be after start date';
+
+  @override
+  String get pricingOverrideFormClearDayHint => 'To clear the day filter, archive this rule and create a new one.';
+
+  @override
+  String get pricingOverrideFormClearValidUntilHint => 'To clear the end date, archive this rule and create a new one.';
+
+  @override
+  String get pricingOverrideFormPreviewLabel => 'Preview';
+
+  @override
+  String pricingOverrideFormPreviewPrompt(String base) {
+    return 'Base $base · enter a value to see the effective price.';
+  }
+
+  @override
+  String pricingOverrideFormPreviewDiscount(String delta, String base) {
+    return '(saved $delta vs $base base)';
+  }
+
+  @override
+  String pricingOverrideFormPreviewSurcharge(String delta, String base) {
+    return '(+$delta vs $base base)';
+  }
+
+  @override
+  String pricingOverrideFormSoftWarnPercent(String value) {
+    return 'This is a +$value% surcharge. Double-check before saving.';
+  }
+
+  @override
+  String get pricingOverrideFormSoftWarnFixed => 'This surcharge is more than 5× the base price. Double-check before saving.';
+
+  @override
+  String get pricingOverrideFormSaveNew => 'Create rule';
+
+  @override
+  String get pricingOverrideFormSaveEdit => 'Save changes';
+
+  @override
+  String get pricingOverrideFormDiscardTitle => 'Discard changes?';
+
+  @override
+  String get pricingOverrideFormDiscardBody => 'Your edits will be lost.';
+
+  @override
+  String get pricingOverrideFormDiscardKeep => 'Keep editing';
+
+  @override
+  String get pricingOverrideFormDiscardConfirm => 'Discard';
+
+  @override
+  String get pricingOverrideCreatedToast => 'Rule created';
+
+  @override
+  String get pricingOverrideUpdatedToast => 'Rule updated';
+
+  @override
+  String get pricingOverrideErrorWindow => 'The end time must be after the start time.';
+
+  @override
+  String get pricingOverrideErrorDay => 'Please pick a valid day of the week.';
+
+  @override
+  String get pricingOverrideErrorAdjustment => 'Please re-check the discount amount.';
+
+  @override
+  String get pricingOverrideErrorValidity => 'The end date must be after the start date.';
+
+  @override
+  String get pricingOverrideErrorCap => 'You\'ve reached the 50-rule limit on this service. Archive an old rule to free a slot.';
+
+  @override
+  String get pricingOverrideErrorNotFound => 'We couldn\'t find that pricing rule.';
+
+  @override
+  String get pricingOverrideErrorSaveFailed => 'We couldn\'t save the rule. Please try again.';
+
+  @override
+  String get pricingOverrideDayMonday => 'Monday';
+
+  @override
+  String get pricingOverrideDayTuesday => 'Tuesday';
+
+  @override
+  String get pricingOverrideDayWednesday => 'Wednesday';
+
+  @override
+  String get pricingOverrideDayThursday => 'Thursday';
+
+  @override
+  String get pricingOverrideDayFriday => 'Friday';
+
+  @override
+  String get pricingOverrideDaySaturday => 'Saturday';
+
+  @override
+  String get pricingOverrideDaySunday => 'Sunday';
+
+  @override
+  String get pricingOverrideDayShortMon => 'Mon';
+
+  @override
+  String get pricingOverrideDayShortTue => 'Tue';
+
+  @override
+  String get pricingOverrideDayShortWed => 'Wed';
+
+  @override
+  String get pricingOverrideDayShortThu => 'Thu';
+
+  @override
+  String get pricingOverrideDayShortFri => 'Fri';
+
+  @override
+  String get pricingOverrideDayShortSat => 'Sat';
+
+  @override
+  String get pricingOverrideDayShortSun => 'Sun';
+
+  @override
+  String get dailyReportTitle => 'Today\'s report';
+
+  @override
+  String get dailyReportHistoryTitle => 'Past reports';
+
+  @override
+  String get dailyReportNotificationTitle => 'Today\'s report is ready';
+
+  @override
+  String get dailyReportRefresh => 'Refresh';
+
+  @override
+  String get dailyReportRetry => 'Retry';
+
+  @override
+  String get dailyReportLoadFailed => 'We couldn\'t load the report.';
+
+  @override
+  String get dailyReportHistoryLoadFailed => 'We couldn\'t load history.';
+
+  @override
+  String get dailyReportRevenueLabel => 'Revenue';
+
+  @override
+  String get dailyReportBookingsCompleted => 'Completed';
+
+  @override
+  String get dailyReportBookingsNoShow => 'No-show';
+
+  @override
+  String get dailyReportBookingsCancelled => 'Cancelled';
+
+  @override
+  String get dailyReportBookingsConfirmedPastEnd => 'Confirmed past end';
+
+  @override
+  String get dailyReportComparisonTitle => 'Comparison';
+
+  @override
+  String get dailyReportComparisonYesterday => 'vs yesterday';
+
+  @override
+  String get dailyReportComparisonLastWeek => 'vs same day last week';
+
+  @override
+  String get dailyReportComparisonNoData => '—';
+
+  @override
+  String get dailyReportPerWorkerTitle => 'By staff';
+
+  @override
+  String get dailyReportPerServiceTitle => 'By service';
+
+  @override
+  String get dailyReportWorkerUnassigned => 'Unassigned';
+
+  @override
+  String get dailyReportTomorrowTitle => 'Tomorrow';
+
+  @override
+  String dailyReportTomorrowFirstBookingAt(String time) {
+    return 'First booking at $time';
+  }
+
+  @override
+  String dailyReportTomorrowCount(int count) {
+    return '$count bookings';
+  }
+
+  @override
+  String get dailyReportTomorrowGroupFlag => 'Includes group bookings';
+
+  @override
+  String get dailyReportTomorrowEmpty => 'No bookings tomorrow.';
+
+  @override
+  String get dailyReportFollowUpsTitle => 'Needs your attention';
+
+  @override
+  String get dailyReportFollowUpConfirmedPastEnd => 'Confirmed but never closed out';
+
+  @override
+  String get dailyReportFollowUpUnpaidBalance => 'Unpaid balance';
+
+  @override
+  String get dailyReportFollowUpNoShowNoAction => 'No-show — no note logged';
+
+  @override
+  String get dailyReportRegenerate => 'Re-generate';
+
+  @override
+  String get dailyReportRegenerateConfirmTitle => 'Re-generate this report?';
+
+  @override
+  String get dailyReportRegenerateConfirmBody => 'This rebuilds the report from the current data. The previous version is overwritten.';
+
+  @override
+  String get dailyReportRegenerateConfirmCancel => 'Cancel';
+
+  @override
+  String get dailyReportRegenerateConfirmAction => 'Re-generate';
+
+  @override
+  String get dailyReportRegenerated => 'Report updated.';
+
+  @override
+  String get dailyReportEmptyTitle => 'No report yet';
+
+  @override
+  String get dailyReportEmptyBody => 'No bookings recorded for this date. Tap Re-generate to build an empty report.';
+
+  @override
+  String get dailyReportHistoryEmpty => 'No past reports yet.';
+
+  @override
+  String get dailyReportErrorGeneric => 'We couldn\'t build the report. Please try again.';
 }
