@@ -80,6 +80,10 @@ abstract class AppLogger {
     if (lower.contains('pan') || lower.contains('card')) {
       return '***';
     }
+    // F-P2-2: any free-form string (e.g. fields: {'error': e.toString()})
+    // gets the bearer/sk/pk/email pattern sweep so a key called 'error' or
+    // 'message' can't smuggle a token or email through verbatim.
+    if (value is String) return _redactFreeform(value);
     return value;
   }
 

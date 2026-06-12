@@ -183,8 +183,6 @@ class SupabaseDashboardRepository implements DashboardRepository {
     final targetDate = date ?? DateTime.now();
     final dateStr = targetDate.toIso8601String().split('T').first;
 
-    print('🔍 getTodaySchedule - shopId: $shopId, date: $dateStr');
-
     try {
       // First, get all bookings for this shop on this date
       final bookingsResponse = await _supabase
@@ -203,8 +201,6 @@ class SupabaseDashboardRepository implements DashboardRepository {
           .order('start_time', ascending: true);
 
       final bookings = List<Map<String, dynamic>>.from(bookingsResponse);
-
-      print('📋 Found ${bookings.length} bookings');
 
       if (bookings.isEmpty) {
         return [];
@@ -295,7 +291,10 @@ class SupabaseDashboardRepository implements DashboardRepository {
               }
             }
           } catch (e) {
-            print('⚠️ Could not fetch service name for slot $slotId: $e');
+            AppLogger.warn(
+              'dashboard.today_schedule.service_lookup_failed',
+              fields: {'shop_id': shopId, 'slot_id': slotId, 'error': e.toString()},
+            );
           }
         }
 
@@ -313,7 +312,10 @@ class SupabaseDashboardRepository implements DashboardRepository {
               workerName = workerResponse['name'] ?? 'Unassigned';
             }
           } catch (e) {
-            print('⚠️ Could not fetch worker name for worker $workerId: $e');
+            AppLogger.warn(
+              'dashboard.today_schedule.worker_lookup_failed',
+              fields: {'shop_id': shopId, 'worker_id': workerId, 'error': e.toString()},
+            );
           }
         }
 
@@ -335,10 +337,12 @@ class SupabaseDashboardRepository implements DashboardRepository {
         );
       }
 
-      print('✅ Returning ${scheduleItems.length} schedule items');
       return scheduleItems;
     } catch (e) {
-      print('❌ Error in getTodaySchedule: $e');
+      AppLogger.warn(
+        'dashboard.today_schedule.failed',
+        fields: {'shop_id': shopId, 'error': e.toString()},
+      );
       throw DashboardRepositoryException(
         'Failed to fetch today\'s schedule: $e',
         originalError: e,
@@ -548,8 +552,6 @@ class SupabaseDashboardRepository implements DashboardRepository {
               .map<String>((row) => row['booking_id'] as String)
               .toList();
 
-      print('📋 Found ${bookingIds.length} total booking IDs');
-
       if (bookingIds.isEmpty) {
         return [];
       }
@@ -569,7 +571,6 @@ class SupabaseDashboardRepository implements DashboardRepository {
       }
 
       final response = await query;
-      print('📋 Found ${response.length} bookings in date range');
 
       // Group by booking_id
       final Map<String, Map<String, dynamic>> bookingMap = {};
@@ -617,13 +618,15 @@ class SupabaseDashboardRepository implements DashboardRepository {
       }
 
       final bookings = bookingMap.values.toList();
-      print('✅ Returning ${bookings.length} bookings');
 
       return bookings
           .map((booking) => ShopCalendarBooking.fromJson(booking))
           .toList();
     } catch (e) {
-      print('❌ Error in getServiceBookings: $e');
+      AppLogger.warn(
+        'dashboard.service_bookings.failed',
+        fields: {'slot_id': slotId, 'error': e.toString()},
+      );
       return [];
     }
   }
@@ -657,8 +660,6 @@ class SupabaseDashboardRepository implements DashboardRepository {
               .map<String>((row) => row['booking_id'] as String)
               .toList();
 
-      print('📋 Found ${allBookingIds.length} total booking IDs');
-
       if (allBookingIds.isEmpty) return [];
 
       // Step 2: Filter those booking IDs by date range (with inclusive end date)
@@ -674,8 +675,6 @@ class SupabaseDashboardRepository implements DashboardRepository {
           (bookingsResponse as List)
               .map<String>((row) => row['id'] as String)
               .toList();
-
-      print('📋 Found ${validBookingIds.length} bookings in date range');
 
       if (validBookingIds.isEmpty) return [];
 
@@ -695,7 +694,6 @@ class SupabaseDashboardRepository implements DashboardRepository {
           .not('worker_id', 'is', null);
 
       final items = List<Map<String, dynamic>>.from(response);
-      print('📋 Found ${items.length} booking_services with workers');
 
       // Group by worker
       final Map<String, WorkerPerformance> workerStats = {};
@@ -736,10 +734,12 @@ class SupabaseDashboardRepository implements DashboardRepository {
         workers = workers.take(limit).toList();
       }
 
-      print('✅ Returning ${workers.length} workers');
       return workers;
     } catch (e) {
-      print('❌ Error in getWorkersForService: $e');
+      AppLogger.warn(
+        'dashboard.workers_for_service.failed',
+        fields: {'slot_id': slotId, 'error': e.toString()},
+      );
       return [];
     }
   }
@@ -3003,6 +3003,9 @@ class SupabaseDashboardRepository implements DashboardRepository {
         return ReportAccessDeniedException();
       case 'REPORT_DATE_INVALID':
         return ReportDateInvalidException();
+      // F-P2-11: distinct HINT for null shopId; map to a clearer error.
+      case 'REQUIRED_FIELD_MISSING':
+        return ReportGenerationFailedException();
       case 'REPORT_RPC_FAILED':
         return ReportGenerationFailedException();
     }

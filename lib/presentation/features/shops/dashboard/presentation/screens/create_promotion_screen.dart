@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
+import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/promotion_exceptions.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/promotion_model.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dashboard_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
@@ -145,10 +147,26 @@ class _CreatePromotionScreenState extends ConsumerState<CreatePromotionScreen> {
       if (mounted) {
         Navigator.pop(context, true);
       }
-    } catch (e) {
+    } on PromotionException catch (e) {
+      AppLogger.warn(
+        'promotion.save_failed',
+        fields: {'shop_id': widget.shopId, 'code': e.code},
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text(e.userMessage)),
+        );
+      }
+    } catch (e) {
+      AppLogger.warn(
+        'promotion.save_failed',
+        fields: {'shop_id': widget.shopId, 'error': e.toString()},
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("We couldn't save this promotion. Please try again."),
+          ),
         );
       }
     } finally {

@@ -93,8 +93,10 @@ class ToolsScreen extends ConsumerWidget {
             Gap(Spacing.sm.h),
             AppDivider(),
 
+            // F-P2-6: sized for itemCount=8, not the original 6, so
+            // loyalty + broadcasts cards are reachable on small phones.
             SizedBox(
-              height: 6 * 70,
+              height: 8 * 70,
               child: ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 padding: EdgeInsets.symmetric(vertical: Spacing.sm.h),

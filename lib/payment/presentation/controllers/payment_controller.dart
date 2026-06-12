@@ -1,9 +1,12 @@
 // lib/features/payment/presentation/controllers/payment_controller.dart
 
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/payment/config/payment_config.dart';
 import 'package:nano_embryo/payment/presentation/widgets/payment_webview.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -134,8 +137,25 @@ class PaymentController
     state = const AsyncValue.loading();
 
     try {
+      // F-P0-3: idempotency key incorporates cart fingerprint so that a
+      // retry against a changed cart (different services, different promo,
+      // different total) reaches the edge function as a NEW intent rather
+      // than replaying the stale one. Without this, a user who fails
+      // payment, edits the cart, and retries at the same start_time
+      // silently gets back the original (now-stale) intent.
+      final cartFingerprint = sha256
+          .convert(utf8.encode(jsonEncode([
+            for (final s in services)
+              [s['slotId'], s['workerId'], s['priceAtBooking']],
+            totalAmount,
+            depositAmount,
+            promotionId,
+            promoAmountOff,
+          ])))
+          .toString()
+          .substring(0, 16);
       final idempotencyKey =
-          '${shopId}_${userId}_${startTime.millisecondsSinceEpoch}';
+          '${shopId}_${userId}_${startTime.millisecondsSinceEpoch}_$cartFingerprint';
 
       final requestBody = {
         'shopId': shopId,
@@ -167,8 +187,12 @@ class PaymentController
 
       final data = response.data;
       if (data == null || data is! Map<String, dynamic>) {
-        debugPrint(
-          '${_config.createIntentFunctionName} returned unexpected data: $data',
+        AppLogger.warn(
+          'payment.create_intent.unexpected_response',
+          fields: {
+            'function': _config.createIntentFunctionName,
+            'shape': data.runtimeType.toString(),
+          },
         );
         await _fireFailure(
           message: 'Could not initialize payment.',
@@ -181,7 +205,13 @@ class PaymentController
 
       if (data['success'] != true) {
         final err = (data['error'] ?? 'Unknown error').toString();
-        debugPrint('${_config.createIntentFunctionName} failed: $err');
+        AppLogger.warn(
+          'payment.create_intent.failed',
+          fields: {
+            'function': _config.createIntentFunctionName,
+            'category': _classifyServerError(err).name,
+          },
+        );
         await _fireFailure(
           message: err,
           category: _classifyServerError(err),
@@ -196,8 +226,13 @@ class PaymentController
       final authorizationUrl = data['authorizationUrl'] as String?;
 
       if (reference == null || authorizationUrl == null) {
-        debugPrint(
-          '${_config.createIntentFunctionName} missing reference or URL: $data',
+        AppLogger.warn(
+          'payment.create_intent.missing_fields',
+          fields: {
+            'function': _config.createIntentFunctionName,
+            'has_reference': (reference != null).toString(),
+            'has_url': (authorizationUrl != null).toString(),
+          },
         );
         await _fireFailure(
           message: 'Could not initialize payment.',
@@ -252,9 +287,15 @@ class PaymentController
       state = AsyncValue.data(null);
       return null;
     } catch (e, st) {
-      debugPrint('processPayment error: $e\n$st');
+      AppLogger.warn(
+        'payment.process.error',
+        fields: {
+          'function': _config.createIntentFunctionName,
+          'error': e.toString(),
+        },
+      );
       await _fireFailure(
-        message: e.toString(),
+        message: 'Could not initialize payment.',
         category: PaymentErrorCategory.unknown,
         context: context,
       );
@@ -269,7 +310,10 @@ class PaymentController
   Future<Map<String, dynamic>?> retryLast(BuildContext context) async {
     final intent = _lastIntent;
     if (intent == null) {
-      debugPrint('retryLast called with no cached intent');
+      AppLogger.warn(
+        'payment.retry_last.no_intent',
+        fields: const {'reason': 'cache_empty'},
+      );
       return null;
     }
     return processPayment(
@@ -329,7 +373,14 @@ class PaymentController
         if (result != null) return result;
       } catch (e) {
         // Transient — try again next loop.
-        debugPrint('_confirmPayment poll error (attempt $attempt): $e');
+        AppLogger.warn(
+          'payment.confirm.poll_error',
+          fields: {
+            'payment_intent_id': paymentIntentId,
+            'attempt': attempt,
+            'error': e.toString(),
+          },
+        );
       }
     }
 
@@ -342,9 +393,6 @@ class PaymentController
     String provider,
   ) async {
     try {
-      debugPrint(
-        '🔍 Falling back to ${_config.verifyPaymentFunctionName} for $reference',
-      );
       final response = await _supabase.functions.invoke(
         _config.verifyPaymentFunctionName,
         body: {'reference': reference, 'provider': provider},
@@ -353,8 +401,12 @@ class PaymentController
       final data = response.data;
       if (data is! Map<String, dynamic>) return null;
       if (data['success'] != true) {
-        debugPrint(
-          '${_config.verifyPaymentFunctionName}: not confirmed — ${data['paystack_status'] ?? data['error']}',
+        AppLogger.warn(
+          'payment.verify.not_confirmed',
+          fields: {
+            'function': _config.verifyPaymentFunctionName,
+            'provider': provider,
+          },
         );
         return null;
       }
@@ -362,7 +414,13 @@ class PaymentController
       final booking = data['booking'];
       return booking is Map<String, dynamic> ? booking : null;
     } catch (e) {
-      debugPrint('${_config.verifyPaymentFunctionName} error: $e');
+      AppLogger.warn(
+        'payment.verify.error',
+        fields: {
+          'function': _config.verifyPaymentFunctionName,
+          'error': e.toString(),
+        },
+      );
       return null;
     }
   }
@@ -402,7 +460,10 @@ class PaymentController
         ),
       );
     } catch (e) {
-      debugPrint('onPaymentSuccess hook threw: $e');
+      AppLogger.warn(
+        'payment.success_hook.threw',
+        fields: {'error': e.toString()},
+      );
     }
   }
 
@@ -423,7 +484,10 @@ class PaymentController
       try {
         await hook(info);
       } catch (e) {
-        debugPrint('onPaymentFailure hook threw: $e');
+        AppLogger.warn(
+          'payment.failure_hook.threw',
+          fields: {'error': e.toString()},
+        );
       }
     }
 

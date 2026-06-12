@@ -1,4 +1,5 @@
 // lib/features/booking/presentation/screens/booking_confirmation_screen.dart
+import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/controllers/booking_creation_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/payment/config/payment_config.dart';
@@ -398,7 +399,13 @@ class _BookingConfirmationScreenState
         _showError('Payment failed. Please try again.');
       }
     } catch (e) {
-      _showError(e.toString());
+      // F-P2-8: never surface raw exception strings to the client.
+      // Log the detail; show a generic message.
+      AppLogger.warn(
+        'booking_confirmation.confirm_failed',
+        fields: {'error': e.toString()},
+      );
+      _showError("We couldn't complete your booking. Please try again.");
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
