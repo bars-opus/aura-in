@@ -22,6 +22,8 @@ class ServiceFormModal extends ConsumerStatefulWidget {
   final Function(AppointmentSlotDTO) onSave;
   final String? shopId;
   final List<WorkerDTO>? availableWorkers;
+  final String? currencySymbol; // e.g. 'GH₵', '₦', '$'
+  final String? shopType; // e.g. 'Salon', 'Barbershop'
 
   /// Weekly opening hours for the shop the service belongs to. Required
   /// so the form can validate day-of-week selections without reaching
@@ -36,6 +38,8 @@ class ServiceFormModal extends ConsumerStatefulWidget {
     this.shopId,
     this.availableWorkers,
     required this.availableHours,
+    this.currencySymbol,
+    this.shopType,
   });
 
   @override
@@ -51,6 +55,7 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
 
   late int _selectedDurationMinutes;
   late int _maxClients;
+  late int _bufferMinutes;
   late bool _selectPreferredWorker;
   late List<String> _selectedWorkerIds;
   List<OpeningHoursDraft> _shopHours = [];
@@ -89,6 +94,7 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
             ? DurationUtils.parse(widget.initialService!.duration).inMinutes
             : 30;
     _maxClients = widget.initialService?.maxClients ?? 1;
+    _bufferMinutes = widget.initialService?.bufferMinutes ?? 0;
     _selectPreferredWorker =
         widget.initialService?.selectPreferredWorker ?? false;
     _selectedWorkerIds = List.from(widget.initialService?.workerIds ?? []);
@@ -235,7 +241,9 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
                               Expanded(
                                 child: AppTextFormField(
                                   controller: _priceController,
-                                  label: 'Price',
+                                  label: widget.currencySymbol != null
+                                      ? 'Price (${widget.currencySymbol})'
+                                      : 'Price',
                                   prefixIcon: Icons.attach_money,
                                   keyboardType: TextInputType.number,
                                   validator: (value) {
@@ -263,6 +271,8 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
                             Gap(Spacing.md.h),
                             _buildWorkerSelector(theme, workers),
                           ],
+                          Gap(Spacing.md.h),
+                          _buildBufferStepper(theme),
                         ],
                       ),
                     ),
@@ -471,6 +481,28 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
     );
   }
 
+  Widget _buildBufferStepper(ThemeData theme) {
+    const options = [0, 5, 10, 15, 30];
+    return Row(
+      children: [
+        Icon(Icons.timer_outlined, size: 20.sp, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+        SizedBox(width: Spacing.sm.w),
+        Expanded(
+          child: Text('Buffer time after service', style: theme.textTheme.bodyMedium),
+        ),
+        DropdownButton<int>(
+          value: options.contains(_bufferMinutes) ? _bufferMinutes : 0,
+          underline: const SizedBox(),
+          items: options.map((m) => DropdownMenuItem(
+            value: m,
+            child: Text(m == 0 ? 'None' : '$m min'),
+          )).toList(),
+          onChanged: (v) => setState(() => _bufferMinutes = v ?? 0),
+        ),
+      ],
+    );
+  }
+
   Widget _buildDaySelector(ThemeData theme, List<int> selectedDays) {
     if (_isLoadingHours) {
       return const Center(child: CircularLoadingIndicator());
@@ -487,6 +519,31 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w600,
           ),
+        ),
+        Gap(Spacing.xs.h),
+        Wrap(
+          spacing: 8.w,
+          children: [
+            ActionChip(
+              label: const Text('Select all open days'),
+              avatar: const Icon(Icons.select_all, size: 16),
+              onPressed: () {
+                final allOpen = _shopHours
+                    .where((h) => !h.isClosed)
+                    .map((h) => h.dayOfWeek)
+                    .toList();
+                ref.read(_selectedDaysProvider.notifier).state = allOpen;
+              },
+            ),
+            if (selectedDays.isNotEmpty)
+              ActionChip(
+                label: const Text('Clear'),
+                avatar: const Icon(Icons.clear, size: 16),
+                onPressed: () {
+                  ref.read(_selectedDaysProvider.notifier).state = [];
+                },
+              ),
+          ],
         ),
         Gap(Spacing.sm.h),
         Container(
@@ -592,11 +649,7 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
       daysOfWeek: selectedDays,
       selectPreferredWorker: _selectPreferredWorker,
       workerIds: _selectedWorkerIds,
-      // Phase 11 locked correction 7: preserve the saved bufferMinutes
-      // instead of overwriting with a hard-coded 15. The previous value
-      // silently regressed every edit. ?? 0 covers the create-mode case
-      // where initialService is null.
-      bufferMinutes: widget.initialService?.bufferMinutes ?? 0,
+      bufferMinutes: _bufferMinutes,
     );
 
     widget.onSave(service);

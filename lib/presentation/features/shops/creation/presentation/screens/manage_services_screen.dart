@@ -349,6 +349,8 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
                     shopId: widget.shopId,
                     availableWorkers: workers,
                     availableHours: ref.read(hoursProvider),
+                    currencySymbol: ref.read(shopCreationProvider).currencySymbol,
+                    shopType: ref.read(shopCreationProvider).shopType,
                   ),
             ),
           );
@@ -384,6 +386,8 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
                     shopId: widget.shopId,
                     availableWorkers: const [],
                     availableHours: ref.read(hoursProvider),
+                    currencySymbol: ref.read(shopCreationProvider).currencySymbol,
+                    shopType: ref.read(shopCreationProvider).shopType,
                   ),
             ),
           );
@@ -421,6 +425,8 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
           shopId: widget.shopId,
           availableWorkers: workers.cast(),
           availableHours: ref.read(hoursProvider),
+          currencySymbol: ref.read(shopCreationProvider).currencySymbol,
+          shopType: ref.read(shopCreationProvider).shopType,
         ),
       );
     }
