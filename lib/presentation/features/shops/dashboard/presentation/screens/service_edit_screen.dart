@@ -110,7 +110,9 @@ class ServiceEditScreen extends ConsumerWidget {
       'days_of_week': dto.daysOfWeek,
       'select_preferred_worker': dto.selectPreferredWorker,
       'worker_ids': dto.workerIds,
+      'buffer_before_minutes': dto.bufferBeforeMinutes,
       'buffer_minutes': dto.bufferMinutes,
+      'is_online_booking_enabled': dto.isOnlineBookingEnabled,
     };
     if (includeId) row['id'] = dto.id;
     return row;

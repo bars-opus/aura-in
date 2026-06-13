@@ -117,7 +117,9 @@ class SupabaseShopCreationRepository {
           'max_clients': service.maxClients,
           'days_of_week': service.daysOfWeek,
           'select_preferred_worker': service.selectPreferredWorker,
+          'buffer_before_minutes': service.bufferBeforeMinutes,
           'buffer_minutes': service.bufferMinutes,
+          'is_online_booking_enabled': service.isOnlineBookingEnabled,
         });
       }
 
@@ -390,7 +392,9 @@ class SupabaseShopCreationRepository {
           'max_clients': service.maxClients,
           'days_of_week': service.daysOfWeek,
           'select_preferred_worker': service.selectPreferredWorker,
+          'buffer_before_minutes': service.bufferBeforeMinutes,
           'buffer_minutes': service.bufferMinutes,
+          'is_online_booking_enabled': service.isOnlineBookingEnabled,
         });
       }
 

@@ -12,7 +12,9 @@ class AppointmentSlotDTO {
   final List<int> daysOfWeek;
   final bool selectPreferredWorker;
   final List<String> workerIds;
-  final int bufferMinutes; // Add this
+  final int bufferMinutes;
+  final int bufferBeforeMinutes;
+  final bool isOnlineBookingEnabled;
 
   AppointmentSlotDTO({
     required this.id,
@@ -26,7 +28,9 @@ class AppointmentSlotDTO {
     required this.daysOfWeek,
     required this.selectPreferredWorker,
     required this.workerIds,
-    required this.bufferMinutes, // New field
+    required this.bufferMinutes,
+    this.bufferBeforeMinutes = 0,
+    this.isOnlineBookingEnabled = true,
   });
 
   factory AppointmentSlotDTO.fromJson(Map<String, dynamic> json) {
@@ -42,6 +46,8 @@ class AppointmentSlotDTO {
       slotType: json['slot_type'] as String,
       maxClients: json['max_clients'] as int? ?? 1,
       bufferMinutes: json['buffer_minutes'] as int? ?? 0,
+      bufferBeforeMinutes: json['buffer_before_minutes'] as int? ?? 0,
+      isOnlineBookingEnabled: json['is_online_booking_enabled'] as bool? ?? true,
       daysOfWeek:
           (json['days_of_week'] as List<dynamic>?)
               ?.map((e) => e as int)
@@ -68,8 +74,10 @@ class AppointmentSlotDTO {
       'max_clients': maxClients, 'service_type': serviceType,
       'days_of_week': daysOfWeek,
       'select_preferred_worker': selectPreferredWorker,
-      'worker_ids': workerIds, // Fixed the key name
-      'bufferMinutes': bufferMinutes,
+      'worker_ids': workerIds,
+      'buffer_minutes': bufferMinutes,
+      'buffer_before_minutes': bufferBeforeMinutes,
+      'is_online_booking_enabled': isOnlineBookingEnabled,
     };
   }
 }

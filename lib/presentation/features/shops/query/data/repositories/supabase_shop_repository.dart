@@ -840,6 +840,7 @@ class SupabaseShopRepository implements ShopRepository {
             .from('appointment_slots')
             .select('*')
             .eq('shop_id', shopId)
+            .eq('is_online_booking_enabled', true)
             .isFilter('archived_at', null),
         _client.from('shop_locations').select('*').eq('shop_id', shopId),
       ]);

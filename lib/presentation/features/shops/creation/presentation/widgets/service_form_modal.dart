@@ -78,8 +78,10 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
 
   late int _selectedDurationMinutes;
   late int _maxClients;
+  late int _bufferBeforeMinutes;
   late int _bufferMinutes;
   late bool _selectPreferredWorker;
+  late bool _isOnlineBookingEnabled;
   late List<String> _selectedWorkerIds;
   List<OpeningHoursDraft> _shopHours = [];
   bool _isLoadingHours = true;
@@ -119,9 +121,12 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
             ? DurationUtils.parse(widget.initialService!.duration).inMinutes
             : 30;
     _maxClients = widget.initialService?.maxClients ?? 1;
+    _bufferBeforeMinutes = widget.initialService?.bufferBeforeMinutes ?? 0;
     _bufferMinutes = widget.initialService?.bufferMinutes ?? 0;
     _selectPreferredWorker =
         widget.initialService?.selectPreferredWorker ?? false;
+    _isOnlineBookingEnabled =
+        widget.initialService?.isOnlineBookingEnabled ?? true;
     _selectedWorkerIds = List.from(widget.initialService?.workerIds ?? []);
 
     // Sub-type: detect if initialService has a custom (non-predefined) type.
@@ -298,11 +303,17 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
                             _buildWorkerSelector(theme, workers),
                           ],
                           Gap(Spacing.md.h),
+                          _buildBufferBeforeStepper(theme),
+                          Gap(Spacing.md.h),
                           _buildBufferStepper(theme),
+                          Gap(Spacing.md.h),
+                          _buildOnlineBookingToggle(theme),
                         ],
                       ),
                     ),
 
+                    Gap(Spacing.md.h),
+                    _buildDepositBanner(theme),
                     Gap(Spacing.md.h),
 
                     _buildDaySelector(theme, selectedDays),
@@ -567,6 +578,82 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
     );
   }
 
+  Widget _buildBufferBeforeStepper(ThemeData theme) {
+    const options = [0, 5, 10, 15, 30];
+    return Row(
+      children: [
+        Icon(Icons.timer_outlined, size: 20.sp, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+        SizedBox(width: Spacing.sm.w),
+        Expanded(
+          child: Text('Prep time before service', style: theme.textTheme.bodyMedium),
+        ),
+        DropdownButton<int>(
+          value: options.contains(_bufferBeforeMinutes) ? _bufferBeforeMinutes : 0,
+          underline: const SizedBox(),
+          items: options.map((m) => DropdownMenuItem(
+            value: m,
+            child: Text(m == 0 ? 'None' : '$m min'),
+          )).toList(),
+          onChanged: (v) => setState(() => _bufferBeforeMinutes = v ?? 0),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOnlineBookingToggle(ThemeData theme) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Accept online bookings', style: theme.textTheme.bodyMedium),
+              Text(
+                _isOnlineBookingEnabled
+                    ? 'Clients can book this service online'
+                    : 'Hidden from client booking flow',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: _isOnlineBookingEnabled
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.error,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Switch(
+          value: _isOnlineBookingEnabled,
+          onChanged: (v) => setState(() => _isOnlineBookingEnabled = v),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDepositBanner(ThemeData theme) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: Spacing.md.w, vertical: Spacing.sm.h),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: theme.colorScheme.primary.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.lock_outline, size: 18.sp, color: theme.colorScheme.primary),
+          SizedBox(width: Spacing.sm.w),
+          Expanded(
+            child: Text(
+              '30% deposit required at booking — protects your time from no-shows.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildBufferStepper(ThemeData theme) {
     const options = [0, 5, 10, 15, 30];
     return Row(
@@ -574,7 +661,7 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
         Icon(Icons.timer_outlined, size: 20.sp, color: theme.colorScheme.onSurface.withOpacity(0.6)),
         SizedBox(width: Spacing.sm.w),
         Expanded(
-          child: Text('Buffer time after service', style: theme.textTheme.bodyMedium),
+          child: Text('Cleanup time after service', style: theme.textTheme.bodyMedium),
         ),
         DropdownButton<int>(
           value: options.contains(_bufferMinutes) ? _bufferMinutes : 0,
@@ -746,7 +833,9 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
       daysOfWeek: selectedDays,
       selectPreferredWorker: _selectPreferredWorker,
       workerIds: _selectedWorkerIds,
+      bufferBeforeMinutes: _bufferBeforeMinutes,
       bufferMinutes: _bufferMinutes,
+      isOnlineBookingEnabled: _isOnlineBookingEnabled,
     );
 
     widget.onSave(service);
