@@ -61,29 +61,38 @@ class SupabaseShopCreationRepository {
         });
       }
 
-      // 3. Contacts
-      if (draft.phone != null) {
+      // 3. Contacts — draft.contacts is the source of truth.
+      // Fall back to scalar fields for shops created before the contacts-list
+      // migration. Never insert both — that causes duplicate rows.
+      final contactsToSave =
+          draft.contacts.isNotEmpty
+              ? draft.contacts
+              : [
+                  if (draft.phone != null && draft.phone!.isNotEmpty)
+                    ContactDraft(
+                      type: ContactType.phone,
+                      value: draft.phone!,
+                      isPrimary: true,
+                    ),
+                  if (draft.email != null && draft.email!.isNotEmpty)
+                    ContactDraft(
+                      type: ContactType.email,
+                      value: draft.email!,
+                      isPrimary: true,
+                    ),
+                  if (draft.website != null && draft.website!.isNotEmpty)
+                    ContactDraft(
+                      type: ContactType.website,
+                      value: draft.website!,
+                      isPrimary: false,
+                    ),
+                ];
+      for (final contact in contactsToSave) {
         await _client.from('shop_contacts').insert({
           'shop_id': shopId,
-          'contact_type': 'phone',
-          'value': draft.phone,
-          'is_primary': true,
-        });
-      }
-      if (draft.email != null) {
-        await _client.from('shop_contacts').insert({
-          'shop_id': shopId,
-          'contact_type': 'email',
-          'value': draft.email,
-          'is_primary': true,
-        });
-      }
-      if (draft.website != null) {
-        await _client.from('shop_contacts').insert({
-          'shop_id': shopId,
-          'contact_type': 'website',
-          'value': draft.website,
-          'is_primary': false,
+          'contact_type': contact.type.name,
+          'value': contact.value,
+          'is_primary': contact.isPrimary,
         });
       }
 
@@ -156,16 +165,6 @@ class SupabaseShopCreationRepository {
         });
       }
 
-      // 10. Additional contacts
-      for (final contact in draft.contacts) {
-        await _client.from('shop_contacts').insert({
-          'shop_id': shopId,
-          'contact_type': contact.type.name,
-          'value': contact.value,
-          'is_primary': contact.isPrimary,
-        });
-      }
-
       success = true;
       return shopId;
     } catch (e) {
@@ -186,15 +185,19 @@ class SupabaseShopCreationRepository {
 
   /// Helper to delete shop and all related data
   Future<void> _deleteShopWithRelatedData(String shopId) async {
-    // Delete in reverse order
-    await _client
-        .from('slot_worker_assignments')
-        .delete()
-        .filter(
-          'slot_id',
-          'in',
-          _client.from('appointment_slots').select('id').eq('shop_id', shopId),
-        );
+    // Fetch slot IDs first — Supabase Dart client does not support subquery
+    // objects as .filter() arguments; the list must be materialised first.
+    final slots = await _client
+        .from('appointment_slots')
+        .select('id')
+        .eq('shop_id', shopId);
+    final slotIds = slots.map((s) => s['id'] as String).toList();
+    if (slotIds.isNotEmpty) {
+      await _client
+          .from('slot_worker_assignments')
+          .delete()
+          .inFilter('slot_id', slotIds);
+    }
     await _client.from('appointment_slots').delete().eq('shop_id', shopId);
     await _client.from('shop_workers').delete().eq('shop_id', shopId);
     await _client.from('shop_locations').delete().eq('shop_id', shopId);
