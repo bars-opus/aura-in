@@ -1,14 +1,21 @@
 // lib/features/shop/creation/presentation/widgets/add_contact_modal.dart
 
 import 'package:flutter/services.dart';
+import 'package:nano_embryo/core/utils/phone_field_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/calendar/utility/calendar_export.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/contact_draft.dart';
 
 class AddContactModal extends StatefulWidget {
   final Function(ContactDraft) onSave;
   final ContactDraft? initialContact;
+  final String? shopCountryIsoCode; // e.g. 'GH', auto-set from shop location
 
-  const AddContactModal({super.key, required this.onSave, this.initialContact});
+  const AddContactModal({
+    super.key,
+    required this.onSave,
+    this.initialContact,
+    this.shopCountryIsoCode,
+  });
 
   @override
   State<AddContactModal> createState() => _AddContactModalState();
@@ -20,14 +27,22 @@ class _AddContactModalState extends State<AddContactModal> {
   ContactType? _selectedType;
   // Only used for the type-chip selection error — field errors are handled by Form.
   String? _typeError;
+  String? _e164Phone; // holds validated E.164 for phone type
+  bool _isPrimary = false;
 
   @override
   void initState() {
     super.initState();
+    _isPrimary = widget.initialContact?.isPrimary ?? false;
     if (widget.initialContact != null) {
       _selectedType = widget.initialContact!.type;
+      _e164Phone = widget.initialContact!.type == ContactType.phone
+          ? widget.initialContact!.value
+          : null;
       _valueController = TextEditingController(
-        text: widget.initialContact!.value,
+        text: widget.initialContact!.type == ContactType.phone
+            ? '' // PhoneFieldWidget owns its own controller
+            : widget.initialContact!.value,
       );
     } else {
       _valueController = TextEditingController();
@@ -145,18 +160,27 @@ class _AddContactModalState extends State<AddContactModal> {
 
             Gap(Spacing.md.h),
 
-            AppTextFormField(
-              debounceDuration: const Duration(milliseconds: 300),
-              onDebouncedChanged: (_) => _autoSave(),
-              controller: _valueController,
-              label: _getLabel(),
-              hintText: _getHint(),
-              prefixIcon: _selectedType?.icon,
-              keyboardType: _getKeyboardType(),
-              inputFormatters: _getInputFormatters(),
-              // Validator is wired to ValidationUtils — Form.validate() triggers it.
-              validator: _getValidator(),
-            ),
+            if (_selectedType == ContactType.phone)
+              PhoneFieldWidget(
+                initialCountryIsoCode: widget.shopCountryIsoCode,
+                initialValue: widget.initialContact?.type == ContactType.phone
+                    ? widget.initialContact!.value
+                    : null,
+                onChanged: (e164) => setState(() => _e164Phone = e164),
+              )
+            else
+              AppTextFormField(
+                debounceDuration: const Duration(milliseconds: 300),
+                onDebouncedChanged: (_) => _autoSave(),
+                controller: _valueController,
+                label: _getLabel(),
+                hintText: _getHint(),
+                prefixIcon: _selectedType?.icon,
+                keyboardType: _getKeyboardType(),
+                inputFormatters: _getInputFormatters(),
+                // Validator is wired to ValidationUtils — Form.validate() triggers it.
+                validator: _getValidator(),
+              ),
 
             Gap(Spacing.md.h),
 
@@ -164,8 +188,8 @@ class _AddContactModalState extends State<AddContactModal> {
               Row(
                 children: [
                   Checkbox(
-                    value: false,
-                    onChanged: (_) {},
+                    value: _isPrimary,
+                    onChanged: (v) => setState(() => _isPrimary = v ?? false),
                   ),
                   Expanded(
                     child: Text(
@@ -278,11 +302,32 @@ class _AddContactModalState extends State<AddContactModal> {
       return;
     }
 
+    if (_selectedType == ContactType.phone) {
+      if (_e164Phone == null) {
+        // PhoneFormField validator shows the inline error; nothing else to do.
+        _formKey.currentState!.validate();
+        return;
+      }
+      widget.onSave(ContactDraft(
+        id: widget.initialContact?.id,
+        type: ContactType.phone,
+        value: _e164Phone!,
+        isPrimary: _isPrimary,
+      ));
+      Navigator.pop(context);
+      return;
+    }
+
     // Form.validate() triggers every field's validator and shows inline errors.
     if (!_formKey.currentState!.validate()) return;
 
     final finalValue = _normaliseValue(_valueController.text.trim());
-    widget.onSave(ContactDraft(type: _selectedType!, value: finalValue));
+    widget.onSave(ContactDraft(
+      id: widget.initialContact?.id,
+      type: _selectedType!,
+      value: finalValue,
+      isPrimary: _isPrimary,
+    ));
     Navigator.pop(context);
   }
 }

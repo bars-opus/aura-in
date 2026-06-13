@@ -72,6 +72,7 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   reorderables: ^0.6.0
   uuid: ^3.0.7
+  phone_form_field: ^10.0.17
   mapbox_maps_flutter: ^2.1.0
   permission_handler: ^11.0.0
   geojson: ^1.0.0

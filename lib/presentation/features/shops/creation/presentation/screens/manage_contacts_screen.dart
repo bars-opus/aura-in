@@ -121,10 +121,20 @@ class _ManageContactsScreenState extends ConsumerState<ManageContactsScreen> {
     );
   }
 
+  String? _isoCodeFromCurrencyCode(String? code) {
+    const m = {
+      'GHS': 'GH', 'NGN': 'NG', 'GBP': 'GB',
+      'USD': 'US', 'ZAR': 'ZA', 'KES': 'KE',
+    };
+    return code == null ? null : m[code];
+  }
+
   void _showAddContactModal() {
+    final draft = ref.read(shopCreationProvider);
     BottomSheetUtils.showDocumentationBottomSheet(
       context: context,
       widget: AddContactModal(
+        shopCountryIsoCode: _isoCodeFromCurrencyCode(draft.currencyCode),
         onSave: (contact) {
           ref.read(contactsProvider.notifier).addContact(contact);
         },
@@ -134,10 +144,12 @@ class _ManageContactsScreenState extends ConsumerState<ManageContactsScreen> {
 
   void _editContact(int index) {
     final contact = ref.read(contactsProvider)[index];
+    final draft = ref.read(shopCreationProvider);
     BottomSheetUtils.showDocumentationBottomSheet(
       context: context,
       widget: AddContactModal(
         initialContact: contact,
+        shopCountryIsoCode: _isoCodeFromCurrencyCode(draft.currencyCode),
         onSave: (updatedContact) {
           setState(() {});
           ref
