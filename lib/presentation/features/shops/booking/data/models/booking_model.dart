@@ -1,6 +1,7 @@
 // lib/features/booking/data/models/booking_model.dart
 
 import 'package:equatable/equatable.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/models/booking_service_model.dart';
 
 /// Represents a booking/appointment in the system.
@@ -45,9 +46,13 @@ class BookingModel extends Equatable {
   final DateTime endTime;
   final DateTime actualEndTime;
   final BookingStatus status;
-  final double totalAmount;
-  final double depositAmount;
-  final double? platformFee;
+
+  /// Phase 17: money fields are int minor units (kobo for GHS). Server
+  /// returns NUMERIC(12,2) major units; `parseMoneyMinor` converts at the
+  /// fromJson boundary. Display via `formatMoney(totalAmountMinor, currency)`.
+  final int totalAmountMinor;
+  final int depositAmountMinor;
+  final int? platformFeeMinor;
   final String? paymentMethod;
   final PaymentStatus paymentStatus;
   final String? paymentIntentId;
@@ -80,9 +85,9 @@ class BookingModel extends Equatable {
     required this.endTime,
     required this.actualEndTime,
     required this.status,
-    required this.totalAmount,
-    required this.depositAmount,
-    this.platformFee,
+    required this.totalAmountMinor,
+    required this.depositAmountMinor,
+    this.platformFeeMinor,
     this.paymentMethod,
     required this.paymentStatus,
     this.paymentIntentId,
@@ -155,9 +160,16 @@ class BookingModel extends Equatable {
           json['status'] != null
               ? BookingStatus.fromString(json['status'] as String)
               : BookingStatus.pending,
-      totalAmount: (json['total_amount'] as num?)?.toDouble() ?? 0.0,
-      depositAmount: (json['deposit_amount'] as num?)?.toDouble() ?? 0.0,
-      platformFee: (json['platform_fee'] as num?)?.toDouble(),
+      // Phase 17: NUMERIC(12,2) major units → int minor at the boundary.
+      totalAmountMinor: json['total_amount'] == null
+          ? 0
+          : parseMoneyMinor(json['total_amount'] as num),
+      depositAmountMinor: json['deposit_amount'] == null
+          ? 0
+          : parseMoneyMinor(json['deposit_amount'] as num),
+      platformFeeMinor: json['platform_fee'] == null
+          ? null
+          : parseMoneyMinor(json['platform_fee'] as num),
 
       specialRequirements: json['special_requirements'] as String?,
       paymentMethod: json['payment_method'] as String?,
@@ -224,9 +236,10 @@ class BookingModel extends Equatable {
       'end_time': endTime.toIso8601String(),
       'actual_end_time': actualEndTime.toIso8601String(),
       'status': status.value,
-      'total_amount': totalAmount,
-      'deposit_amount': depositAmount,
-      'platform_fee': platformFee,
+      // Phase 17: write back as NUMERIC major units. Storage stays NUMERIC(12,2).
+      'total_amount': totalAmountMinor / 100,
+      'deposit_amount': depositAmountMinor / 100,
+      'platform_fee': platformFeeMinor == null ? null : platformFeeMinor! / 100,
       'payment_method': paymentMethod,
       'payment_status': paymentStatus.value,
       'payment_intent_id': paymentIntentId,
@@ -254,9 +267,9 @@ class BookingModel extends Equatable {
     DateTime? endTime,
     DateTime? actualEndTime,
     BookingStatus? status,
-    double? totalAmount,
-    double? depositAmount,
-    double? platformFee,
+    int? totalAmountMinor,
+    int? depositAmountMinor,
+    int? platformFeeMinor,
     String? paymentMethod,
     PaymentStatus? paymentStatus,
     String? paymentIntentId,
@@ -283,9 +296,9 @@ class BookingModel extends Equatable {
       endTime: endTime ?? this.endTime,
       actualEndTime: actualEndTime ?? this.actualEndTime,
       status: status ?? this.status,
-      totalAmount: totalAmount ?? this.totalAmount,
-      depositAmount: depositAmount ?? this.depositAmount,
-      platformFee: platformFee ?? this.platformFee,
+      totalAmountMinor: totalAmountMinor ?? this.totalAmountMinor,
+      depositAmountMinor: depositAmountMinor ?? this.depositAmountMinor,
+      platformFeeMinor: platformFeeMinor ?? this.platformFeeMinor,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       paymentIntentId: paymentIntentId ?? this.paymentIntentId,
@@ -313,10 +326,11 @@ class BookingModel extends Equatable {
     return startTime.difference(now) > cancellationWindow;
   }
 
-  double get remainingBalance => totalAmount - depositAmount;
+  /// Phase 17: int minor units (kobo). Display with `formatMoney(remainingBalanceMinor, currency)`.
+  int get remainingBalanceMinor => totalAmountMinor - depositAmountMinor;
 
   bool get isFullyPaid =>
-      paymentStatus == PaymentStatus.paid && depositAmount > 0;
+      paymentStatus == PaymentStatus.paid && depositAmountMinor > 0;
 
   @override
   List<Object?> get props => [
@@ -329,9 +343,9 @@ class BookingModel extends Equatable {
     endTime,
     actualEndTime,
     status,
-    totalAmount,
-    depositAmount,
-    platformFee,
+    totalAmountMinor,
+    depositAmountMinor,
+    platformFeeMinor,
     paymentMethod,
     paymentStatus,
     createdAt,

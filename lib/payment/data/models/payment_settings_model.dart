@@ -2,6 +2,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 
 enum PaymentProvider {
   stripe,
@@ -57,7 +58,10 @@ class PaymentSettings extends Equatable {
 
   // Common fields
   final PayoutSchedule payoutSchedule;
-  final double payoutMinimum;
+  /// Phase 17: int minor units (kobo). Server stores NUMERIC(12,2);
+  /// `parseMoneyMinor` converts at the fromJson boundary. Display via
+  /// `formatMoney(payoutMinimumMinor, currency)`.
+  final int payoutMinimumMinor;
   final String payoutCurrency;
 
   final DateTime? connectedAt;
@@ -76,7 +80,7 @@ class PaymentSettings extends Equatable {
     this.paystackVerified,
     this.paystackCurrency,
     required this.payoutSchedule,
-    required this.payoutMinimum,
+    required this.payoutMinimumMinor,
     required this.payoutCurrency,
     this.connectedAt,
     required this.createdAt,
@@ -135,7 +139,10 @@ class PaymentSettings extends Equatable {
       payoutSchedule: _parsePayoutSchedule(
         json['payout_schedule'] as String? ?? 'weekly',
       ),
-      payoutMinimum: (json['payout_minimum'] as num?)?.toDouble() ?? 50.0,
+      // Phase 17: NUMERIC major → int minor at the boundary. Default 50.00 cedis = 5000 kobo.
+      payoutMinimumMinor: json['payout_minimum'] == null
+          ? 5000
+          : parseMoneyMinor(json['payout_minimum'] as num),
       payoutCurrency: json['payout_currency'] as String? ?? 'USD',
 
       // Date fields (handle null safely)
@@ -169,7 +176,7 @@ class PaymentSettings extends Equatable {
       'paystack_verified': paystackVerified,
       'paystack_currency': paystackCurrency,
       'payout_schedule': payoutSchedule.name,
-      'payout_minimum': payoutMinimum,
+      'payout_minimum': payoutMinimumMinor / 100,
       'payout_currency': payoutCurrency,
       'auto_payout_enabled': autoPayoutEnabled,
       'connected_at': connectedAt?.toIso8601String(),
@@ -214,7 +221,7 @@ class PaymentSettings extends Equatable {
     String? paystackCurrency,
     bool? autoPayoutEnabled,
     PayoutSchedule? payoutSchedule,
-    double? payoutMinimum,
+    int? payoutMinimumMinor,
     String? payoutCurrency,
     DateTime? connectedAt,
   }) {
@@ -232,7 +239,7 @@ class PaymentSettings extends Equatable {
       paystackVerified: paystackVerified ?? this.paystackVerified,
       paystackCurrency: paystackCurrency ?? this.paystackCurrency,
       payoutSchedule: payoutSchedule ?? this.payoutSchedule,
-      payoutMinimum: payoutMinimum ?? this.payoutMinimum,
+      payoutMinimumMinor: payoutMinimumMinor ?? this.payoutMinimumMinor,
       payoutCurrency: payoutCurrency ?? this.payoutCurrency,
       connectedAt: connectedAt ?? this.connectedAt,
       createdAt: createdAt,
@@ -252,7 +259,7 @@ class PaymentSettings extends Equatable {
     paystackVerified,
     paystackCurrency,
     payoutSchedule,
-    payoutMinimum,
+    payoutMinimumMinor,
     payoutCurrency,
     connectedAt,
     createdAt,

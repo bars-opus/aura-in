@@ -37,7 +37,7 @@ TimeSlotModel _timeSlot({
     actualEndTime: end.add(buffer),
     slotId: slotId,
     serviceName: 'Test',
-    price: 50,
+    priceMinor: 5000,
     availableWorkers: const [],
     remainingSpots: null,
     requiresWorkerSelection: false,

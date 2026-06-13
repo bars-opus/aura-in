@@ -9,8 +9,9 @@ void main() {
       PaymentStatus paymentStatus = PaymentStatus.unpaid,
       DateTime? startTime,
       DateTime? endTime,
-      double total = 100.0,
-      double deposit = 30.0,
+      // Phase 17: test fixtures use int kobo (100 cedis = 10000 kobo).
+      int total = 10000,
+      int deposit = 3000,
     }) {
       final start = startTime ?? DateTime.utc(2026, 5, 17, 10);
       final end = endTime ?? DateTime.utc(2026, 5, 17, 11);
@@ -23,9 +24,9 @@ void main() {
         endTime: end,
         actualEndTime: end,
         status: status,
-        totalAmount: total,
-        depositAmount: deposit,
-        platformFee: 2.0,
+        totalAmountMinor: total,
+        depositAmountMinor: deposit,
+        platformFeeMinor: 200,
         paymentStatus: paymentStatus,
         createdAt: DateTime.utc(2026, 5, 16),
         updatedAt: DateTime.utc(2026, 5, 16),
@@ -73,7 +74,7 @@ void main() {
       });
       expect(booking.id, 'b1');
       expect(booking.status, BookingStatus.pending);
-      expect(booking.platformFee, isNull);
+      expect(booking.platformFeeMinor, isNull);
       expect(booking.paymentIntentId, isNull);
       expect(booking.cancellationReason, isNull);
       expect(booking.shopAddress, isNull);
@@ -94,8 +95,8 @@ void main() {
       expect(booking.id, '');
       expect(booking.status, BookingStatus.pending);
       expect(booking.paymentStatus, PaymentStatus.unpaid);
-      expect(booking.totalAmount, 0.0);
-      expect(booking.depositAmount, 0.0);
+      expect(booking.totalAmountMinor, 0);
+      expect(booking.depositAmountMinor, 0);
     });
 
     test('isActive is true for pending + confirmed only', () {
@@ -106,9 +107,10 @@ void main() {
       expect(makeBooking(status: BookingStatus.noShow).isActive, isFalse);
     });
 
-    test('remainingBalance = total - deposit', () {
-      final b = makeBooking(total: 150, deposit: 45);
-      expect(b.remainingBalance, 105);
+    test('remainingBalanceMinor = totalMinor - depositMinor', () {
+      // Phase 17: int kobo. 150 GHS = 15000 kobo; 45 GHS = 4500 kobo.
+      final b = makeBooking(total: 15000, deposit: 4500);
+      expect(b.remainingBalanceMinor, 10500);
     });
 
     test('canCancel returns false for cancelled bookings', () {
@@ -127,8 +129,8 @@ void main() {
         endTime: future.add(const Duration(hours: 1)),
         actualEndTime: future.add(const Duration(hours: 1)),
         status: BookingStatus.confirmed,
-        totalAmount: 0,
-        depositAmount: 0,
+        totalAmountMinor: 0,
+        depositAmountMinor: 0,
         paymentStatus: PaymentStatus.unpaid,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -148,8 +150,8 @@ void main() {
         endTime: soon.add(const Duration(hours: 1)),
         actualEndTime: soon.add(const Duration(hours: 1)),
         status: BookingStatus.confirmed,
-        totalAmount: 0,
-        depositAmount: 0,
+        totalAmountMinor: 0,
+        depositAmountMinor: 0,
         paymentStatus: PaymentStatus.unpaid,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -194,7 +196,7 @@ void main() {
         slotId: 'slot-1',
         workerId: 'worker-9',
         startTime: DateTime.utc(2026, 5, 17, 10),
-        priceAtBooking: 50.0,
+        priceAtBookingMinor: 5000,
         durationMinutes: 60,
         createdAt: DateTime.utc(2026, 5, 16),
         serviceName: 'Haircut',
@@ -213,7 +215,7 @@ void main() {
       expect(round.bookingId, 'b1');
       expect(round.slotId, 'slot-1');
       expect(round.workerId, 'worker-9');
-      expect(round.priceAtBooking, 50.0);
+      expect(round.priceAtBookingMinor, 5000);
       expect(round.durationMinutes, 60);
       expect(round.serviceName, 'Haircut');
       expect(round.workerName, 'Ada');
@@ -227,7 +229,7 @@ void main() {
         bookingId: 'b',
         slotId: 's',
         startTime: DateTime.utc(2026, 5, 17, 10),
-        priceAtBooking: 0,
+        priceAtBookingMinor: 0,
         durationMinutes: 30,
         createdAt: DateTime.utc(2026, 5, 16),
         specialRequirements: '',
@@ -242,7 +244,7 @@ void main() {
         bookingId: 'b',
         slotId: 's',
         startTime: DateTime.utc(2026, 5, 17, 10),
-        priceAtBooking: 0,
+        priceAtBookingMinor: 0,
         durationMinutes: 30,
         createdAt: DateTime.utc(2026, 5, 16),
         specialRequirements: 'note',

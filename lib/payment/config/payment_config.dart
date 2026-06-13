@@ -29,12 +29,15 @@ enum PaymentErrorCategory {
 
 class PaymentSuccessInfo {
   final String reference;
-  final double amount;
+
+  /// Phase 17: int minor units (kobo). Convert with `formatMoney(amountMinor, currency)`
+  /// at display sites, or `amountMinor / 100` for legacy callers reading major units.
+  final int amountMinor;
   final String currency;
   final Map<String, dynamic> raw;
   const PaymentSuccessInfo({
     required this.reference,
-    required this.amount,
+    required this.amountMinor,
     required this.currency,
     required this.raw,
   });
@@ -119,17 +122,20 @@ class PaymentConfig {
   /// Fallback currency when the shop currency is missing. ISO 4217.
   final String defaultCurrency;
 
-  /// Upfront deposit as a fraction of the total (0.0–1.0). Default 0.30.
-  final double depositFraction;
+  /// Phase 17: upfront deposit as basis points (1 bp = 0.01%). Default 3000 (= 30%).
+  /// Multiply via `applyBps(totalMinor, depositBps)` for exact int kobo math.
+  final int depositBps;
 
-  /// Platform fee as a fraction of the total (0.0–1.0). Default 0.029.
-  final double platformFeeFraction;
+  /// Phase 17: platform fee as basis points. Default 290 (= 2.9%).
+  final int platformFeeBps;
 
-  /// Minimum withdrawal amount, in the shop's currency.
-  final double minWithdrawalAmount;
+  /// Phase 17: minimum withdrawal amount, in int minor units (kobo for GHS).
+  /// Default 5000 = GHS 50.00.
+  final int minWithdrawalAmountMinor;
 
-  /// Maximum withdrawal amount, in the shop's currency.
-  final double maxWithdrawalAmount;
+  /// Phase 17: maximum withdrawal amount, in int minor units (kobo for GHS).
+  /// Default 500000 = GHS 5,000.00.
+  final int maxWithdrawalAmountMinor;
 
   // ── Retry / polling ───────────────────────────────────────────────────────
 
@@ -188,10 +194,10 @@ class PaymentConfig {
     },
     this.providerResolver,
     this.defaultCurrency = 'GHS',
-    this.depositFraction = 0.30,
-    this.platformFeeFraction = 0.029,
-    this.minWithdrawalAmount = 50,
-    this.maxWithdrawalAmount = 5000,
+    this.depositBps = 3000,
+    this.platformFeeBps = 290,
+    this.minWithdrawalAmountMinor = 5000,
+    this.maxWithdrawalAmountMinor = 500000,
     this.dbPollInterval = const Duration(seconds: 4),
     this.verifyEscalationInterval = const Duration(seconds: 15),
     this.dbConfirmAttemptsAfterWebViewSuccess = 15,
@@ -204,10 +210,10 @@ class PaymentConfig {
     this.paymentErrorBuilder,
     this.onPaymentSuccess,
     this.onPaymentFailure,
-  })  : assert(depositFraction >= 0 && depositFraction <= 1),
-        assert(platformFeeFraction >= 0 && platformFeeFraction <= 1),
-        assert(minWithdrawalAmount > 0),
-        assert(maxWithdrawalAmount >= minWithdrawalAmount),
+  })  : assert(depositBps >= 0 && depositBps <= 10000),
+        assert(platformFeeBps >= 0 && platformFeeBps <= 10000),
+        assert(minWithdrawalAmountMinor > 0),
+        assert(maxWithdrawalAmountMinor >= minWithdrawalAmountMinor),
         assert(dbConfirmAttemptsAfterWebViewSuccess > 0),
         assert(dbConfirmAttemptsAfterWebViewCancel > 0),
         assert(providerApiRetries >= 0);

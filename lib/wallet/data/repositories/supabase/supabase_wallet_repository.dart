@@ -156,8 +156,10 @@ class SupabaseWalletRepository implements WalletRepository {
     // 1. Client-side validation (config bounds). Server enforces these too;
     //    the duplicate check here is purely a UX optimisation so we don't
     //    waste a round-trip when the user clearly entered something invalid.
-    final min = _config.minWithdrawalAmount;
-    final max = _config.maxWithdrawalAmount;
+    // Phase 17: config bounds are now int kobo; convert to major-units
+    // for comparison against the legacy `double amount` param.
+    final min = _config.minWithdrawalAmountMinor / 100;
+    final max = _config.maxWithdrawalAmountMinor / 100;
     if (amount < min || amount > max) {
       throw InvalidWithdrawalAmountException();
     }

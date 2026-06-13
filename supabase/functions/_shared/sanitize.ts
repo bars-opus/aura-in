@@ -79,6 +79,10 @@ export function sanitizeIdentifier(raw: unknown, maxLength = 64): string {
 /**
  * Validate + sanitize a money amount. Returns a number. Throws on NaN,
  * Infinity, negative, or out-of-range values.
+ *
+ * @deprecated Phase 17 — use sanitizeAmountMinor for the new int-kobo
+ * wire format. This validator stays for the legacy float-cedis code
+ * path on dual-format edge functions for one release cycle.
  */
 export function sanitizeAmount(
   raw: unknown,
@@ -93,6 +97,38 @@ export function sanitizeAmount(
   if (n > max) throw new Error(`invalid input: amount above maximum ${max}`);
   // Round to 2 decimal places to avoid floating-point dust.
   return Math.round(n * 100) / 100;
+}
+
+/**
+ * Phase 17 — validate + sanitize a money amount in minor units (kobo /
+ * cents). Strict: must be a non-negative integer in [min, max].
+ *
+ * Rejects floats, NaN, Infinity, strings, negatives, and oversized
+ * values. The bounds are themselves expressed in minor units. Default
+ * max is 100 billion kobo (= 1 billion major units) which exceeds any
+ * realistic single-booking payment by 6+ orders of magnitude.
+ *
+ * Used at every entry point of the dual-format edge function for the
+ * new int-kobo wire format. The legacy `sanitizeAmount` handles the
+ * float-cedis fallback path.
+ */
+export function sanitizeAmountMinor(
+  raw: unknown,
+  opts: { min?: number; max?: number } = {},
+): number {
+  const min = opts.min ?? 0;
+  const max = opts.max ?? 100_000_000_000;
+  if (
+    typeof raw !== 'number' ||
+    !Number.isInteger(raw) ||
+    raw < min ||
+    raw > max
+  ) {
+    throw new Error(
+      `invalid input: amountMinor must be a non-negative integer in [${min}, ${max}]`,
+    );
+  }
+  return raw;
 }
 
 /**

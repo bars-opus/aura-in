@@ -15,10 +15,11 @@ void main() {
 
     test('uses sensible Paystack-friendly defaults', () {
       expect(config.defaultCurrency, 'GHS');
-      expect(config.depositFraction, 0.30);
-      expect(config.platformFeeFraction, 0.029);
-      expect(config.minWithdrawalAmount, 50);
-      expect(config.maxWithdrawalAmount, 5000);
+      // Phase 17: basis points instead of fractions; int kobo bounds.
+      expect(config.depositBps, 3000);
+      expect(config.platformFeeBps, 290);
+      expect(config.minWithdrawalAmountMinor, 5000);
+      expect(config.maxWithdrawalAmountMinor, 500000);
     });
 
     test('default function names match shipped edge functions', () {
@@ -124,24 +125,25 @@ void main() {
   });
 
   group('Constructor asserts', () {
-    test('rejects deposit fraction outside [0, 1]', () {
+    // Phase 17: bps + int kobo bounds.
+    test('rejects deposit bps outside [0, 10000]', () {
       expect(
-        () => PaymentConfig(appScheme: 'x', depositFraction: -0.1),
+        () => PaymentConfig(appScheme: 'x', depositBps: -1),
         throwsA(isA<AssertionError>()),
       );
       expect(
-        () => PaymentConfig(appScheme: 'x', depositFraction: 1.5),
+        () => PaymentConfig(appScheme: 'x', depositBps: 15000),
         throwsA(isA<AssertionError>()),
       );
     });
 
-    test('rejects platform fee fraction outside [0, 1]', () {
+    test('rejects platform fee bps outside [0, 10000]', () {
       expect(
-        () => PaymentConfig(appScheme: 'x', platformFeeFraction: -0.01),
+        () => PaymentConfig(appScheme: 'x', platformFeeBps: -1),
         throwsA(isA<AssertionError>()),
       );
       expect(
-        () => PaymentConfig(appScheme: 'x', platformFeeFraction: 1.01),
+        () => PaymentConfig(appScheme: 'x', platformFeeBps: 10001),
         throwsA(isA<AssertionError>()),
       );
     });
@@ -150,8 +152,8 @@ void main() {
       expect(
         () => PaymentConfig(
           appScheme: 'x',
-          minWithdrawalAmount: 100,
-          maxWithdrawalAmount: 50,
+          minWithdrawalAmountMinor: 10000,
+          maxWithdrawalAmountMinor: 5000,
         ),
         throwsA(isA<AssertionError>()),
       );
@@ -159,7 +161,7 @@ void main() {
 
     test('rejects non-positive minimum withdrawal', () {
       expect(
-        () => PaymentConfig(appScheme: 'x', minWithdrawalAmount: 0),
+        () => PaymentConfig(appScheme: 'x', minWithdrawalAmountMinor: 0),
         throwsA(isA<AssertionError>()),
       );
     });
@@ -176,12 +178,13 @@ void main() {
     test('PaymentSuccessInfo holds the contract callers depend on', () {
       const info = PaymentSuccessInfo(
         reference: 'booking_abc_123',
-        amount: 50.0,
+        // Phase 17: int kobo. 50 GHS = 5000 kobo.
+        amountMinor: 5000,
         currency: 'GHS',
         raw: {'id': 'b1'},
       );
       expect(info.reference, 'booking_abc_123');
-      expect(info.amount, 50.0);
+      expect(info.amountMinor, 5000);
       expect(info.currency, 'GHS');
       expect(info.raw['id'], 'b1');
     });

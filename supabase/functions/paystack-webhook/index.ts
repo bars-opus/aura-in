@@ -85,9 +85,12 @@ serve(async (req) => {
 
 async function handlePaymentSuccess(transaction: any) {
   const reference = transaction.reference;
-  const amount = transaction.amount / 100;
+  // Phase 17: Paystack sends amount in kobo. Keep as int through compute;
+  // derive major-unit value only at storage / display boundaries.
+  const amountMinor: number = transaction.amount;
+  const amount = amountMinor / 100;
 
-  console.log('💰 Payment successful:', { reference, amount });
+  console.log('💰 Payment successful:', { reference, amountMinor });
 
   // Idempotency check — don't create booking twice
   const { data: existing } = await supabase
@@ -342,9 +345,13 @@ async function handlePaymentSuccess(transaction: any) {
     })
     .eq('payment_intent_id', reference);
 
-  // Credit shop wallet with the net amount (deposit minus platform fee)
-  const platformFee = bookingData.platformFee ?? 0;
-  const netAmount = amount - platformFee;
+  // Credit shop wallet with the net amount (deposit minus platform fee).
+  // Phase 17: compute in int kobo, convert to major only for the NUMERIC
+  // p_amount column.
+  const platformFeeMinor: number = bookingData.platformFeeMinor
+    ?? Math.round((bookingData.platformFee ?? 0) * 100);
+  const netAmountMinor = amountMinor - platformFeeMinor;
+  const netAmount = netAmountMinor / 100;
   const { error: walletError } = await supabase.rpc('add_wallet_transaction', {
     p_shop_id: pending.shop_id,
     p_amount: netAmount,
@@ -391,9 +398,10 @@ async function handlePaymentFailure(transaction: any) {
 }
 
 async function handleTransferSuccess(transfer: any) {
+  // Phase 17: Paystack sends amount in kobo. Log + display major-unit only.
   console.log('💸 Transfer successful:', {
     reference: transfer.reference,
-    amount: transfer.amount / 100,
+    amountMinor: transfer.amount,
   });
 
   // Look up the withdrawal request by its idempotency_key (matches transfer reference)

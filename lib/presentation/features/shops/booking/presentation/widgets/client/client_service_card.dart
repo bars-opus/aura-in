@@ -59,13 +59,15 @@ class ClientServiceCard extends ConsumerWidget {
               ) ??
               [],
 
-          // Price Breakdown
+          // Price Breakdown — Phase 17: BookingPriceBreakdown widget signature
+          // still takes major-units (flip in a follow-up sweep). Convert at
+          // the boundary.
           BookingPriceBreakdown(
             isShopOwner: isShopOwner,
             buttonText: 'Make 70% payment',
-            totalAmount: booking.totalAmount,
-            depositAmount: booking.totalAmount * 0.3,
-            platformFee: booking.platformFee ?? 2,
+            totalAmount: booking.totalAmountMinor / 100,
+            depositAmount: (booking.totalAmountMinor * 0.3) / 100,
+            platformFee: booking.platformFeeMinor == null ? 2 : booking.platformFeeMinor! / 100,
             payOnPressed: () {
               BottomSheetUtils.showDocumentationBottomSheet(
                 context: context,

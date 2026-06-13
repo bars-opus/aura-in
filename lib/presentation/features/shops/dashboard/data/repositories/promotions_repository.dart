@@ -14,6 +14,7 @@
 //   * getPromotions caps at 200 rows server-side (checklist 3.1, 2.5).
 
 import 'package:nano_embryo/core/utils/logging/app_logger.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/broadcast_exceptions.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/promotion_exceptions.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/broadcast_dto.dart';
@@ -23,21 +24,34 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Phase 13 — server-authoritative result of validate_and_apply_promo.
 /// Returned by [PromotionsRepository.validateAndApplyPromo]. Client
-/// treats `amountOff` and `newTotal` as opaque (no client-side math).
+/// treats `amountOffMinor` and `newTotalMinor` as opaque (no client-side
+/// math).
+///
+/// Phase 17: money fields are int minor units (kobo for GHS). The server
+/// returns NUMERIC(12,2); `parseMoneyMinor` converts at the row-read
+/// boundary in `validateAndApplyPromo`.
 class PromoValidation {
   final String promotionId;
   final String code;
-  final double amountOff;
-  final double newTotal;
+  final int amountOffMinor;
+  final int newTotalMinor;
   final PromoSource source;
 
   const PromoValidation({
     required this.promotionId,
     required this.code,
-    required this.amountOff,
-    required this.newTotal,
+    required this.amountOffMinor,
+    required this.newTotalMinor,
     required this.source,
   });
+
+  /// Phase 17 back-compat: legacy major-unit accessors. Existing widgets
+  /// still using `result.amountOff` keep working during the Wave 5 roll;
+  /// drop after Wave 6.
+  @Deprecated('Phase 17 — use amountOffMinor + formatMoney.')
+  double get amountOff => amountOffMinor / 100;
+  @Deprecated('Phase 17 — use newTotalMinor + formatMoney.')
+  double get newTotal => newTotalMinor / 100;
 }
 
 class PromotionsRepository {
@@ -258,11 +272,12 @@ class PromotionsRepository {
         return null;
       }
       final row = rows.first as Map<String, dynamic>;
+      // Phase 17: NUMERIC major → int minor at the boundary.
       return PromoValidation(
         promotionId: row['promotion_id'] as String,
         code: row['code'] as String,
-        amountOff: (row['amount_off'] as num).toDouble(),
-        newTotal: (row['new_total'] as num).toDouble(),
+        amountOffMinor: parseMoneyMinor(row['amount_off'] as num),
+        newTotalMinor: parseMoneyMinor(row['new_total'] as num),
         source: PromoSource.fromString(row['source'] as String),
       );
     } on PostgrestException catch (e) {

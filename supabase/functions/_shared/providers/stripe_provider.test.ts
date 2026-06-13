@@ -75,7 +75,7 @@ Deno.test("StripeProvider.verifyTransaction: paid session → success", async ()
     const provider = new StripeProvider();
     const result = await provider.verifyTransaction({ reference: "cs_test_1" });
     assertEquals(result.status, "success");
-    assertEquals(result.amount, 50);
+    assertEquals(result.amountMinor, 5000);   // Phase 17: int cents, no /100
     assertEquals(result.currency, "USD");
     assertEquals(result.providerTransactionId, "cs_test_1");
   } finally { restore(); }
@@ -131,7 +131,7 @@ Deno.test("StripeProvider.initCheckout: creates session with major→minor conve
   try {
     const provider = new StripeProvider();
     const result = await provider.initCheckout({
-      amount: 50,
+      amountMinor: 5000,
       currency: "USD",
       reference: "ref_x",
       customerEmail: "buyer@example.com",
@@ -156,10 +156,10 @@ Deno.test("StripeProvider.initCheckout: adds transfer_data when destinationAccou
   try {
     const provider = new StripeProvider();
     await provider.initCheckout({
-      amount: 100, currency: "USD", reference: "r",
+      amountMinor: 10000, currency: "USD", reference: "r",
       customerEmail: "x@y.z", callbackUrl: "x://y",
       destinationAccountId: "acct_1Xxx",
-      platformFeeAmount: 2.9,
+      platformFeeAmountMinor: 290,
     });
     assertEquals(received?.get("payment_intent_data[transfer_data][destination]"), "acct_1Xxx");
     assertEquals(received?.get("payment_intent_data[application_fee_amount]"), "290");
@@ -180,7 +180,7 @@ Deno.test("StripeProvider.processPayout: sends Idempotency-Key header + form bod
   try {
     const provider = new StripeProvider();
     const result = await provider.processPayout({
-      amount: 50, currency: "USD", destinationAccountId: "acct_1abc",
+      amountMinor: 5000, currency: "USD", destinationAccountId: "acct_1abc",
       reference: "wd_stripe_1",
     });
     const headers = new Headers(receivedInit?.headers);

@@ -126,7 +126,10 @@ serve(async (req) => {
     }
 
     const bookingData = pending.booking_data;
-    const paidAmount = verification.amount;
+    // Phase 17: provider port now returns amountMinor (int kobo) as canonical.
+    // Derive major-unit `paidAmount` only for display/storage in NUMERIC columns.
+    const paidAmountMinor = verification.amountMinor;
+    const paidAmount = paidAmountMinor / 100;
 
     // ── Step 5: Create the booking ────────────────────────────────────────────
     // bookings table columns (from BookingModel.toJson):

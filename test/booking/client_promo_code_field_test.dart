@@ -37,15 +37,16 @@ class _MockRepo extends Mock implements PromotionsRepository {}
 PromoValidation _validation({
   String id = 'promo-1',
   String code = 'SUMMER10',
-  double amountOff = 10,
-  double newTotal = 90,
+  // Phase 17: int kobo. 10 GHS = 1000 kobo; 90 GHS = 9000 kobo.
+  int amountOffMinor = 1000,
+  int newTotalMinor = 9000,
   PromoSource source = PromoSource.ownerDefined,
 }) =>
     PromoValidation(
       promotionId: id,
       code: code,
-      amountOff: amountOff,
-      newTotal: newTotal,
+      amountOffMinor: amountOffMinor,
+      newTotalMinor: newTotalMinor,
       source: source,
     );
 
@@ -97,8 +98,8 @@ void main() {
         )).thenAnswer((_) async => _validation(
           id: 'loyal-1',
           code: 'LOYAL-XYZ',
-          amountOff: 15,
-          newTotal: 85,
+          amountOffMinor: 1500,
+          newTotalMinor: 8500,
           source: PromoSource.loyalty,
         ));
 
@@ -161,7 +162,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(captured?.code, 'SUMMER10');
-    expect(captured?.amountOff, 10);
+    expect(captured?.amountOffMinor, 1000);
     expect(find.text('Code: SUMMER10'), findsOneWidget);
   });
 

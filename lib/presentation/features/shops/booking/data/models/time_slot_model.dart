@@ -1,6 +1,7 @@
 // lib/features/booking/data/models/time_slot_model.dart
 import 'package:equatable/equatable.dart';
 import 'package:intl/intl.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/core/utils/timezone_utils.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/worker_dto.dart';
 
@@ -28,17 +29,22 @@ class TimeSlotModel extends Equatable {
   final String slotId;
   final String serviceName;
 
-  /// Effective (post-override) price. This is what the client pays.
-  /// Pre-Phase 15 this was the slot's base price; from Phase 15 the
-  /// server applies any matching pricing_override and emits the
-  /// adjusted value here.
-  final double price;
+  /// Effective (post-override) price in minor units (kobo for GHS).
+  /// This is what the client pays. Pre-Phase 15 this was the slot's
+  /// base price; from Phase 15 the server applies any matching
+  /// pricing_override and emits the adjusted value here.
+  ///
+  /// Phase 17: int minor units. The server returns NUMERIC(12,2) major
+  /// units; `parseMoneyMinor` converts at the fromJson boundary.
+  final int priceMinor;
 
   /// Phase 15: pre-override base price (unmodified `slot.price`).
   /// Null when the RPC predates Phase 15 (back-compat shim — the chip
-  /// silently does not render). When non-null and `basePrice != price`,
+  /// silently does not render). When non-null and `basePriceMinor != priceMinor`,
   /// the slot card surfaces a "Discount" or "Surcharge" chip.
-  final double? basePrice;
+  ///
+  /// Phase 17: int minor units. NULL when the server doesn't emit it.
+  final int? basePriceMinor;
 
   final List<WorkerDTO> availableWorkers;
   final int? remainingSpots; // For group slots with max_clients > 1
@@ -52,8 +58,8 @@ class TimeSlotModel extends Equatable {
     required this.slotId,
     required this.serviceName,
     required this.actualEndTime, // New field
-    required this.price,
-    this.basePrice, // Phase 15
+    required this.priceMinor,
+    this.basePriceMinor, // Phase 15
     required this.availableWorkers,
     this.remainingSpots,
     required this.requiresWorkerSelection,
@@ -67,8 +73,11 @@ class TimeSlotModel extends Equatable {
       slotId: json['slot_id'] as String,
       actualEndTime: DateTime.parse(json['actual_end_time'] as String),
       serviceName: json['service_name'] as String,
-      price: (json['price'] as num).toDouble(),
-      basePrice: (json['base_price'] as num?)?.toDouble(),
+      // Phase 17: server returns NUMERIC(12,2) major units; boundary-convert.
+      priceMinor: parseMoneyMinor(json['price'] as num),
+      basePriceMinor: json['base_price'] == null
+          ? null
+          : parseMoneyMinor(json['base_price'] as num),
       availableWorkers:
           (json['available_workers'] as List<dynamic>)
               .map(
@@ -86,13 +95,13 @@ class TimeSlotModel extends Equatable {
   /// base (an override applied). Drives the "Discount" / "Surcharge"
   /// chip in the time-picker card.
   bool get hasAdjustedPrice =>
-      basePrice != null && (basePrice! - price).abs() > 0.001;
+      basePriceMinor != null && basePriceMinor! != priceMinor;
 
   /// Phase 15: true when this slot is discounted.
-  bool get isDiscounted => hasAdjustedPrice && price < basePrice!;
+  bool get isDiscounted => hasAdjustedPrice && priceMinor < basePriceMinor!;
 
   /// Phase 15: true when this slot is surcharged.
-  bool get isSurcharged => hasAdjustedPrice && price > basePrice!;
+  bool get isSurcharged => hasAdjustedPrice && priceMinor > basePriceMinor!;
 
   /// Creates a display-friendly time range string.
   ///
@@ -143,8 +152,8 @@ class TimeSlotModel extends Equatable {
     actualEndTime,
     slotId,
     serviceName,
-    price,
-    basePrice,
+    priceMinor,
+    basePriceMinor,
     availableWorkers,
     remainingSpots,
     requiresWorkerSelection,

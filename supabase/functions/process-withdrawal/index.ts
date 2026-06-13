@@ -123,8 +123,12 @@ async function processWithdrawal(withdrawalId: string) {
     let transferResult;
     try {
       const provider = getProvider(withdrawal.payment_provider as PaymentProviderName);
+      // Phase 17: withdrawal.net_amount / withdrawal.amount are NUMERIC major
+      // units in storage; provider port now expects int minor. Convert at
+      // the boundary.
+      const payoutMajor = withdrawal.net_amount ?? withdrawal.amount;
       transferResult = await provider.processPayout({
-        amount: withdrawal.net_amount ?? withdrawal.amount,
+        amountMinor: Math.round((payoutMajor as number) * 100),
         currency: await getWalletCurrency(withdrawal.shops.id),
         destinationAccountId: withdrawal.transfer_recipient_id,
         reference: withdrawal.idempotency_key,

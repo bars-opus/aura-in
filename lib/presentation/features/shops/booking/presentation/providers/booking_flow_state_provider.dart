@@ -1,5 +1,6 @@
 // lib/features/booking/presentation/providers/booking_flow_state_provider.dart
 import 'package:equatable/equatable.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 
@@ -34,7 +35,11 @@ class BookingFlowState extends Equatable {
   final int currentStep;
   final bool isComplete;
   final int totalPeople;
-  final double totalPrice;
+
+  /// Phase 17: int minor units (kobo for GHS). Folded by the booking flow
+  /// from `TimeSlotModel.priceMinor` / `AppointmentSlotDTO.priceMinor`.
+  final int totalPriceMinor;
+
   final Duration totalDuration;
   final Map<String, TimeSlotModel> selectedTimeSlots; // ← Changed
   final bool isCombinedView; // ← New
@@ -48,7 +53,7 @@ class BookingFlowState extends Equatable {
     required this.currentStep,
     required this.isComplete,
     required this.totalPeople,
-    required this.totalPrice,
+    required this.totalPriceMinor,
     required this.totalDuration,
   });
 
@@ -62,7 +67,7 @@ class BookingFlowState extends Equatable {
       currentStep: 0,
       isComplete: false,
       totalPeople: 0,
-      totalPrice: 0,
+      totalPriceMinor: 0,
       totalDuration: Duration.zero,
       isCombinedView: false,
     );
@@ -77,7 +82,7 @@ class BookingFlowState extends Equatable {
     int? currentStep,
     bool? isComplete,
     int? totalPeople,
-    double? totalPrice,
+    int? totalPriceMinor,
     Duration? totalDuration,
     bool? isCombinedView,
   }) {
@@ -91,7 +96,7 @@ class BookingFlowState extends Equatable {
       currentStep: currentStep ?? this.currentStep,
       isComplete: isComplete ?? this.isComplete,
       totalPeople: totalPeople ?? this.totalPeople,
-      totalPrice: totalPrice ?? this.totalPrice,
+      totalPriceMinor: totalPriceMinor ?? this.totalPriceMinor,
       totalDuration: totalDuration ?? this.totalDuration,
     );
   }
@@ -106,7 +111,7 @@ class BookingFlowState extends Equatable {
     currentStep,
     isComplete,
     totalPeople,
-    totalPrice,
+    totalPriceMinor,
     totalDuration,
   ];
 }
@@ -164,7 +169,9 @@ BookingFlowState bookingFlowState(BookingFlowStateRef ref) {
 
   // Calculate derived values
   final totalPeople = _calculateTotalPeople(services, quantities);
-  final totalPrice = _calculateTotalPrice(services, quantities);
+  // Phase 17: fold in int kobo. `_calculateTotalPriceMinor` converts each
+  // service's NUMERIC price at the boundary via `parseMoneyMinor`.
+  final totalPriceMinor = _calculateTotalPriceMinor(services, quantities);
   final totalDuration = _calculateTotalDuration(services, quantities);
 
   final currentStep = _calculateCurrentStep(
@@ -192,7 +199,7 @@ BookingFlowState bookingFlowState(BookingFlowStateRef ref) {
     currentStep: currentStep,
     isComplete: isComplete,
     totalPeople: totalPeople,
-    totalPrice: totalPrice,
+    totalPriceMinor: totalPriceMinor,
     totalDuration: totalDuration,
   );
 }
@@ -313,11 +320,12 @@ final totalPeopleProvider = Provider<int>((ref) {
   return _calculateTotalPeople(services, quantities);
 });
 
-/// Provider that gives just the total price
-final totalPriceProvider = Provider<double>((ref) {
+/// Phase 17: provider that gives just the total price in int minor units (kobo).
+/// Old name `totalPriceProvider` is renamed to make the unit explicit.
+final totalPriceMinorProvider = Provider<int>((ref) {
   final services = ref.watch(selectedServicesProvider);
   final quantities = ref.watch(serviceQuantityProvider);
-  return _calculateTotalPrice(services, quantities);
+  return _calculateTotalPriceMinor(services, quantities);
 });
 
 /// Provider that gives just the total duration
@@ -338,14 +346,17 @@ int _calculateTotalPeople(
   );
 }
 
-/// Calculates the total price across all selected services with quantities
-double _calculateTotalPrice(
+/// Phase 17: Calculates the total price in int minor units (kobo for GHS).
+/// `AppointmentSlotDTO.price` is NUMERIC(12,2) major units; we convert at the
+/// boundary via `parseMoneyMinor` and fold in int.
+int _calculateTotalPriceMinor(
   List<AppointmentSlotDTO> services,
   Map<String, int> quantities,
 ) {
-  return services.fold<double>(
+  return services.fold<int>(
     0,
-    (sum, service) => sum + (service.price * (quantities[service.id] ?? 1)),
+    (sum, service) =>
+        sum + parseMoneyMinor(service.price) * (quantities[service.id] ?? 1),
   );
 }
 

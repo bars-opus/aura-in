@@ -41,7 +41,8 @@ class ServiceWithRequirements extends StatelessWidget {
               rightValue: service.workerName ?? '',
             ),
             TableRowData(
-              leftLabel: service.priceAtBooking.toString(),
+              // Phase 17: priceAtBookingMinor is int kobo; display as major.
+              leftLabel: (service.priceAtBookingMinor / 100).toString(),
               leftValue: '',
               rightLabel: DurationUtils.formatForDisplay(
                 Duration(minutes: service.durationMinutes),

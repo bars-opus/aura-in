@@ -131,16 +131,19 @@ class PaymentSettingsController extends StateNotifier<PaymentSettingsState> {
     try {
       final currentSettings = state.settings;
 
+      // Phase 17: PaymentSettings.payoutMinimum is now int kobo. Owner UI
+      // captures major-unit input as double; convert at the boundary.
+      final minimumMinor = (minimum * 100).round();
       final updatedSettings =
           currentSettings?.copyWith(
             payoutSchedule: schedule,
-            payoutMinimum: minimum,
+            payoutMinimumMinor: minimumMinor,
           ) ??
           PaymentSettings(
             shopId: _shopId,
             paymentProvider: PaymentProvider.none,
             payoutSchedule: schedule,
-            payoutMinimum: minimum,
+            payoutMinimumMinor: minimumMinor,
             payoutCurrency: CountryDetectionService.getCurrencyForCountry(
               state.shopCountry,
             ),

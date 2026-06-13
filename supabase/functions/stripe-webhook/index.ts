@@ -137,11 +137,15 @@ async function handleDeauthorized(stripeAccountId: string) {
 // ============================================================================
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   const sessionId = session.id;
-  const amountPaid = (session.amount_total ?? 0) / 100; // cents → dollars
+  // Phase 17: keep the kobo value as int throughout the webhook. The
+  // major-unit conversion happens only at the wallet RPC + notification
+  // text boundary. No float-cedis variable for math.
+  const amountPaidMinor = session.amount_total ?? 0;
+  const amountPaid = amountPaidMinor / 100; // major-unit display only
 
   console.log('💳 Stripe checkout completed:', sessionId);
   if (isDebugLogging()) {
-    console.log('💳 details:', redactForLog({ sessionId, amountPaid, paymentStatus: session.payment_status }));
+    console.log('💳 details:', redactForLog({ sessionId, amountPaidMinor, paymentStatus: session.payment_status }));
   }
 
   // Only process sessions that were actually paid
@@ -410,9 +414,13 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     })
     .eq('payment_intent_id', sessionId);
 
-  // Credit shop wallet — net of platform fee
-  const platformFee = bookingData.platformFee ?? 0;
-  const netAmount = amountPaid - platformFee;
+  // Credit shop wallet — net of platform fee.
+  // Phase 17: compute in int kobo, convert to major only for the RPC
+  // (add_wallet_transaction's p_amount is NUMERIC, accepts major units).
+  const platformFeeMinor: number = bookingData.platformFeeMinor
+    ?? Math.round((bookingData.platformFee ?? 0) * 100);
+  const netAmountMinor = amountPaidMinor - platformFeeMinor;
+  const netAmount = netAmountMinor / 100;
 
   const { error: walletError } = await supabase.rpc('add_wallet_transaction', {
     p_shop_id: pending.shop_id,

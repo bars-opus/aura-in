@@ -1,5 +1,6 @@
 // Helper function to group slots by start time
 
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 
 Map<String, List<TimeSlotModel>> _groupSlotsByStartTime(
@@ -54,9 +55,13 @@ DateTime _getLatestEndTime(List<TimeSlotModel> slots) {
   return latestEndTime;
 }
 
-// Helper function to calculate total price for combined services
-double _calculateCombinedPrice(List<AppointmentSlotDTO> services) {
-  return services.fold(0.0, (sum, service) => sum + service.price);
+// Phase 17: Helper to fold the combined slot price in int kobo.
+// AppointmentSlotDTO.price is NUMERIC major; boundary-convert each fold.
+int _calculateCombinedPriceMinor(List<AppointmentSlotDTO> services) {
+  return services.fold<int>(
+    0,
+    (sum, service) => sum + parseMoneyMinor(service.price),
+  );
 }
 
 // Helper function to create a combined slot
@@ -102,7 +107,7 @@ TimeSlotModel _createCombinedSlot(
     actualEndTime: actualEndTime, // Include all buffers
     slotId: 'combined_${startTime.toIso8601String()}',
     serviceName: 'Combined Services',
-    price: _calculateCombinedPrice(services),
+    priceMinor: _calculateCombinedPriceMinor(services),
     availableWorkers: availableWorkers ?? [],
     remainingSpots: 1,
     requiresWorkerSelection: false,
@@ -124,7 +129,7 @@ TimeSlotModel _createCombinedSlot(
 //     endTime: endTime,
 //     slotId: 'combined_${startTime.toIso8601String()}',
 //     serviceName: 'Combined Services',
-//     price: _calculateCombinedPrice(services),
+//     priceMinor: _calculateCombinedPriceMinor(services),
 //     availableWorkers: availableWorkers ?? [],
 //     remainingSpots: 1,
 //     requiresWorkerSelection: false,

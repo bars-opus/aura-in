@@ -20,8 +20,8 @@ import 'package:nano_embryo/presentation/features/shops/booking/data/models/time
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/time_slot/time_slot_chip.dart';
 
 TimeSlotModel _slot({
-  required double price,
-  double? basePrice,
+  required int priceMinor,
+  int? basePriceMinor,
 }) {
   final start = DateTime(2026, 6, 11, 9, 0);
   final end = DateTime(2026, 6, 11, 10, 0);
@@ -31,8 +31,8 @@ TimeSlotModel _slot({
     slotId: 'slot-a',
     serviceName: 'Haircut',
     actualEndTime: end,
-    price: price,
-    basePrice: basePrice,
+    priceMinor: priceMinor,
+    basePriceMinor: basePriceMinor,
     availableWorkers: const [],
     requiresWorkerSelection: false,
     bufferMinutes: 0,
@@ -68,7 +68,7 @@ Widget _harness({required TimeSlotModel slot}) {
 void main() {
   testWidgets('(a) basePrice == null → no Discount/Surcharge chip',
       (tester) async {
-    await tester.pumpWidget(_harness(slot: _slot(price: 50)));
+    await tester.pumpWidget(_harness(slot: _slot(priceMinor: 5000)));
     await tester.pumpAndSettle();
 
     expect(find.text('Discount'), findsNothing);
@@ -77,7 +77,7 @@ void main() {
 
   testWidgets('(b) basePrice == price → no Discount/Surcharge chip',
       (tester) async {
-    await tester.pumpWidget(_harness(slot: _slot(price: 50, basePrice: 50)));
+    await tester.pumpWidget(_harness(slot: _slot(priceMinor: 5000, basePriceMinor: 5000)));
     await tester.pumpAndSettle();
 
     expect(find.text('Discount'), findsNothing);
@@ -85,7 +85,7 @@ void main() {
   });
 
   testWidgets('(c) price < basePrice → Discount chip', (tester) async {
-    await tester.pumpWidget(_harness(slot: _slot(price: 40, basePrice: 50)));
+    await tester.pumpWidget(_harness(slot: _slot(priceMinor: 4000, basePriceMinor: 5000)));
     await tester.pumpAndSettle();
 
     expect(find.text('Discount'), findsOneWidget);
@@ -93,7 +93,7 @@ void main() {
   });
 
   testWidgets('(d) price > basePrice → Surcharge chip', (tester) async {
-    await tester.pumpWidget(_harness(slot: _slot(price: 60, basePrice: 50)));
+    await tester.pumpWidget(_harness(slot: _slot(priceMinor: 6000, basePriceMinor: 5000)));
     await tester.pumpAndSettle();
 
     expect(find.text('Surcharge'), findsOneWidget);
@@ -102,7 +102,7 @@ void main() {
 
   testWidgets('(e) visible price reflects effective `price`, not basePrice',
       (tester) async {
-    await tester.pumpWidget(_harness(slot: _slot(price: 40, basePrice: 50)));
+    await tester.pumpWidget(_harness(slot: _slot(priceMinor: 4000, basePriceMinor: 5000)));
     await tester.pumpAndSettle();
 
     // Effective price text the client sees:

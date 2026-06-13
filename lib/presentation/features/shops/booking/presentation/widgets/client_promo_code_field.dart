@@ -18,6 +18,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/core/widgets/feedback/snackbar_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/promotion_exceptions.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/promotion_model.dart';
@@ -30,15 +31,17 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dash
 class AppliedPromo {
   final String promotionId;
   final String code;
-  final double amountOff;
-  final double newTotal;
+
+  /// Phase 17: int minor units (kobo). Display via `formatMoney(amountOffMinor, currency)`.
+  final int amountOffMinor;
+  final int newTotalMinor;
   final PromoSource source;
 
   const AppliedPromo({
     required this.promotionId,
     required this.code,
-    required this.amountOff,
-    required this.newTotal,
+    required this.amountOffMinor,
+    required this.newTotalMinor,
     required this.source,
   });
 
@@ -66,6 +69,11 @@ class ClientPromoCodeField extends ConsumerStatefulWidget {
 
   /// Pre-discount booking total. The widget uses this for both the
   /// auto-apply on mount and the manual Apply tap.
+  ///
+  /// Phase 17: stays `double` for API stability — Phase 17 callers
+  /// boundary-convert at the call site (`totalPriceMinor / 100`). The
+  /// widget converts back to int via `parseMoneyMinor` before passing
+  /// to the validate RPC. Flip to int in a follow-up sweep.
   final double bookingTotal;
 
   /// Optional service id list — when non-null, the server checks
@@ -171,11 +179,13 @@ class _ClientPromoCodeFieldState extends ConsumerState<ClientPromoCodeField> {
   }
 
   void _applyResult(PromoValidation result) {
+    // Phase 17: PromoValidation flips to int kobo in Wave 5.2 (boundary
+    // moves to the repository). Until that lands, convert here.
     final applied = AppliedPromo(
       promotionId: result.promotionId,
       code: result.code,
-      amountOff: result.amountOff,
-      newTotal: result.newTotal,
+      amountOffMinor: parseMoneyMinor(result.amountOff),
+      newTotalMinor: parseMoneyMinor(result.newTotal),
       source: result.source,
     );
     setState(() => _applied = applied);
@@ -214,7 +224,8 @@ class _ClientPromoCodeFieldState extends ConsumerState<ClientPromoCodeField> {
                         fontWeight: FontWeight.w600,
                       )),
                   Text(
-                    '-${_applied!.amountOff.toStringAsFixed(2)}',
+                    // Phase 17: format int kobo via the single helper.
+                    '-${formatMoney(_applied!.amountOffMinor, "")}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.primary,
                     ),

@@ -11,8 +11,18 @@ export type PaymentProviderName =
   | "razorpay";
 
 export interface InitCheckoutInput {
-  /** Major units (e.g. 50.00, not 5000). Adapters convert to minor. */
-  amount: number;
+  /**
+   * @deprecated Phase 17 — use `amountMinor`. Major units (e.g. 50.00).
+   * Stays on the port for one release cycle while the legacy create-booking
+   * float-cedis fallback path is still live.
+   */
+  amount?: number;
+  /**
+   * Phase 17 — integer minor units (e.g. 5000 kobo). Adapters pass this
+   * value through to the provider SDK verbatim — no `* 100` conversion.
+   * This is the new canonical money field.
+   */
+  amountMinor: number;
   /** ISO 4217, uppercased. */
   currency: string;
   /** Caller-controlled idempotency key. Forwarded to provider-native idempotency. */
@@ -23,8 +33,15 @@ export interface InitCheckoutInput {
   metadata?: Record<string, string>;
   /** Paystack subaccount code or Stripe connected account id. */
   destinationAccountId?: string;
-  /** Major units, taken from the gross before destination split. */
+  /**
+   * @deprecated Phase 17 — use `platformFeeAmountMinor`.
+   */
   platformFeeAmount?: number;
+  /**
+   * Phase 17 — integer minor units. Taken from the gross before destination
+   * split. Adapters pass verbatim to provider SDK.
+   */
+  platformFeeAmountMinor?: number;
 }
 
 export interface InitCheckoutResult {
@@ -39,15 +56,29 @@ export interface VerifyTransactionInput {
 
 export interface VerifyTransactionResult {
   status: "success" | "pending" | "failed" | "abandoned";
-  /** Major units. */
-  amount: number;
+  /**
+   * @deprecated Phase 17 — use `amountMinor`. Major units.
+   */
+  amount?: number;
+  /**
+   * Phase 17 — integer minor units. Read directly from provider response
+   * (Paystack + Stripe both speak minor natively); no /100 normalization.
+   */
+  amountMinor: number;
   currency: string;
   paidAt?: string;
   providerTransactionId: string;
 }
 
 export interface ProcessPayoutInput {
-  amount: number;
+  /**
+   * @deprecated Phase 17 — use `amountMinor`.
+   */
+  amount?: number;
+  /**
+   * Phase 17 — integer minor units.
+   */
+  amountMinor: number;
   currency: string;
   destinationAccountId: string;
   reference: string;

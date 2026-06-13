@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/logging/app_logger.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/payment/config/payment_config.dart';
 import 'package:nano_embryo/payment/presentation/widgets/payment_webview.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -34,12 +35,12 @@ class _PaymentIntent {
     required this.startTime,
     required this.endTime,
     required this.actualEndTime,
-    required this.totalAmount,
-    required this.depositAmount,
-    required this.platformFee,
+    required this.totalAmountMinor,
+    required this.depositAmountMinor,
+    required this.platformFeeMinor,
     required this.paymentProvider,
     this.promotionId,
-    this.promoAmountOff,
+    this.promoAmountOffMinor,
   });
 
   final String shopId;
@@ -49,9 +50,14 @@ class _PaymentIntent {
   final DateTime startTime;
   final DateTime endTime;
   final DateTime actualEndTime;
-  final double totalAmount;
-  final double depositAmount;
-  final double platformFee;
+
+  /// Phase 17: int minor units (kobo for GHS). The booking flow folds
+  /// services in minor units; payment_controller serializes as int over
+  /// the wire under the new `*Minor` keys; legacy float mirrors are
+  /// derived only at the JSON-encode boundary.
+  final int totalAmountMinor;
+  final int depositAmountMinor;
+  final int platformFeeMinor;
   final String paymentProvider;
 
   /// Phase 13 — the promo code id resolved by validate_and_apply_promo.
@@ -60,10 +66,9 @@ class _PaymentIntent {
   /// booking row is created.
   final String? promotionId;
 
-  /// Phase 13 — the discount amount in currency-major units. Server
-  /// already authoritative; this is the value we round-trip back to the
-  /// webhook so it can pass the same amount into redeem_promotion.
-  final double? promoAmountOff;
+  /// Phase 17: int minor units (kobo). The discount amount round-tripped
+  /// back to the webhook so it can pass the same value into redeem_promotion.
+  final int? promoAmountOffMinor;
 }
 
 class PaymentController
@@ -111,13 +116,16 @@ class PaymentController
     required DateTime startTime,
     required DateTime endTime,
     required DateTime actualEndTime,
-    required double totalAmount,
-    required double depositAmount,
-    required double platformFee,
+    // Phase 17: int minor units (kobo). The caller (booking flow) computes
+    // totals in int kobo via `applyBps` and `formatMoney`; payment_controller
+    // is purely a passthrough to the edge function.
+    required int totalAmountMinor,
+    required int depositAmountMinor,
+    required int platformFeeMinor,
     required String paymentProvider,
     required BuildContext context,
     String? promotionId,
-    double? promoAmountOff,
+    int? promoAmountOffMinor,
   }) async {
     _lastIntent = _PaymentIntent(
       shopId: shopId,
@@ -127,36 +135,43 @@ class PaymentController
       startTime: startTime,
       endTime: endTime,
       actualEndTime: actualEndTime,
-      totalAmount: totalAmount,
-      depositAmount: depositAmount,
-      platformFee: platformFee,
+      totalAmountMinor: totalAmountMinor,
+      depositAmountMinor: depositAmountMinor,
+      platformFeeMinor: platformFeeMinor,
       paymentProvider: paymentProvider,
       promotionId: promotionId,
-      promoAmountOff: promoAmountOff,
+      promoAmountOffMinor: promoAmountOffMinor,
     );
     state = const AsyncValue.loading();
 
     try {
-      // F-P0-3: idempotency key incorporates cart fingerprint so that a
-      // retry against a changed cart (different services, different promo,
-      // different total) reaches the edge function as a NEW intent rather
-      // than replaying the stale one. Without this, a user who fails
-      // payment, edits the cart, and retries at the same start_time
-      // silently gets back the original (now-stale) intent.
+      // F-P0-3 + Phase 17: idempotency key incorporates cart fingerprint
+      // (now keyed on `priceAtBookingMinor` int kobo) so a retry against a
+      // changed cart reaches the edge function as a NEW intent.
       final cartFingerprint = sha256
           .convert(utf8.encode(jsonEncode([
             for (final s in services)
-              [s['slotId'], s['workerId'], s['priceAtBooking']],
-            totalAmount,
-            depositAmount,
+              [
+                s['slotId'],
+                s['workerId'],
+                // Phase 17: prefer int kobo when present; fall back to legacy float.
+                s['priceAtBookingMinor'] ?? s['priceAtBooking'],
+              ],
+            totalAmountMinor,
+            depositAmountMinor,
             promotionId,
-            promoAmountOff,
+            promoAmountOffMinor,
           ])))
           .toString()
           .substring(0, 16);
       final idempotencyKey =
           '${shopId}_${userId}_${startTime.millisecondsSinceEpoch}_$cartFingerprint';
 
+      // Phase 17: send the new int-kobo wire format under `*Minor` keys.
+      // The edge function dual-format-detects and prefers these keys over
+      // the legacy float ones. We send ONLY the `*Minor` keys — the legacy
+      // float keys are dropped from the wire (per SPEC LD-2: a request
+      // body must contain either all-new keys or all-old keys; never mix).
       final requestBody = {
         'shopId': shopId,
         'userId': userId,
@@ -165,9 +180,9 @@ class PaymentController
         'startTime': startTime.toIso8601String(),
         'endTime': endTime.toIso8601String(),
         'actualEndTime': actualEndTime.toIso8601String(),
-        'totalAmount': totalAmount,
-        'depositAmount': depositAmount,
-        'platformFee': platformFee,
+        'totalAmountMinor': totalAmountMinor,
+        'depositAmountMinor': depositAmountMinor,
+        'platformFeeMinor': platformFeeMinor,
         'paymentMethod': paymentProvider,
         'paymentProvider': paymentProvider,
         'idempotencyKey': idempotencyKey,
@@ -177,7 +192,8 @@ class PaymentController
         // so the success webhook can call redeem_promotion. Null when no code
         // applied — webhook reads `if (bookingData.promotionId)` before redeeming.
         if (promotionId != null) 'promotionId': promotionId,
-        if (promoAmountOff != null) 'promoAmountOff': promoAmountOff,
+        // Phase 17: promo discount also flips to int kobo on the wire.
+        if (promoAmountOffMinor != null) 'promoAmountOffMinor': promoAmountOffMinor,
       };
 
       final response = await _supabase.functions.invoke(
@@ -324,13 +340,13 @@ class PaymentController
       startTime: intent.startTime,
       endTime: intent.endTime,
       actualEndTime: intent.actualEndTime,
-      totalAmount: intent.totalAmount,
-      depositAmount: intent.depositAmount,
-      platformFee: intent.platformFee,
+      totalAmountMinor: intent.totalAmountMinor,
+      depositAmountMinor: intent.depositAmountMinor,
+      platformFeeMinor: intent.platformFeeMinor,
       paymentProvider: intent.paymentProvider,
       context: context,
       promotionId: intent.promotionId,
-      promoAmountOff: intent.promoAmountOff,
+      promoAmountOffMinor: intent.promoAmountOffMinor,
     );
   }
 
@@ -454,7 +470,10 @@ class PaymentController
       await hook(
         PaymentSuccessInfo(
           reference: reference,
-          amount: (booking['total_amount'] as num?)?.toDouble() ?? 0,
+          // Phase 17: NUMERIC major → int minor at the boundary.
+          amountMinor: booking['total_amount'] == null
+              ? 0
+              : parseMoneyMinor(booking['total_amount'] as num),
           currency: _config.defaultCurrency,
           raw: booking,
         ),

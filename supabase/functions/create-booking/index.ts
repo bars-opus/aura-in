@@ -5,6 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import {
   sanitizeText,
   sanitizeAmount,
+  sanitizeAmountMinor,
   sanitizeIdentifier,
   redactForLog,
   isDebugLogging,
@@ -37,7 +38,11 @@ interface BookingRequest {
   services: Array<{
     slotId: string;
     workerId: string | null;
-    priceAtBooking: number;
+    // Phase 17: dual-format. New Flutter clients send priceAtBookingMinor (int kobo);
+    // legacy clients send priceAtBooking (float cedis). The normalization block
+    // collapses both into priceAtBookingMinor for downstream consumption.
+    priceAtBooking?: number;
+    priceAtBookingMinor?: number;
     durationMinutes: number;
     serviceName: string;
     workerName: string | null;
@@ -45,9 +50,14 @@ interface BookingRequest {
   startTime: string;
   endTime: string;
   actualEndTime: string;
-  totalAmount: number;
-  depositAmount: number;
-  platformFee: number;
+  // Phase 17: dual-format. *Minor are the new canonical fields (int kobo).
+  // The legacy float-cedis fields stay during the rollout cycle.
+  totalAmount?: number;
+  totalAmountMinor?: number;
+  depositAmount?: number;
+  depositAmountMinor?: number;
+  platformFee?: number;
+  platformFeeMinor?: number;
   paymentMethod: 'stripe' | 'paystack';
   paymentProvider: 'stripe' | 'paystack';
   idempotencyKey: string;
@@ -61,6 +71,30 @@ interface BookingRequest {
   clientAddressLat?: number;
   clientAddressLng?: number;
   deliveryChannel?: "push" | "whatsapp";
+}
+
+// Phase 17: normalized internal shape — every money field guaranteed
+// non-undefined int kobo. Produced by the dual-format sanitization block.
+interface NormalizedBooking extends Omit<BookingRequest,
+  'totalAmount' | 'totalAmountMinor' |
+  'depositAmount' | 'depositAmountMinor' |
+  'platformFee' | 'platformFeeMinor' |
+  'services'> {
+  totalAmount: number;          // float cedis (legacy mirror; derived from Minor)
+  totalAmountMinor: number;     // int kobo (canonical)
+  depositAmount: number;        // float cedis (legacy mirror)
+  depositAmountMinor: number;   // int kobo (canonical)
+  platformFee: number;          // float cedis (legacy mirror)
+  platformFeeMinor: number;     // int kobo (canonical)
+  services: Array<{
+    slotId: string;
+    workerId: string | null;
+    priceAtBooking: number;       // float cedis (legacy mirror)
+    priceAtBookingMinor: number;  // int kobo (canonical)
+    durationMinutes: number;
+    serviceName: string;
+    workerName: string | null;
+  }>;
 }
 
 interface ValidationResult {
@@ -182,9 +216,43 @@ serve(async (req) => {
 
     // ========================================================================
     // INPUT SANITIZATION — fail fast on malformed input at the edge.
+    //
+    // Phase 17 — dual-format money fields. New Flutter clients send
+    // *Minor (int kobo). Legacy clients send float cedis. The new keys win;
+    // legacy keys are the fallback. After this block, every downstream
+    // money field is guaranteed int kobo (and a derived float-cedis
+    // mirror is kept for back-compat storage in pending_payments.booking_data).
     // ========================================================================
-    let body: BookingRequest;
+    let body: NormalizedBooking;
     try {
+      // Helper: normalize a single (legacy?, minor?) pair into int kobo.
+      const normalizeMinor = (
+        legacy: unknown,
+        minor: unknown,
+        opts: { minMinor?: number; minLegacy?: number },
+      ): number => {
+        const minMinor = opts.minMinor ?? 0;
+        const minLegacy = opts.minLegacy ?? 0;
+        if (typeof minor === 'number') {
+          return sanitizeAmountMinor(minor, { min: minMinor });
+        }
+        const cedis = sanitizeAmount(legacy, { min: minLegacy });
+        return sanitizeAmountMinor(Math.round(cedis * 100), { min: minMinor });
+      };
+
+      const totalAmountMinor = normalizeMinor(
+        rawBody.totalAmount, rawBody.totalAmountMinor,
+        { minMinor: 1, minLegacy: 0.01 },
+      );
+      const depositAmountMinor = normalizeMinor(
+        rawBody.depositAmount, rawBody.depositAmountMinor,
+        { minMinor: 1, minLegacy: 0.01 },
+      );
+      const platformFeeMinor = normalizeMinor(
+        rawBody.platformFee, rawBody.platformFeeMinor,
+        { minMinor: 0, minLegacy: 0 },
+      );
+
       body = {
         ...rawBody,
         shopId: sanitizeIdentifier(rawBody.shopId, 64),
@@ -193,19 +261,31 @@ serve(async (req) => {
           ? sanitizeText(rawBody.userEmail, { maxLength: 320, rejectHtml: true })
           : undefined,
         idempotencyKey: sanitizeIdentifier(rawBody.idempotencyKey, 128),
-        totalAmount: sanitizeAmount(rawBody.totalAmount, { min: 0.01 }),
-        depositAmount: sanitizeAmount(rawBody.depositAmount, { min: 0.01 }),
-        platformFee: sanitizeAmount(rawBody.platformFee, { min: 0 }),
-        services: (rawBody.services ?? []).map((s) => ({
-          slotId: sanitizeIdentifier(s.slotId, 64),
-          workerId: s.workerId ? sanitizeIdentifier(s.workerId, 64) : null,
-          priceAtBooking: sanitizeAmount(s.priceAtBooking, { min: 0 }),
-          durationMinutes: Math.max(0, Math.floor(Number(s.durationMinutes) || 0)),
-          serviceName: sanitizeText(s.serviceName, { maxLength: 200 }),
-          workerName: s.workerName
-            ? sanitizeText(s.workerName, { maxLength: 200 })
-            : null,
-        })),
+        totalAmountMinor,
+        depositAmountMinor,
+        platformFeeMinor,
+        // Phase 17: legacy float-cedis mirrors. Derived from the int kobo
+        // canonical value; kept for back-compat storage in pending_payments.
+        totalAmount: totalAmountMinor / 100,
+        depositAmount: depositAmountMinor / 100,
+        platformFee: platformFeeMinor / 100,
+        services: (rawBody.services ?? []).map((s) => {
+          const priceAtBookingMinor = normalizeMinor(
+            s.priceAtBooking, s.priceAtBookingMinor,
+            { minMinor: 0, minLegacy: 0 },
+          );
+          return {
+            slotId: sanitizeIdentifier(s.slotId, 64),
+            workerId: s.workerId ? sanitizeIdentifier(s.workerId, 64) : null,
+            priceAtBookingMinor,
+            priceAtBooking: priceAtBookingMinor / 100,  // legacy mirror
+            durationMinutes: Math.max(0, Math.floor(Number(s.durationMinutes) || 0)),
+            serviceName: sanitizeText(s.serviceName, { maxLength: 200 }),
+            workerName: s.workerName
+              ? sanitizeText(s.workerName, { maxLength: 200 })
+              : null,
+          };
+        }),
         // NEW guest fields — sanitize only if present.
         guestName: rawBody.guestName
           ? sanitizeText(rawBody.guestName, { maxLength: 120, rejectHtml: true })
@@ -390,7 +470,10 @@ if (provider === 'stripe' && !Deno.env.get('STRIPE_SECRET_KEY')) {
     let checkoutResult;
     try {
       checkoutResult = await getProvider(provider as PaymentProviderName).initCheckout({
-        amount: body.depositAmount,
+        // Phase 17: amountMinor is canonical int kobo. Provider adapters
+        // pass it verbatim — no `* 100` conversion inside.
+        amountMinor: body.depositAmountMinor,
+        platformFeeAmountMinor: body.platformFeeMinor,
         currency: shopCurrency,
         reference: provider === "paystack"
           ? `booking_${body.idempotencyKey}`.slice(0, 100)
@@ -398,13 +481,15 @@ if (provider === 'stripe' && !Deno.env.get('STRIPE_SECRET_KEY')) {
         customerEmail,
         callbackUrl: callbackBase,
         destinationAccountId: await resolveDestinationAccountId(body.shopId, provider),
-        platformFeeAmount: body.platformFee,
         metadata: {
           shop_id: body.shopId,
           user_id: body.userId ?? '',
           total_amount: String(body.totalAmount),
           deposit_amount: String(body.depositAmount),
           platform_fee: String(body.platformFee),
+          total_amount_minor: String(body.totalAmountMinor),
+          deposit_amount_minor: String(body.depositAmountMinor),
+          platform_fee_minor: String(body.platformFeeMinor),
           idempotency_key: body.idempotencyKey,
           services: body.services.map((s) => s.serviceName).join(", "),
         },
@@ -522,7 +607,7 @@ if (provider === 'stripe' && !Deno.env.get('STRIPE_SECRET_KEY')) {
 // VALIDATION FUNCTIONS
 // ============================================================================
 
-async function validateRequest(req: BookingRequest): Promise<ValidationResult> {
+async function validateRequest(req: NormalizedBooking): Promise<ValidationResult> {
   const errors: string[] = [];
 
   // NEW: enforce exactly one of userId or (guestName + guestPhone).
@@ -615,9 +700,15 @@ async function validateRequest(req: BookingRequest): Promise<ValidationResult> {
     //   errors.push(`Service ${service.serviceName} is not available`);
     // }
 
-    // Validate price matches current price (optional - prevents price tampering)
-    if (slot && Math.abs(slot.price - service.priceAtBooking) > 0.01) {
-      errors.push(`Price mismatch for ${service.serviceName}`);
+    // Validate price matches current price (prevents price tampering).
+    // Phase 17 LD-12: int kobo end-to-end means the comparison is EXACT.
+    // No 1-pesewa tolerance anymore — a tampered client cannot slip a
+    // sub-cent discrepancy through.
+    if (slot) {
+      const slotPriceMinor = Math.round((slot.price as number) * 100);
+      if (slotPriceMinor !== service.priceAtBookingMinor) {
+        errors.push(`Price mismatch for ${service.serviceName}`);
+      }
     }
   }
 
@@ -680,9 +771,12 @@ async function validateRequest(req: BookingRequest): Promise<ValidationResult> {
     // handles auto-assignment; we don't pre-block based on shop-wide overlap.
   }
 
-  // Validate amount matches calculation
-  const calculatedAmount = req.services.reduce((sum, s) => sum + s.priceAtBooking, 0);
-  if (Math.abs(calculatedAmount - req.totalAmount) > 0.01) {
+  // Validate amount matches calculation. Phase 17 LD-12: exact int kobo
+  // comparison; no float dust tolerance.
+  const calculatedAmountMinor = req.services.reduce(
+    (sum, s) => sum + s.priceAtBookingMinor, 0,
+  );
+  if (calculatedAmountMinor !== req.totalAmountMinor) {
     errors.push('Amount mismatch');
   }
 

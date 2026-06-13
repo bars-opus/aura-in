@@ -87,7 +87,7 @@ Deno.test("PaystackProvider.verifyTransaction: success → maps to result", asyn
     const provider = new PaystackProvider();
     const result = await provider.verifyTransaction({ reference: "test_ref_1" });
     assertEquals(result.status, "success");
-    assertEquals(result.amount, 50);          // converted to major units
+    assertEquals(result.amountMinor, 5000);   // Phase 17: int kobo, no /100
     assertEquals(result.currency, "GHS");
     assertEquals(result.providerTransactionId, "12345");
     assertEquals(result.paidAt, "2026-05-18T10:00:00Z");
@@ -158,7 +158,7 @@ Deno.test("PaystackProvider.initCheckout: returns authorization URL + reference"
   try {
     const provider = new PaystackProvider();
     const result = await provider.initCheckout({
-      amount: 50,
+      amountMinor: 5000,
       currency: "GHS",
       reference: "ref_abc",
       customerEmail: "buyer@example.com",
@@ -184,16 +184,16 @@ Deno.test("PaystackProvider.initCheckout: forwards subaccount + platform fee", a
   try {
     const provider = new PaystackProvider();
     await provider.initCheckout({
-      amount: 100,
+      amountMinor: 10000,
       currency: "GHS",
       reference: "r",
       customerEmail: "x@y.z",
       callbackUrl: "x://y",
       destinationAccountId: "ACCT_sub1",
-      platformFeeAmount: 2.9,
+      platformFeeAmountMinor: 290,
     });
     assertEquals(received.subaccount, "ACCT_sub1");
-    assertEquals(received.transaction_charge, 290); // 2.9 → 290 minor
+    assertEquals(received.transaction_charge, 290); // Phase 17: int kobo verbatim
   } finally { restore(); }
 });
 
@@ -205,7 +205,7 @@ Deno.test("PaystackProvider.initCheckout: provider 400 → throws PaymentProvide
     const provider = new PaystackProvider();
     await assertRejects(
       () => provider.initCheckout({
-        amount: 50, currency: "GHS", reference: "r",
+        amountMinor: 5000, currency: "GHS", reference: "r",
         customerEmail: "bad", callbackUrl: "x://y",
       }),
       PaymentProviderError,
@@ -228,13 +228,13 @@ Deno.test("PaystackProvider.processPayout: kobo conversion + reference idempoten
   try {
     const provider = new PaystackProvider();
     const result = await provider.processPayout({
-      amount: 100,
+      amountMinor: 10000,
       currency: "GHS",
       destinationAccountId: "RCP_abc",
       reference: "wd_idempotency_1",
       reason: "Withdrawal",
     });
-    assertEquals(received.amount, 10000);
+    assertEquals(received.amount, 10000);  // Phase 17: int kobo verbatim
     assertEquals(received.recipient, "RCP_abc");
     assertEquals(received.reference, "wd_idempotency_1");
     assertEquals(received.reason, "Withdrawal");
@@ -251,7 +251,7 @@ Deno.test("PaystackProvider.processPayout: status=false → invalid_request", as
     const provider = new PaystackProvider();
     await assertRejects(
       () => provider.processPayout({
-        amount: 50, currency: "GHS", destinationAccountId: "RCP_x",
+        amountMinor: 5000, currency: "GHS", destinationAccountId: "RCP_x",
         reference: "wd_x",
       }),
       PaymentProviderError,

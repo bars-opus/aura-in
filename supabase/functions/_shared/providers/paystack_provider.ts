@@ -47,8 +47,10 @@ export class PaystackProvider implements PaymentProviderPort {
     const sep = input.callbackUrl.includes("?") ? "&" : "?";
     const callbackUrl = `${input.callbackUrl}${sep}reference=${encodeURIComponent(input.reference)}`;
 
+    // Phase 17: amountMinor is int kobo; Paystack expects int kobo. No
+    // `* 100` conversion — the value passes through verbatim.
     const body: Record<string, unknown> = {
-      amount: Math.round(input.amount * 100),
+      amount: input.amountMinor,
       email: input.customerEmail,
       currency,
       reference: input.reference,
@@ -58,8 +60,8 @@ export class PaystackProvider implements PaymentProviderPort {
     if (input.destinationAccountId) {
       body.subaccount = input.destinationAccountId;
     }
-    if (input.platformFeeAmount !== undefined) {
-      body.transaction_charge = Math.round(input.platformFeeAmount * 100);
+    if (input.platformFeeAmountMinor !== undefined) {
+      body.transaction_charge = input.platformFeeAmountMinor;
     }
 
     let resp: Response;
@@ -144,9 +146,11 @@ export class PaystackProvider implements PaymentProviderPort {
       d.status === "abandoned" ? "abandoned" :
       d.status === "failed" ? "failed" : "pending";
 
+    // Phase 17: Paystack returns `amount` already in kobo. Pass through
+    // verbatim as amountMinor; no `/ 100` normalization.
     return {
       status,
-      amount: (d.amount ?? 0) / 100,
+      amountMinor: (d.amount ?? 0),
       currency: (d.currency ?? "").toUpperCase(),
       paidAt: d.paid_at,
       providerTransactionId: String(d.id ?? d.reference ?? input.reference),
@@ -159,7 +163,8 @@ export class PaystackProvider implements PaymentProviderPort {
     if (!this.secretKey) {
       throw new PaymentProviderError("Paystack not configured", "unavailable", false);
     }
-    const amountKobo = Math.round(input.amount * 100);
+    // Phase 17: amountMinor is already int kobo. Pass through verbatim.
+    const amountKobo = input.amountMinor;
     let resp: Response;
     try {
       resp = await retryFetch(

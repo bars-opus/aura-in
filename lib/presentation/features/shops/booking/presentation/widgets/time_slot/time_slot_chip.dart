@@ -1,5 +1,6 @@
 // lib/features/booking/presentation/widgets/time_slot/time_slot_chip.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 /// A beautiful chip for displaying individual time slots.
@@ -143,7 +144,8 @@ class TimeSlotChip extends ConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              '$currency ${slot.price.toStringAsFixed(2)}',
+                              // Phase 17: format int kobo via the single helper.
+                              formatMoney(slot.priceMinor, currency),
                               style: theme.textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: isSelected

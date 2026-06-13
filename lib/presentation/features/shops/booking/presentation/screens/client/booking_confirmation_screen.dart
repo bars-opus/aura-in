@@ -1,5 +1,6 @@
 // lib/features/booking/presentation/screens/booking_confirmation_screen.dart
 import 'package:nano_embryo/core/utils/logging/app_logger.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/controllers/booking_creation_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/payment/config/payment_config.dart';
@@ -71,7 +72,8 @@ class _BookingConfirmationScreenState
     // Calculate totals
     final selectedQuantities = ref.watch(serviceQuantityProvider);
     final totalDuration = _calculateTotalDuration(selectedServices);
-    final totalPrice = _calculateTotalPrice(
+    // Phase 17: int kobo end-to-end.
+    final totalPriceMinor = _calculateTotalPriceMinor(
       selectedServices,
       selectedQuantities,
       selectedTimeSlots,
@@ -105,7 +107,7 @@ class _BookingConfirmationScreenState
                 selectedTimeSlots, // ← Now passing the map, not a single slot
                 isCombinedView, // ← Pass this too
                 totalDuration,
-                totalPrice,
+                totalPriceMinor,
                 bookingState,
                 shopId ?? '',
               )
@@ -126,7 +128,7 @@ class _BookingConfirmationScreenState
     Map<String, TimeSlotModel> timeSlots, // ← Changed from single TimeSlotModel
     bool isCombinedView, // ← New parameter
     Duration totalDuration,
-    double totalPrice,
+    int totalPriceMinor,
     BookingCreationState bookingState,
     String shopId,
   ) {
@@ -184,7 +186,9 @@ class _BookingConfirmationScreenState
                     timeSlots: timeSlots,
                     isCombinedView: isCombinedView,
                     totalDuration: totalDuration,
-                    totalPrice: totalPrice,
+                    // Phase 17: widget signature flips in Wave 5.6. Until then,
+                    // convert at the boundary.
+                    totalPrice: totalPriceMinor / 100,
                     shopCurrency: '',
                     isProcessing: _isProcessing,
                     reference: '',
@@ -208,7 +212,9 @@ class _BookingConfirmationScreenState
                   shopId: shopId,
                   userId: profile?.id,
                   guestProfileId: null,
-                  bookingTotal: totalPrice,
+                  // Phase 17: ClientPromoCodeField widget signature stays
+                  // major-units until Wave 5.1 flips it. Boundary-convert.
+                  bookingTotal: totalPriceMinor / 100,
                   serviceIds: services.map((s) => s.id).toList(),
                   onApplied: _onPromoApplied,
                 ),
@@ -301,20 +307,21 @@ class _BookingConfirmationScreenState
     setState(() => _appliedPromo = applied);
   }
 
-  /// Phase 15 — effective price per service comes from the time-slot
-  /// resolver (post-pricing-override). Falls back to `service.price` when
-  /// the slot isn't in `timeSlots` (defensive — should not happen in
-  /// the confirmation flow). Zero-override shops see `effective == base`.
-  double _calculateTotalPrice(
+  /// Phase 17: effective price per service in int kobo. Reads
+  /// `TimeSlotModel.priceMinor` (already int) for the override-applied
+  /// slot and falls back to `parseMoneyMinor(service.price)` when no slot
+  /// is mapped. Zero-override shops see `effectiveMinor == baseMinor`.
+  int _calculateTotalPriceMinor(
     List<AppointmentSlotDTO> services,
     Map<String, int> quantities,
     Map<String, TimeSlotModel> timeSlots,
   ) {
-    return services.fold<double>(
+    return services.fold<int>(
       0,
       (sum, service) {
-        final effective = timeSlots[service.id]?.price ?? service.price;
-        return sum + effective * (quantities[service.id] ?? 1);
+        final effectiveMinor =
+            timeSlots[service.id]?.priceMinor ?? parseMoneyMinor(service.price);
+        return sum + effectiveMinor * (quantities[service.id] ?? 1);
       },
     );
   }
@@ -338,29 +345,32 @@ class _BookingConfirmationScreenState
       final workers = ref.read(selectedWorkersProvider);
       final quantities = ref.read(serviceQuantityProvider);
       final timeSlots = ref.read(selectedTimeSlotsProvider);
-      final totalPrice = _calculateTotalPrice(services, quantities, timeSlots);
+      // Phase 17: int kobo end-to-end.
+      final totalPriceMinor = _calculateTotalPriceMinor(services, quantities, timeSlots);
       final firstSlot = timeSlots.values.first;
 
       // Phase 13: when a promo code is applied, the discounted total
       // becomes the canonical totalAmount sent to the payment provider,
       // and the platform fee recomputes against that new total. The
       // pre-discount totalPrice is no longer used after this point.
-      final effectiveTotal = _appliedPromo?.newTotal ?? totalPrice;
+      // Phase 17: AppliedPromo now carries int kobo (Wave 5.1).
+      final effectiveTotalMinor = _appliedPromo?.newTotalMinor ?? totalPriceMinor;
 
       // Expand services by quantity so the server-side amount validation
-      // (sum(priceAtBooking) == totalAmount) holds for group bookings.
-      // Phase 15: priceAtBooking carries the EFFECTIVE price (post-override).
+      // (sum(priceAtBookingMinor) == totalAmountMinor) holds for group bookings.
+      // Phase 17: send both legacy + new keys; edge function reads either.
       final servicesData = services
           .expand<Map<String, dynamic>>((service) {
             final qty = quantities[service.id] ?? 1;
             final workerEntries = workers[service.id] ?? [];
-            final effectivePrice = timeSlots[service.id]?.price ?? service.price;
+            final effectivePriceMinor =
+                timeSlots[service.id]?.priceMinor ?? parseMoneyMinor(service.price);
             return List.generate(qty, (i) {
               final worker = i < workerEntries.length ? workerEntries[i] : null;
               return {
                 'slotId': service.id,
                 'workerId': worker?['id'],
-                'priceAtBooking': effectivePrice,
+                'priceAtBookingMinor': effectivePriceMinor,
                 'durationMinutes':
                     DurationUtils.parse(service.duration).inMinutes,
                 'serviceName': service.serviceName,
@@ -381,16 +391,16 @@ class _BookingConfirmationScreenState
         startTime: firstSlot.startTime,
         endTime: firstSlot.endTime,
         actualEndTime: firstSlot.actualEndTime,
-        // Phase 13: discounted amounts. When no promo applied,
-        // effectiveTotal == totalPrice so the pre-Phase-13 behavior is
-        // preserved.
-        totalAmount: effectiveTotal,
-        depositAmount: effectiveTotal * config.depositFraction,
-        platformFee: effectiveTotal * config.platformFeeFraction,
+        // Phase 17: int kobo via `applyBps`. Deposit/platform-fee math is
+        // exact integer; no float rounding dust.
+        totalAmountMinor: effectiveTotalMinor,
+        depositAmountMinor: applyBps(effectiveTotalMinor, config.depositBps),
+        platformFeeMinor: applyBps(effectiveTotalMinor, config.platformFeeBps),
         paymentProvider: paymentProvider,
         context: context,
         promotionId: _appliedPromo?.promotionId,
-        promoAmountOff: _appliedPromo?.amountOff,
+        // Phase 17: AppliedPromo carries int kobo directly (Wave 5.1).
+        promoAmountOffMinor: _appliedPromo?.amountOffMinor,
       );
 
       if (result != null && mounted) {
@@ -445,8 +455,9 @@ class _BookingConfirmationScreenState
         infoMessages: [
           'Your booking is confirmed',
           'Reference: #${booking.id.substring(0, 8)}',
-          'Deposit paid: ${widget.shopCurrency} ${booking.depositAmount.toStringAsFixed(2)}',
-          'Remaining: ${widget.shopCurrency} ${(booking.totalAmount - booking.depositAmount).toStringAsFixed(2)} (pay after service)',
+          // Phase 17: format from int kobo via the single helper.
+          'Deposit paid: ${formatMoney(booking.depositAmountMinor, widget.shopCurrency)}',
+          'Remaining: ${formatMoney(booking.remainingBalanceMinor, widget.shopCurrency)} (pay after service)',
         ],
         onViewBooking: () {
           Navigator.pop(context);
@@ -457,7 +468,8 @@ class _BookingConfirmationScreenState
               startTime: booking.startTime,
               endTime: booking.endTime,
               bookingId: booking.id,
-              totalAmount: booking.totalAmount,
+              // Phase 17: BookingDetailScreen still major-units until Wave 5.6.
+              totalAmount: booking.totalAmountMinor / 100,
               preLoadedBookingDetail: booking,
               shopType: widget.shopType,
               shopName: widget.shopName,
@@ -477,7 +489,8 @@ class _BookingConfirmationScreenState
 
   void _showPaymentDialog() {
     final config = ref.read(paymentConfigProvider);
-    final depositPct = (config.depositFraction * 100).round();
+    // Phase 17: bps → percent for display: 3000 bps = 30%.
+    final depositPct = config.depositBps ~/ 100;
     BottomSheetUtils.showDocumentationBottomSheet(
       context: context,
       maxHeight: 350.h,

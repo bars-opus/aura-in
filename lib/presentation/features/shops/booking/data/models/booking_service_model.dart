@@ -1,18 +1,23 @@
 // lib/features/booking/data/models/booking_service_model.dart
 
 import 'package:equatable/equatable.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 
 class BookingServiceModel extends Equatable {
   final String id;
   final String bookingId;
   final String slotId;
   final String? workerId;
-  final double priceAtBooking;
+
+  /// Phase 17: int minor units (kobo). Server returns NUMERIC(12,2) major
+  /// units; `parseMoneyMinor` converts at the fromJson boundary.
+  final int priceAtBookingMinor;
+
   final int durationMinutes;
   final DateTime createdAt;
   final DateTime? startTime;
-  final String? serviceName; // ← NEW
-  final String? workerName; // ← NEW
+  final String? serviceName;
+  final String? workerName;
   final String? specialRequirements;
 
   const BookingServiceModel({
@@ -21,11 +26,11 @@ class BookingServiceModel extends Equatable {
     required this.slotId,
     required this.startTime,
     this.workerId,
-    required this.priceAtBooking,
+    required this.priceAtBookingMinor,
     required this.durationMinutes,
     required this.createdAt,
-    this.serviceName, // ← NEW
-    this.workerName, // ← NEW
+    this.serviceName,
+    this.workerName,
     this.specialRequirements,
   });
 
@@ -35,11 +40,12 @@ class BookingServiceModel extends Equatable {
       bookingId: json['booking_id'] as String,
       slotId: json['slot_id'] as String,
       workerId: json['worker_id'] as String?,
-      priceAtBooking: (json['price_at_booking'] as num).toDouble(),
+      // Phase 17: NUMERIC major → int minor at the boundary.
+      priceAtBookingMinor: parseMoneyMinor(json['price_at_booking'] as num),
       durationMinutes: json['duration_minutes'] as int,
       createdAt: DateTime.parse(json['created_at'] as String),
-      serviceName: json['service_name'] as String?, // ← NEW
-      workerName: json['worker_name'] as String?, // ← NEW
+      serviceName: json['service_name'] as String?,
+      workerName: json['worker_name'] as String?,
       startTime:
           json['start_time'] != null
               ? DateTime.parse(json['start_time'] as String)
@@ -48,7 +54,8 @@ class BookingServiceModel extends Equatable {
     );
   }
 
-  /// Converts to JSON for Supabase.
+  /// Converts to JSON for Supabase. Phase 17: storage stays NUMERIC major
+  /// so write back as `kobo / 100`.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -56,7 +63,7 @@ class BookingServiceModel extends Equatable {
       'slot_id': slotId,
       'start_time': startTime?.toIso8601String(),
       'worker_id': workerId,
-      'price_at_booking': priceAtBooking,
+      'price_at_booking': priceAtBookingMinor / 100,
       'duration_minutes': durationMinutes,
       'worker_name': workerName,
       'service_name': serviceName,
@@ -70,7 +77,7 @@ class BookingServiceModel extends Equatable {
     String? bookingId,
     String? slotId,
     String? workerId,
-    double? priceAtBooking,
+    int? priceAtBookingMinor,
     int? durationMinutes,
     DateTime? createdAt,
     String? specialRequirements,
@@ -84,7 +91,7 @@ class BookingServiceModel extends Equatable {
       bookingId: bookingId ?? this.bookingId,
       slotId: slotId ?? this.slotId,
       workerId: workerId ?? this.workerId,
-      priceAtBooking: priceAtBooking ?? this.priceAtBooking,
+      priceAtBookingMinor: priceAtBookingMinor ?? this.priceAtBookingMinor,
       durationMinutes: durationMinutes ?? this.durationMinutes,
       createdAt: createdAt ?? this.createdAt,
       specialRequirements: specialRequirements ?? this.specialRequirements,
@@ -101,7 +108,7 @@ class BookingServiceModel extends Equatable {
     slotId,
     startTime,
     workerId,
-    priceAtBooking,
+    priceAtBookingMinor,
     durationMinutes,
     workerName,
     serviceName,

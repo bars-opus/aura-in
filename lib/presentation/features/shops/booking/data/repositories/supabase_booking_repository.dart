@@ -1,4 +1,5 @@
 // lib/features/booking/data/repositories/supabase/supabase_booking_repository.dart
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_retry_policy.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_sanitizer.dart';
@@ -537,7 +538,11 @@ class SupabaseBookingRepository implements BookingRepository {
               'booking_id': row['booking_id'],
               'slot_id': row['slot_id'],
               'worker_id': row['worker_id'],
-              'price_at_booking': (row['price_at_booking'] ?? 0.0).toDouble(),
+              // Phase 17: pass NUMERIC values through unmodified — the
+              // downstream BookingServiceModel.fromJson does the boundary
+              // conversion via `parseMoneyMinor`. Avoid intermediate float
+              // coercion that would defeat SC-2.
+              'price_at_booking': row['price_at_booking'] ?? 0,
               'duration_minutes': row['duration_minutes'] ?? 0,
               'created_at': row['created_at'],
               'service_name': row['service_name'] ?? slotData?['service_name'],
@@ -549,7 +554,7 @@ class SupabaseBookingRepository implements BookingRepository {
                         'id': slotData['id'],
                         'service_name': slotData['service_name'],
                         'duration': slotData['duration'],
-                        'price': (slotData['price'] ?? 0.0).toDouble(),
+                        'price': slotData['price'] ?? 0,
                         'slot_type': slotData['slot_type'],
                       }
                       : null,
@@ -1092,7 +1097,10 @@ class SupabaseBookingRepository implements BookingRepository {
                   actualEndTime ?? DateTime.parse(json['end_time'] as String),
               slotId: json['slot_id'] as String? ?? '',
               serviceName: json['service_name'] as String? ?? '',
-              price: (json['price'] as num?)?.toDouble() ?? 0.0,
+              // Phase 17: NUMERIC major → int minor at the boundary.
+              priceMinor: json['price'] == null
+                  ? 0
+                  : parseMoneyMinor(json['price'] as num),
               availableWorkers: availableWorkers,
               remainingSpots: json['remaining_spots'] as int?,
               requiresWorkerSelection:
@@ -1183,8 +1191,9 @@ class SupabaseBookingRepository implements BookingRepository {
                   booking.bookingDate.toIso8601String().split('T').first,
               'p_start_time': booking.startTime.toIso8601String(),
               'p_end_time': booking.endTime.toIso8601String(),
-              'p_total_amount': booking.totalAmount,
-              'p_deposit_amount': booking.depositAmount,
+              // Phase 17: RPC param is NUMERIC major-units; convert at boundary.
+              'p_total_amount': booking.totalAmountMinor / 100,
+              'p_deposit_amount': booking.depositAmountMinor / 100,
               'p_service_address': cleanAddress,
               'p_service_latitude': booking.latitude,
               'p_service_longitude': booking.longitude,

@@ -1,5 +1,6 @@
 // lib/features/booking/presentation/controllers/booking_creation_controller.dart
 
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/freelancer/presentation/providers/freelancer_details_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_sanitizer.dart';
@@ -24,14 +25,14 @@ final notificationServiceProvider = Provider<NotificationService>((ref) {
   );
 });
 
-/// Deposit percentage of the total amount. Pinned to 30 % to match the
-/// server-side default; if shops gain per-shop deposit configuration
-/// later, this constant moves into the shop model.
-const double _kDepositPercent = 0.30;
+/// Phase 17: deposit fraction expressed as basis points (1 bp = 0.01%).
+/// 3000 bps = 30%. Used as `applyBps(totalAmountMinor, _kDepositBps)` for
+/// exact int kobo arithmetic.
+const int _kDepositBps = 3000;
 
-/// Platform fee charged per booking. Currently flat; will move to a
-/// configurable column on `shops` once payments wire that up.
-const double _kPlatformFee = 2.0;
+/// Phase 17: platform fee in int minor units (kobo for GHS). Pinned to
+/// 200 kobo = GHS 2.00. Future per-shop config moves to the shop model.
+const int _kPlatformFeeMinor = 200;
 
 class BookingCreationState {
   final bool isSubmitting;
@@ -124,8 +125,9 @@ class BookingCreationController extends _$BookingCreationController {
       );
       BookingValidators.validateNoDuplicateWorkers(workers);
 
-      final totalAmount = _calculateTotalAmount(services, quantities, timeSlots);
-      final depositAmount = totalAmount * _kDepositPercent;
+      // Phase 17: int kobo end-to-end. Deposit is `applyBps` for exact integer math.
+      final totalAmountMinor = _calculateTotalAmountMinor(services, quantities, timeSlots);
+      final depositAmountMinor = applyBps(totalAmountMinor, _kDepositBps);
 
       // start_time = earliest selected; end_time = latest selected.
       // The previous version used `timeSlots.values.first` which broke
@@ -145,12 +147,12 @@ class BookingCreationController extends _$BookingCreationController {
         endTime: endTime,
         actualEndTime: actualEndTime,
         status: BookingStatus.confirmed,
-        totalAmount: totalAmount,
+        totalAmountMinor: totalAmountMinor,
         paymentStatus:
             paymentIntentId != null ? PaymentStatus.paid : PaymentStatus.unpaid,
         paymentIntentId: paymentIntentId,
-        depositAmount: depositAmount,
-        platformFee: _kPlatformFee,
+        depositAmountMinor: depositAmountMinor,
+        platformFeeMinor: _kPlatformFeeMinor,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         latitude: latitude,
@@ -267,8 +269,9 @@ class BookingCreationController extends _$BookingCreationController {
         }
       }
 
-      final totalAmount = _calculateTotalAmount(services, quantities, timeSlots);
-      final depositAmount = totalAmount * _kDepositPercent;
+      // Phase 17: int kobo end-to-end.
+      final totalAmountMinor = _calculateTotalAmountMinor(services, quantities, timeSlots);
+      final depositAmountMinor = applyBps(totalAmountMinor, _kDepositBps);
 
       final sortedSlots = BookingValidators.sortedByStart(timeSlots.values);
       final firstSlot = sortedSlots.first;
@@ -283,10 +286,10 @@ class BookingCreationController extends _$BookingCreationController {
         endTime: BookingValidators.latestEnd(sortedSlots),
         actualEndTime: actualEndTime,
         status: BookingStatus.confirmed,
-        totalAmount: totalAmount,
+        totalAmountMinor: totalAmountMinor,
         paymentStatus: PaymentStatus.paid,
-        depositAmount: depositAmount,
-        platformFee: _kPlatformFee,
+        depositAmountMinor: depositAmountMinor,
+        platformFeeMinor: _kPlatformFeeMinor,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         latitude: serviceAddress?.latitude ?? freelancerLat,
@@ -408,7 +411,9 @@ class BookingCreationController extends _$BookingCreationController {
       final walletRepository = ref.read(walletRepositoryProvider);
       await walletRepository.addTransaction(
         shopId: booking.shopId,
-        amount: booking.depositAmount,
+        // Phase 17: wallet repo still major-units until Wave 5.5 flips it.
+        // Convert at the call boundary; Wave 5.5 will switch this to amountMinor.
+        amount: booking.depositAmountMinor / 100,
         type: TransactionType.deposit,
         bookingId: booking.id,
         description: 'Deposit for booking #${booking.id.substring(0, 8)}',
@@ -422,18 +427,20 @@ class BookingCreationController extends _$BookingCreationController {
     }
   }
 
-  /// Phase 15 — effective price (post-override) per service comes from
-  /// the resolved time slot. Falls back to base when no slot is mapped.
-  double _calculateTotalAmount(
+  /// Phase 17: effective price (post-override) per service in int kobo.
+  /// `TimeSlotModel.priceMinor` is already int; `AppointmentSlotDTO.price` is
+  /// boundary-converted via `parseMoneyMinor`. The fold result is exact.
+  int _calculateTotalAmountMinor(
     List<AppointmentSlotDTO> services,
     Map<String, int> quantities,
     Map<String, TimeSlotModel> timeSlots,
   ) {
-    return services.fold<double>(
+    return services.fold<int>(
       0,
       (sum, service) {
-        final effective = timeSlots[service.id]?.price ?? service.price;
-        return sum + (effective * (quantities[service.id] ?? 1));
+        final effectiveMinor =
+            timeSlots[service.id]?.priceMinor ?? parseMoneyMinor(service.price);
+        return sum + (effectiveMinor * (quantities[service.id] ?? 1));
       },
     );
   }
@@ -454,9 +461,10 @@ class BookingCreationController extends _$BookingCreationController {
       final duration = DurationUtils.parse(service.duration);
       final timeSlot = timeSlots[service.id];
 
-      // Phase 15: effective price (post-override) from the resolved
-      // time-slot. Falls back to base price when no slot in the map.
-      final effectivePrice = timeSlot?.price ?? service.price;
+      // Phase 17: effective price in int kobo. TimeSlotModel.priceMinor is
+      // already int; AppointmentSlotDTO.price is NUMERIC (boundary-convert).
+      final effectivePriceMinor =
+          timeSlot?.priceMinor ?? parseMoneyMinor(service.price);
 
       for (var i = 0; i < quantity; i++) {
         final entry = workerEntries.length > i
@@ -469,7 +477,7 @@ class BookingCreationController extends _$BookingCreationController {
             bookingId: bookingId,
             slotId: service.id,
             workerId: entry['id'],
-            priceAtBooking: effectivePrice,
+            priceAtBookingMinor: effectivePriceMinor,
             durationMinutes: duration.inMinutes,
             createdAt: DateTime.now(),
             serviceName: service.serviceName,
@@ -495,8 +503,9 @@ class BookingCreationController extends _$BookingCreationController {
       final quantity = quantities[service.id] ?? 1;
       final timeSlot = timeSlots[service.id];
       final duration = DurationUtils.parse(service.duration);
-      // Phase 15: effective price (post-override) from the resolved slot.
-      final effectivePrice = timeSlot?.price ?? service.price;
+      // Phase 17: effective price in int kobo.
+      final effectivePriceMinor =
+          timeSlot?.priceMinor ?? parseMoneyMinor(service.price);
 
       for (var i = 0; i < quantity; i++) {
         all.add(
@@ -505,7 +514,7 @@ class BookingCreationController extends _$BookingCreationController {
             bookingId: bookingId,
             slotId: service.id,
             workerId: null,
-            priceAtBooking: effectivePrice,
+            priceAtBookingMinor: effectivePriceMinor,
             durationMinutes: duration.inMinutes,
             createdAt: DateTime.now(),
             serviceName: service.serviceName,

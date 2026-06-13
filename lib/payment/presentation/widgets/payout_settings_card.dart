@@ -26,8 +26,9 @@ class _PayoutSettingsCardState extends ConsumerState<PayoutSettingsCard> {
   void initState() {
     super.initState();
     _selectedSchedule = widget.settings.payoutSchedule;
+    // Phase 17: payoutMinimumMinor is int kobo; display as major-unit string.
     _minimumController = TextEditingController(
-      text: widget.settings.payoutMinimum.toString(),
+      text: (widget.settings.payoutMinimumMinor / 100).toString(),
     );
     _autoPayoutEnabled = widget.settings.autoPayoutEnabled;
   }

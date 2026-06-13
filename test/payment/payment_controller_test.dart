@@ -145,9 +145,10 @@ Future<Map<String, dynamic>?> _runProcessPayment(
     startTime: DateTime(2026, 5, 21),
     endTime: DateTime(2026, 5, 21, 1),
     actualEndTime: DateTime(2026, 5, 21, 1),
-    totalAmount: 50,
-    depositAmount: 50,
-    platformFee: 0,
+    // Phase 17: int kobo. 50 GHS = 5000 kobo.
+    totalAmountMinor: 5000,
+    depositAmountMinor: 5000,
+    platformFeeMinor: 0,
     paymentProvider: paymentProvider,
     context: context,
   );
@@ -190,7 +191,7 @@ void main() {
       expect(result, isNotNull);
       expect(result!['id'], 'booking_1');
       expect(captured?.reference, 'ref_1');
-      expect(captured?.amount, 50.0);
+      expect(captured?.amountMinor, 5000);
     });
 
     testWidgets('2. happy path via verify-payment fallback', (tester) async {

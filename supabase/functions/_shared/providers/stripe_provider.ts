@@ -43,7 +43,8 @@ export class StripeProvider implements PaymentProviderPort {
           product_data: {
             name: "Booking Deposit",
           },
-          unit_amount: Math.round(input.amount * 100),
+          // Phase 17: amountMinor is int cents; Stripe expects int cents.
+          unit_amount: input.amountMinor,
         },
         quantity: 1,
       }],
@@ -58,9 +59,9 @@ export class StripeProvider implements PaymentProviderPort {
       sessionParams.payment_intent_data = {
         transfer_data: { destination: input.destinationAccountId },
       };
-      if (input.platformFeeAmount !== undefined) {
+      if (input.platformFeeAmountMinor !== undefined) {
         sessionParams.payment_intent_data.application_fee_amount =
-          Math.round(input.platformFeeAmount * 100);
+          input.platformFeeAmountMinor;
       }
     }
 
@@ -123,9 +124,10 @@ export class StripeProvider implements PaymentProviderPort {
       session.status === "expired" ? "abandoned" :
       session.payment_status === "no_payment_required" ? "success" : "pending";
 
+    // Phase 17: Stripe returns amount_total in cents. Pass through verbatim.
     return {
       status,
-      amount: (session.amount_total ?? 0) / 100,
+      amountMinor: (session.amount_total ?? 0),
       currency: (session.currency ?? "").toUpperCase(),
       paidAt: session.created
         ? new Date(session.created * 1000).toISOString()
@@ -140,7 +142,8 @@ export class StripeProvider implements PaymentProviderPort {
     if (!this.secretKey) {
       throw new PaymentProviderError("Stripe not configured", "unavailable", false);
     }
-    const amountCents = Math.round(input.amount * 100);
+    // Phase 17: amountMinor is int cents; Stripe expects int cents.
+    const amountCents = input.amountMinor;
     let resp: Response;
     try {
       resp = await retryFetch(
