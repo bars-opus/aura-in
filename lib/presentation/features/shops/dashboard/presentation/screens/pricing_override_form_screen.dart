@@ -18,11 +18,13 @@
 // RPC limitation). The form disables clearing them once set in edit mode
 // and surfaces an inline hint pointing to the archive-and-recreate path.
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
+import 'package:nano_embryo/core/utils/cupertino_date_picker_sheet.dart';
 import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/core/widgets/feedback/snackbar_widget.dart';
 import 'package:nano_embryo/i10n/generated/app_localizations.dart';
@@ -139,47 +141,49 @@ class _PricingOverrideFormScreenState
       };
 
   Future<void> _pickStart() async {
-    final picked = await showTimePicker(context: context, initialTime: _start);
-    if (picked != null) setState(() {
-      _start = picked;
-      _dirty = true;
-    });
+    final now = DateTime.now();
+    final initial = DateTime(now.year, now.month, now.day, _start.hour, _start.minute);
+    final picked = await showCupertinoDatePickerSheet(
+      context: context,
+      initialDate: initial,
+      mode: CupertinoDatePickerMode.time,
+      sheetHeight: 260,
+    );
+    if (picked != null) setState(() { _start = TimeOfDay.fromDateTime(picked); _dirty = true; });
   }
 
   Future<void> _pickEnd() async {
-    final picked = await showTimePicker(context: context, initialTime: _end);
-    if (picked != null) setState(() {
-      _end = picked;
-      _dirty = true;
-    });
+    final now = DateTime.now();
+    final initial = DateTime(now.year, now.month, now.day, _end.hour, _end.minute);
+    final picked = await showCupertinoDatePickerSheet(
+      context: context,
+      initialDate: initial,
+      mode: CupertinoDatePickerMode.time,
+      sheetHeight: 260,
+    );
+    if (picked != null) setState(() { _end = TimeOfDay.fromDateTime(picked); _dirty = true; });
   }
 
   Future<void> _pickValidFrom() async {
     final now = DateTime.now();
-    final picked = await showDatePicker(
+    final picked = await showCupertinoDatePickerSheet(
       context: context,
       initialDate: _validFrom ?? now,
-      firstDate: now.subtract(const Duration(days: 365)),
-      lastDate: now.add(const Duration(days: 365 * 5)),
+      minimumDate: now.subtract(const Duration(days: 365)),
+      maximumDate: now.add(const Duration(days: 365 * 5)),
     );
-    if (picked != null) setState(() {
-      _validFrom = picked;
-      _dirty = true;
-    });
+    if (picked != null) setState(() { _validFrom = picked; _dirty = true; });
   }
 
   Future<void> _pickValidUntil() async {
     final now = DateTime.now();
-    final picked = await showDatePicker(
+    final picked = await showCupertinoDatePickerSheet(
       context: context,
       initialDate: _validUntil ?? now.add(const Duration(days: 30)),
-      firstDate: _validFrom ?? now.subtract(const Duration(days: 365)),
-      lastDate: now.add(const Duration(days: 365 * 5)),
+      minimumDate: _validFrom ?? now.subtract(const Duration(days: 365)),
+      maximumDate: now.add(const Duration(days: 365 * 5)),
     );
-    if (picked != null) setState(() {
-      _validUntil = picked;
-      _dirty = true;
-    });
+    if (picked != null) setState(() { _validUntil = picked; _dirty = true; });
   }
 
   double? get _parsedValue {

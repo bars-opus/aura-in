@@ -1,5 +1,6 @@
 // lib/features/dashboard/presentation/screens/create_promotion_screen.dart
 import 'package:flutter/material.dart';
+import 'package:nano_embryo/core/utils/cupertino_date_picker_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
@@ -177,13 +178,12 @@ class _CreatePromotionScreenState extends ConsumerState<CreatePromotionScreen> {
   }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
-    final picked = await showDatePicker(
+    final picked = await showCupertinoDatePickerSheet(
       context: context,
       initialDate: isStartDate ? _validFrom : _validTo,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      minimumDate: DateTime.now(),
+      maximumDate: DateTime.now().add(const Duration(days: 365)),
     );
-    
     if (picked != null) {
       setState(() {
         if (isStartDate) {

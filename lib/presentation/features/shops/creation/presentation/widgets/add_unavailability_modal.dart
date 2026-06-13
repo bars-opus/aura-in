@@ -1,6 +1,8 @@
 // lib/features/shop/workers/widgets/add_unavailability_modal.dart
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nano_embryo/core/utils/cupertino_date_picker_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
@@ -178,37 +180,32 @@ class _AddUnavailabilityModalState extends ConsumerState<AddUnavailabilityModal>
     return GestureDetector(
       onTap: () async {
         if (_isAllDay) {
-          final date = await showDatePicker(
+          final picked = await showCupertinoDatePickerSheet(
             context: context,
             initialDate: value,
-            firstDate: DateTime.now(),
-            lastDate: DateTime.now().add(const Duration(days: 365)),
+            minimumDate: DateTime.now(),
+            maximumDate: DateTime.now().add(const Duration(days: 365)),
           );
-          if (date != null) {
-            onChanged(date);
-          }
+          if (picked != null) onChanged(picked);
         } else {
-          final dateTime = await showDatePicker(
+          final datePicked = await showCupertinoDatePickerSheet(
             context: context,
             initialDate: value,
-            firstDate: DateTime.now(),
-            lastDate: DateTime.now().add(const Duration(days: 365)),
+            minimumDate: DateTime.now(),
+            maximumDate: DateTime.now().add(const Duration(days: 365)),
           );
-          if (dateTime != null) {
-            final time = await showTimePicker(
-              context: context,
-              initialTime: TimeOfDay.fromDateTime(value),
-            );
-            if (time != null) {
-              onChanged(DateTime(
-                dateTime.year,
-                dateTime.month,
-                dateTime.day,
-                time.hour,
-                time.minute,
-              ));
-            }
-          }
+          if (datePicked == null || !mounted) return;
+          final timePicked = await showCupertinoDatePickerSheet(
+            context: context,
+            initialDate: value,
+            mode: CupertinoDatePickerMode.time,
+            sheetHeight: 260,
+          );
+          final time = timePicked ?? value;
+          onChanged(DateTime(
+            datePicked.year, datePicked.month, datePicked.day,
+            time.hour, time.minute,
+          ));
         }
       },
       child: Container(

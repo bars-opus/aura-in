@@ -8,7 +8,9 @@
 // touch any creation-flow state. The grep gate in the plan's DoD
 // catches accidental regressions.
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nano_embryo/core/utils/cupertino_date_picker_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
@@ -149,16 +151,29 @@ class _DayRow extends StatelessWidget {
     BuildContext context, {
     required bool isOpen,
   }) async {
-    final initial = TimeOfDay.now();
-    final localizations = MaterialLocalizations.of(context);
-    final result = await showTimePicker(
+    // Parse existing HH:MM AM/PM string into a DateTime for the initial value.
+    final existing = isOpen ? row.opensAt : row.closesAt;
+    final now = DateTime.now();
+    final mins = _toMinutes(existing);
+    final initial = mins != null
+        ? DateTime(now.year, now.month, now.day, mins ~/ 60, mins % 60)
+        : now;
+
+    final picked = await showCupertinoDatePickerSheet(
       context: context,
-      initialTime: initial,
+      initialDate: initial,
+      mode: CupertinoDatePickerMode.time,
+      sheetHeight: 260,
     );
-    if (result == null) return;
-    // Use the localizations snapshot captured BEFORE the await to avoid
-    // referencing the context after an async gap.
-    final formatted = localizations.formatTimeOfDay(result); // e.g. "9:00 AM"
+    if (picked == null) return;
+
+    // Format back to "H:MM AM/PM" to match what _toMinutes / controller expects.
+    final h = picked.hour;
+    final m = picked.minute;
+    final isPm = h >= 12;
+    final h12 = h == 0 ? 12 : (h > 12 ? h - 12 : h);
+    final formatted = '$h12:${m.toString().padLeft(2, '0')} ${isPm ? 'PM' : 'AM'}';
+
     if (isOpen) {
       onChanged(formatted, null, null);
     } else {
