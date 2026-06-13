@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/utility/exceptions/booking_error_messages.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/appointments/shop_daily_schedule/providers/daily_schedule_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/contact_bottom_sheet.dart';
 
@@ -82,11 +84,16 @@ class _AppointmentActionsState extends ConsumerState<AppointmentActions> {
                                     'Appointment marked as completed',
                                   );
                                 }
-                              } catch (e) {
+                              } catch (e, st) {
+                                BookingLogger.error(
+                                  'mark_complete_failed',
+                                  error: e,
+                                  stack: st,
+                                );
                                 if (mounted) {
                                   Snackbar.hide(context);
                                   context.showErrorSnackbar(
-                                    'Failed to mark appointment: $e',
+                                    BookingErrorMessages.forUser(e),
                                   );
                                 }
                               }
@@ -129,11 +136,16 @@ class _AppointmentActionsState extends ConsumerState<AppointmentActions> {
                                     'Client marked as no-show',
                                   );
                                 }
-                              } catch (e) {
+                              } catch (e, st) {
+                                BookingLogger.error(
+                                  'mark_no_show_failed',
+                                  error: e,
+                                  stack: st,
+                                );
                                 if (mounted) {
                                   Snackbar.hide(context);
                                   context.showErrorSnackbar(
-                                    'Failed to mark no-show: $e',
+                                    BookingErrorMessages.forUser(e),
                                   );
                                 }
                               }
