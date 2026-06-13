@@ -81,18 +81,6 @@ class _EditBasicsScreenState extends ConsumerState<EditBasicsScreen> {
         child: ListView(
           padding: EdgeInsets.all(Spacing.md.h),
           children: [
-            SemanticContainerWidget(
-              content:
-                  'Kindly wait for the paypemt to finish processing and return to your app to generate your appointment',
-              icon: Icons.storefront_rounded,
-              title: '',
-              backgroundColor: colorScheme.primary.withOpacity(0.1),
-              borderColor: colorScheme.primary,
-              iconColor: colorScheme.primary,
-              textTheme: theme.textTheme,
-            ),
-            Gap(Spacing.lg.h),
-
             EditableProfileAvatar(
               currentAvatarUrl: draft.localLogoPath,
               size: 90,
