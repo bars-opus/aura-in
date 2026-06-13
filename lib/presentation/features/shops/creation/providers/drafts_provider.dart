@@ -1,5 +1,6 @@
 // lib/features/shop/creation/presentation/providers/drafts_provider.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/data/local_draft_storage.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/draft_preview.dart';
@@ -53,7 +54,7 @@ class DraftsNotifier extends StateNotifier<DraftPreview?> {
       state = DraftPreview.fromDraft(draft, profileId);
       return true;
     } catch (e) {
-      print('Error loading draft: $e');
+      debugPrint('Error loading draft: $e');
       return false;
     }
   }
@@ -113,6 +114,6 @@ final hasDraftProvider = FutureProvider<bool>((ref) async {
       draft.localImagePaths.isNotEmpty ||
       draft.documents.isNotEmpty;
 
-  print('🔍 hasDraftProvider: $hasContent');
+  debugPrint('🔍 hasDraftProvider: $hasContent');
   return hasContent;
 });

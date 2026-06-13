@@ -1,5 +1,6 @@
 // lib/features/shop/creation/presentation/providers/documents_provider.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/document_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/draft_context_provider.dart';
@@ -19,7 +20,7 @@ class DocumentsNotifier extends StateNotifier<List<DocumentDraft>> {
     if (draftContext == DraftContext.freelancer) {
       _ref.listen<FreelancerDraft>(freelancerCreationProvider, (previous, next) {
         if (!_listsAreEqual(next.documents, state)) {
-          print(
+          debugPrint(
             '📄 DocumentsNotifier (freelancer): Syncing from draft (${next.documents.length} docs)',
           );
           state = next.documents;
@@ -28,7 +29,7 @@ class DocumentsNotifier extends StateNotifier<List<DocumentDraft>> {
     } else {
       _ref.listen(shopCreationProvider, (previous, next) {
         if (!_listsAreEqual(next.documents, state)) {
-          print(
+          debugPrint(
             '📄 DocumentsNotifier: Syncing from draft (${next.documents.length} docs)',
           );
           state = next.documents;
@@ -48,13 +49,13 @@ class DocumentsNotifier extends StateNotifier<List<DocumentDraft>> {
   }
 
   void addDocument(DocumentDraft document) {
-    print('📄 Adding document: ${document.title}');
+    debugPrint('📄 Adding document: ${document.title}');
     state = [...state, document];
     _updateDraft();
   }
 
   void updateDocument(int index, DocumentDraft document) {
-    print('📄 Updating document at index $index');
+    debugPrint('📄 Updating document at index $index');
     final updated = List<DocumentDraft>.from(state);
     updated[index] = document;
     state = updated;
@@ -62,7 +63,7 @@ class DocumentsNotifier extends StateNotifier<List<DocumentDraft>> {
   }
 
   void removeDocument(int index) {
-    print('📄 Removing document at index $index');
+    debugPrint('📄 Removing document at index $index');
     final updated = List<DocumentDraft>.from(state)..removeAt(index);
     state = updated;
     _updateDraft();

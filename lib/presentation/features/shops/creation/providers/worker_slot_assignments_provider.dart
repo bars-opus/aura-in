@@ -1,5 +1,6 @@
 // lib/features/shop/workers/providers/slot_assignments_provider.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -24,7 +25,7 @@ final workerSlotWorkerAssignmentsProvider = FutureProvider.family<Map<String, Li
     }
     return assignments;
   } catch (e) {
-    print('Error fetching slot assignments: $e');
+    debugPrint('Error fetching slot assignments: $e');
     return {};
   }
 });

@@ -1,4 +1,5 @@
 // lib/features/freelancer/creation/data/local_freelancer_storage.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/domain/models/freelancer_draft.dart';
@@ -36,7 +37,7 @@ class LocalFreelancerStorage {
 
       return FreelancerDraft.fromJson(safeJson);
     } catch (e) {
-      print('Error loading freelancer draft: $e');
+      debugPrint('Error loading freelancer draft: $e');
       return null;
     }
   }

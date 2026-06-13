@@ -1,5 +1,6 @@
 // lib/features/shops/creation/data/repositories/amenity_repository.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/amenity.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -17,10 +18,10 @@ class AmenityRepository {
           .select('*')
           .order('display_order', ascending: true);
 
-      print('✅ Amenities loaded: ${(response as List).length} amenities found');
+      debugPrint('✅ Amenities loaded: ${(response as List).length} amenities found');
       return (response as List).map((json) => Amenity.fromJson(json)).toList();
     } catch (e) {
-      print('❌ Error loading amenities from database: $e');
+      debugPrint('❌ Error loading amenities from database: $e');
       // Fallback to default amenities if database fetch fails
       return _getDefaultAmenities();
     }
@@ -67,7 +68,7 @@ class AmenityRepository {
           .map((json) => json['amenity_id'] as String)
           .toList();
     } catch (e) {
-      print('Error getting shop amenities: $e');
+      debugPrint('Error getting shop amenities: $e');
       return [];
     }
   }
@@ -91,17 +92,17 @@ class AmenityRepository {
                 .toList();
 
         await _client.from('shop_amenities').insert(assignments);
-        print('✅ Updated shop amenities: ${amenityIds.length} amenities');
+        debugPrint('✅ Updated shop amenities: ${amenityIds.length} amenities');
       }
     } catch (e) {
-      print('❌ Failed to update shop amenities: $e');
+      debugPrint('❌ Failed to update shop amenities: $e');
       throw Exception('Failed to update shop amenities: $e');
     }
   }
 
   /// Default amenities in case database fetch fails (fallback)
   List<Amenity> _getDefaultAmenities() {
-    print('⚠️ Using default amenities (database fetch failed)');
+    debugPrint('⚠️ Using default amenities (database fetch failed)');
     return const [
       Amenity(
         id: 'wifi',

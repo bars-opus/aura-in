@@ -1,5 +1,6 @@
 // lib/features/shop/workers/repositories/worker_repository.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/models/worker_unavailability_model.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/worker_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/worker_invite.dart';
@@ -38,7 +39,7 @@ class WorkerRepository {
         });
       }).toList();
     } catch (e) {
-      print('Error fetching shop workers: $e');
+      debugPrint('Error fetching shop workers: $e');
       return [];
     }
   }
@@ -49,7 +50,7 @@ class WorkerRepository {
       final response = await _client.from('workers').select('*');
       return response.map((json) => WorkerDTO.fromJson(json)).toList();
     } catch (e) {
-      print('Error fetching all workers: $e');
+      debugPrint('Error fetching all workers: $e');
       return [];
     }
   }
@@ -71,7 +72,7 @@ class WorkerRepository {
 
       return response.map((json) => WorkerInvite.fromJson(json)).toList();
     } catch (e) {
-      print('Error fetching pending invites: $e');
+      debugPrint('Error fetching pending invites: $e');
       return [];
     }
   }
@@ -165,7 +166,7 @@ class WorkerRepository {
 
       return response.map((json) => WorkerInvite.fromJson(json)).toList();
     } catch (e) {
-      print('Error fetching worker invites: $e');
+      debugPrint('Error fetching worker invites: $e');
       return [];
     }
   }
@@ -261,7 +262,7 @@ class WorkerRepository {
               .maybeSingle();
       return response;
     } catch (e) {
-      print('Error fetching shop worker: $e');
+      debugPrint('Error fetching shop worker: $e');
       return null;
     }
   }
@@ -287,7 +288,7 @@ class WorkerRepository {
           .map((json) => WorkerUnavailabilityModel.fromJson(json))
           .toList();
     } catch (e) {
-      print('Error fetching unavailability: $e');
+      debugPrint('Error fetching unavailability: $e');
       return [];
     }
   }
@@ -353,7 +354,7 @@ class WorkerRepository {
 
       return response.map((row) => row['worker_id'] as String).toList();
     } catch (e) {
-      print('Error fetching workers for slot: $e');
+      debugPrint('Error fetching workers for slot: $e');
       return [];
     }
   }

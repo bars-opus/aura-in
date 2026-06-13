@@ -14,6 +14,7 @@ import 'package:nano_embryo/presentation/features/shops/creation/domain/models/d
 import 'package:nano_embryo/presentation/features/shops/creation/providers/drafts_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_creation_provider.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'shop_creation.dart';
 
 class DraftsScreen extends ConsumerStatefulWidget {
@@ -260,7 +261,7 @@ class _DraftsScreenState extends ConsumerState<DraftsScreen> {
                       
                       if (storage != null && profileId != null) {
                         final draft = storage.loadDraft(profileId);
-                        print('🔍 TEST: draft content=${draft?.shopName}');
+                        debugPrint('Draft loaded: ${draft != null}');
                       }
 
                       // Navigator.pop(context, true);

@@ -1,4 +1,5 @@
 // lib/features/freelancer/creation/presentation/providers/freelancer_creation_provider.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/data/local_freelancer_storage.dart';
@@ -134,9 +135,9 @@ class FreelancerCreationNotifier extends StateNotifier<FreelancerDraft> {
   // ============ Opening Hours Methods ============
 
   void setOpeningHours(List<OpeningHoursDraft> hours) {
-    print('🔵 DEBUG: Updating opening hours, count: ${hours.length}');
+    debugPrint('🔵 DEBUG: Updating opening hours, count: ${hours.length}');
     state = state.copyWith(openingHours: hours);
-    print('🔵 DEBUG: isHoursComplete: ${state.isHoursComplete}');
+    debugPrint('🔵 DEBUG: isHoursComplete: ${state.isHoursComplete}');
     _persist();
   }
 
@@ -168,29 +169,29 @@ class FreelancerCreationNotifier extends StateNotifier<FreelancerDraft> {
 
   // ============ Media Methods ============
   void addImagePath(String path) {
-    print('🔵 DEBUG: Adding image path: $path');
-    print('🔵 DEBUG: Current images count: ${state.localImagePaths.length}');
+    debugPrint('🔵 DEBUG: Adding image path: $path');
+    debugPrint('🔵 DEBUG: Current images count: ${state.localImagePaths.length}');
 
     if (state.localImagePaths.length >= 10) return;
     state = state.copyWith(localImagePaths: [...state.localImagePaths, path]);
 
-    print('🔵 DEBUG: New images count: ${state.localImagePaths.length}');
-    print('🔵 DEBUG: isMediaComplete: ${state.isMediaComplete}');
+    debugPrint('🔵 DEBUG: New images count: ${state.localImagePaths.length}');
+    debugPrint('🔵 DEBUG: isMediaComplete: ${state.isMediaComplete}');
     _persist();
   }
 
   void removeImagePath(int index) {
-    print('🔵 DEBUG: Removing image at index: $index');
+    debugPrint('🔵 DEBUG: Removing image at index: $index');
     final updated = List<String>.from(state.localImagePaths)..removeAt(index);
     state = state.copyWith(localImagePaths: updated);
-    print('🔵 DEBUG: New images count: ${state.localImagePaths.length}');
-    print('🔵 DEBUG: isMediaComplete: ${state.isMediaComplete}');
+    debugPrint('🔵 DEBUG: New images count: ${state.localImagePaths.length}');
+    debugPrint('🔵 DEBUG: isMediaComplete: ${state.isMediaComplete}');
     _persist();
   }
 
   void updateImagePaths(List<String> paths) {
     state = state.copyWith(localImagePaths: paths);
-    print(
+    debugPrint(
       '🔵 DEBUG: updateImagePaths count: ${paths.length}, isMediaComplete: ${state.isMediaComplete}',
     );
     _persist();
@@ -210,25 +211,25 @@ class FreelancerCreationNotifier extends StateNotifier<FreelancerDraft> {
   }
 
   void updateDocuments(List<DocumentDraft> documents) {
-    print('🔵 DEBUG: Updating documents, count: ${documents.length}');
+    debugPrint('🔵 DEBUG: Updating documents, count: ${documents.length}');
     state = state.copyWith(documents: documents);
-    print('🔵 DEBUG: isDocumentsComplete: ${state.isDocumentsComplete}');
+    debugPrint('🔵 DEBUG: isDocumentsComplete: ${state.isDocumentsComplete}');
     _persist();
   }
 
   // ============ Contact Methods ============
 
   void updateContacts(List<ContactDraft> contacts) {
-    print('🔵 DEBUG: Updating contacts, count: ${contacts.length}');
+    debugPrint('🔵 DEBUG: Updating contacts, count: ${contacts.length}');
     state = state.copyWith(contacts: contacts);
-    print('🔵 DEBUG: isContactComplete: ${state.isContactComplete}');
+    debugPrint('🔵 DEBUG: isContactComplete: ${state.isContactComplete}');
     _persist();
   }
 
   void updateSocialLinks(List<SocialLinkDraft> socialLinks) {
-    print('🔵 DEBUG: Updating social links, count: ${socialLinks.length}');
+    debugPrint('🔵 DEBUG: Updating social links, count: ${socialLinks.length}');
     state = state.copyWith(socialLinks: socialLinks);
-    print('🔵 DEBUG: isSocialComplete: ${state.socialLinks.isNotEmpty}');
+    debugPrint('🔵 DEBUG: isSocialComplete: ${state.socialLinks.isNotEmpty}');
     _persist();
   }
 

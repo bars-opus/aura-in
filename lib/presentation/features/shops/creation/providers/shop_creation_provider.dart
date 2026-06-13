@@ -1,5 +1,6 @@
 // lib/features/shop/creation/presentation/providers/shop_creation_provider.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/core/services/media/image_file_service.dart';
@@ -227,19 +228,8 @@ class ShopCreationNotifier extends StateNotifier<ShopDraft> {
   // In shop_creation_provider.dart
 
   void loadPublishedShop(ShopDraft publishedShop) {
-    print('📝 loadPublishedShop called with: ${publishedShop.shopName}');
-    print('   localImagePaths: ${publishedShop.localImagePaths.length}');
-    print('📝 Loading published shop for editing: ${publishedShop.shopName}');
-    print('   Services: ${publishedShop.services.length}');
-    print('   Amenities: ${publishedShop.amenityIds.length}');
-    print('   Social Links: ${publishedShop.socialLinks.length}');
-    print('   Awards: ${publishedShop.awards.length}');
-    print('   Opening Hours: ${publishedShop.openingHours.length}');
-
     state = publishedShop.copyWith(lastUpdated: DateTime.now());
     _persist();
-    print('   State after update: ${state.shopName}');
-    print('   State localImagePaths: ${state.localImagePaths.length}');
   }
 
   void addSocialLink(SocialLinkDraft link) {

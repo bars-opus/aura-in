@@ -1,5 +1,6 @@
 // lib/features/freelancer/creation/presentation/providers/edit_freelancer_provider.dart
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:nano_embryo/presentation/features/freelancer/creation/domain/models/freelancer_draft.dart';
@@ -179,7 +180,7 @@ class EditFreelancerNotifier extends StateNotifier<EditFreelancerState> {
           paths.add(file.path);
         }
       } catch (e) {
-        print('Failed to download image $i: $e');
+        debugPrint('Failed to download image $i: $e');
       }
     }
     return paths;
@@ -206,7 +207,7 @@ class EditFreelancerNotifier extends StateNotifier<EditFreelancerState> {
           );
         }
       } catch (e) {
-        print('Failed to download document $i: $e');
+        debugPrint('Failed to download document $i: $e');
       }
     }
     return docs;

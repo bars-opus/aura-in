@@ -179,7 +179,7 @@ class EditShopNotifier extends StateNotifier<EditShopState> {
           paths.add(file.path);
         }
       } catch (e) {
-        print('Failed to download image $i: $e');
+        debugPrint('Failed to download image $i: $e');
       }
     }
     return paths;
@@ -208,7 +208,7 @@ class EditShopNotifier extends StateNotifier<EditShopState> {
           );
         }
       } catch (e) {
-        print('Failed to download document $i: $e');
+        debugPrint('Failed to download document $i: $e');
       }
     }
     return docs;

@@ -73,7 +73,7 @@ class PublishShopUseCase {
         shopId: 'temp', // temporary ID, actual shopId will be generated later
       );
 
-      print('✅ Uploaded ${imageUrls.length} professional images'); // Debug
+      debugPrint('Uploaded ${imageUrls.length} shop images');
 
       // 3. Upload documents
       final documentUrls = <String>[];
@@ -86,7 +86,7 @@ class PublishShopUseCase {
         if (url != null) documentUrls.add(url);
       }
 
-      print('✅ Uploaded ${documentUrls.length} documents'); // Debug
+      debugPrint('Uploaded ${documentUrls.length} documents');
 
       // 4. Create shop in database
       final shopId = await _repository.createShop(
@@ -116,7 +116,7 @@ class PublishShopUseCase {
 
       return shopId;
     } catch (e) {
-      print('Error publishing shop: $e');
+      debugPrint('Error publishing shop: $e');
       rethrow;
     }
   }
@@ -186,15 +186,13 @@ class PublishShopUseCase {
   }) async {
     // Don't send if notification service is not available
     if (_notificationService == null) {
-      print(
-        '⚠️ Notification service not available, skipping new shop notification',
-      );
+      debugPrint('Notification service not available, skipping new shop notification');
       return;
     }
 
     // Don't send if location is missing
     if (latitude == null || longitude == null) {
-      print('⚠️ Shop location missing, skipping nearby user notifications');
+      debugPrint('Shop location missing, skipping nearby user notifications');
       return;
     }
 
@@ -204,12 +202,11 @@ class PublishShopUseCase {
         shopName: shopName,
         latitude: latitude,
         longitude: longitude,
-        radiusKm: 10, // 10km radius
+        radiusKm: 10,
       );
-      print('✅ Sent new shop notifications for: $shopName');
+      // No log here — shopName is PII
     } catch (e) {
-      // Don't rethrow - notification failure shouldn't break shop creation
-      print('❌ Failed to send new shop notifications: $e');
+      debugPrint('Failed to send new shop notifications: $e');
     }
   }
 
@@ -262,7 +259,7 @@ class PublishShopUseCase {
         documentUrlsToDelete: documentUrlsToDelete,
       );
     } catch (e) {
-      print('Error updating shop: $e');
+      debugPrint('Error updating shop: $e');
       rethrow;
     }
   }

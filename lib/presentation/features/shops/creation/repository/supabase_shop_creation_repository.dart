@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/contact_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -172,9 +173,9 @@ class SupabaseShopCreationRepository {
       if (!success) {
         try {
           await _deleteShopWithRelatedData(shopId);
-          print('🗑️ Cleaned up orphaned shop: $shopId');
+          debugPrint('🗑️ Cleaned up orphaned shop: $shopId');
         } catch (cleanupError) {
-          print('❌ Failed to clean up orphaned shop: $cleanupError');
+          debugPrint('❌ Failed to clean up orphaned shop: $cleanupError');
         }
       }
       rethrow;
@@ -214,7 +215,7 @@ class SupabaseShopCreationRepository {
     try {
       await _client.rpc('delete_shop', params: {'p_shop_id': shopId});
     } catch (e) {
-      print('Error deleting shop: $e');
+      debugPrint('Error deleting shop: $e');
       rethrow;
     }
   }
@@ -269,7 +270,7 @@ class SupabaseShopCreationRepository {
         }
       }
     } catch (e) {
-      print('Error updating service worker assignments: $e');
+      debugPrint('Error updating service worker assignments: $e');
       rethrow;
     }
   }
@@ -482,7 +483,7 @@ class SupabaseShopCreationRepository {
 
       // Contacts are handled in section 3 above.
     } catch (e) {
-      print('Error updating shop: $e');
+      debugPrint('Error updating shop: $e');
       rethrow;
     }
   }
@@ -498,7 +499,7 @@ class SupabaseShopCreationRepository {
           .upload(path, image, fileOptions: const FileOptions(upsert: true));
       return _client.storage.from('shop-media').getPublicUrl(path);
     } catch (e) {
-      print('Error uploading shop logo: $e');
+      debugPrint('Error uploading shop logo: $e');
       return null;
     }
   }
@@ -518,10 +519,10 @@ class SupabaseShopCreationRepository {
         final filePath = pathSegments.sublist(bucketIndex + 1).join('/'); 
 
         await _client.storage.from(bucket).remove([filePath]);
-        print('✅ Deleted from storage: $bucket/$filePath');
+        debugPrint('✅ Deleted from storage: $bucket/$filePath');
       }
     } catch (e) {
-      print('⚠️ Failed to delete from storage: $e');
+      debugPrint('⚠️ Failed to delete from storage: $e');
       // Don't throw - database record will still be deleted
     }
   }

@@ -1,5 +1,6 @@
 // lib/features/shop/creation/data/local_draft_storage.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import '../domain/models/shop_draft.dart';
@@ -38,7 +39,7 @@ class LocalDraftStorage {
 
       return ShopDraft.fromJson(safeJson);
     } catch (e) {
-      print('Error loading draft: $e');
+      debugPrint('Error loading draft: $e');
       return null;
     }
   }
