@@ -1,12 +1,14 @@
 // lib/features/shop/creation/presentation/widgets/document_picker_sheet.dart
 
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
-import 'package:nano_embryo/core/providers/media_%20service_providers.dart';
 import 'package:nano_embryo/core/utils/bottom_sheet_utils.dart';
 import 'package:nano_embryo/core/utils/date_formatter.dart';
 import 'package:nano_embryo/core/widgets/app_filer_chip.dart';
@@ -32,7 +34,6 @@ class DocumentPickerSheet extends ConsumerStatefulWidget {
 
 class _DocumentPickerSheetState extends ConsumerState<DocumentPickerSheet> {
   DocumentType? _selectedType;
-  String? _title;
   DateTime? _expiryDate;
   bool _isLoading = false;
   final _titleController = TextEditingController();
@@ -100,11 +101,7 @@ class _DocumentPickerSheetState extends ConsumerState<DocumentPickerSheet> {
             label: 'Document Title (optional)',
             hintText: 'e.g., "Business License 2024"',
             prefixIcon: Icons.title,
-            onChanged: (value) {
-              setState(() {
-                _title = value.isEmpty ? null : value;
-              });
-            },
+            onChanged: (_) {},
           ),
 
           Gap(Spacing.md.h),
@@ -114,31 +111,16 @@ class _DocumentPickerSheetState extends ConsumerState<DocumentPickerSheet> {
 
           Gap(Spacing.lg.h),
 
-          // Upload Options
+          // Upload option
           CardInkWell(
             margin: EdgeInsets.only(bottom: Spacing.md.h),
             child: Column(
               children: [
                 InfoRowWidget(
-                  title: 'Choose from gallery',
-                  subtitle: 'Select an existing document',
-                  icon: Icons.photo_library,
-                  onTap:
-                      _selectedType == null
-                          ? null
-                          : () => _pickDocument(fromCamera: false),
-                  showAvatar: false,
-                  showTrailingArrow: false,
-                ),
-                Gap(Spacing.sm.h),
-                InfoRowWidget(
-                  title: 'Take a photo',
-                  subtitle: 'Capture a new document',
-                  icon: Icons.camera_alt,
-                  onTap:
-                      _selectedType == null
-                          ? null
-                          : () => _pickDocument(fromCamera: true),
+                  title: 'Choose file',
+                  subtitle: 'PDF, JPG, or PNG · max 10 MB',
+                  icon: Icons.upload_file,
+                  onTap: _selectedType == null ? null : _pickDocument,
                   showAvatar: false,
                   showTrailingArrow: false,
                 ),
@@ -187,7 +169,6 @@ class _DocumentPickerSheetState extends ConsumerState<DocumentPickerSheet> {
                     // Auto-fill title with type name if not customized
                     if (selected && _titleController.text.isEmpty) {
                       _titleController.text = type.displayName;
-                      _title = type.displayName;
                     }
                   });
                 },
@@ -276,48 +257,43 @@ class _DocumentPickerSheetState extends ConsumerState<DocumentPickerSheet> {
             ),
       ),
     );
-
-    setState(() {
-      _expiryDate = initialDate;
-    });
   }
 
-  Future<void> _pickDocument({required bool fromCamera}) async {
+  Future<void> _pickDocument() async {
     if (_selectedType == null) return;
-
     setState(() => _isLoading = true);
 
     try {
-      final imagePicker = ref.read(imagePickerServiceProvider);
-      final file = await imagePicker.pickImage(
-        fromCamera: fromCamera,
-        crop: false, // Don't crop documents
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+        withData: false,
+        allowMultiple: false,
       );
 
-      if (file != null && mounted) {
-        // Create document draft with all metadata
-        final document = DocumentDraft(
-          type: _selectedType!,
-          title:
-              _titleController.text.isNotEmpty
-                  ? _titleController.text
-                  : _selectedType!.displayName,
-          file: file,
-          expiryDate: _expiryDate,
-          isVerified: false, // Always false initially
-        );
+      if (result == null || result.files.isEmpty || result.files.first.path == null) {
+        return;
+      }
 
-        widget.onDocumentPicked(document);
-        Navigator.pop(context); // Close picker
-      }
+      final file = File(result.files.first.path!);
+      if (!mounted) return;
+
+      final document = DocumentDraft(
+        type: _selectedType!,
+        title: _titleController.text.isNotEmpty
+            ? _titleController.text
+            : _selectedType!.displayName,
+        file: file,
+        expiryDate: _expiryDate,
+        isVerified: false,
+      );
+
+      widget.onDocumentPicked(document);
+      if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) {
-        context.showErrorSnackbar('Error picking document: $e');
-      }
+      if (mounted) context.showErrorSnackbar('Error picking document: $e');
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 }
