@@ -37,6 +37,21 @@ class ServicesNotifier extends StateNotifier<List<AppointmentSlotDTO>>
     _updateDraft();
   }
 
+  void updateServiceById(String id, AppointmentSlotDTO service) {
+    final idx = state.indexWhere((s) => s.id == id);
+    if (idx == -1) return;
+    final updated = List<AppointmentSlotDTO>.from(state);
+    updated[idx] = service;
+    state = updated;
+    _updateDraft();
+  }
+
+  void removeServiceById(String id) {
+    saveSnapshot();
+    state = state.where((s) => s.id != id).toList();
+    _updateDraft();
+  }
+
   void reorderServices(int oldIndex, int newIndex) {
     if (oldIndex < newIndex) newIndex -= 1;
     final services = List<AppointmentSlotDTO>.from(state);

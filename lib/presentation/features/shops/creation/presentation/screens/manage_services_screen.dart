@@ -139,9 +139,7 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
                               ServiceTicketWidget(
                                 service: service,
                                 isSelected: false,
-                                onTap:
-                                    () =>
-                                        _editService(services.indexOf(service)),
+                                onTap: () => _editServiceById(service),
                                 currency: currencyCode,
                                 showWorkerIndicator:
                                     service.selectPreferredWorker,
@@ -156,19 +154,14 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
                                     _buildActionButton(
                                       icon: Icons.edit,
                                       color: theme.colorScheme.primary,
-                                      onTap:
-                                          () => _editService(
-                                            services.indexOf(service),
-                                          ),
+                                      onTap: () => _editServiceById(service),
                                     ),
                                     SizedBox(width: 4.w),
                                     _buildActionButton(
                                       icon: Icons.delete,
                                       color: theme.colorScheme.error,
-                                      onTap:
-                                          () => _deleteServiceConfirm(
-                                            services.indexOf(service),
-                                          ),
+                                      onTap: () =>
+                                          _deleteServiceConfirmById(service.id),
                                     ),
                                     if (services.length > 1)
                                       _buildActionButton(
@@ -410,78 +403,36 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
     );
   }
 
-  void _editService(int index) {
-    final service = ref.read(servicesProvider)[index];
+  void _editServiceById(AppointmentSlotDTO service) {
     final workersAsync = ref.read(shopActiveWorkersProvider(widget.shopId));
 
+    void openForm(List<dynamic> workers) {
+      if (!mounted) return;
+      BottomSheetUtils.showDocumentationBottomSheet(
+        context: context,
+        maxHeight: 650.h,
+        widget: ServiceFormModal(
+          initialService: service,
+          onSave: (updatedService) {
+            ref
+                .read(servicesProvider.notifier)
+                .updateServiceById(service.id, updatedService);
+          },
+          shopId: widget.shopId,
+          availableWorkers: workers.cast(),
+          availableHours: ref.read(hoursProvider),
+        ),
+      );
+    }
+
     workersAsync.when(
-      data: (workers) {
-        if (mounted) {
-          // ✅ FIX: Pass initialService and index in the data branch too!
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (context) => ServiceFormModal(
-                    initialService: service, // Add this
-                    index: index, // Add this
-                    onSave: (updatedService) {
-                      ref
-                          .read(servicesProvider.notifier)
-                          .updateService(index, updatedService);
-                    },
-                    shopId: widget.shopId,
-                    availableWorkers: workers,
-                    availableHours: ref.read(hoursProvider),
-                  ),
-            ),
-          );
-        }
-      },
-      loading: () {
-        if (mounted) {
-          BottomSheetUtils.showDocumentationBottomSheet(
-            context: context,
-            maxHeight: 650.h,
-            widget: ServiceFormModal(
-              initialService: service,
-              index: index,
-              onSave: (updatedService) {
-                ref
-                    .read(servicesProvider.notifier)
-                    .updateService(index, updatedService);
-              },
-              shopId: widget.shopId,
-              availableWorkers: const [],
-              availableHours: ref.read(hoursProvider),
-            ),
-          );
-        }
-      },
-      error: (error, _) {
-        if (mounted) {
-          BottomSheetUtils.showDocumentationBottomSheet(
-            context: context,
-            maxHeight: 650.h,
-            widget: ServiceFormModal(
-              initialService: service,
-              index: index,
-              onSave: (updatedService) {
-                ref
-                    .read(servicesProvider.notifier)
-                    .updateService(index, updatedService);
-              },
-              shopId: widget.shopId,
-              availableWorkers: const [],
-              availableHours: ref.read(hoursProvider),
-            ),
-          );
-        }
-      },
+      data: openForm,
+      loading: () => openForm(const []),
+      error: (_, __) => openForm(const []),
     );
   }
 
-  void _deleteServiceConfirm(int index) {
+  void _deleteServiceConfirmById(String serviceId) {
     BottomSheetUtils.showDocumentationBottomSheet(
       context: context,
       maxHeight: 400,
@@ -491,22 +442,14 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
         message: 'Are you sure you want to delete this service?',
         confirmText: 'Delete',
         onConfirm: () {
-          _deleteService(index);
+          ref.read(servicesProvider.notifier).removeServiceById(serviceId);
+          UndoService.showUndoSnackbar(
+            context: context,
+            message: 'Service deleted',
+            onUndo: () => ref.read(servicesProvider.notifier).undo(),
+          );
         },
       ),
-    );
-  }
-
-  void _deleteService(int index) {
-    ref.read(servicesProvider.notifier).saveSnapshot();
-    ref.read(servicesProvider.notifier).removeService(index);
-
-    UndoService.showUndoSnackbar(
-      context: context,
-      message: 'Service deleted',
-      onUndo: () {
-        ref.read(servicesProvider.notifier).undo();
-      },
     );
   }
 
