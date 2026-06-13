@@ -30,6 +30,33 @@ class AppointmentActions extends ConsumerStatefulWidget {
 }
 
 class _AppointmentActionsState extends ConsumerState<AppointmentActions> {
+  bool _busy = false;
+
+  Future<void> _runMutation({
+    required String op,
+    required String loadingMessage,
+    required String successMessage,
+    required Future<void> Function() action,
+  }) async {
+    if (_busy || !mounted) return;
+    setState(() => _busy = true);
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    context.showLoadingSnackbar(loadingMessage);
+    try {
+      await action();
+      if (!mounted) return;
+      messenger?.hideCurrentSnackBar();
+      context.showSuccessSnackbar(successMessage);
+    } catch (e, st) {
+      BookingLogger.error(op, error: e, stack: st);
+      if (!mounted) return;
+      messenger?.hideCurrentSnackBar();
+      context.showErrorSnackbar(BookingErrorMessages.forUser(e));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheduleNotifier = ref.read(
@@ -57,50 +84,32 @@ class _AppointmentActionsState extends ConsumerState<AppointmentActions> {
                     AppIconButton(
                       icon: Icons.check_circle_outline,
                       iconColor: colorScheme.onPrimary,
-                      onPressed: () {
-                        BottomSheetUtils.showDocumentationBottomSheet(
-                          context: context,
-                          widget: ConfirmationDialog(
-                            type: ConfirmationType.info,
-                            icon: Icons.check_circle,
-                            title: 'Mark as Completed',
-                            confirmText: 'Complete',
-                            message:
-                                'Are you sure you want to mark this appointment as completed?',
-                            onConfirm: () async {
-                              context.showLoadingSnackbar(
-                                'Marking as completed...',
+                      onPressed: _busy
+                          ? null
+                          : () {
+                              BottomSheetUtils.showDocumentationBottomSheet(
+                                context: context,
+                                widget: ConfirmationDialog(
+                                  type: ConfirmationType.info,
+                                  icon: Icons.check_circle,
+                                  title: 'Mark as Completed',
+                                  confirmText: 'Complete',
+                                  message:
+                                      'Are you sure you want to mark this appointment as completed?',
+                                  onConfirm: () => _runMutation(
+                                    op: 'mark_complete_failed',
+                                    loadingMessage: 'Marking as completed...',
+                                    successMessage:
+                                        'Appointment marked as completed',
+                                    action: () => scheduleNotifier
+                                        .markBookingAsCompleted(
+                                          widget.bookingId,
+                                          widget.startTime,
+                                        ),
+                                  ),
+                                ),
                               );
-
-                              try {
-                                await scheduleNotifier.markBookingAsCompleted(
-                                  widget.bookingId,
-                                  widget.startTime,
-                                );
-
-                                if (mounted) {
-                                  Snackbar.hide(context);
-                                  context.showSuccessSnackbar(
-                                    'Appointment marked as completed',
-                                  );
-                                }
-                              } catch (e, st) {
-                                BookingLogger.error(
-                                  'mark_complete_failed',
-                                  error: e,
-                                  stack: st,
-                                );
-                                if (mounted) {
-                                  Snackbar.hide(context);
-                                  context.showErrorSnackbar(
-                                    BookingErrorMessages.forUser(e),
-                                  );
-                                }
-                              }
                             },
-                          ),
-                        );
-                      },
                       tooltip: 'Mark Complete',
                     ),
 
@@ -109,50 +118,32 @@ class _AppointmentActionsState extends ConsumerState<AppointmentActions> {
                     AppIconButton(
                       icon: Icons.person_off_outlined,
                       iconColor: colorScheme.onPrimary,
-                      onPressed: () {
-                        BottomSheetUtils.showDocumentationBottomSheet(
-                          context: context,
-                          widget: ConfirmationDialog(
-                            type: ConfirmationType.warning,
-                            icon: Icons.person_off_outlined,
-                            title: 'Mark as No-Show',
-                            confirmText: 'Mark No-Show',
-                            message:
-                                'Mark this client as no-show? This will affect their record.',
-                            onConfirm: () async {
-                              context.showLoadingSnackbar(
-                                'Marking as no-show...',
+                      onPressed: _busy
+                          ? null
+                          : () {
+                              BottomSheetUtils.showDocumentationBottomSheet(
+                                context: context,
+                                widget: ConfirmationDialog(
+                                  type: ConfirmationType.warning,
+                                  icon: Icons.person_off_outlined,
+                                  title: 'Mark as No-Show',
+                                  confirmText: 'Mark No-Show',
+                                  message:
+                                      'Mark this client as no-show? This will affect their record.',
+                                  onConfirm: () => _runMutation(
+                                    op: 'mark_no_show_failed',
+                                    loadingMessage: 'Marking as no-show...',
+                                    successMessage:
+                                        'Client marked as no-show',
+                                    action: () => scheduleNotifier
+                                        .markBookingAsNoShow(
+                                          widget.bookingId,
+                                          widget.startTime,
+                                        ),
+                                  ),
+                                ),
                               );
-
-                              try {
-                                await scheduleNotifier.markBookingAsNoShow(
-                                  widget.bookingId,
-                                  widget.startTime,
-                                );
-
-                                if (mounted) {
-                                  Snackbar.hide(context);
-                                  context.showSuccessSnackbar(
-                                    'Client marked as no-show',
-                                  );
-                                }
-                              } catch (e, st) {
-                                BookingLogger.error(
-                                  'mark_no_show_failed',
-                                  error: e,
-                                  stack: st,
-                                );
-                                if (mounted) {
-                                  Snackbar.hide(context);
-                                  context.showErrorSnackbar(
-                                    BookingErrorMessages.forUser(e),
-                                  );
-                                }
-                              }
                             },
-                          ),
-                        );
-                      },
                       tooltip: 'Mark No-Show',
                     ),
 
