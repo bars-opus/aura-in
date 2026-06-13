@@ -188,7 +188,7 @@ class _DailyScheduleScreenState extends ConsumerState<DailyScheduleScreen> {
             startTime: booking.startTime,
             endTime: booking.endTime,
             bookingId: booking.id,
-            totalAmount: booking.totalAmount,
+            totalAmountMinor: booking.totalAmountMinor,
             shopCurrency: booking.shopCurrency,
             shopType: '@${booking.userName}',
             shopName: booking.clientName,

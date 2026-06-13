@@ -490,8 +490,7 @@ class _BookingConfirmationScreenState
               startTime: booking.startTime,
               endTime: booking.endTime,
               bookingId: booking.id,
-              // Phase 17: BookingDetailScreen still major-units until Wave 5.6.
-              totalAmount: booking.totalAmountMinor / 100,
+              totalAmountMinor: booking.totalAmountMinor,
               preLoadedBookingDetail: booking,
               shopType: widget.shopType,
               shopName: widget.shopName,

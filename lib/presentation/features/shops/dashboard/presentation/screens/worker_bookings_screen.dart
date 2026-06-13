@@ -153,7 +153,7 @@ class _WorkerBookingsScreenState extends ConsumerState<WorkerBookingsScreen> {
           return ClientBookingCard(
             startTime: booking.startTime,
             endTime: booking.endTime,
-            totalAmount: booking.totalAmount,
+            totalAmountMinor: booking.totalAmountMinor,
             shopCurrency: booking.shopCurrency,
             shopType: booking.userName,
             shopName: booking.clientName,

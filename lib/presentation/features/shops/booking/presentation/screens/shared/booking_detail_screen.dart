@@ -1,3 +1,4 @@
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/models/status_config.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/appointment_actions.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/status_widget.dart';
@@ -13,7 +14,10 @@ class BookingDetailScreen extends ConsumerStatefulWidget {
   final String shopType;
   final String? shopLogoUrl;
   final String shopAddress;
-  final double totalAmount;
+
+  /// Money in int minor units (kobo / cents). Display via [formatMoney].
+  /// Checklist v3.1 P0-U 2.19.
+  final int totalAmountMinor;
   final BookingModel? preLoadedBookingDetail;
   final bool isShopOwner;
 
@@ -31,7 +35,7 @@ class BookingDetailScreen extends ConsumerStatefulWidget {
     required this.shopType,
     required this.shopLogoUrl,
     required this.shopName,
-    required this.totalAmount,
+    required this.totalAmountMinor,
     required this.isShopOwner,
     required this.preLoadedBookingDetail,
     this.onMarkComplete,
@@ -115,8 +119,10 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
                         child: Align(
                           alignment: Alignment.centerRight,
                           child: Text(
-                            '${widget.shopCurrency} ${widget.totalAmount.toString()}',
-                            // _formatDate(booking.startTime),
+                            formatMoney(
+                              widget.totalAmountMinor,
+                              widget.shopCurrency,
+                            ),
                             style: Theme.of(
                               context,
                             ).textTheme.titleLarge?.copyWith(

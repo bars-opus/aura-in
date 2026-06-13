@@ -1,13 +1,19 @@
 import 'package:equatable/equatable.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 
 /// Minimal booking model for client calendar view.
 /// Contains only what a client needs to see in the calendar list.
+///
+/// Money is stored as int minor units (kobo / cents). The conversion from
+/// the NUMERIC(12,2) wire format happens in [fromJson] via
+/// [parseMoneyMinor]. Display via `formatMoney(totalAmountMinor, currency)`.
+/// Checklist v3.1 P0-U 2.19.
 class ClientCalendarBooking extends Equatable {
   final String id;
   final DateTime startTime;
   final DateTime endTime;
   final String status;
-  final double totalAmount;
+  final int totalAmountMinor;
 
   // Shop info (minimal)
   final String shopName;
@@ -24,7 +30,7 @@ class ClientCalendarBooking extends Equatable {
     required this.startTime,
     required this.endTime,
     required this.status,
-    required this.totalAmount,
+    required this.totalAmountMinor,
     required this.shopName,
     required this.shopType,
     required this.shopCurrency,
@@ -87,14 +93,16 @@ class ClientCalendarBooking extends Equatable {
     }
 
     final status = json['status'] as String? ?? 'pending';
-    final totalAmount = (json['total_amount'] as num?)?.toDouble() ?? 0.0;
+    final totalAmountMinor = json['total_amount'] == null
+        ? 0
+        : parseMoneyMinor(json['total_amount'] as num);
 
     return ClientCalendarBooking(
       id: id,
       startTime: DateTime.parse(startTimeStr),
       endTime: DateTime.parse(endTimeStr),
       status: status,
-      totalAmount: totalAmount,
+      totalAmountMinor: totalAmountMinor,
       shopName: shopName.isEmpty ? 'Shop' : shopName, // Only fallback if empty
       shopLogoUrl: shopLogoUrl ?? '',
       serviceName: serviceName,
@@ -104,14 +112,15 @@ class ClientCalendarBooking extends Equatable {
   }
 
   /// Converts the ClientCalendarBooking instance to a JSON map.
+  /// Money is emitted as major-unit decimal to match the NUMERIC(12,2)
+  /// column type — never as int minor.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'start_time': startTime.toIso8601String(), // Use ISO 8601 for DateTime
       'end_time': endTime.toIso8601String(),
       'status': status,
-
-      'total_amount': totalAmount,
+      'total_amount': totalAmountMinor / 100,
       'shop': {
         'shop_name': shopName,
         'shop_type': shopType,
@@ -132,7 +141,7 @@ class ClientCalendarBooking extends Equatable {
     startTime,
     endTime,
     status,
-    totalAmount,
+    totalAmountMinor,
     shopName,
     shopType,
     shopLogoUrl,

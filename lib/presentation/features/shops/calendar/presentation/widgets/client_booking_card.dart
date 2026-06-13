@@ -1,4 +1,5 @@
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/booking_detail_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/status_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/client/countdown_widget.dart';
@@ -13,7 +14,10 @@ class ClientBookingCard extends StatelessWidget {
   final String? shopLogoUrl;
   final String shopAddress;
   final String serviceName;
-  final double totalAmount;
+
+  /// Money in int minor units (kobo / cents). Display via [formatMoney].
+  /// Checklist v3.1 P0-U 2.19 — never store money as double here.
+  final int totalAmountMinor;
   final String status;
   final bool isShopOwner;
   final bool shouldPop;
@@ -29,7 +33,7 @@ class ClientBookingCard extends StatelessWidget {
     required this.shopType,
     required this.shopLogoUrl,
     required this.shopName,
-    required this.totalAmount,
+    required this.totalAmountMinor,
     required this.serviceName,
     required this.shouldPop,
     required this.status,
@@ -39,9 +43,8 @@ class ClientBookingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   
     return InfoRowWidget(
-      title: '$serviceName\n$shopCurrency ${totalAmount.toString()}',
+      title: '$serviceName\n${formatMoney(totalAmountMinor, shopCurrency)}',
       subtitle: '$shopName\n$shopType',
       imageUrl: shopLogoUrl,
       icon: shopLogoUrl == null ? Icons.person : null,
@@ -52,34 +55,29 @@ class ClientBookingCard extends StatelessWidget {
         children: [
           CountdownStreamWidget(
             targetDate: endTime,
-            // textStyle: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
           ),
-         
           Gap(10.h),
           StatusWidget(status: status, showLabel: false),
         ],
       ),
-      // avatarRadius: 20.h,
       onTap: () {
         if (shouldPop) {
           Navigator.pop(context);
         }
         _navigateToDetail(context);
       },
-
       showTrailingArrow: false,
     );
   }
 
   void _navigateToDetail(BuildContext context) {
     BottomSheetUtils.showDocumentationBottomSheet(
-      // maxHeight: 320.h,
       context: context,
       widget: BookingDetailScreen(
         startTime: startTime,
         endTime: endTime,
         bookingId: bookingId,
-        totalAmount: totalAmount,
+        totalAmountMinor: totalAmountMinor,
         preLoadedBookingDetail: null,
         shopCurrency: shopCurrency,
         shopType: shopType,

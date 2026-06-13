@@ -88,7 +88,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
                         child: ClientBookingCard(
                           startTime: booking.startTime,
                           endTime: booking.endTime,
-                          totalAmount: booking.totalAmount,
+                          totalAmountMinor: booking.totalAmountMinor,
                           shopCurrency: booking.shopCurrency,
                           shopType: '@${booking.userName}',
                           shopName: booking.clientName,
@@ -113,7 +113,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
                           startTime: booking.startTime,
                           endTime: booking.endTime,
                           bookingId: booking.id,
-                          totalAmount: booking.totalAmount,
+                          totalAmountMinor: booking.totalAmountMinor,
                           shopCurrency: booking.shopCurrency,
                           shopType: booking.shopType,
                           shopName: booking.shopName,

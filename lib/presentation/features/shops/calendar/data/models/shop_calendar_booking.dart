@@ -1,14 +1,17 @@
 import 'package:equatable/equatable.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 
 /// Minimal booking model for shop owner calendar view.
 /// Contains only what a shop owner needs to see in the calendar list.
-
+///
+/// Money is stored as int minor units (kobo / cents). Conversion happens
+/// at the JSON boundary via [parseMoneyMinor]. Checklist v3.1 P0-U 2.19.
 class ShopCalendarBooking extends Equatable {
   final String id;
   final DateTime startTime;
   final DateTime endTime;
   final String status;
-  final double totalAmount;
+  final int totalAmountMinor;
   final String shopCurrency;
 
   // Client info (minimal)
@@ -25,7 +28,7 @@ class ShopCalendarBooking extends Equatable {
     required this.endTime,
     required this.status,
     required this.userName, // Now userName
-    required this.totalAmount,
+    required this.totalAmountMinor,
     required this.clientName,
     required this.shopCurrency,
     this.clientAvatarUrl,
@@ -88,7 +91,9 @@ class ShopCalendarBooking extends Equatable {
               ? DateTime.parse(json['end_time'] as String)
               : DateTime.now(),
       status: json['status'] as String? ?? 'pending',
-      totalAmount: (json['total_amount'] as num?)?.toDouble() ?? 0.0,
+      totalAmountMinor: json['total_amount'] == null
+          ? 0
+          : parseMoneyMinor(json['total_amount'] as num),
       clientName: clientName,
       userName: userName,
       clientAvatarUrl: clientAvatarUrl,
@@ -104,7 +109,7 @@ class ShopCalendarBooking extends Equatable {
       'start_time': startTime.toIso8601String(),
       'end_time': endTime.toIso8601String(),
       'status': status,
-      'total_amount': totalAmount,
+      'total_amount': totalAmountMinor / 100,
       'client': {
         'display_name': clientName,
         'username': userName,
@@ -125,7 +130,7 @@ class ShopCalendarBooking extends Equatable {
     startTime,
     endTime,
     status,
-    totalAmount,
+    totalAmountMinor,
     clientName,
     userName,
     clientAvatarUrl,
