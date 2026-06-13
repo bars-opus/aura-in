@@ -13,6 +13,7 @@ import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/service_selection/service_category_chips.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/service_selection/service_ticket_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/service_form_modal.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/service_templates_sheet.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/appointmetn_workers_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/hours_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/services_provider.dart';
@@ -199,6 +200,12 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
         ],
       ),
 
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'templates_fab',
+        onPressed: _showTemplatesSheet,
+        icon: const Icon(Icons.auto_awesome),
+        label: const Text('Templates'),
+      ),
       bottomNavigationBar:
           services.isNotEmpty
               ? SafeArea(
@@ -332,6 +339,25 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
     return services.where((s) => s.serviceName == _selectedCategory).toList();
   }
 
+  void _showTemplatesSheet() {
+    final draft = ref.read(shopCreationProvider);
+    if (draft.shopType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Set your shop type in Basics first')),
+      );
+      return;
+    }
+    BottomSheetUtils.showDocumentationBottomSheet(
+      context: context,
+      maxHeight: 600.h,
+      widget: ServiceTemplatesSheet(
+        shopType: draft.shopType!,
+        currencySymbol: draft.currencySymbol,
+        onTemplateSelected: (prefilled) => _editServiceById(prefilled),
+      ),
+    );
+  }
+
   void _showAddServiceModal() {
     final workersAsync = ref.read(shopActiveWorkersProvider(widget.shopId));
 
@@ -409,6 +435,7 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
 
   void _editServiceById(AppointmentSlotDTO service) {
     final workersAsync = ref.read(shopActiveWorkersProvider(widget.shopId));
+    final isNew = service.id.isEmpty; // template pre-fill case
 
     void openForm(List<dynamic> workers) {
       if (!mounted) return;
@@ -418,9 +445,11 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
         widget: ServiceFormModal(
           initialService: service,
           onSave: (updatedService) {
-            ref
-                .read(servicesProvider.notifier)
-                .updateServiceById(service.id, updatedService);
+            if (isNew) {
+              ref.read(servicesProvider.notifier).addService(updatedService);
+            } else {
+              ref.read(servicesProvider.notifier).updateServiceById(service.id, updatedService);
+            }
           },
           shopId: widget.shopId,
           availableWorkers: workers.cast(),
