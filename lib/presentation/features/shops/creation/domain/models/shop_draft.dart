@@ -10,6 +10,8 @@ import 'package:nano_embryo/presentation/features/shops/creation/domain/models/s
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/award_dto.dart';
 
+const _keepLastUpdated = Object();
+
 /// Represents a draft of a shop being created.
 /// All fields are optional; they become non-null only when the user completes that section.
 class ShopDraft extends Equatable {
@@ -116,7 +118,7 @@ class ShopDraft extends Equatable {
     List<OpeningHoursDraft>? openingHours,
     List<String>? localImagePaths,
     String? localLogoPath,
-    DateTime? lastUpdated,
+    Object? lastUpdated = _keepLastUpdated,
     String? profileId,
     List<String>? amenityIds,
     List<DocumentDraft>? documents,
@@ -144,7 +146,9 @@ class ShopDraft extends Equatable {
       openingHours: openingHours ?? this.openingHours,
       localImagePaths: localImagePaths ?? this.localImagePaths,
       localLogoPath: localLogoPath ?? this.localLogoPath,
-      lastUpdated: lastUpdated ?? DateTime.now(),
+      lastUpdated: identical(lastUpdated, _keepLastUpdated)
+          ? DateTime.now()
+          : lastUpdated as DateTime?,
       profileId: profileId ?? this.profileId,
       currencyCode: currencyCode ?? this.currencyCode,
       amenityIds: amenityIds ?? this.amenityIds,
@@ -300,7 +304,7 @@ class ShopDraft extends Equatable {
       shopType != null &&
       localLogoPath != null;
   bool get isLocationComplete =>
-      address != null; // lat/lng can be derived later
+      address != null && latitude != null && longitude != null;
   bool get isContactComplete => phone != null || email != null;
   bool get isServicesComplete => services.isNotEmpty;
   bool get isAmenitiesComplete => amenityIds.isNotEmpty;
@@ -410,7 +414,6 @@ class ShopDraft extends Equatable {
     openingHours.length,
     localImagePaths.length,
     localLogoPath,
-    lastUpdated,
     profileId,
     currencyCode,
     currencySymbol,
