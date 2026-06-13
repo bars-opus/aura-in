@@ -16,6 +16,29 @@ import 'package:nano_embryo/presentation/features/shops/creation/domain/models/o
 
 final _selectedDaysProvider = StateProvider<List<int>>((ref) => []);
 
+/// Predefined service sub-types per shop type.
+const _kServiceSubTypes = {
+  'Salon': [
+    'Haircut', 'Hair Colour', 'Highlights', 'Blowout', 'Brazilian Blowout',
+    'Box Braids', 'Cornrows', 'Senegalese Twist', 'Locs', 'Afro',
+    'Weave', 'Wig Install', 'Natural Styling', 'Relaxer', 'Keratin',
+  ],
+  'Barbershop': [
+    'Fade', 'Low Fade', 'High Fade', 'Skin Fade', 'Taper',
+    'Lineup', 'Shape-Up', 'Beard Trim', 'Hot Towel Shave', 'Edge-Up',
+    'Kids Cut', 'Bald Cut', 'Design Cut', 'Afro Trim',
+  ],
+  'Spa': [
+    'Swedish Massage', 'Deep Tissue', 'Hot Stone', 'Aromatherapy',
+    'Facial', 'Hydrafacial', 'Body Wrap', 'Scrub', 'Waxing',
+    'Eyebrow Threading', 'Eyelash Extensions', 'Foot Massage',
+  ],
+  'Nail Salon': [
+    'Manicure', 'Pedicure', 'Gel Nails', 'Acrylic Nails', 'Nail Art',
+    'Nail Repair', 'Dip Powder', 'French Tips', 'Ombre Nails', 'Chrome Nails',
+  ],
+};
+
 class ServiceFormModal extends ConsumerStatefulWidget {
   final AppointmentSlotDTO? initialService;
   final int? index;
@@ -61,6 +84,8 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
   List<OpeningHoursDraft> _shopHours = [];
   bool _isLoadingHours = true;
   bool _hasHoursError = false;
+  bool _useCustomSubType = false;
+  late TextEditingController _customSubTypeController;
 
   final List<String> _dayNames = [
     'Monday',
@@ -98,6 +123,15 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
     _selectPreferredWorker =
         widget.initialService?.selectPreferredWorker ?? false;
     _selectedWorkerIds = List.from(widget.initialService?.workerIds ?? []);
+
+    // Sub-type: detect if initialService has a custom (non-predefined) type.
+    _customSubTypeController = TextEditingController();
+    final predefined = _kServiceSubTypes[widget.shopType] ?? [];
+    final existingType = widget.initialService?.serviceType ?? '';
+    if (existingType.isNotEmpty && predefined.isNotEmpty && !predefined.contains(existingType)) {
+      _useCustomSubType = true;
+      _customSubTypeController.text = existingType;
+    }
 
     // Initialize selected days
     final initialDays = widget.initialService?.daysOfWeek ?? [];
@@ -138,10 +172,14 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
   void dispose() {
     _nameController.dispose();
     _typeController.dispose();
+    _customSubTypeController.dispose();
     _priceController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
+
+  List<String> _getPredefinedSubTypes() =>
+      _kServiceSubTypes[widget.shopType] ?? [];
 
   @override
   Widget build(BuildContext context) {
@@ -213,19 +251,7 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
                                         ? 'Service name is required'
                                         : null,
                           ),
-                          // Service Type (new field)
-                          AppTextFormField(
-                            controller: _typeController,
-                            label: 'Service Type',
-                            hintText:
-                                'e.g., Afro, Fade, Box Braids, Full Color',
-                            prefixIcon: Icons.label,
-                            validator:
-                                (value) =>
-                                    (value == null || value.isEmpty)
-                                        ? 'Service type is required'
-                                        : null,
-                          ),
+                          _buildSubTypePicker(theme),
                         ],
                       ),
                     ),
@@ -481,6 +507,66 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
     );
   }
 
+  Widget _buildSubTypePicker(ThemeData theme) {
+    final predefined = _getPredefinedSubTypes();
+    final selected = _useCustomSubType ? null : _typeController.text;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (predefined.isNotEmpty) ...[
+          Gap(Spacing.xs.h),
+          Wrap(
+            spacing: 8.w,
+            runSpacing: 4.h,
+            children: [
+              ...predefined.map((sub) => ChoiceChip(
+                label: Text(sub),
+                selected: selected == sub,
+                onSelected: (_) => setState(() {
+                  _typeController.text = sub;
+                  _useCustomSubType = false;
+                }),
+                selectedColor: theme.colorScheme.primaryContainer,
+              )),
+              ChoiceChip(
+                label: const Text('Custom…'),
+                selected: _useCustomSubType,
+                onSelected: (_) => setState(() {
+                  _useCustomSubType = true;
+                  _typeController.text = '';
+                }),
+                selectedColor: theme.colorScheme.secondaryContainer,
+              ),
+            ],
+          ),
+        ],
+        if (_useCustomSubType || predefined.isEmpty) ...[
+          Gap(Spacing.sm.h),
+          AppTextFormField(
+            controller: _customSubTypeController,
+            label: 'Custom service type',
+            hintText: predefined.isEmpty
+                ? 'e.g., Fade, Box Braids, Deep Tissue'
+                : 'Describe the service type',
+            prefixIcon: Icons.label,
+            onChanged: (v) => _typeController.text = v,
+            validator: (v) =>
+                (v == null || v.isEmpty) ? 'Service type is required' : null,
+          ),
+        ],
+        if (!_useCustomSubType && predefined.isNotEmpty && _typeController.text.isEmpty)
+          Padding(
+            padding: EdgeInsets.only(top: Spacing.xs.h),
+            child: Text(
+              'Select a type above',
+              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error),
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _buildBufferStepper(ThemeData theme) {
     const options = [0, 5, 10, 15, 30];
     return Row(
@@ -621,6 +707,17 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
   void _submitAndClose() {
     if (!_formKey.currentState!.validate()) return;
 
+    // Resolve service type from hybrid picker.
+    final serviceType = _useCustomSubType
+        ? _customSubTypeController.text.trim()
+        : _typeController.text.trim();
+    if (serviceType.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select or enter a service type')),
+      );
+      return;
+    }
+
     final selectedDays = ref.read(_selectedDaysProvider);
     if (selectedDays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -634,7 +731,7 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
     final service = AppointmentSlotDTO(
       id: widget.initialService?.id ?? '',
       serviceName: _nameController.text.trim(),
-      serviceType: _typeController.text.trim(),
+      serviceType: serviceType,
       // User types major units (e.g. "30.00"); store as minor units (3000 kobo).
       price: ((double.tryParse(_priceController.text) ?? 0) * 100).round(),
       duration: DurationUtils.format(
