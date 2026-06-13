@@ -61,6 +61,7 @@ class _FreelancerPreviewScreenState
   FreelancerDetailsDTO _dtoFromDraft(FreelancerDraft draft) {
     return FreelancerDetailsDTO(
       id: _previewId,
+      userId: draft.userId ?? '',
       name: draft.name ?? '',
       bio: draft.bio,
       profileImageUrl: draft.profileImagePath,

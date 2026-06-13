@@ -19,6 +19,9 @@ class LocalDraftStorage {
     return LocalDraftStorage._(box);
   }
 
+  // Visible for testing only.
+  static LocalDraftStorage fromBox(Box box) => LocalDraftStorage._(box);
+
   Future<void> saveDraft(String profileId, ShopDraft draft) async {
     await _box.put(profileId, draft.toJson());
   }
