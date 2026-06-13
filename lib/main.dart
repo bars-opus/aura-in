@@ -15,6 +15,9 @@ import 'package:nano_embryo/core/map/config/feature/map_config.dart'
     show mapConfigProvider;
 import 'package:nano_embryo/core/map/config/map_config.dart'
     show buildNanoEmbryoMapConfig;
+import 'package:nano_embryo/core/moderation/config/feature/moderation_config.dart';
+import 'package:nano_embryo/core/moderation/config/moderation_config.dart';
+import 'package:nano_embryo/core/network/timeout_http_client.dart';
 import 'package:nano_embryo/core/notifications/config/feature/notification_config.dart';
 import 'package:nano_embryo/core/notifications/config/notification_config.dart';
 import 'package:nano_embryo/presentation/features/chat/config/chat_config.dart';
@@ -52,11 +55,14 @@ Future<void> main() async {
     final chatCache = ChatCacheService();
     await chatCache.init();
 
-    // 3. Initialize Supabase
+    // 3. Initialize Supabase with a hard per-request timeout so a stalled
+    // network (cell handover, captive-portal) cannot hang requests
+    // indefinitely. Checklist v3.1 P1 1.2.
     await Supabase.initialize(
       url: Environment.supabaseUrl,
       anonKey: Environment.supabaseAnonKey,
       debug: Environment.isDebug,
+      httpClient: TimeoutHttpClient(total: const Duration(seconds: 20)),
     );
 
     // ============================================
@@ -131,6 +137,10 @@ Future<void> main() async {
           // Account lifecycle engine config — routes, localized copy, cleanup
           accountLifecycleConfigProvider.overrideWithValue(
             buildNanoEmbryoAccountLifecycleConfig(),
+          ),
+
+          moderationConfigProvider.overrideWithValue(
+            buildNanoEmbryoModerationConfig(),
           ),
 
           // Chat engine config — Sendbird app ID + optional UI customisation
