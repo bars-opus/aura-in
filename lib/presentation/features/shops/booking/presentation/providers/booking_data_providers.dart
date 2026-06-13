@@ -1,6 +1,7 @@
 // lib/features/booking/presentation/providers/booking_data_providers.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_logger.dart';
 
 part 'booking_data_providers.g.dart';
 
@@ -51,24 +52,22 @@ Future<List<WorkerDTO>> workersForSlot(
   required String shopId,
   required String slotId,
 }) async {
-  print('🔍 workersForSlot called with:');
-  print('   shopId: $shopId');
-  print('   slotId: $slotId');
+  BookingLogger.debug(
+    'workersForSlot.start shopId=$shopId slotId=$slotId',
+  );
 
-  // Now we can pass shopId directly to the providers
   final workers = await ref.watch(shopWorkersProvider(shopId: shopId).future);
   final assignments = await ref.watch(
     slotWorkerAssignmentsProvider(shopId: shopId).future,
   );
 
-  print('📊 All workers for shop: ${workers.map((w) => w.id).toList()}');
-  print('📊 Assignments for slot $slotId: ${assignments[slotId]}');
-
-  final workerIds = assignments[slotId] ?? [];
-  print('✅ Worker IDs that should be shown: $workerIds');
-
+  final workerIds = assignments[slotId] ?? const <String>[];
   final result = workers.where((w) => workerIds.contains(w.id)).toList();
-  print('✅ Final workers returned: ${result.map((w) => w.name)}');
+
+  BookingLogger.debug(
+    'workersForSlot.done shopId=$shopId slotId=$slotId '
+    'totalWorkers=${workers.length} matched=${result.length}',
+  );
 
   return result;
 }

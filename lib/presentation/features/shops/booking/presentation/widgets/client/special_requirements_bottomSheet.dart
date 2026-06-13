@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/shops/appointments/shop_daily_schedule/providers/daily_schedule_provider.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_logger.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/utility/exceptions/booking_error_messages.dart';
 
 class SpecialRequirementsBottomSheet extends ConsumerStatefulWidget {
   final String bookingServiceId;
@@ -137,11 +139,11 @@ class _SpecialRequirementsBottomSheetState
               : 'Special requirements saved',
         );
       }
-    } catch (e) {
-      print('Failed to save: ${e.toString()}');
+    } catch (e, st) {
+      BookingLogger.error('special_requirements_save_failed', error: e, stack: st);
       if (mounted) {
         setState(() {
-          _error = 'Failed to save: ${e.toString()}';
+          _error = BookingErrorMessages.forUser(e);
         });
       }
     } finally {

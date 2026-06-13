@@ -49,23 +49,57 @@ class BookingLogger {
     Object? error,
     StackTrace? stack,
   }) {
+    final safeMessage = redactPii(message);
+    final safeError = error == null ? null : redactPii(error.toString());
     if (level != BookingLogLevel.debug || kDebugMode) {
       final tag = switch (level) {
         BookingLogLevel.debug => '[booking][debug]',
         BookingLogLevel.warn => '[booking][warn] ',
         BookingLogLevel.error => '[booking][ERROR]',
       };
-      debugPrint('$tag $message');
-      if (error != null) debugPrint('   error: $error');
-      if (stack != null) debugPrint('   stack: $stack');
+      debugPrint('$tag $safeMessage');
+      if (safeError != null) debugPrint('   error: $safeError');
+      if (stack != null && level == BookingLogLevel.error) {
+        debugPrint('   stack: $stack');
+      }
     }
     final sink = _sink;
     if (sink != null) {
       try {
-        sink(level, message, error: error, stack: stack);
+        sink(level, safeMessage, error: error, stack: stack);
       } catch (_) {
         // Sink itself blew up — swallow; logging must not crash the app.
       }
     }
   }
+
+  /// Replaces PII shapes in [input] with redacted markers.
+  /// Covers: emails, international phone numbers, card PANs, bearer tokens,
+  /// Stripe/Paystack-style keys, GPS-looking lat/lng pairs.
+  /// Conservative on purpose — false-positive redaction is preferred to PII
+  /// leakage in logs (checklist v3.1 P0-U 4.4 PII glossary).
+  static String redactPii(String input) {
+    var s = input;
+    s = s.replaceAll(_email, '[email]');
+    s = s.replaceAll(_phone, '[phone]');
+    s = s.replaceAll(_cardPan, '[card]');
+    s = s.replaceAll(_bearer, 'Bearer [redacted]');
+    s = s.replaceAll(_secretKey, '[secret]');
+    s = s.replaceAll(_publishableKey, '[pub-key]');
+    s = s.replaceAll(_jwt, '[jwt]');
+    return s;
+  }
+
+  static final RegExp _email =
+      RegExp(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}');
+  static final RegExp _phone =
+      RegExp(r'\+?\d[\d\s\-().]{7,}\d');
+  static final RegExp _cardPan = RegExp(r'\b(?:\d[ -]*?){13,19}\b');
+  static final RegExp _bearer = RegExp(r'Bearer\s+[A-Za-z0-9._\-]+');
+  static final RegExp _secretKey =
+      RegExp(r'\bsk_[a-zA-Z0-9_]{16,}\b');
+  static final RegExp _publishableKey =
+      RegExp(r'\bpk_[a-zA-Z0-9_]{16,}\b');
+  static final RegExp _jwt =
+      RegExp(r'\beyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b');
 }
