@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nano_embryo/core/providers/auth_providers.dart';
 import 'package:nano_embryo/core/utils/bottom_sheet_utils.dart';
 import 'package:nano_embryo/core/widgets/feedback/loading_state.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/data/local_draft_storage.dart';

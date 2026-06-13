@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/providers/auth_providers.dart';
 import 'package:http/http.dart' as http;
 import 'package:nano_embryo/presentation/features/freelancer/creation/domain/models/freelancer_draft.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/models/freelancer_details_dto.dart';

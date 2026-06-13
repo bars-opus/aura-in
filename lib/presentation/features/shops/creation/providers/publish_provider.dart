@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/providers/auth_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/usecases/publish_shop_usecase.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/edit_shop_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_creation_provider.dart';

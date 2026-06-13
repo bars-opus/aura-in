@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:nano_embryo/core/providers/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/data/create_shop_data.dart';

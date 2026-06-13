@@ -1,7 +1,7 @@
 // lib/features/freelancer/creation/presentation/providers/freelancer_creation_provider.dart
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
+import 'package:nano_embryo/core/providers/auth_providers.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/data/local_freelancer_storage.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/domain/models/freelancer_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/award_draft.dart';
@@ -11,12 +11,6 @@ import 'package:nano_embryo/presentation/features/shops/creation/domain/models/o
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/social_link_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/award_dto.dart';
-
-/// Provider for current profile ID (reuse from shops)
-final currentProfileIdProvider = Provider<String?>((ref) {
-  final user = ref.watch(currentUserProvider);
-  return user?.id;
-});
 
 /// State notifier for freelancer creation
 class FreelancerCreationNotifier extends StateNotifier<FreelancerDraft> {

@@ -1,6 +1,7 @@
 // lib/features/shop/creation/presentation/providers/ready_providers.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/providers/auth_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/data/local_draft_storage.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_creation_provider.dart';
 

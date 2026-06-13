@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/providers/auth_providers.dart';
 import 'package:http/http.dart' as http;
 import 'package:nano_embryo/presentation/features/currency/domain/entities/currency.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/data/upload_shop_media.dart';

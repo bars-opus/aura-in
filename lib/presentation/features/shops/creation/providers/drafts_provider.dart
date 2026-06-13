@@ -2,6 +2,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/providers/auth_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/data/local_draft_storage.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/draft_preview.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/shop_draft.dart';

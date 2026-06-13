@@ -12,6 +12,7 @@ import 'package:nano_embryo/core/widgets/info_row_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/data/local_draft_storage.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/draft_preview.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/drafts_provider.dart';
+import 'package:nano_embryo/core/providers/auth_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_creation_provider.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';

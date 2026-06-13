@@ -1,12 +1,10 @@
 // lib/features/shop/creation/presentation/providers/shop_creation_provider.dart
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
+import 'package:nano_embryo/core/providers/auth_providers.dart';
 import 'package:nano_embryo/core/services/media/image_file_service.dart';
 import 'package:nano_embryo/presentation/features/currency/domain/entities/currency.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/data/local_draft_storage.dart';
-import 'package:nano_embryo/presentation/features/shops/creation/domain/models/award_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/contact_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/document_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/opening_hours_draft.dart';
@@ -15,13 +13,6 @@ import 'package:nano_embryo/presentation/features/shops/creation/domain/models/s
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/social_link_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/award_dto.dart';
-
-/// Provider that gives access to the current profile ID.
-/// You need to implement this based on your auth system.
-final currentProfileIdProvider = Provider<String?>((ref) {
-  final user = ref.watch(currentUserProvider); // your existing user provider
-  return user?.id; // assuming user has id
-});
 
 /// State notifier for shop creation.
 class ShopCreationNotifier extends StateNotifier<ShopDraft> {

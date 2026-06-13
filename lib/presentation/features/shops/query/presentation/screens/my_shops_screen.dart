@@ -3,6 +3,7 @@
 import 'package:nano_embryo/presentation/features/shops/creation/data/local_draft_storage.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/screens/shop_creation.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/edit_shop_provider.dart';
+import 'package:nano_embryo/core/providers/auth_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_creation_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
