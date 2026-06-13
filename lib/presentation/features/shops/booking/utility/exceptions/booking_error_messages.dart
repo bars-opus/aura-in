@@ -52,6 +52,8 @@ class BookingErrorMessages {
         return 'Another booking was just made for that slot. Please pick another time.';
       case 'DATABASE_ERROR':
         return 'Service temporarily unavailable. Please try again.';
+      case 'NOT_AUTHORIZED':
+        return 'You don\'t have permission to view this booking.';
     }
     return 'Booking could not be completed. Please try again.';
   }

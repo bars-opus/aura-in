@@ -86,3 +86,15 @@ class BookingConflictException extends BookingException {
         code: 'CONFLICT',
       );
 }
+
+/// Thrown when the current user is not authorized to view or modify a
+/// booking. Used by client-side guards as a defense-in-depth check on
+/// top of Supabase RLS so a misconfigured policy cannot leak data.
+/// Checklist v3.1 P0-U 1.4.
+class BookingAuthorizationException extends BookingException {
+  BookingAuthorizationException()
+    : super(
+        'You do not have permission to view this booking.',
+        code: 'NOT_AUTHORIZED',
+      );
+}

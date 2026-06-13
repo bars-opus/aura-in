@@ -3,6 +3,7 @@ import 'package:nano_embryo/presentation/features/shops/booking/data/models/stat
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/appointment_actions.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/status_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/utility/exceptions/booking_error_messages.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/client_sticky_note_card.dart';
 
 class BookingDetailScreen extends ConsumerStatefulWidget {
@@ -72,15 +73,13 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
         error:
             (error, stack) => ErrorStateWidget(
               title: '',
-              subtitle: 'Failed to fetch booking',
+              subtitle: BookingErrorMessages.forUser(error),
               compact: true,
               onPrimaryAction: () {
                 ref.invalidate(bookingDetailProvider(widget.bookingId));
               },
               type: ErrorStateType.genericError,
             ),
-
-        // _buildError(context, error.toString()),
       ),
     );
   }

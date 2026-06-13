@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 
 // State class (same as before, but now using BookingParams)
 
@@ -196,7 +197,12 @@ final clientBookingsControllerProvider = StateNotifierProvider.autoDispose<
   return controller;
 });
 
-// Provider for single booking
+// Provider for single booking.
+//
+// Client-side authorization (defense in depth on top of Supabase RLS):
+// the booking is only returned if the current user is either the booking
+// owner (`booking.userId`) or the owner of the shop hosting the booking
+// (`booking.shopId in userShopsProvider`). Checklist v3.1 P0-U 1.4.
 final bookingDetailProvider = FutureProvider.autoDispose
     .family<BookingModel, String>((ref, bookingId) async {
       final repository = ref.watch(bookingRepositoryProvider);
@@ -206,5 +212,19 @@ final bookingDetailProvider = FutureProvider.autoDispose
         throw Exception('Booking not found');
       }
 
-      return booking;
+      final currentUser = ref.read(currentUserProvider);
+      if (currentUser == null) {
+        throw BookingAuthorizationException();
+      }
+
+      final ownsBooking =
+          booking.userId.isNotEmpty && booking.userId == currentUser.id;
+      if (ownsBooking) return booking;
+
+      // Shop-owner branch: confirm current user owns the hosting shop.
+      final userShops = await ref.read(userShopsProvider.future);
+      final ownsShop = userShops.any((s) => s.id == booking.shopId);
+      if (ownsShop) return booking;
+
+      throw BookingAuthorizationException();
     });

@@ -1,5 +1,6 @@
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/calendar/utility/calendar_export.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
@@ -22,11 +23,51 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
   @override
   bool get wantKeepAlive => true;
 
+  /// Client-side authorization guard (defense in depth on top of RLS).
+  ///
+  /// - Shop-owner mode: `currentUserId` is the shopId; verify the signed-in
+  ///   user owns that shop.
+  /// - Client mode: `currentUserId` is a user id; verify it matches the
+  ///   signed-in user. Looking at another user's profile calendar tab is
+  ///   not authorized client-side — RLS would block writes but we don't
+  ///   want to render reads either.
+  ///
+  /// Returns a widget when access is denied (which the build method
+  /// shows in place of the calendar), or null when access is granted.
+  /// Checklist v3.1 P0-U 1.4 / 1.5.
+  Widget? _authorizationGuard() {
+    final currentUser = ref.watch(currentUserProvider);
+    if (currentUser == null) {
+      return const _CalendarUnauthorized();
+    }
+
+    if (widget.isShopOwner) {
+      final userShopsAsync = ref.watch(userShopsProvider);
+      return userShopsAsync.when(
+        loading: () => const SizedBox.shrink(),
+        error: (_, __) => const _CalendarUnauthorized(),
+        data: (shops) {
+          final ownsShop = shops.any((s) => s.id == widget.currentUserId);
+          return ownsShop ? null : const _CalendarUnauthorized();
+        },
+      );
+    }
+
+    return widget.currentUserId == currentUser.id
+        ? null
+        : const _CalendarUnauthorized();
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
+    final blocked = _authorizationGuard();
+    if (blocked != null) {
+      return Scaffold(body: blocked);
+    }
 
     final state = ref.watch(
       calendarControllerProvider(
@@ -341,6 +382,26 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
           }
         },
         underline: const SizedBox(),
+      ),
+    );
+  }
+}
+
+/// Shown by [CalendarScreen] when the client-side authorization guard
+/// rejects the requested view (signed-out user, mismatched user id, or
+/// shop id not owned by the signed-in user).
+class _CalendarUnauthorized extends StatelessWidget {
+  const _CalendarUnauthorized();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(Spacing.lg.w),
+        child: EmptyStateWidget(
+          title: 'Not available',
+          subtitle: 'You do not have permission to view these bookings.',
+        ),
       ),
     );
   }
