@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:nano_embryo/presentation/features/currency/domain/entities/currency.dart';
@@ -153,11 +154,12 @@ class EditShopNotifier extends StateNotifier<EditShopState> {
         imageUrlToId: imageUrlToId,
         docUrlToId: docUrlToId,
       );
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('loadShopData error: $e\n$stack');
       if (mounted) {
         state = state.copyWith(
           isLoading: false,
-          error: 'Failed to load shop: $e',
+          error: 'Unable to load shop data. Please try again.',
         );
       }
     }

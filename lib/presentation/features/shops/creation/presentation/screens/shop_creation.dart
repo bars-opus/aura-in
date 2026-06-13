@@ -1,7 +1,9 @@
 // lib/features/shop/creation/presentation/screens/shop_creation_dashboard.dart
 
+import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/data/create_shop_data.dart';
@@ -49,6 +51,8 @@ class _ShopCreationState extends ConsumerState<ShopCreation> {
   }
 
   Future<bool> _showUnsavedChangesDialog(BuildContext context) async {
+    final completer = Completer<bool>();
+
     BottomSheetUtils.showDocumentationBottomSheet(
       context: context,
       maxHeight: 400.h,
@@ -60,21 +64,21 @@ class _ShopCreationState extends ConsumerState<ShopCreation> {
         cancelText: 'Leave and discard',
         message: '',
         onConfirm: () async {
-          // Save changes first
           final success = await _saveChanges(
             context,
             ref.read(shopCreationProvider),
           );
-          Navigator.pop(context, success ? 'save_and_leave' : 'cancel');
+          if (context.mounted) Navigator.pop(context); // close the sheet
+          completer.complete(success); // allow pop only if save succeeded
         },
         onCancel: () {
-          Navigator.pop(context);
-          Navigator.pop(context);
+          if (context.mounted) Navigator.pop(context); // close the sheet
+          completer.complete(true); // allow pop — user chose to discard
         },
       ),
     );
 
-    return false; // cancel or save failed
+    return completer.future;
   }
 
   @override
@@ -113,14 +117,14 @@ class _ShopCreationState extends ConsumerState<ShopCreation> {
 
     // Show error if edit data failed to load
     if (editState?.error != null) {
+      debugPrint('EditShop load error: ${editState!.error}');
       return Scaffold(
         body: Center(
           child: ErrorStateWidget(
-            subtitle: 'Error loading shop: ${editState!.error}',
+            subtitle: 'Failed to load shop data. Please try again.',
             title: '',
             onPrimaryAction: () {
               ref.invalidate(editShopProvider(widget.shopId!));
-              ref.read(editShopProvider(widget.shopId!).notifier);
             },
           ),
         ),

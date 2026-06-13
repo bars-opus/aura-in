@@ -1,4 +1,5 @@
 // lib/features/freelancer/creation/presentation/screens/freelancer_creation_dashboard.dart
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -314,6 +315,8 @@ class _FreelancerCreationDashboardState
     BuildContext context,
     FreelancerDraft draft,
   ) async {
+    final completer = Completer<bool>();
+
     BottomSheetUtils.showDocumentationBottomSheet(
       context: context,
       maxHeight: 400.h,
@@ -325,18 +328,18 @@ class _FreelancerCreationDashboardState
         cancelText: 'Leave and discard',
         message: '',
         onConfirm: () async {
-          // Save changes first
           final success = await _saveChanges(context, draft);
-          Navigator.pop(context, success ? 'save_and_leave' : 'cancel');
+          if (context.mounted) Navigator.pop(context);
+          completer.complete(success);
         },
         onCancel: () {
-          Navigator.pop(context);
-          Navigator.pop(context);
+          if (context.mounted) Navigator.pop(context);
+          completer.complete(true);
         },
       ),
     );
 
-    return false; // cancel or save failed
+    return completer.future;
   }
 
   // Future<bool> _showUnsavedChangesDialog(
@@ -386,7 +389,7 @@ class _FreelancerCreationDashboardState
     }
 
     // Show loading indicator
-    context.showLoadingSnackbar('Saving changes...');
+    context.showLoadingSnackbar('Saving changes...',);
 
     try {
       final editState = ref.read(editFreelancerProvider(widget.freelancerId!));
