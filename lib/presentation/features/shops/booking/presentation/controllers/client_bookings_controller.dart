@@ -203,10 +203,19 @@ final clientBookingsControllerProvider = StateNotifierProvider.autoDispose<
 // the booking is only returned if the current user is either the booking
 // owner (`booking.userId`) or the owner of the shop hosting the booking
 // (`booking.shopId in userShopsProvider`). Checklist v3.1 P0-U 1.4.
+//
+// Cancellation: the Supabase Dart SDK has no per-request abort, but we
+// short-circuit at every await boundary if the autoDispose provider has
+// been torn down (user navigated away). This stops follow-up work like
+// the userShops lookup from completing. Checklist v3.1 P1 2.13.
 final bookingDetailProvider = FutureProvider.autoDispose
     .family<BookingModel, String>((ref, bookingId) async {
+      var disposed = false;
+      ref.onDispose(() => disposed = true);
+
       final repository = ref.watch(bookingRepositoryProvider);
       final booking = await repository.getBookingById(bookingId);
+      if (disposed) throw _DisposedDuringFetch();
 
       if (booking == null) {
         throw Exception('Booking not found');
@@ -223,8 +232,18 @@ final bookingDetailProvider = FutureProvider.autoDispose
 
       // Shop-owner branch: confirm current user owns the hosting shop.
       final userShops = await ref.read(userShopsProvider.future);
+      if (disposed) throw _DisposedDuringFetch();
+
       final ownsShop = userShops.any((s) => s.id == booking.shopId);
       if (ownsShop) return booking;
 
       throw BookingAuthorizationException();
     });
+
+/// Internal sentinel thrown when [bookingDetailProvider] completes after
+/// being disposed. Riverpod swallows errors on disposed providers, so
+/// the listener never sees this — it just stops any post-await side
+/// effects from running.
+class _DisposedDuringFetch implements Exception {
+  const _DisposedDuringFetch();
+}
