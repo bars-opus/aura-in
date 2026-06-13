@@ -64,6 +64,8 @@ class PublishNotifier extends StateNotifier<PublishState> {
 
   /// Create a new shop with loading progress
   Future<bool> publish() async {
+    if (state.isPublishing) return false; // idempotency guard
+
     final draft = _ref.read(shopCreationProvider);
     final images = _ref.read(shopMediaProvider);
     final documents = _ref.read(documentsProvider);
@@ -136,11 +138,27 @@ class PublishNotifier extends StateNotifier<PublishState> {
     }
   }
 
+  /// Returns true if the error is transient and safe to retry.
+  bool _isRetryable(String error) {
+    final s = error.toLowerCase();
+    if (s.contains('status 4') ||
+        s.contains('duplicate') ||
+        s.contains('unauthorized') ||
+        s.contains('permission') ||
+        s.contains('not logged in')) {
+      return false; // 4xx / auth / constraint errors — permanent, don't retry
+    }
+    return true;
+  }
+
   /// Publish with retry logic
   Future<bool> publishWithRetry({int maxRetries = 3}) async {
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       final success = await publish();
       if (success) return true;
+
+      final err = state.error ?? '';
+      if (!_isRetryable(err)) return false;
 
       if (attempt < maxRetries) {
         state = state.copyWith(
@@ -154,6 +172,8 @@ class PublishNotifier extends StateNotifier<PublishState> {
 
   /// Update an existing shop
   Future<bool> update({required String shopId, List<File>? newImages}) async {
+    if (state.isPublishing) return false; // idempotency guard
+
     final draft = _ref.read(shopCreationProvider);
     final profileId = _ref.read(currentProfileIdProvider);
     final editState = _ref.read(editShopProvider(shopId));
@@ -258,6 +278,9 @@ class PublishNotifier extends StateNotifier<PublishState> {
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       final success = await update(shopId: shopId, newImages: newImages);
       if (success) return true;
+
+      final err = state.error ?? '';
+      if (!_isRetryable(err)) return false;
 
       if (attempt < maxRetries) {
         state = state.copyWith(
