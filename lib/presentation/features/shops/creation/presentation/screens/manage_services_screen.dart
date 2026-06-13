@@ -63,6 +63,9 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
     final services = ref.watch(servicesProvider);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final currencyCode = ref.watch(
+      shopCreationProvider.select((d) => d.currencyCode ?? 'USD'),
+    );
 
     // Update categories when services change
     _updateCategories(services);
@@ -139,7 +142,7 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
                                 onTap:
                                     () =>
                                         _editService(services.indexOf(service)),
-                                currency: 'GHS',
+                                currency: currencyCode,
                                 showWorkerIndicator:
                                     service.selectPreferredWorker,
                               ),
@@ -315,19 +318,19 @@ class _ManageServicesScreenState extends ConsumerState<ManageServicesScreen> {
     );
   }
 
-  AppointmentSlotDTO _createTemplate(String name, int minutes, double price) {
+  AppointmentSlotDTO _createTemplate(String name, int minutes, double majorPrice) {
     return AppointmentSlotDTO(
       id: '',
       serviceName: name,
+      serviceType: '',
       duration: DurationUtils.format(Duration(minutes: minutes)),
-      price: price,
-      slotType: 'Shop',
+      price: (majorPrice * 100).round(), // minor units
+      slotType: 'individual',
       maxClients: 1,
-      daysOfWeek: const [1, 2, 3, 4, 5, 6],
+      daysOfWeek: const [1, 2, 3, 4, 5],
       selectPreferredWorker: false,
       workerIds: const [],
-      bufferMinutes: 15,
-      serviceType: '',
+      bufferMinutes: 0,
     );
   }
 

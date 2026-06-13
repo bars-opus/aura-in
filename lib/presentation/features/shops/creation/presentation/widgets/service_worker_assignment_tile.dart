@@ -60,7 +60,7 @@ class _ServiceWorkerAssignmentTileState
                     ),
                     SizedBox(height: Spacing.xs.h),
                     Text(
-                      '${widget.service.duration} · \$${widget.service.price.toStringAsFixed(2)}',
+                      '${widget.service.duration} · \$${(widget.service.price / 100).toStringAsFixed(2)}',
                       style: theme.textTheme.bodySmall,
                     ),
                   ],

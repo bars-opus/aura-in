@@ -6,7 +6,7 @@ class AppointmentSlotDTO {
   final String? serviceType;
   final String? description;
   final String duration; // ISO 8601 duration string
-  final double price;
+  final int price; // minor units (e.g. kobo, cents)
   final String slotType;
   final int maxClients;
   final List<int> daysOfWeek;
@@ -36,7 +36,9 @@ class AppointmentSlotDTO {
       serviceType: json['service_type'] as String?,
       description: json['description'] as String?,
       duration: json['duration'] as String,
-      price: (json['price'] as num).toDouble(),
+      // After DB migration price is already in minor units; .round() guards
+      // against any lingering float representation from Postgres numeric type.
+      price: (json['price'] as num).round(),
       slotType: json['slot_type'] as String,
       maxClients: json['max_clients'] as int? ?? 1,
       bufferMinutes: json['buffer_minutes'] as int? ?? 0,

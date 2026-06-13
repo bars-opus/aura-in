@@ -138,7 +138,7 @@ class ServiceManagementScreen extends ConsumerWidget {
               return ListTile(
                 title: Text(svc.serviceName),
                 subtitle: Text(
-                  '${svc.price.toStringAsFixed(0)} · ${svc.duration}',
+                  '${(svc.price / 100).toStringAsFixed(2)} · ${svc.duration}',
                 ),
                 trailing: PopupMenuButton<String>(
                   onSelected: (value) {

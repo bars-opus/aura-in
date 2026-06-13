@@ -1,7 +1,6 @@
 // lib/features/booking/data/models/booking_flow_state.dart
 
 import 'package:equatable/equatable.dart';
-import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 
 
@@ -81,12 +80,11 @@ class BookingFlowState extends Equatable {
   }
 
   /// Phase 17: Calculates total price in int minor units (kobo for GHS).
-  /// `AppointmentSlotDTO.price` is NUMERIC(12,2) major; we convert at the
-  /// fold boundary.
+  /// `AppointmentSlotDTO.price` is already in minor units after DB migration.
   int get totalPriceMinor {
     return selectedServices.fold<int>(
       0,
-      (sum, service) => sum + parseMoneyMinor(service.price),
+      (sum, service) => sum + service.price,
     );
   }
 

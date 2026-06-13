@@ -717,7 +717,7 @@ class _SoftWarningBanner extends StatelessWidget {
 }
 
 class _PreviewRow extends StatelessWidget {
-  final double base;
+  final int base; // minor units
   final double? effective;
   final bool isDiscount;
 
@@ -755,7 +755,7 @@ class _PreviewRow extends StatelessWidget {
                 Gap(2),
                 if (eff == null)
                   Text(
-                    'Base ${base.toStringAsFixed(2)} · enter a value to see the effective price.',
+                    'Base ${(base / 100).toStringAsFixed(2)} · enter a value to see the effective price.',
                     style: theme.textTheme.bodySmall,
                   )
                 else
@@ -764,7 +764,7 @@ class _PreviewRow extends StatelessWidget {
                       style: theme.textTheme.bodyMedium,
                       children: [
                         TextSpan(
-                          text: '${eff.toStringAsFixed(2)} ',
+                          text: '${(eff / 100).toStringAsFixed(2)} ',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
                             color: scheme.primary,
@@ -772,8 +772,8 @@ class _PreviewRow extends StatelessWidget {
                         ),
                         TextSpan(
                           text: isDiscount
-                              ? '(saved ${(base - eff).toStringAsFixed(2)} vs ${base.toStringAsFixed(2)} base)'
-                              : '(+${(eff - base).toStringAsFixed(2)} vs ${base.toStringAsFixed(2)} base)',
+                              ? '(saved ${((base - eff) / 100).toStringAsFixed(2)} vs ${(base / 100).toStringAsFixed(2)} base)'
+                              : '(+${((eff - base) / 100).toStringAsFixed(2)} vs ${(base / 100).toStringAsFixed(2)} base)',
                           style: TextStyle(
                             color: scheme.onSurface.withOpacity(0.7),
                           ),

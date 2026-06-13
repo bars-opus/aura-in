@@ -14,7 +14,7 @@ AppointmentSlotDTO _slot({
     serviceName: name,
     serviceType: null,
     duration: '30 minutes',
-    price: 50.0,
+    price: 5000, // minor units (50.00 major)
     slotType: 'regular',
     maxClients: maxClients,
     daysOfWeek: const [1, 2, 3, 4, 5],

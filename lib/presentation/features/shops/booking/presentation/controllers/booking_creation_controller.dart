@@ -428,8 +428,8 @@ class BookingCreationController extends _$BookingCreationController {
   }
 
   /// Phase 17: effective price (post-override) per service in int kobo.
-  /// `TimeSlotModel.priceMinor` is already int; `AppointmentSlotDTO.price` is
-  /// boundary-converted via `parseMoneyMinor`. The fold result is exact.
+  /// Both `TimeSlotModel.priceMinor` and `AppointmentSlotDTO.price` are
+  /// already in minor units after DB migration.
   int _calculateTotalAmountMinor(
     List<AppointmentSlotDTO> services,
     Map<String, int> quantities,
@@ -438,8 +438,7 @@ class BookingCreationController extends _$BookingCreationController {
     return services.fold<int>(
       0,
       (sum, service) {
-        final effectiveMinor =
-            timeSlots[service.id]?.priceMinor ?? parseMoneyMinor(service.price);
+        final effectiveMinor = timeSlots[service.id]?.priceMinor ?? service.price;
         return sum + (effectiveMinor * (quantities[service.id] ?? 1));
       },
     );
@@ -461,10 +460,9 @@ class BookingCreationController extends _$BookingCreationController {
       final duration = DurationUtils.parse(service.duration);
       final timeSlot = timeSlots[service.id];
 
-      // Phase 17: effective price in int kobo. TimeSlotModel.priceMinor is
-      // already int; AppointmentSlotDTO.price is NUMERIC (boundary-convert).
-      final effectivePriceMinor =
-          timeSlot?.priceMinor ?? parseMoneyMinor(service.price);
+      // Phase 17: effective price in int kobo. Both priceMinor and service.price
+      // are already in minor units after DB migration.
+      final effectivePriceMinor = timeSlot?.priceMinor ?? service.price;
 
       for (var i = 0; i < quantity; i++) {
         final entry = workerEntries.length > i
@@ -503,9 +501,8 @@ class BookingCreationController extends _$BookingCreationController {
       final quantity = quantities[service.id] ?? 1;
       final timeSlot = timeSlots[service.id];
       final duration = DurationUtils.parse(service.duration);
-      // Phase 17: effective price in int kobo.
-      final effectivePriceMinor =
-          timeSlot?.priceMinor ?? parseMoneyMinor(service.price);
+      // Phase 17: effective price in int kobo. service.price is minor units.
+      final effectivePriceMinor = timeSlot?.priceMinor ?? service.price;
 
       for (var i = 0; i < quantity; i++) {
         all.add(

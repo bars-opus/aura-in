@@ -1,6 +1,5 @@
 // lib/features/booking/presentation/providers/booking_flow_state_provider.dart
 import 'package:equatable/equatable.dart';
-import 'package:nano_embryo/core/utils/money.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 
@@ -347,16 +346,14 @@ int _calculateTotalPeople(
 }
 
 /// Phase 17: Calculates the total price in int minor units (kobo for GHS).
-/// `AppointmentSlotDTO.price` is NUMERIC(12,2) major units; we convert at the
-/// boundary via `parseMoneyMinor` and fold in int.
+/// `AppointmentSlotDTO.price` is already in minor units after DB migration.
 int _calculateTotalPriceMinor(
   List<AppointmentSlotDTO> services,
   Map<String, int> quantities,
 ) {
   return services.fold<int>(
     0,
-    (sum, service) =>
-        sum + parseMoneyMinor(service.price) * (quantities[service.id] ?? 1),
+    (sum, service) => sum + service.price * (quantities[service.id] ?? 1),
   );
 }
 

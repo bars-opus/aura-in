@@ -1,6 +1,5 @@
 // Helper function to group slots by start time
 
-import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 
 Map<String, List<TimeSlotModel>> _groupSlotsByStartTime(
@@ -56,11 +55,11 @@ DateTime _getLatestEndTime(List<TimeSlotModel> slots) {
 }
 
 // Phase 17: Helper to fold the combined slot price in int kobo.
-// AppointmentSlotDTO.price is NUMERIC major; boundary-convert each fold.
+// AppointmentSlotDTO.price is already in minor units after DB migration.
 int _calculateCombinedPriceMinor(List<AppointmentSlotDTO> services) {
   return services.fold<int>(
     0,
-    (sum, service) => sum + parseMoneyMinor(service.price),
+    (sum, service) => sum + service.price,
   );
 }
 

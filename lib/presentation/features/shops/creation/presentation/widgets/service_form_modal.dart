@@ -77,7 +77,9 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
       text: widget.initialService?.serviceType ?? '',
     );
     _priceController = TextEditingController(
-      text: widget.initialService?.price.toString() ?? '',
+      text: widget.initialService != null
+          ? (widget.initialService!.price / 100).toStringAsFixed(2)
+          : '',
     );
     _descriptionController = TextEditingController(
       text: widget.initialService?.description ?? '',
@@ -572,15 +574,12 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
       return;
     }
 
-    // Debug: Print the ID to see if it's being passed
-    print('🔍 Original service ID: ${widget.initialService?.id}');
-    print('🔍 Service name: ${_nameController.text}');
-
     final service = AppointmentSlotDTO(
-      id: widget.initialService?.id ?? '', // Keep existing ID if editing
-      serviceName: _nameController.text.trim(), // Add trim()
+      id: widget.initialService?.id ?? '',
+      serviceName: _nameController.text.trim(),
       serviceType: _typeController.text.trim(),
-      price: double.parse(_priceController.text),
+      // User types major units (e.g. "30.00"); store as minor units (3000 kobo).
+      price: ((double.tryParse(_priceController.text) ?? 0) * 100).round(),
       duration: DurationUtils.format(
         Duration(minutes: _selectedDurationMinutes),
       ),
@@ -599,9 +598,6 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
       // where initialService is null.
       bufferMinutes: widget.initialService?.bufferMinutes ?? 0,
     );
-
-    print('✅ Saving service with ID: ${service.id}');
-    print('✅ Service name: ${service.serviceName}');
 
     widget.onSave(service);
     Navigator.pop(context);

@@ -87,7 +87,7 @@ class ServiceTicketWidget extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          '$currency ${service.price.toStringAsFixed(2)}',
+                          '$currency ${(service.price / 100).toStringAsFixed(2)}',
                           style: textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.w700,
                             color:

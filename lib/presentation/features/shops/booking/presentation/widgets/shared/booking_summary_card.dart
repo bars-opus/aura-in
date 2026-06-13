@@ -141,7 +141,7 @@ class BookingSummaryCard extends ConsumerWidget {
                       ),
                       TableRowData(
                         leftLabel:
-                            '$shopCurrency ${(service.price * quantity).toStringAsFixed(2)}',
+                            '$shopCurrency ${(service.price * quantity / 100).toStringAsFixed(2)}',
                         leftValue: '',
                         rightLabel: _getTimeDisplay(
                           timeSlot,

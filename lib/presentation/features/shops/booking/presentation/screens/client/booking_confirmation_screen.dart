@@ -309,8 +309,8 @@ class _BookingConfirmationScreenState
 
   /// Phase 17: effective price per service in int kobo. Reads
   /// `TimeSlotModel.priceMinor` (already int) for the override-applied
-  /// slot and falls back to `parseMoneyMinor(service.price)` when no slot
-  /// is mapped. Zero-override shops see `effectiveMinor == baseMinor`.
+  /// slot and falls back to `service.price` (already minor units after
+  /// DB migration) when no slot is mapped.
   int _calculateTotalPriceMinor(
     List<AppointmentSlotDTO> services,
     Map<String, int> quantities,
@@ -319,8 +319,7 @@ class _BookingConfirmationScreenState
     return services.fold<int>(
       0,
       (sum, service) {
-        final effectiveMinor =
-            timeSlots[service.id]?.priceMinor ?? parseMoneyMinor(service.price);
+        final effectiveMinor = timeSlots[service.id]?.priceMinor ?? service.price;
         return sum + effectiveMinor * (quantities[service.id] ?? 1);
       },
     );
@@ -364,7 +363,7 @@ class _BookingConfirmationScreenState
             final qty = quantities[service.id] ?? 1;
             final workerEntries = workers[service.id] ?? [];
             final effectivePriceMinor =
-                timeSlots[service.id]?.priceMinor ?? parseMoneyMinor(service.price);
+                timeSlots[service.id]?.priceMinor ?? service.price;
             return List.generate(qty, (i) {
               final worker = i < workerEntries.length ? workerEntries[i] : null;
               return {

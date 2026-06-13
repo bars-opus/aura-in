@@ -266,7 +266,7 @@ class _ErrorState extends StatelessWidget {
 
 class _OverrideRow extends StatelessWidget {
   final PricingOverrideDTO rule;
-  final double basePrice;
+  final int basePrice; // minor units
   final VoidCallback onEdit;
   final VoidCallback onArchive;
 
