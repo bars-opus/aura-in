@@ -3,7 +3,9 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/data/service_addons_repository.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/contact_draft.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/domain/models/service_addon_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -106,9 +108,11 @@ class SupabaseShopCreationRepository {
       }
 
       // 5. Services (Appointment Slots)
+      final addonsRepo = ServiceAddonsRepository(_client);
       for (final service in draft.services) {
+        final slotId = Uuid().v4();
         await _client.from('appointment_slots').insert({
-          'id': Uuid().v4(),
+          'id': slotId,
           'shop_id': shopId,
           'service_name': service.serviceName,
           'duration': service.duration,
@@ -121,6 +125,10 @@ class SupabaseShopCreationRepository {
           'buffer_minutes': service.bufferMinutes,
           'is_online_booking_enabled': service.isOnlineBookingEnabled,
         });
+        if (service.pendingAddons.isNotEmpty) {
+          await addonsRepo.replaceAddons(slotId, service.pendingAddons
+              .map((a) => a.copyWith(slotId: slotId)).toList());
+        }
       }
 
       // 6. Opening hours
@@ -381,9 +389,11 @@ class SupabaseShopCreationRepository {
 
       // 5. Update appointment slots
       await _client.from('appointment_slots').delete().eq('shop_id', shopId);
+      final addonsRepoUpdate = ServiceAddonsRepository(_client);
       for (final service in draft.services) {
+        final slotId = Uuid().v4();
         await _client.from('appointment_slots').insert({
-          'id': Uuid().v4(),
+          'id': slotId,
           'shop_id': shopId,
           'service_name': service.serviceName,
           'duration': service.duration,
@@ -396,6 +406,10 @@ class SupabaseShopCreationRepository {
           'buffer_minutes': service.bufferMinutes,
           'is_online_booking_enabled': service.isOnlineBookingEnabled,
         });
+        if (service.pendingAddons.isNotEmpty) {
+          await addonsRepoUpdate.replaceAddons(slotId, service.pendingAddons
+              .map((a) => a.copyWith(slotId: slotId)).toList());
+        }
       }
 
       // 6. Update opening hours

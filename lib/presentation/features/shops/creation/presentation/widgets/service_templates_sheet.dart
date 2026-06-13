@@ -6,11 +6,13 @@ import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_icon_button.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
 import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/domain/models/service_addon_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/service_template_dto.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/providers/service_addons_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/service_templates_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
 
-class ServiceTemplatesSheet extends ConsumerWidget {
+class ServiceTemplatesSheet extends ConsumerStatefulWidget {
   final String shopType;
   final String? currencySymbol;
   final void Function(AppointmentSlotDTO prefilled) onTemplateSelected;
@@ -23,16 +25,59 @@ class ServiceTemplatesSheet extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ServiceTemplatesSheet> createState() =>
+      _ServiceTemplatesSheetState();
+}
+
+class _ServiceTemplatesSheetState extends ConsumerState<ServiceTemplatesSheet> {
+  Future<void> _selectTemplate(
+      BuildContext context, ServiceTemplateDTO t) async {
+    // Fetch template add-ons; gracefully degrade on error.
+    final templateAddons =
+        await ref.read(templateAddonsProvider(t.id).future).catchError((_) => <dynamic>[]);
+
+    final pendingAddons = templateAddons
+        .map((a) => ServiceAddonDTO(
+              id: '',
+              slotId: '',
+              name: a.name as String,
+              priceMinor: (a.suggestedPriceMinor as int?) ?? 0,
+              durationMinutes: a.durationMinutes as int?,
+            ))
+        .toList();
+
+    final prefilled = AppointmentSlotDTO(
+      id: '',
+      serviceName: t.serviceName,
+      serviceType: t.serviceType,
+      duration: '${t.durationMinutes} minutes',
+      price: t.suggestedPriceMinor ?? 0,
+      slotType: 'in-person',
+      maxClients: 1,
+      daysOfWeek: const [],
+      selectPreferredWorker: false,
+      workerIds: const [],
+      bufferMinutes: 0,
+      description: t.description,
+      pendingAddons: pendingAddons,
+    );
+
+    if (!context.mounted) return;
+    Navigator.pop(context);
+    widget.onTemplateSelected(prefilled);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final async = ref.watch(serviceTemplatesProvider(shopType));
+    final async = ref.watch(serviceTemplatesProvider(widget.shopType));
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
-        title: Text('Templates for $shopType', style: theme.textTheme.titleMedium),
+        title: Text('Templates for ${widget.shopType}', style: theme.textTheme.titleMedium),
         leading: AppIconButton(
           icon: Icons.close,
           onPressed: () => Navigator.pop(context),
@@ -48,7 +93,7 @@ class ServiceTemplatesSheet extends ConsumerWidget {
         data: (templates) {
           if (templates.isEmpty) {
             return EmptyStateWidget(
-              title: 'No templates for $shopType',
+              title: 'No templates for ${widget.shopType}',
               subtitle: 'Add services manually',
               icon: Icons.content_cut,
             );
@@ -82,24 +127,7 @@ class ServiceTemplatesSheet extends ConsumerWidget {
                       '${t.description != null ? ' · ${t.description}' : ''}',
                     ),
                     trailing: const Icon(Icons.add_circle_outline),
-                    onTap: () {
-                      final prefilled = AppointmentSlotDTO(
-                        id: '',
-                        serviceName: t.serviceName,
-                        serviceType: t.serviceType,
-                        duration: '${t.durationMinutes} minutes',
-                        price: t.suggestedPriceMinor ?? 0,
-                        slotType: 'in-person',
-                        maxClients: 1,
-                        daysOfWeek: const [],
-                        selectPreferredWorker: false,
-                        workerIds: const [],
-                        bufferMinutes: 0,
-                        description: t.description,
-                      );
-                      Navigator.pop(context);
-                      onTemplateSelected(prefilled);
-                    },
+                    onTap: () => _selectTemplate(context, t),
                   ),
                 const Divider(height: 1),
               ],

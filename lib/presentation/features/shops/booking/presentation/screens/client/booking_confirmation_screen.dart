@@ -6,6 +6,7 @@ import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_
 import 'package:nano_embryo/payment/config/payment_config.dart';
 import 'package:nano_embryo/payment/presentation/controllers/payment_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/client_promo_code_field.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/providers/service_addons_provider.dart';
 
 class BookingConfirmationScreen extends ConsumerStatefulWidget {
   final String shopType;
@@ -71,12 +72,14 @@ class _BookingConfirmationScreenState
 
     // Calculate totals
     final selectedQuantities = ref.watch(serviceQuantityProvider);
+    final selectedAddons = ref.watch(selectedAddonsProvider);
     final totalDuration = _calculateTotalDuration(selectedServices);
-    // Phase 17: int kobo end-to-end.
+    // Phase 17: int kobo end-to-end. Add-on prices fold into the total.
     final totalPriceMinor = _calculateTotalPriceMinor(
       selectedServices,
       selectedQuantities,
       selectedTimeSlots,
+      selectedAddons,
     );
 
     // Check if anything is missing - UPDATED LOGIC
@@ -315,12 +318,16 @@ class _BookingConfirmationScreenState
     List<AppointmentSlotDTO> services,
     Map<String, int> quantities,
     Map<String, TimeSlotModel> timeSlots,
+    Map<String, List<dynamic>> selectedAddons,
   ) {
     return services.fold<int>(
       0,
       (sum, service) {
         final effectiveMinor = timeSlots[service.id]?.priceMinor ?? service.price;
-        return sum + effectiveMinor * (quantities[service.id] ?? 1);
+        final qty = quantities[service.id] ?? 1;
+        final addonMinor = (selectedAddons[service.id] ?? [])
+            .fold<int>(0, (s, a) => s + (a.priceMinor as int));
+        return sum + (effectiveMinor + addonMinor) * qty;
       },
     );
   }
@@ -344,8 +351,9 @@ class _BookingConfirmationScreenState
       final workers = ref.read(selectedWorkersProvider);
       final quantities = ref.read(serviceQuantityProvider);
       final timeSlots = ref.read(selectedTimeSlotsProvider);
-      // Phase 17: int kobo end-to-end.
-      final totalPriceMinor = _calculateTotalPriceMinor(services, quantities, timeSlots);
+      final addons = ref.read(selectedAddonsProvider);
+      // Phase 17: int kobo end-to-end. Add-on prices included in total.
+      final totalPriceMinor = _calculateTotalPriceMinor(services, quantities, timeSlots, addons);
       final firstSlot = timeSlots.values.first;
 
       // Phase 13: when a promo code is applied, the discounted total
@@ -364,16 +372,31 @@ class _BookingConfirmationScreenState
             final workerEntries = workers[service.id] ?? [];
             final effectivePriceMinor =
                 timeSlots[service.id]?.priceMinor ?? service.price;
+            final serviceAddons = addons[service.id] ?? [];
+            final addonMinor =
+                serviceAddons.fold<int>(0, (s, a) => s + (a.priceMinor as int));
+            final addonDurationMins = serviceAddons.fold<int>(
+                0, (s, a) => s + ((a.durationMinutes as int?) ?? 0));
             return List.generate(qty, (i) {
               final worker = i < workerEntries.length ? workerEntries[i] : null;
               return {
                 'slotId': service.id,
                 'workerId': worker?['id'],
-                'priceAtBookingMinor': effectivePriceMinor,
+                'priceAtBookingMinor': effectivePriceMinor + addonMinor,
                 'durationMinutes':
-                    DurationUtils.parse(service.duration).inMinutes,
+                    DurationUtils.parse(service.duration).inMinutes +
+                        addonDurationMins,
                 'serviceName': service.serviceName,
                 'workerName': worker?['name'] ?? '',
+                if (serviceAddons.isNotEmpty)
+                  'addons': serviceAddons
+                      .map((a) => {
+                            'id': a.id,
+                            'name': a.name,
+                            'priceMinor': a.priceMinor,
+                            'durationMinutes': a.durationMinutes,
+                          })
+                      .toList(),
               };
             });
           })

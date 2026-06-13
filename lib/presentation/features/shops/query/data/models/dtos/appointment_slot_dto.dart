@@ -1,5 +1,8 @@
 // lib/features/shops/data/dtos/appointment_slot_dto.dart
 
+// ignore: depend_on_referenced_packages
+import 'package:nano_embryo/presentation/features/shops/creation/domain/models/service_addon_dto.dart';
+
 class AppointmentSlotDTO {
   final String id;
   final String serviceName;
@@ -15,6 +18,8 @@ class AppointmentSlotDTO {
   final int bufferMinutes;
   final int bufferBeforeMinutes;
   final bool isOnlineBookingEnabled;
+  /// Transient — not stored in this row; persisted to service_addons table.
+  final List<ServiceAddonDTO> pendingAddons;
 
   AppointmentSlotDTO({
     required this.id,
@@ -31,6 +36,7 @@ class AppointmentSlotDTO {
     required this.bufferMinutes,
     this.bufferBeforeMinutes = 0,
     this.isOnlineBookingEnabled = true,
+    this.pendingAddons = const [],
   });
 
   factory AppointmentSlotDTO.fromJson(Map<String, dynamic> json) {

@@ -21,6 +21,7 @@ import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/core/widgets/feedback/snackbar_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/opening_hours_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/service_form_modal.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/data/service_addons_repository.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_details_provider.dart';
 import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/service_management_exceptions.dart';
@@ -46,18 +47,28 @@ class ServiceEditScreen extends ConsumerWidget {
   ) async {
     final supabase = Supabase.instance.client;
     try {
+      String resolvedSlotId;
       if (_isEdit) {
-        // Atomic single-statement UPDATE keyed on the existing id.
         await supabase
             .from('appointment_slots')
             .update(_rowFor(dto, includeId: false))
             .eq('id', dto.id);
+        resolvedSlotId = dto.id;
       } else {
-        // Atomic single-statement INSERT. We do NOT pass dto.id (empty
-        // string in create mode); the DB default generates the UUID.
-        await supabase
+        final inserted = await supabase
             .from('appointment_slots')
-            .insert({..._rowFor(dto, includeId: false), 'shop_id': shopId});
+            .insert({..._rowFor(dto, includeId: false), 'shop_id': shopId})
+            .select('id')
+            .single();
+        resolvedSlotId = inserted['id'] as String;
+      }
+      // Persist add-ons (replaces existing list atomically).
+      if (dto.pendingAddons.isNotEmpty) {
+        final addonsRepo = ServiceAddonsRepository(supabase);
+        await addonsRepo.replaceAddons(
+          resolvedSlotId,
+          dto.pendingAddons.map((a) => a.copyWith(slotId: resolvedSlotId)).toList(),
+        );
       }
       if (!context.mounted) return;
       Snackbar.success(

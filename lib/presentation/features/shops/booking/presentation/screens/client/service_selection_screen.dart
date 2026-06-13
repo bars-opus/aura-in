@@ -1,5 +1,8 @@
 // lib/features/booking/presentation/screens/service_selection_screen.dart
+import 'package:nano_embryo/core/utils/bottom_sheet_utils.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/service_addons_sheet.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/providers/service_addons_provider.dart';
 
 final shopServicesProvider =
     shopAppointmentSlotsProvider; // Just alias or use directly
@@ -166,24 +169,33 @@ class _ServiceSelectionScreenState extends ConsumerState<ServiceSelectionScreen>
 
   void _toggleService(AppointmentSlotDTO service) {
     final currentSelected = ref.read(selectedServicesProvider);
-    final selectedServicesNotifier = ref.read(
-      selectedServicesProvider.notifier,
-    );
+    final selectedServicesNotifier = ref.read(selectedServicesProvider.notifier);
     final quantityNotifier = ref.read(serviceQuantityProvider.notifier);
 
     if (currentSelected.any((s) => s.id == service.id)) {
-      // Remove service
       selectedServicesNotifier.removeService(service.id);
       quantityNotifier.removeService(service.id);
-
-      // Remove worker assignment
       ref.read(selectedWorkersProvider.notifier).removeService(service.id);
-
-      // ref.read(selectedWorkersProvider.notifier).removeWorker(service.id);
+      ref.read(selectedAddonsProvider.notifier).clearSlot(service.id);
     } else {
-      // Add service with default quantity 1
       selectedServicesNotifier.addService(service);
       quantityNotifier.setQuantity(service.id, 1);
+      // Show add-on picker if the slot has persisted add-ons.
+      _showAddonsSheet(service);
     }
+  }
+
+  void _showAddonsSheet(AppointmentSlotDTO service) {
+    // Only show if the slot has a real id (not a template pre-fill).
+    if (service.id.isEmpty) return;
+    BottomSheetUtils.showDocumentationBottomSheet(
+      context: context,
+      maxHeight: 520,
+      widget: ServiceAddonsSheet(
+        service: service,
+        currency: widget.shopCurrency,
+        onDone: () => Navigator.pop(context),
+      ),
+    );
   }
 }

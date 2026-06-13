@@ -13,6 +13,8 @@
 //     saved service preserves its buffer.
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/opening_hours_draft.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/domain/models/service_addon_dto.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/providers/service_addons_provider.dart';
 
 final _selectedDaysProvider = StateProvider<List<int>>((ref) => []);
 
@@ -89,6 +91,10 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
   bool _useCustomSubType = false;
   late TextEditingController _customSubTypeController;
 
+  // Add-ons managed inline on the form
+  List<ServiceAddonDTO> _addons = [];
+  bool _addonsExpanded = false;
+
   final List<String> _dayNames = [
     'Monday',
     'Tuesday',
@@ -145,6 +151,14 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
     });
 
     _hydrateFromProp();
+    _loadAddons();
+  }
+
+  Future<void> _loadAddons() async {
+    final slotId = widget.initialService?.id ?? '';
+    if (slotId.isEmpty) return;
+    final loaded = await ref.read(serviceAddonsRepoProvider).fetchBySlotId(slotId);
+    if (mounted) setState(() => _addons = loaded);
   }
 
   /// Hydrate the form's hours state from the constructor parameter.
@@ -328,6 +342,8 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
                   ],
                 ),
               ),
+              Gap(Spacing.md.h),
+              _buildAddonsSection(theme),
               Gap(Spacing.lg.h),
 
               Row(
@@ -791,6 +807,133 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
     );
   }
 
+  Widget _buildAddonsSection(ThemeData theme) {
+    return CardInkWell(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: Spacing.md.w),
+            leading: Icon(Icons.add_circle_outline,
+                color: theme.colorScheme.primary),
+            title: Text('Add-ons (${_addons.length})',
+                style: theme.textTheme.titleSmall),
+            subtitle: Text('Optional extras clients can choose',
+                style: theme.textTheme.bodySmall),
+            trailing: Icon(
+              _addonsExpanded ? Icons.expand_less : Icons.expand_more,
+            ),
+            onTap: () => setState(() => _addonsExpanded = !_addonsExpanded),
+          ),
+          if (_addonsExpanded) ...[
+            const Divider(height: 1),
+            ..._addons.asMap().entries.map((entry) {
+              final i = entry.key;
+              final addon = entry.value;
+              return ListTile(
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: Spacing.md.w),
+                title: Text(addon.name, style: theme.textTheme.bodyMedium),
+                subtitle: Text(
+                  [
+                    '+${(addon.priceMinor / 100).toStringAsFixed(2)}',
+                    if (addon.durationMinutes != null &&
+                        addon.durationMinutes! > 0)
+                      '+${addon.durationMinutes} min',
+                  ].join(' · '),
+                  style: theme.textTheme.bodySmall,
+                ),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete_outline,
+                      color: theme.colorScheme.error),
+                  onPressed: () =>
+                      setState(() => _addons.removeAt(i)),
+                ),
+              );
+            }),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: Spacing.md.w, vertical: Spacing.sm.h),
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.add),
+                label: const Text('Add extra'),
+                onPressed: () => _showAddAddonDialog(theme),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showAddAddonDialog(ThemeData theme) async {
+    final nameCtrl = TextEditingController();
+    final priceCtrl = TextEditingController();
+    final durCtrl = TextEditingController();
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('New Add-on'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: 'Name *'),
+              textCapitalization: TextCapitalization.words,
+            ),
+            Gap(Spacing.sm.h),
+            TextField(
+              controller: priceCtrl,
+              decoration: const InputDecoration(labelText: 'Price *'),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+            ),
+            Gap(Spacing.sm.h),
+            TextField(
+              controller: durCtrl,
+              decoration: const InputDecoration(
+                  labelText: 'Extra duration (minutes, optional)'),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              final name = nameCtrl.text.trim();
+              final price =
+                  (double.tryParse(priceCtrl.text.trim()) ?? 0) * 100;
+              if (name.isEmpty || price <= 0) return;
+              final dur = int.tryParse(durCtrl.text.trim());
+              setState(() {
+                _addons.add(ServiceAddonDTO(
+                  id: '',
+                  slotId: widget.initialService?.id ?? '',
+                  name: name,
+                  priceMinor: price.round(),
+                  durationMinutes: (dur != null && dur > 0) ? dur : null,
+                ));
+              });
+              Navigator.pop(ctx);
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+
+    nameCtrl.dispose();
+    priceCtrl.dispose();
+    durCtrl.dispose();
+  }
+
   void _submitAndClose() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -836,6 +979,7 @@ class _ServiceFormModalState extends ConsumerState<ServiceFormModal> {
       bufferBeforeMinutes: _bufferBeforeMinutes,
       bufferMinutes: _bufferMinutes,
       isOnlineBookingEnabled: _isOnlineBookingEnabled,
+      pendingAddons: List.from(_addons),
     );
 
     widget.onSave(service);
