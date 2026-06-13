@@ -221,8 +221,11 @@ class CalendarController extends _$CalendarController {
         }
       }
 
-      final updatedCache = Map<String, List<dynamic>>.from(state.cache)
-        ..[monthRange.monthKey] = bookings;
+      final updatedCache = _putWithEviction(
+        state.cache,
+        monthRange.monthKey,
+        bookings,
+      );
 
       this.state = AsyncValue.data(
         state.copyWith(
@@ -237,4 +240,28 @@ class CalendarController extends _$CalendarController {
     }
   }
 
+  /// Maximum number of cached month buckets kept in memory.
+  ///
+  /// Why: users typically navigate +/-1 month from focused. Six entries
+  /// covers a half-year window while keeping memory bounded — fails
+  /// checklist v3.1 P1 2.14 otherwise.
+  static const int _maxCachedMonths = 6;
+
+  /// Inserts [key]/[value] into [cache], evicting the oldest entry
+  /// (insertion order, LinkedHashMap semantics) when over capacity.
+  /// Returns a new map so Riverpod's equality detects the change.
+  Map<String, List<dynamic>> _putWithEviction(
+    Map<String, List<dynamic>> cache,
+    String key,
+    List<dynamic> value,
+  ) {
+    final next = Map<String, List<dynamic>>.from(cache);
+    // Re-insert to move to the end (recency).
+    next.remove(key);
+    next[key] = value;
+    while (next.length > _maxCachedMonths) {
+      next.remove(next.keys.first);
+    }
+    return next;
+  }
 }
