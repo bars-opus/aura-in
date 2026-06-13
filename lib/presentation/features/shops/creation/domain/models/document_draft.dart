@@ -1,9 +1,10 @@
 // lib/features/shop/creation/domain/entities/document_draft.dart
 
-import 'package:equatable/equatable.dart';
 import 'dart:io';
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 enum DocumentType {
   license('Business License', Icons.business_center),
@@ -36,7 +37,7 @@ class DocumentDraft extends Equatable {
     this.expiryDate,
     this.isVerified = false,
     this.sortOrder = 0,
-  }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
+  }) : id = id ?? const Uuid().v4();
 
   /// Get file name from path
   String get fileName => file.path.split('/').last;

@@ -3,6 +3,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 enum SocialPlatform {
   instagram('Instagram', FontAwesomeIcons.instagram),
@@ -41,10 +42,7 @@ class SocialLinkDraft extends Equatable {
     required this.platform,
     required this.url,
     this.isActive = true,
-  }) : id =
-           id ??
-           DateTime.now().millisecondsSinceEpoch
-               .toString(); // ✅ Generate if not provided
+  }) : id = id ?? const Uuid().v4();
 
   /// Validate URL based on platform
   String? validate() {
