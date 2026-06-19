@@ -81,6 +81,7 @@ import 'package:nano_embryo/presentation/features/products/presentation/screens/
 import 'package:nano_embryo/presentation/features/products/presentation/screens/order_detail_screen.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/screens/shop_products_screen.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/screens/product_form_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/seller_onboarding_screen.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 
 /// Route names for type-safe navigation
@@ -167,6 +168,7 @@ class RouteNames {
   static const String shopOrderDetail = '/shopOrderDetail';
   static const String shopProducts = '/shopProducts';
   static const String productForm = '/productForm';
+  static const String sellerOnboarding = '/sellerOnboarding';
   static const String featureSurvey = '/featureSurvey';
   static const String feedback = '/feedback';
   static const String feedbackHistory = '/feedback/history';
@@ -1083,6 +1085,11 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
             product: params['product'] as ProductModel?,
           );
         },
+      ),
+      GoRoute(
+        path: RouteNames.sellerOnboarding,
+        name: 'sellerOnboarding',
+        builder: (context, state) => const SellerOnboardingScreen(),
       ),
 
       GoRoute(
