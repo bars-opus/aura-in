@@ -6,6 +6,7 @@ import 'package:nano_embryo/core/providers/profile_providers/profile_edit_provid
 import 'package:nano_embryo/core/providers/profile_providers/profile_provider.dart';
 
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/presentation/features/auth/widgets/ensure_phone_verified.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/screens/freelancer_creation_dashboard.dart';
 import 'package:nano_embryo/presentation/features/profile/models/profile_role.dart';
 import 'package:nano_embryo/presentation/features/profile/widgets/editable_profile_avatar.dart';
@@ -160,6 +161,73 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         });
       }
     }
+  }
+
+  Future<void> _gatedPush(VoidCallback action) async {
+    final ok = await ensurePhoneVerified(context, ref);
+    if (!mounted || !ok) return;
+    action();
+  }
+
+  Widget _producerCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return CardInkWell(
+      margin: EdgeInsets.only(bottom: 10.h),
+      child: Column(
+        children: [
+          InfoRowWidget(
+            subtitle: subtitle,
+            title: title,
+            icon: icon,
+            avatarRadius: 25.h,
+            onTap: onTap,
+            showAvatar: false,
+            showTrailingArrow: true,
+            showDivider: false,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProducerCards(AppLocalizations loc) {
+    return Column(
+      children: [
+        if (_selectedRole == AccountType.worker)
+          _producerCard(
+            title: loc.editProfileScreenEditWorkProfileTitle,
+            subtitle: loc.editProfileScreenEditShopSubtitle,
+            icon: Icons.person,
+            onTap: () => _gatedPush(
+              () => context.push(
+                '/freelancerCreationDashboard',
+                extra: {
+                  'userId': widget.currentUserId,
+                  'mode': FreelancerMode.create,
+                },
+              ),
+            ),
+          ),
+        if (_selectedRole == AccountType.shop)
+          _producerCard(
+            title: loc.editProfileScreenEditShopTitle,
+            subtitle: loc.editProfileScreenEditShopSubtitle,
+            icon: Icons.storefront_rounded,
+            onTap: () => _gatedPush(() => context.push('/myShopsScreen')),
+          ),
+        _producerCard(
+          title: 'Sell a product',
+          subtitle:
+              'Sell your beauty products like pomades, shampoos, hairbrushes and more.',
+          icon: Icons.sell_outlined,
+          onTap: () => _gatedPush(() => context.push('/sellerOnboarding')),
+        ),
+      ],
+    );
   }
 
   Widget _buildRoleSelector(AppLocalizations loc) {
@@ -356,77 +424,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               ),
             ),
             Gap(Spacing.sm),
-            _selectedRole?.displayName == 'worker'?
-            CardInkWell(
-              margin: EdgeInsets.only(bottom: 10.h),
-              onTap: () {},
-              child: Column(
-                children: [
-                  InfoRowWidget(
-                    subtitle: loc.editProfileScreenEditShopSubtitle,
-                    title: loc.editProfileScreenEditShopTitle,
-                    icon: Icons.storefront_rounded,
-                    avatarRadius: 25.h,
-                    onTap: () => context.push('/myShopsScreen'),
-                    showAvatar: false,
-                    showTrailingArrow: true,
-                    showDivider: false,
-                  ),
-                ],
-              ),
-            )_selectedRole?.displayName == 'shop'?
-
-            CardInkWell(
-              margin: EdgeInsets.only(bottom: 10.h),
-              onTap: () {},
-              child: Column(
-                children: [
-                  InfoRowWidget(
-                    subtitle: loc.editProfileScreenEditShopSubtitle,
-                    title: loc.editProfileScreenEditWorkProfileTitle,
-                    icon: Icons.person,
-                    avatarRadius: 25.h,
-                    onTap:
-                        () => context.push(
-                          '/freelancerCreationDashboard',
-                          extra: {
-                            'userId': widget.currentUserId,
-                            'mode': FreelancerMode.create,
-                          },
-                        ),
-                    showAvatar: false,
-                    showTrailingArrow: true,
-                    showDivider: false,
-                  ),
-                ],
-              ),
-            ),
-
-             CardInkWell(
-              margin: EdgeInsets.only(bottom: 10.h),
-              onTap: () {},
-              child: Column(
-                children: [
-                  InfoRowWidget(
-                    subtitle: 'Sell your neauty products like pomades, shampoos, hairbrushes and more.',
-                    title: 'Sell a product',
-                    icon: Icons.person,
-                    avatarRadius: 25.h,
-                    onTap:
-                        () => context.push(
-                          '/freelancerCreationDashboard',
-                          extra: {
-                            'userId': widget.currentUserId,
-                            'mode': FreelancerMode.create,
-                          },
-                        ),
-                    showAvatar: false,
-                    showTrailingArrow: true,
-                    showDivider: false,
-                  ),
-                ],
-              ),
-            ),
+            _buildProducerCards(loc),
             Gap(Spacing.xl),
           ],
         ),
