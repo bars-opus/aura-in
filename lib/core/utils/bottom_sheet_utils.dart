@@ -1,7 +1,7 @@
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
 class BottomSheetUtils {
-  static Future<void> showDocumentationBottomSheet({
+  static Future<T?> showDocumentationBottomSheet<T>({
     required BuildContext context,
     DocumentationItem? document,
     VoidCallback? onAgree,
@@ -30,7 +30,7 @@ class BottomSheetUtils {
     final contentPadding = padding ?? Spacing.xl.h;
     final colorScheme = Theme.of(context).colorScheme;
 
-    await showModalBottomSheet(
+    return await showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
       isDismissible: isDismissible,
