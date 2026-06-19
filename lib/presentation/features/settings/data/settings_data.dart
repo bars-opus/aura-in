@@ -1,4 +1,6 @@
 // lib/features/settings/data/settings_data.dart
+import 'package:nano_embryo/app/routing/app_router.dart' as routes;
+import 'package:nano_embryo/core/providers/routing_providers.dart';
 import 'package:nano_embryo/core/providers/shared_prefs_provider.dart';
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
 
@@ -63,7 +65,7 @@ class SettingsDataSource {
             subtitle: loc.blockedItemSubtitle,
             icon: Icons.block,
             type: SettingsItemType.navigation,
-            routeName: '/blocked',
+            routeName: RouteNames.blockedAccounts,
             iconColor: Colors.red,
             order: 4,
           ),
@@ -90,7 +92,9 @@ class SettingsDataSource {
       ),
       SettingsSection(
         id: 'app',
-        title: loc.appSettingsSectionTitle,
+        title:
+        //Change to display settings
+         loc.appSettingsSectionTitle,
         subtitle: loc.appSettingsSectionSubtitle,
         items: [
           SettingsConfig(
@@ -124,17 +128,7 @@ class SettingsDataSource {
               },
             ),
           ),
-          // SettingsConfig(
-          //   id: 'biometric',
-          //   title: loc.biometricItemTitle,
-          //   subtitle: loc.biometricItemSubtitle,
-          //   icon: Icons.fingerprint,
-          //   type: SettingsItemType.toggle,
-          //   value: true,
-          //   onToggle: (value) => _handleBiometricToggle(context, value),
-          //   iconColor: Colors.grey,
-          //   order: 3,
-          // ),
+         
         ],
       ),
       SettingsSection(
@@ -168,9 +162,19 @@ class SettingsDataSource {
             subtitle: loc.feedbackItemSubtitle,
             icon: Icons.feedback,
             type: SettingsItemType.navigation,
-            onTap: () {},
+            onTap: () => context.push('/feedback'),
             iconColor: Colors.grey,
             order: 2,
+          ),
+          SettingsConfig(
+            id: 'feature_survey', // NEW
+            title: 'Feature Feedback',
+            subtitle: 'Tell us what you like/dislike',
+            icon: Icons.thumb_up_alt_outlined,
+            type: SettingsItemType.navigation,
+            onTap: () => context.push('/featureSurvey'),
+            iconColor: Colors.grey,
+            order: 3,
           ),
           SettingsConfig(
             id: 'rate',
@@ -180,7 +184,7 @@ class SettingsDataSource {
             type: SettingsItemType.link,
             url: 'https://yourapp.com/privacy',
             iconColor: Colors.grey,
-            order: 3,
+            order: 4,
           ),
           SettingsConfig(
             id: 'appInfoScreen',
@@ -191,7 +195,7 @@ class SettingsDataSource {
             type: SettingsItemType.navigation,
             routeName: '/appInfoScreen',
             iconColor: Colors.grey,
-            order: 2,
+            order: 5,
           ),
         ],
       ),
@@ -229,13 +233,11 @@ class SettingsDataSource {
           items: [
             SettingsConfig(
               id: 'update password ',
-              title: 'Update password',
-              // loc.deactivateItemTitle,
-              subtitle: 'Change you current account password',
-              // oc.deactivateItemSubtitle,
+              title: loc.updatePasswordItemTitle,
+              subtitle: loc.updatePasswordItemSubtitle,
               icon: Icons.lock,
               type: SettingsItemType.navigation,
-              routeName: '/updatePasswordScreen',
+              routeName: RouteNames.updatePasswordScreen,
               iconColor: Colors.grey,
               order: 1,
             ),
@@ -244,8 +246,8 @@ class SettingsDataSource {
               title: loc.deactivateItemTitle,
               subtitle: loc.deactivateItemSubtitle,
               icon: Icons.person_off_outlined,
-              type: SettingsItemType.action,
-              onTap: () {},
+              type: SettingsItemType.navigation,
+              routeName: routes.RouteNames.deactivateAccount,
               iconColor: Colors.grey,
               order: 1,
             ),
@@ -255,7 +257,7 @@ class SettingsDataSource {
               subtitle: loc.deleteItemSubtitle,
               icon: Icons.delete,
               type: SettingsItemType.destructive,
-              onTap: () {},
+              onTap: () => context.push(routes.RouteNames.deleteAccount),
               iconColor: Colors.red,
               order: 2,
             ),
@@ -273,39 +275,37 @@ class SettingsDataSource {
                   widget: ConfirmationDialog(
                     noIcon: true,
                     type: ConfirmationType.info,
-                    title: 'Are you sure you want to logout',
-                    confirmText: 'Log out',
-                    message:
-                        'You would have to log in again to access your account and data',
+                    title: loc.logoutConfirmTitle,
+                    confirmText: loc.logoutConfirmButton,
+                    message: loc.logoutConfirmMessage,
                     onConfirm: () async {
-                      // ✅ Now ref is available here!
                       try {
-                        // ✅ Get ref from context
                         final ref = ProviderScope.containerOf(
                           context,
                           listen: false,
                         );
 
-                        final authOps = ref.read(authOperationsProvider);
-                        await authOps.signOut();
+                        // signOut() clears the Supabase session + encrypted chat cache.
+                        await ref.read(authOperationsProvider).signOut();
 
-                        //                    // Option A: Clear EVERYTHING (nuclear option)
-                        // await prefsService.clearAllPreferences();
+                        // Clear user-specific SharedPrefs (keeps theme/language).
+                        await ref
+                            .read(preferencesServiceProvider)
+                            .clearUserData();
 
-                        final prefsService = ref.read(
-                          preferencesServiceProvider,
-                        );
-                        await prefsService.clearUserData();
+                        // Bypass the 100ms debounce so the router sees null user
+                        // immediately when context.go fires below.
+                        ref.read(routingNotifierProvider).clearUser();
 
                         if (context.mounted) {
-                          context.go('/intro');
-                          context.showSuccessSnackbar(
-                            'Signed out successfully',
-                          );
+                          context.showSuccessSnackbar(loc.logoutSuccessMessage);
+                          context.go(RouteNames.intro);
                         }
                       } catch (e) {
                         if (context.mounted) {
-                          context.showErrorSnackbar('Sign out failed: $e');
+                          context.showErrorSnackbar(
+                            loc.logoutFailedMessage(e.toString()),
+                          );
                         }
                       }
                     },
@@ -318,20 +318,5 @@ class SettingsDataSource {
           ],
         ),
     ];
-  }
-
-  static void _handleBiometricToggle(BuildContext context, bool value) {
-    // // Your toggle logic here
-
-    // // Example: Save to preferences
-    // // final prefs = await SharedPreferences.getInstance();
-    // // await prefs.setBool('biometric_enabled', value);
-
-    // // Optional: Show confirmation
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(
-    //     content: Text('Biometric login ${value ? 'enabled' : 'disabled'}'),
-    //   ),
-    // );
   }
 }

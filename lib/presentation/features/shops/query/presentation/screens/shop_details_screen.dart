@@ -1,8 +1,7 @@
 // lib/features/shops/presentation/screens/shop_details_screen.dart
-import 'dart:io';
-import 'package:nano_embryo/presentation/features/profile/widgets/tab_bar_delegate.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/client/service_selection_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/screens/shop_details_content.dart';
+import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_loading_schimmer.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 
 class ShopDetailsScreen extends ConsumerStatefulWidget {
@@ -50,6 +49,8 @@ class _ShopDetailsScreenState extends ConsumerState<ShopDetailsScreen>
   @override
   Widget build(BuildContext context) {
     final shopAsync = ref.watch(shopDetailsProvider(shopId: widget.shopId));
+    final colorScheme = Theme.of(context).colorScheme;
+
     print(widget.shopId);
     return shopAsync.when(
       data: (shopDetails) {
@@ -70,78 +71,52 @@ class _ShopDetailsScreenState extends ConsumerState<ShopDetailsScreen>
                   AppTabItem(
                     label: 'Services',
                     icon: null,
-                    content: Padding(
-                      padding: const EdgeInsets.all(Spacing.md),
-                      child: MediaQuery.removePadding(
-                        removeTop: true,
-                        context: context,
-                        child: ServiceSelectionScreen(shopId: widget.shopId, shopCurrency: shopDetails.currency??'',),
+                    content: Material(
+                      color: colorScheme.background,
+                      child: Padding(
+                        padding: const EdgeInsets.all(Spacing.md),
+                        child: MediaQuery.removePadding(
+                          removeTop: true,
+                          context: context,
+                          child: ServiceSelectionScreen(
+                            shopId: widget.shopId,
+                            shopCurrency: shopDetails.currency ?? '',
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                  AppTabItem(label: 'Buy', icon: null, content: Container()),
-                  AppTabItem(label: 'Works', icon: null, content: Container()),
+                  AppTabItem(
+                    label: 'Buy',
+                    icon: null,
+                    content: Material(
+                      color: colorScheme.background,
+                      child: Container(),
+                    ),
+                  ),
+                  AppTabItem(
+                    label: 'Works',
+                    icon: null,
+                    content: Material(
+                      color: colorScheme.background,
+                      child: Container(),
+                    ),
+                  ),
                 ];
               });
             }
           });
         }
         return ShopDetailsContent(
+          coverImageUrl: widget.coverImageUrl,
           shop: shopDetails,
           tabController: _tabController,
           tabs: _tabs,
         );
       },
-      loading: () => _loadingSchimmer(context, widget.coverImageUrl),
+      loading:
+          () => ShopDetailsLoadingSchimmer(coverImageUrl: widget.coverImageUrl),
       error: (error, _) => _buildErrorWidget(error),
-    );
-  }
-
-  Widget _loadingSchimmer(BuildContext context, String coverImageUrl) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      backgroundColor: colorScheme.background,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                SizedBox(
-                  height: 450.h,
-                  width: double.infinity,
-                  child: ShopImagePageview(shopImageUrls: [coverImageUrl]),
-                ),
-                Positioned(
-                  top: 50.h,
-                  left: 10.h,
-                  child: AppIconButton(
-                    onPressed: () => Navigator.pop(context),
-                    backgroundColor: colorScheme.background.withOpacity(.6),
-                    icon: Icons.close,
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: Spacing.md),
-              child: Column(
-                children: [
-                  Gap(20.h),
-                  CompactProfileSchimmer(),
-                  Gap(20.h),
-                  ShopSchimmerSkeleton(height: 20.h),
-                  Gap(5.h),
-                  ShopSchimmerSkeleton(height: 20.h),
-                  Gap(5.h),
-                  ShopSchimmerSkeleton(height: 20.h),
-                  Gap(20.h),
-                  ShopSchimmerSkeleton(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

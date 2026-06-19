@@ -40,7 +40,7 @@ final hasLocationProvider = AutoDisposeProvider<bool>.internal(
 // ignore: unused_element
 typedef HasLocationRef = AutoDisposeProviderRef<bool>;
 String _$userLocationNotifierHash() =>
-    r'ba19ddad2e3f8a59c6ff80090ec24827626c04ef';
+    r'4644a7750f138e2506cd8a475b1f2dc5b7002b3c';
 
 /// See also [UserLocationNotifier].
 @ProviderFor(UserLocationNotifier)

@@ -1,5 +1,6 @@
 // lib/features/booking/presentation/screens/time_slot_selection_screen.dart
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/providers/service_addons_provider.dart';
 
 class TimeSlotSelectionScreen extends ConsumerStatefulWidget {
   final bool isFreelancer;
@@ -262,10 +263,21 @@ class _TimeSlotSelectionScreenState
     return availabilityMap;
   }
 
+  /// Total appointment length shown to the client: base service time plus any
+  /// selected add-on time. Buffers are NOT added here — they are applied
+  /// server-side by the slot-generation RPC, so adding them again would
+  /// double-count.
   Duration _calculateTotalDuration(List<AppointmentSlotDTO> services) {
+    final addonsNotifier = ref.read(selectedAddonsProvider.notifier);
     return services.fold<Duration>(
       Duration.zero,
-      (sum, service) => sum + DurationUtils.parse(service.duration),
+      (sum, service) {
+        final base = DurationUtils.parse(service.duration);
+        final addonMinutes = addonsNotifier
+            .forSlot(service.id)
+            .fold<int>(0, (s, a) => s + (a.durationMinutes ?? 0));
+        return sum + base + Duration(minutes: addonMinutes);
+      },
     );
   }
 }

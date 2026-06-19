@@ -43,18 +43,20 @@ class MapFabColumn extends StatelessWidget {
             curve: Curves.easeOutBack,
             child: FloatingActionButton.small(
               heroTag: 'fab_gps',
-              backgroundColor: colorScheme.surface,
+              backgroundColor: colorScheme.background,
               onPressed: onGpsPressed,
-              child: isFetchingGps
-                  ? const CircularLoadingIndicator()
-                  : Icon(
-                      fetchMode == MapFetchMode.deviceGps
-                          ? Icons.gps_fixed
-                          : Icons.gps_not_fixed,
-                      color: fetchMode == MapFetchMode.deviceGps
-                          ? colorScheme.primary
-                          : colorScheme.onSurface,
-                    ),
+              child:
+                  isFetchingGps
+                      ? const CircularLoadingIndicator()
+                      : Icon(
+                        fetchMode == MapFetchMode.deviceGps
+                            ? Icons.gps_fixed
+                            : Icons.gps_not_fixed,
+                        color:
+                            fetchMode == MapFetchMode.deviceGps
+                                ? colorScheme.primary
+                                : colorScheme.onSurface,
+                      ),
             ),
           ),
         ),
@@ -67,18 +69,20 @@ class MapFabColumn extends StatelessWidget {
               curve: Curves.easeOutBack,
               child: FloatingActionButton.small(
                 heroTag: 'fab_app_location',
-                backgroundColor: colorScheme.surface,
+                backgroundColor: colorScheme.background,
                 onPressed: onAppLocationPressed,
-                child: isFetchingAppLocation
-                    ? const CircularLoadingIndicator()
-                    : Icon(
-                        fetchMode == MapFetchMode.appLocation
-                            ? Icons.location_on
-                            : Icons.location_on_outlined,
-                        color: fetchMode == MapFetchMode.appLocation
-                            ? colorScheme.primary
-                            : colorScheme.onSurface,
-                      ),
+                child:
+                    isFetchingAppLocation
+                        ? const CircularLoadingIndicator()
+                        : Icon(
+                          fetchMode == MapFetchMode.appLocation
+                              ? Icons.location_on
+                              : Icons.location_on_outlined,
+                          color:
+                              fetchMode == MapFetchMode.appLocation
+                                  ? colorScheme.primary
+                                  : colorScheme.onSurface,
+                        ),
               ),
             ),
           ),

@@ -35,7 +35,7 @@ abstract class ChatRepository {
   // ========== Message Management (Sendbird: BaseMessage) ==========
   Future<List<Message>> getMessages(
     String channelUrl, {
-    int limit = 50,
+    int? limit,
     String? token,
     bool reverse = false,
   });
@@ -54,6 +54,7 @@ abstract class ChatRepository {
     String mimeType, {
     String? caption,
     Map<String, dynamic>? data,
+    void Function(int sent, int total)? onProgress,
   });
 
   Future<void> updateMessage(String channelUrl, int messageId, String content);

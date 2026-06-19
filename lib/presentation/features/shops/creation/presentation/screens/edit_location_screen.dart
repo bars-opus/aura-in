@@ -119,13 +119,7 @@ class _EditLocationScreenState extends ConsumerState<EditLocationScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         actions: [
-          // if (hasLocation)
-          //   AppTextButton(
-          //     text: 'Save',
-          //     onPressed: () {
-          //       _saveAndExit(draft);
-          //     },
-          //   ),
+         
         ],
       ),
       body: ListView(
@@ -133,7 +127,7 @@ class _EditLocationScreenState extends ConsumerState<EditLocationScreen> {
         children: [
           SemanticContainerWidget(
             content:
-                'This helps customers find you. You can use your current location or search for an address.',
+                'This helps customers find you. You can use your current(live) location or search for an address.',
             icon: Icons.info_outline,
             title: 'Where is your shop located?',
             backgroundColor: colorScheme.primary.withOpacity(0.1),

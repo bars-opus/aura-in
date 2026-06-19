@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
@@ -13,12 +15,15 @@ class NetworkStatus extends StatefulWidget {
 class _NetworkStatusState extends State<NetworkStatus> {
   ConnectivityResult _connectivity = ConnectivityResult.none;
   final Connectivity _connectivityService = Connectivity();
+  late final StreamSubscription<ConnectivityResult> _subscription;
 
   @override
   void initState() {
     super.initState();
     _checkConnectivity();
-    _connectivityService.onConnectivityChanged.listen(_updateConnectivity);
+    _subscription = _connectivityService.onConnectivityChanged.listen(
+      _updateConnectivity,
+    );
   }
 
   Future<void> _checkConnectivity() async {
@@ -37,15 +42,15 @@ class _NetworkStatusState extends State<NetworkStatus> {
     final theme = Theme.of(context);
 
     return Stack(
-      alignment: FractionalOffset.bottomCenter,
+      alignment: Alignment.bottomCenter,
       children: [
         widget.child,
         if (_connectivity == ConnectivityResult.none)
-          SafeArea(
-            child: Positioned(
-              bottom: 20.h,
-              // left: 0,
-              // right: 0,
+          Positioned(
+            bottom: 20.h,
+            left: 0,
+            right: 0,
+            child: SafeArea(
               child: Padding(
                 padding: EdgeInsets.only(bottom: 70.h, left: 10.w, right: 10.w),
                 child: SizedBox(
@@ -54,7 +59,7 @@ class _NetworkStatusState extends State<NetworkStatus> {
                     content: 'Connect to the internet and try again',
                     icon: Icons.warning_amber,
                     title: 'No internet connection',
-                    backgroundColor: Colors.red.withOpacity(0.1),
+                    backgroundColor: Colors.red.withValues(alpha: 0.1),
                     borderColor: Colors.red,
                     iconColor: Colors.red,
                     textTheme: theme.textTheme,
@@ -69,7 +74,7 @@ class _NetworkStatusState extends State<NetworkStatus> {
 
   @override
   void dispose() {
-    _connectivityService.onConnectivityChanged.drain();
+    _subscription.cancel();
     super.dispose();
   }
 }

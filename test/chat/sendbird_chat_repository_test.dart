@@ -1,26 +1,33 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sendbird_sdk/sendbird_sdk.dart';
+import 'package:nano_embryo/presentation/features/chat/config/chat_config.dart';
 import 'package:nano_embryo/presentation/features/chat/data/repositories/sendbird_chat_repository.dart';
-import 'package:nano_embryo/presentation/features/chat/data/models/sendbird/sb_types.dart';
 
 // Mock classes
 class MockSendbirdSdk extends Mock implements SendbirdSdk {}
+
 class MockGroupChannel extends Mock implements GroupChannel {}
+
 class MockUser extends Mock implements User {}
+
 class MockUserMessage extends Mock implements UserMessage {}
 
 void main() {
   late SendbirdChatRepository repository;
   late MockSendbirdSdk mockSendbird;
-  late MockGroupChannel mockChannel;
   late MockUser mockUser;
+
+  // Short timeouts keep tests fast and exercise the _withTimeout wrapper.
+  const testConfig = ChatConfig(
+    appId: 'test_app',
+    networkTimeout: Duration(seconds: 2),
+  );
 
   setUp(() {
     mockSendbird = MockSendbirdSdk();
-    mockChannel = MockGroupChannel();
     mockUser = MockUser();
-    repository = SendbirdChatRepository(mockSendbird);
+    repository = SendbirdChatRepository(mockSendbird, config: testConfig);
   });
 
   group('SendbirdChatRepository Tests', () {
@@ -29,20 +36,32 @@ void main() {
     });
 
     test('should connect user successfully', () async {
+      // The repository connects with an optional accessToken (nickname is set
+      // afterwards via updateCurrentUserInfo, not on connect()).
       when(() => mockSendbird.connect(
-        any(), 
-        nickname: any(named: 'nickname'),
-      )).thenAnswer((_) async => mockUser);
+            any(),
+            accessToken: any(named: 'accessToken'),
+          )).thenAnswer((_) async => mockUser);
+      when(() => mockSendbird.updateCurrentUserInfo(
+            nickname: any(named: 'nickname'),
+          )).thenAnswer((_) async => mockUser);
       when(() => mockUser.userId).thenReturn('test_user');
 
       await repository.connect('test_user', nickname: 'Test User');
 
-      verify(() => mockSendbird.connect('test_user', nickname: 'Test User')).called(1);
+      verify(() => mockSendbird.connect(
+            'test_user',
+            accessToken: any(named: 'accessToken'),
+          )).called(1);
+      verify(() => mockSendbird.updateCurrentUserInfo(nickname: 'Test User'))
+          .called(1);
     });
 
     test('should throw error on connection failure', () async {
-      when(() => mockSendbird.connect(any(), nickname: any(named: 'nickname')))
-          .thenThrow(Exception('Connection failed'));
+      when(() => mockSendbird.connect(
+            any(),
+            accessToken: any(named: 'accessToken'),
+          )).thenThrow(Exception('Connection failed'));
 
       expect(
         () => repository.connect('test_user'),

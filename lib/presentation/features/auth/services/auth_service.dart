@@ -1,4 +1,5 @@
 // lib/core/auth/auth_service.dart
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -18,7 +19,31 @@ class AuthService {
 
   AuthService(this._supabase);
 
-  static const _googleChannel = MethodChannel('com.barsOpus.florence/google_sign_in');
+  // MethodChannel names are arbitrary identifiers — they only need to match
+  // between Flutter and the native side (see ios/Runner/AppDelegate.swift).
+  // The camelCase form here intentionally differs from the iOS bundle ID
+  // (`com.bars-Opus.florence`) because hyphens are uncommon in channel names;
+  // keep both sides in sync if you ever rename either.
+  static const _googleChannel =
+      MethodChannel('com.barsOpus.florence/google_sign_in');
+
+  /// Default timeout for any single HTTP call to Supabase auth.
+  /// 30s is generous enough for slow mobile networks but bounded so the UI
+  /// loading state never spins forever.
+  static const _authTimeout = Duration(seconds: 30);
+
+  /// Wraps a Supabase call with a timeout. On timeout, throws an AuthException
+  /// that flows through the standard error-translation path.
+  Future<T> _withTimeout<T>(Future<T> Function() op, {Duration? timeout}) {
+    return op().timeout(
+      timeout ?? _authTimeout,
+      onTimeout: () => throw AuthException(
+        'Request timed out. Please check your connection and try again.',
+        statusCode: '408',
+        code: 'timeout',
+      ),
+    );
+  }
 
   // ==================== EMAIL/PASSWORD ====================
 
@@ -28,11 +53,11 @@ class AuthService {
     Map<String, dynamic>? metadata,
   }) async {
     try {
-      return await _supabase.auth.signUp(
-        email: email.trim(),
-        password: password,
-        data: metadata,
-      );
+      return await _withTimeout(() => _supabase.auth.signUp(
+            email: email.trim(),
+            password: password,
+            data: metadata,
+          ));
     } on AuthException catch (e) {
       throw _handleAuthException(e);
     }
@@ -43,10 +68,10 @@ class AuthService {
     required String password,
   }) async {
     try {
-      return await _supabase.auth.signInWithPassword(
-        email: email.trim(),
-        password: password,
-      );
+      return await _withTimeout(() => _supabase.auth.signInWithPassword(
+            email: email.trim(),
+            password: password,
+          ));
     } on AuthException catch (e) {
       throw _handleAuthException(e);
     }
@@ -109,12 +134,12 @@ class AuthService {
       throw Exception('Google Sign-In returned no ID token.');
     }
 
-    await _supabase.auth.signInWithIdToken(
-      provider: OAuthProvider.google,
-      idToken: idToken,
-      accessToken: accessToken,
-      nonce: rawNonce,
-    );
+    await _withTimeout(() => _supabase.auth.signInWithIdToken(
+          provider: OAuthProvider.google,
+          idToken: idToken,
+          accessToken: accessToken,
+          nonce: rawNonce,
+        ));
   }
 
   /// Apple Sign-In.
@@ -171,18 +196,18 @@ class AuthService {
     final idToken = credential.identityToken;
     if (idToken == null) throw Exception('Apple did not return an identity token');
 
-    await _supabase.auth.signInWithIdToken(
-      provider: OAuthProvider.apple,
-      idToken: idToken,
-      nonce: rawNonce,
-    );
+    await _withTimeout(() => _supabase.auth.signInWithIdToken(
+          provider: OAuthProvider.apple,
+          idToken: idToken,
+          nonce: rawNonce,
+        ));
   }
 
   // ==================== COMMON ====================
 
   Future<void> signOut() async {
     try {
-      await _supabase.auth.signOut();
+      await _withTimeout(() => _supabase.auth.signOut());
     } on AuthException catch (e) {
       throw _handleAuthException(e);
     }
@@ -190,15 +215,15 @@ class AuthService {
 
   Future<void> resetPassword(String email) async {
     try {
-      await _supabase.auth.resetPasswordForEmail(
-        email.trim(),
-        // Use HTTPS so the OS can intercept via Universal Links (iOS) /
-        // App Links (Android) even from Gmail's in-app WebView.
-        // aurain:// works in Safari/Chrome but not in WebViews.
-        redirectTo: kIsWeb
-            ? '${Uri.base.origin}/auth/callback'
-            : 'https://aurain.barsopus.com/auth/callback',
-      );
+      await _withTimeout(() => _supabase.auth.resetPasswordForEmail(
+            email.trim(),
+            // Use HTTPS so the OS can intercept via Universal Links (iOS) /
+            // App Links (Android) even from Gmail's in-app WebView.
+            // aurain:// works in Safari/Chrome but not in WebViews.
+            redirectTo: kIsWeb
+                ? '${Uri.base.origin}/auth/callback'
+                : 'https://aurain.barsopus.com/auth/callback',
+          ));
     } on AuthException catch (e) {
       throw _handleAuthException(e);
     }
@@ -206,24 +231,24 @@ class AuthService {
 
   Future<void> resendConfirmationEmail(String email) async {
     try {
-      await _supabase.auth.resend(
-        type: OtpType.signup,
-        email: email.trim(),
-        emailRedirectTo: _getDeepLink(),
-      );
+      await _withTimeout(() => _supabase.auth.resend(
+            type: OtpType.signup,
+            email: email.trim(),
+            emailRedirectTo: _getDeepLink(),
+          ));
     } on AuthException catch (e) {
       throw _handleAuthException(e);
     }
   }
 
-
-Future<void> updatePassword(String newPassword) async {
-  try {
-    await _supabase.auth.updateUser(UserAttributes(password: newPassword));
-  } on AuthException catch (e) {
-    throw _handleAuthException(e);
+  Future<void> updatePassword(String newPassword) async {
+    try {
+      await _withTimeout(
+          () => _supabase.auth.updateUser(UserAttributes(password: newPassword)));
+    } on AuthException catch (e) {
+      throw _handleAuthException(e);
+    }
   }
-}
   // ==================== GETTERS ====================
 
   User? get currentUser => _supabase.auth.currentUser;
@@ -273,7 +298,9 @@ Future<void> updatePassword(String newPassword) async {
   // ==================== ERROR HANDLING ====================
 
   AuthException _handleAuthException(AuthException e) {
-    debugPrint('Auth Error [${e.statusCode}] code=${e.code}: ${e.message}');
+    // Log only statusCode + code. Supabase error messages frequently embed the
+    // user's email or other PII that must not reach crash-reporting pipelines.
+    debugPrint('Auth Error [${e.statusCode}] code=${e.code}');
 
     // Supabase v2: e.code is the specific error string; e.statusCode is the HTTP code.
     // Switch on code first, fall back to message heuristics.

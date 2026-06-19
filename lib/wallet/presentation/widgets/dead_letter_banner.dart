@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 import 'package:nano_embryo/wallet/data/models/withdrawal_request_model.dart';
 import 'package:nano_embryo/wallet/providers/dead_letter_withdrawals_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -34,6 +35,7 @@ class _DeadLetterBannerState extends ConsumerState<DeadLetterBanner> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final async = ref.watch(deadLetterWithdrawalsProvider(widget.shopId));
     final list = async.valueOrNull ?? const <WithdrawalRequestModel>[];
     if (list.isEmpty) return const SizedBox.shrink();
@@ -62,7 +64,7 @@ class _DeadLetterBannerState extends ConsumerState<DeadLetterBanner> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Withdrawal needs review',
+                          loc.deadLetterTitle,
                           style: theme.textTheme.titleSmall?.copyWith(
                             color: cs.onTertiaryContainer,
                             fontWeight: FontWeight.w600,
@@ -70,8 +72,8 @@ class _DeadLetterBannerState extends ConsumerState<DeadLetterBanner> {
                         ),
                         Text(
                           list.length == 1
-                              ? '$currency ${total.toStringAsFixed(2)} stuck — tap for details'
-                              : '$currency ${total.toStringAsFixed(2)} stuck across ${list.length} withdrawals — tap for details',
+                              ? loc.deadLetterSingle(currency, total.toStringAsFixed(2))
+                              : loc.deadLetterMultiple(currency, total.toStringAsFixed(2), list.length),
                           style: theme.textTheme.bodySmall
                               ?.copyWith(color: cs.onTertiaryContainer),
                         ),
@@ -99,7 +101,7 @@ class _DeadLetterBannerState extends ConsumerState<DeadLetterBanner> {
                   alignment: Alignment.centerRight,
                   child: FilledButton.tonal(
                     onPressed: _contactSupport,
-                    child: const Text('Contact support'),
+                    child: Text(loc.deadLetterContactSupport),
                   ),
                 ),
               ],
@@ -120,6 +122,7 @@ class _DeadLetterRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
     final d = withdrawal.updatedAt;
     final fmtDate =
         '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
@@ -140,7 +143,7 @@ class _DeadLetterRow extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 12, top: 2),
             child: Text(
-              'Reason: ${withdrawal.deadLetterReason}',
+              '${loc.deadLetterReason} ${withdrawal.deadLetterReason}',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: cs.onTertiaryContainer.withValues(alpha: 0.85),
                 fontStyle: FontStyle.italic,

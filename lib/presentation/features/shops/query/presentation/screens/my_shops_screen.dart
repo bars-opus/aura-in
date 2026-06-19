@@ -8,6 +8,10 @@ import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_
 import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 
+/// One-shot message shown as a snackbar when MyShopsScreen mounts.
+/// Write before navigating here; the screen reads and clears it immediately.
+final shopFlashMessageProvider = StateProvider<String?>((ref) => null);
+
 class MyShopsScreen extends ConsumerStatefulWidget {
   const MyShopsScreen({super.key});
 
@@ -19,9 +23,13 @@ class _MyShopsScreenState extends ConsumerState<MyShopsScreen> {
   @override
   void initState() {
     super.initState();
-    // Load shops when screen opens
     Future.microtask(() {
       ref.refresh(userShopsProvider);
+      final flash = ref.read(shopFlashMessageProvider);
+      if (flash != null && mounted) {
+        ref.read(shopFlashMessageProvider.notifier).state = null;
+        context.showSuccessSnackbar(flash);
+      }
     });
   }
 
@@ -37,7 +45,7 @@ class _MyShopsScreenState extends ConsumerState<MyShopsScreen> {
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: true,
         title: Text(
-          'Edit shops',
+          'My shops',
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface.withOpacity(0.8),
@@ -69,7 +77,7 @@ class _MyShopsScreenState extends ConsumerState<MyShopsScreen> {
                 itemBuilder:
                     (_, __) => Padding(
                       padding: EdgeInsets.only(bottom: Spacing.md.h),
-                      child: ShopSchimmerSkeleton(height: 150.h),
+                      child: ShopSchimmerSkeleton(height: 350.h),
                     ),
               ),
           error:
@@ -95,7 +103,7 @@ class _MyShopsScreenState extends ConsumerState<MyShopsScreen> {
               label: 'Add a new shop',
               center: false,
               iconData: Icons.storefront_rounded,
-              
+
               prefixIcon: Icons.add,
               prefixIconColor: colorScheme.background,
               onPressed: _createNewShop,

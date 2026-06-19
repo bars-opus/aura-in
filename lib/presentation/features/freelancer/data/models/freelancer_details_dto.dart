@@ -7,6 +7,7 @@ import 'package:nano_embryo/presentation/features/freelancer/enums/freelancer_ty
 class FreelancerDetailsDTO extends Equatable {
   // Core worker fields
   final String id;
+  final String userId;
   final String? shopId; // Will be null for freelancers
   final String name;
   final String? terms;
@@ -44,6 +45,7 @@ class FreelancerDetailsDTO extends Equatable {
 
   const FreelancerDetailsDTO({
     required this.id,
+    required this.userId,
     this.shopId,
     required this.name,
     this.bio,
@@ -84,11 +86,13 @@ class FreelancerDetailsDTO extends Equatable {
 
     return FreelancerDetailsDTO(
       id: json['id'] as String,
+      userId: json['user_id'] as String? ?? '',
       shopId: json['shop_id'] as String?,
       name: json['name'] as String,
       terms: json['terms'] as String?, // ✅ Fixed - allows null
       bio: json['bio'] as String?,
-      profileImageUrl: (json['profile_image'] ?? json['profile_image_url']) as String?,
+      profileImageUrl:
+          (json['profile_image'] ?? json['profile_image_url']) as String?,
       specialties: List<String>.from(json['specialties'] ?? []),
       isActive: json['is_active'] ?? true,
       isFreelancer: json['is_freelancer'] ?? true,
@@ -157,6 +161,7 @@ class FreelancerDetailsDTO extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    userId,
     shopId,
     name,
     bio,

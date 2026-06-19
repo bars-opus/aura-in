@@ -7,13 +7,15 @@ part of 'freelancer_list_providers.dart';
 // **************************************************************************
 
 String _$topRatedFreelancersListHash() =>
-    r'83975ac3b629bb3938ec0b88b81c2a6738ae9dec';
+    r'24e60579a010577c7295a1331f733051953fd0c9';
 
-/// Provider for top rated freelancers list (paginated)
+/// Provider for top rated freelancers list (paginated).
+/// keepAlive: discover-screen data persists across tab/route switches.
+/// Call refresh() to invalidate stale data.
 ///
 /// Copied from [TopRatedFreelancersList].
 @ProviderFor(TopRatedFreelancersList)
-final topRatedFreelancersListProvider = AutoDisposeAsyncNotifierProvider<
+final topRatedFreelancersListProvider = AsyncNotifierProvider<
     TopRatedFreelancersList, FreelancerListState>.internal(
   TopRatedFreelancersList.new,
   name: r'topRatedFreelancersListProvider',
@@ -24,17 +26,18 @@ final topRatedFreelancersListProvider = AutoDisposeAsyncNotifierProvider<
   allTransitiveDependencies: null,
 );
 
-typedef _$TopRatedFreelancersList
-    = AutoDisposeAsyncNotifier<FreelancerListState>;
+typedef _$TopRatedFreelancersList = AsyncNotifier<FreelancerListState>;
 String _$nearbyFreelancersListHash() =>
-    r'1283656eda126b158e75a78fc45b13d5a9aeebf5';
+    r'3744b845d71175891d3808afa719862f2658b54a';
 
-/// Provider for nearby freelancers list (paginated)
+/// Provider for nearby freelancers list (paginated).
+/// keepAlive: discover-screen data persists across tab/route switches.
+/// Call refresh() to invalidate stale data when location changes significantly.
 ///
 /// Copied from [NearbyFreelancersList].
 @ProviderFor(NearbyFreelancersList)
-final nearbyFreelancersListProvider = AutoDisposeAsyncNotifierProvider<
-    NearbyFreelancersList, FreelancerListState>.internal(
+final nearbyFreelancersListProvider =
+    AsyncNotifierProvider<NearbyFreelancersList, FreelancerListState>.internal(
   NearbyFreelancersList.new,
   name: r'nearbyFreelancersListProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -44,6 +47,6 @@ final nearbyFreelancersListProvider = AutoDisposeAsyncNotifierProvider<
   allTransitiveDependencies: null,
 );
 
-typedef _$NearbyFreelancersList = AutoDisposeAsyncNotifier<FreelancerListState>;
+typedef _$NearbyFreelancersList = AsyncNotifier<FreelancerListState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

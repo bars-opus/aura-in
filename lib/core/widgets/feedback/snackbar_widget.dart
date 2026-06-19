@@ -1,5 +1,4 @@
 // lib/core/widgets/snackbar/snackbar_utils.dart
-import 'package:flutter/material.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
 /// Snackbar types for different use cases
@@ -10,8 +9,6 @@ class Snackbar {
   static const Duration _defaultDuration = Duration(seconds: 4);
   static const Duration _longDuration = Duration(seconds: 6);
   static const Duration _shortDuration = Duration(seconds: 2);
-
-  /// Show a snackbar with optional action button
 
   /// Show a snackbar with optional action button
   static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> show({
@@ -78,7 +75,7 @@ class Snackbar {
       dismissDirection:
           dismissible ? DismissDirection.horizontal : DismissDirection.none,
       showCloseIcon: dismissible && type != SnackbarType.loading,
-      closeIconColor: txtColor.withOpacity(0.7),
+      closeIconColor: txtColor.withValues(alpha: 0.7),
     );
 
     return ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -151,20 +148,7 @@ class Snackbar {
           size: 20,
           message: message,
           verificationDuration: duration,
-          onComplete: () {
-            // Navigate or show success message
-            print('Verification complete!');
-          },
         );
-      // SizedBox(
-      //   width: 20.w,
-      //   height: 20.h,
-      //   child: CircularProgressIndicator(
-      //     strokeWidth: 2,
-      //     color: textColor,
-
-      //   ),
-      // );
       default:
         final icon = _getIcon(type);
         if (icon != null) {
@@ -217,7 +201,7 @@ class Snackbar {
   static void error(
     BuildContext context,
     String message, {
-    String? actionLabel = 'Retry',
+    String? actionLabel,
     VoidCallback? onAction,
     Duration? duration,
   }) {
@@ -281,9 +265,8 @@ class Snackbar {
       type: SnackbarType.loading,
       actionLabel: actionLabel,
       onActionPressed: onAction,
-      duration: duration ?? const Duration(minutes: 1), // Long for loading
-      dismissible: false, // Loading shouldn't be dismissible
-      showIcon: false, // We'll show CircularProgressIndicator instead
+      duration: duration ?? const Duration(minutes: 1),
+      dismissible: false,
     );
   }
 
@@ -292,7 +275,7 @@ class Snackbar {
   static Color _getBackgroundColor(SnackbarType type, ColorScheme scheme) {
     switch (type) {
       case SnackbarType.success:
-        return Colors.green;
+        return scheme.primaryContainer;
       case SnackbarType.error:
         return scheme.errorContainer;
       case SnackbarType.warning:
@@ -300,7 +283,7 @@ class Snackbar {
       case SnackbarType.info:
         return scheme.primary;
       case SnackbarType.loading:
-        return scheme.surfaceVariant;
+        return scheme.surfaceContainerHighest;
     }
   }
 
@@ -313,7 +296,7 @@ class Snackbar {
       case SnackbarType.warning:
         return scheme.onErrorContainer;
       case SnackbarType.info:
-        return scheme.background;
+        return scheme.surface;
       case SnackbarType.loading:
         return scheme.onSurfaceVariant;
     }

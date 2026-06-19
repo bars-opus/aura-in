@@ -1,6 +1,8 @@
 // lib/features/auth/presentation/providers/auth_provider.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/providers/routing_providers.dart';
 import 'package:nano_embryo/presentation/features/auth/services/auth_service.dart';
 import 'package:nano_embryo/presentation/features/chat/data/cache/chat_cache_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -46,123 +48,98 @@ final authOperationsProvider = Provider<AuthOperations>((ref) {
 class AuthOperations {
   final Ref ref;
 
+  /// Single in-flight auth operation lock. Prevents two concurrent operations
+  /// (e.g. user mashes "Sign in with Google" then "Sign in with Apple")
+  /// from racing to toggle the shared `isLoadingProvider`, where the first
+  /// to finish would prematurely clear the loading state while the second
+  /// is still mid-flight.
+  bool _busy = false;
+
   AuthOperations(this.ref);
 
-  // ==================== EMAIL/PASSWORD ====================
-
-  Future<void> signInWithEmail(String email, String password) async {
+  /// Wraps an auth op with mutual exclusion + shared loading/error state.
+  /// Throws [StateError] if another auth op is already running so callers
+  /// can surface a clear "please wait" message instead of silently queueing.
+  Future<T> _exclusive<T>(Future<T> Function() op) async {
+    if (_busy) {
+      throw StateError('Another auth operation is already in progress.');
+    }
+    _busy = true;
     ref.read(isLoadingProvider.notifier).state = true;
     ref.read(authErrorProvider.notifier).state = null;
-
     try {
-      final authService = ref.read(authServiceProvider);
-      await authService.signInWithEmail(email: email, password: password);
+      return await op();
     } on AuthException catch (e) {
       ref.read(authErrorProvider.notifier).state = e.message;
       rethrow;
     } finally {
+      _busy = false;
       ref.read(isLoadingProvider.notifier).state = false;
     }
   }
 
-  Future<AuthResponse> signUpWithEmail(String email, String password) async {
-    ref.read(isLoadingProvider.notifier).state = true;
-    ref.read(authErrorProvider.notifier).state = null;
+  // ==================== EMAIL/PASSWORD ====================
 
-    try {
+  Future<void> signInWithEmail(String email, String password) {
+    return _exclusive(() async {
       final authService = ref.read(authServiceProvider);
-      final response = await authService.signUpWithEmail(
-        email: email,
-        password: password,
-      );
-      return response;
-    } on AuthException catch (e) {
-      ref.read(authErrorProvider.notifier).state = e.message;
-      rethrow;
-    } finally {
-      ref.read(isLoadingProvider.notifier).state = false;
-    }
+      await authService.signInWithEmail(email: email, password: password);
+    });
+  }
+
+  Future<AuthResponse> signUpWithEmail(String email, String password) {
+    return _exclusive(() async {
+      final authService = ref.read(authServiceProvider);
+      return authService.signUpWithEmail(email: email, password: password);
+    });
   }
 
   // ==================== OAUTH ====================
 
-  Future<void> signInWithGoogle() async {
-    ref.read(isLoadingProvider.notifier).state = true;
-    ref.read(authErrorProvider.notifier).state = null;
-
-    try {
+  Future<void> signInWithGoogle() {
+    return _exclusive(() async {
       final authService = ref.read(authServiceProvider);
       await authService.signInWithGoogle();
-    } on AuthException catch (e) {
-      ref.read(authErrorProvider.notifier).state = e.message;
-      rethrow;
-    } finally {
-      ref.read(isLoadingProvider.notifier).state = false;
-    }
+    });
   }
 
-  Future<void> signInWithApple() async {
-    ref.read(isLoadingProvider.notifier).state = true;
-    ref.read(authErrorProvider.notifier).state = null;
-
-    try {
+  Future<void> signInWithApple() {
+    return _exclusive(() async {
       final authService = ref.read(authServiceProvider);
       await authService.signInWithApple();
-    } on AuthException catch (e) {
-      ref.read(authErrorProvider.notifier).state = e.message;
-      rethrow;
-    } finally {
-      ref.read(isLoadingProvider.notifier).state = false;
-    }
+    });
   }
 
   // ==================== OTHER ====================
 
-  Future<void> signOut() async {
-    ref.read(isLoadingProvider.notifier).state = true;
-    ref.read(authErrorProvider.notifier).state = null;
-
-    try {
-      // Clear chat cache before sign-out to prevent cross-session data leakage.
-      await ref.read(chatCacheServiceProvider).clearAll();
+  Future<void> signOut() {
+    return _exclusive(() async {
+      try {
+        // Clear chat cache before sign-out to prevent cross-session data leakage.
+        // Non-fatal: if the wipe fails, sign-out still proceeds.
+        await ref.read(chatCacheServiceProvider).clearAll();
+      } catch (e) {
+        debugPrint('⚠️ [AUTH] clearAll failed on sign-out: ${e.runtimeType}');
+      }
+      // Always clear the persisted recovery flag so a future sign-in does
+      // not inherit a stale "in recovery" state from a prior reset attempt.
+      ref.read(routingNotifierProvider).setRecoveryMode(false);
       final authService = ref.read(authServiceProvider);
       await authService.signOut();
-    } on AuthException catch (e) {
-      ref.read(authErrorProvider.notifier).state = e.message;
-      rethrow;
-    } finally {
-      ref.read(isLoadingProvider.notifier).state = false;
-    }
+    });
   }
 
-  Future<void> updatePassword(String newPassword) async {
-    ref.read(isLoadingProvider.notifier).state = true;
-    ref.read(authErrorProvider.notifier).state = null;
-    try {
+  Future<void> updatePassword(String newPassword) {
+    return _exclusive(() async {
       final authService = ref.read(authServiceProvider);
       await authService.updatePassword(newPassword);
-    } on AuthException catch (e) {
-      ref.read(authErrorProvider.notifier).state = e.message;
-      rethrow;
-    } finally {
-      ref.read(isLoadingProvider.notifier).state = false;
-    }
+    });
   }
 
-  // Add this method to your existing AuthService class
-
-  Future<void> resetPassword(String email) async {
-    ref.read(isLoadingProvider.notifier).state = true;
-    ref.read(authErrorProvider.notifier).state = null;
-
-    try {
+  Future<void> resetPassword(String email) {
+    return _exclusive(() async {
       final authService = ref.read(authServiceProvider);
       await authService.resetPassword(email);
-    } on AuthException catch (e) {
-      ref.read(authErrorProvider.notifier).state = e.message;
-      rethrow;
-    } finally {
-      ref.read(isLoadingProvider.notifier).state = false;
-    }
+    });
   }
 }

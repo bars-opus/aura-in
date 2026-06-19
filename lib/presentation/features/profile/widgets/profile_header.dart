@@ -1,5 +1,3 @@
-import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
-import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 
 /// Profile header display modes
@@ -16,8 +14,8 @@ class ProfileHeader extends ConsumerWidget {
   final String? bio;
   final String? avatarUrl;
   // final String? coverImageUrl;
-  final int? followersCount;
-  final int? followingCount;
+  final int? bookingCount;
+  final int? shopingCount;
   final VoidCallback? onEditPressed;
   final VoidCallback? onFollowPressed;
   final VoidCallback? onMessagePressed;
@@ -29,7 +27,7 @@ class ProfileHeader extends ConsumerWidget {
   final bool showActions;
   final String userId;
   final Color? textColor;
-    final Color? bioTextColor;
+  final Color? bioTextColor;
 
   final bool enableHero;
   final bool enableOnProfileNavigatePressed;
@@ -45,8 +43,8 @@ class ProfileHeader extends ConsumerWidget {
     this.bio,
     this.avatarUrl,
     // this.coverImageUrl,
-    this.followersCount,
-    this.followingCount,
+    this.bookingCount,
+    this.shopingCount,
     this.onEditPressed,
     this.onFollowPressed,
     this.onMessagePressed,
@@ -67,6 +65,7 @@ class ProfileHeader extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final user = ref.watch(currentUserProvider);
+    final loc = AppLocalizations.of(context)!;
 
     switch (mode) {
       case ProfileHeaderMode.compact:
@@ -96,9 +95,9 @@ class ProfileHeader extends ConsumerWidget {
               user == null ? '' : user.id,
             );
       case ProfileHeaderMode.detailed:
-        return _buildDetailedHeader(context, colorScheme, textTheme);
+        return _buildDetailedHeader(context, colorScheme, textTheme, loc);
       case ProfileHeaderMode.expanded:
-        return _buildExpandedHeader(context, colorScheme, textTheme);
+        return _buildExpandedHeader(context, colorScheme, textTheme, loc);
     }
   }
 
@@ -115,7 +114,7 @@ class ProfileHeader extends ConsumerWidget {
           ProfileAvatar(
             avatarUrl: avatarUrl ?? '',
             currentUserId: userId,
-            size: 40.h,
+            size: 40.r,
             enableHero: enableHero,
           ),
           Gap(Spacing.md.w),
@@ -129,7 +128,7 @@ class ProfileHeader extends ConsumerWidget {
                   displayName,
                   style: textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: textColor ?? colorScheme.onBackground,
+                    color: textColor ?? colorScheme.onSurface,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -150,7 +149,7 @@ class ProfileHeader extends ConsumerWidget {
                   Text(
                     bio ?? '',
                     style: textTheme.bodySmall?.copyWith(
-                      color: bioTextColor?? textColor ?? colorScheme.onBackground,
+                      color: bioTextColor ?? textColor ?? colorScheme.onSurface,
                       height: 1.5,
                     ),
                     maxLines: 2,
@@ -173,6 +172,7 @@ class ProfileHeader extends ConsumerWidget {
     BuildContext context,
     ColorScheme colorScheme,
     TextTheme textTheme,
+    AppLocalizations loc,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,18 +190,18 @@ class ProfileHeader extends ConsumerWidget {
                 children: [
                   // Avatar
                   isLoading
-                      ? CircularLoadingIndicator(size: 80.h)
+                      ? CircularLoadingIndicator(size: 80.r)
                       : ProfileAvatar(
                         avatarUrl: avatarUrl ?? '',
                         currentUserId: userId,
-                        size: 80.h,
+                        size: 80.r,
                       ),
                   Gap(10.w),
                   // Stats
                   if (showStats &&
-                      (followersCount != null || followingCount != null)) ...[
+                      (bookingCount != null || shopingCount != null)) ...[
                     // Gap(Spacing.lg.h),
-                    _buildStatsRow(context, colorScheme, textTheme),
+                    _buildStatsRow(context, colorScheme, textTheme, loc),
                   ],
                 ],
               ),
@@ -237,7 +237,7 @@ class ProfileHeader extends ConsumerWidget {
               ],
 
               if (showActions) Gap(Spacing.lg.h),
-              if (showActions) _buildActionButtons(context, colorScheme),
+              if (showActions) _buildActionButtons(context, colorScheme, loc),
             ],
           ),
         ),
@@ -249,6 +249,7 @@ class ProfileHeader extends ConsumerWidget {
     BuildContext context,
     ColorScheme colorScheme,
     TextTheme textTheme,
+    AppLocalizations loc,
   ) {
     return Padding(
       padding: EdgeInsets.all(Spacing.md.w),
@@ -259,7 +260,7 @@ class ProfileHeader extends ConsumerWidget {
           ProfileAvatar(
             avatarUrl: avatarUrl ?? '',
             currentUserId: userId,
-            size: 100.h,
+            size: 100.r,
           ),
 
           Gap(Spacing.md.h),
@@ -275,9 +276,8 @@ class ProfileHeader extends ConsumerWidget {
           ),
           Gap(Spacing.md.h),
           // Stats
-          if (showStats &&
-              (followersCount != null || followingCount != null)) ...[
-            _buildStatsRow(context, colorScheme, textTheme, expanded: true),
+          if (showStats && (bookingCount != null || shopingCount != null)) ...[
+            _buildStatsRow(context, colorScheme, textTheme, loc, expanded: true),
           ],
 
           // Bio
@@ -298,7 +298,7 @@ class ProfileHeader extends ConsumerWidget {
           // Actions
           if (showActions) ...[
             Gap(Spacing.lg.h),
-            _buildActionButtons(context, colorScheme, expanded: true),
+            _buildActionButtons(context, colorScheme, loc, expanded: true),
           ],
         ],
       ),
@@ -342,28 +342,29 @@ class ProfileHeader extends ConsumerWidget {
   Widget _buildStatsRow(
     BuildContext context,
     ColorScheme colorScheme,
-    TextTheme textTheme, {
+    TextTheme textTheme,
+    AppLocalizations loc, {
     bool expanded = false,
   }) {
     return Row(
       mainAxisAlignment:
           expanded ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: [
-        if (followersCount != null) ...[
+        if (bookingCount != null) ...[
           _buildStatItem(
             context,
-            value: followersCount!,
-            label: 'Followers',
+            value: bookingCount!,
+            label: loc.profileHeaderBookingsStatLabel,
             colorScheme: colorScheme,
             textTheme: textTheme,
           ),
           Gap(expanded ? Spacing.xl.w : Spacing.lg.w),
         ],
-        if (followingCount != null)
+        if (shopingCount != null)
           _buildStatItem(
             context,
-            value: followingCount!,
-            label: 'Following',
+            value: shopingCount!,
+            label: loc.profileHeaderOrdersStatLabel,
             colorScheme: colorScheme,
             textTheme: textTheme,
           ),
@@ -400,13 +401,14 @@ class ProfileHeader extends ConsumerWidget {
 
   Widget _buildActionButtons(
     BuildContext context,
-    ColorScheme colorScheme, {
+    ColorScheme colorScheme,
+    AppLocalizations loc, {
     bool expanded = false,
   }) {
     if (isCurrentUser) {
-      return _buildEditButton(context, colorScheme, expanded: expanded);
+      return _buildEditButton(context, colorScheme, loc, expanded: expanded);
     }
-    return _buildMessageButton();
+    return _buildMessageButton(loc);
 
     // Row(
     //   mainAxisAlignment:
@@ -425,12 +427,13 @@ class ProfileHeader extends ConsumerWidget {
 
   Widget _buildEditButton(
     BuildContext context,
-    ColorScheme colorScheme, {
+    ColorScheme colorScheme,
+    AppLocalizations loc, {
     bool expanded = false,
   }) {
     return AppButton(
       height: 35.h,
-      label: "Edit profile",
+      label: loc.profileHeaderEditProfileButton,
       onPressed: onEditPressed,
       padding: Spacing.horizontalMd,
       variant: ButtonVariant.outline,
@@ -493,11 +496,11 @@ class ProfileHeader extends ConsumerWidget {
   //   );
   // }
 
-  Widget _buildMessageButton() {
+  Widget _buildMessageButton(AppLocalizations loc) {
     return AppButton(
       elevation: 0,
-      label: 'Message',
-      customColor: isLoading ? Colors.grey.withOpacity(.4) : null,
+      label: loc.profileHeaderMessageButton,
+      customColor: isLoading ? Colors.grey.withValues(alpha: .4) : null,
       onPressed: onMessagePressed,
       size: ButtonSize.small,
       width: double.infinity,

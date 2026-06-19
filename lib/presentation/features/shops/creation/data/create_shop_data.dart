@@ -39,7 +39,7 @@ class CreateShopDataSource {
             subtitle: draft.city ?? 'Add your shop address',
             icon: Icons.location_on,
             type: SettingsItemType.navigation,
-            routeName: '/editLocation',
+             routeName: '/editLocation',
             onTap: () => context.push('/editLocation', extra: true),
             iconColor: Colors.grey,
             trailing: SectionStatusIndicator(

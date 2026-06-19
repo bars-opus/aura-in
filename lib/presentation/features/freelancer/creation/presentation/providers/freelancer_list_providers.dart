@@ -2,6 +2,7 @@
 
 import 'package:nano_embryo/presentation/features/freelancer/data/repositories/supabase_freelancer_repository.dart';
 import 'package:nano_embryo/presentation/features/freelancer/enums/freelancer_category_mapper.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/service_category_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:nano_embryo/core/providers/location_provider.dart';
@@ -57,8 +58,10 @@ class FreelancerListState {
   }
 }
 
-/// Provider for top rated freelancers list (paginated)
-@riverpod
+/// Provider for top rated freelancers list (paginated).
+/// keepAlive: discover-screen data persists across tab/route switches.
+/// Call refresh() to invalidate stale data.
+@Riverpod(keepAlive: true)
 class TopRatedFreelancersList extends _$TopRatedFreelancersList {
   @override
   Future<FreelancerListState> build() {
@@ -165,11 +168,17 @@ class TopRatedFreelancersList extends _$TopRatedFreelancersList {
   }
 }
 
-/// Provider for nearby freelancers list (paginated)
-@riverpod
+/// Provider for nearby freelancers list (paginated).
+/// keepAlive: discover-screen data persists across tab/route switches.
+/// Call refresh() to invalidate stale data when location changes significantly.
+@Riverpod(keepAlive: true)
 class NearbyFreelancersList extends _$NearbyFreelancersList {
   @override
   Future<FreelancerListState> build() {
+    // React to radius slider changes by refetching the first page.
+    ref.listen<double>(searchRadiusKmProvider, (prev, next) {
+      if (prev != null && prev != next) loadFirstPage();
+    });
     return Future.value(FreelancerListState.initial());
   }
 
@@ -183,6 +192,7 @@ class NearbyFreelancersList extends _$NearbyFreelancersList {
     }
 
     final repository = ref.read(freelancerRepositoryProvider);
+    final radiusKm = ref.read(searchRadiusKmProvider);
     final freelancerTypes =
         FreelancerCategoryMapper.getFreelancerTypesForCategory(
           selectedCategory,
@@ -194,6 +204,7 @@ class NearbyFreelancersList extends _$NearbyFreelancersList {
       final result = await repository.getNearbyFreelancersPaginated(
         latitude: userLocation.latitude,
         longitude: userLocation.longitude,
+        radiusKm: radiusKm,
         offset: 0,
         limit: 20,
         freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
@@ -234,12 +245,14 @@ class NearbyFreelancersList extends _$NearbyFreelancersList {
         );
 
     final repository = ref.read(freelancerRepositoryProvider);
+    final radiusKm = ref.read(searchRadiusKmProvider);
     state = AsyncValue.data(data.copyWith(isLoading: true));
 
     try {
       final result = await repository.getNearbyFreelancersPaginated(
         latitude: userLocation.latitude,
         longitude: userLocation.longitude,
+        radiusKm: radiusKm,
         offset: data.nextOffset ?? 0,
         limit: 20,
         freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,

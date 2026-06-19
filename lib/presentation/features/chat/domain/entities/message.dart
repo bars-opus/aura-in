@@ -13,6 +13,11 @@ class Message {
   final String? fileUrl;
   final String? fileName;
   final int? fileSize;
+  final String? replyToMessageId;
+
+  /// Local file path for optimistic display before the CDN URL is available.
+  /// Never serialised to JSON / Hive — only lives in in-memory state.
+  final String? localFilePath;
 
   const Message({
     required this.id,
@@ -25,6 +30,8 @@ class Message {
     this.fileUrl,
     this.fileName,
     this.fileSize,
+    this.replyToMessageId,
+    this.localFilePath,
   });
 
   // Factory to create from Sendbird Message
@@ -51,19 +58,42 @@ class Message {
         status: _mapStatus(sbMessage.sendingStatus),
         type: MessageType.text,
         metadata: sbMessage.data,
+        replyToMessageId: sbMessage.parentMessageId?.toString(),
       );
     } else if (sbMessage is SBFileMessage) {
+      final mime = sbMessage.type.toLowerCase();
+      final MessageType resolvedType;
+      if (mime.startsWith('image/')) {
+        resolvedType = MessageType.image;
+      } else if (mime.startsWith('video/')) {
+        resolvedType = MessageType.video;
+      } else if (mime.startsWith('audio/')) {
+        resolvedType = MessageType.audio;
+      } else {
+        // Sendbird may return null/empty type — fall back to the file name extension.
+        final ext = sbMessage.name.split('.').last.toLowerCase();
+        if (const {'jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif'}.contains(ext)) {
+          resolvedType = MessageType.image;
+        } else if (const {'mp4', 'mov', 'avi', 'mkv', 'webm'}.contains(ext)) {
+          resolvedType = MessageType.video;
+        } else if (const {'mp3', 'wav', 'aac', 'm4a', 'ogg'}.contains(ext)) {
+          resolvedType = MessageType.audio;
+        } else {
+          resolvedType = MessageType.file;
+        }
+      }
       return Message(
         id: sbMessage.messageId.toString(),
         content: sbMessage.message ?? 'Sent a file',
         timestamp: sbMessage.createdAt,
         sender: isCurrentUser ? MessageSender.user : MessageSender.other,
         status: _mapStatus(sbMessage.sendingStatus),
-        type: MessageType.file,
+        type: resolvedType,
         metadata: sbMessage.data,
         fileUrl: sbMessage.url,
         fileName: sbMessage.name,
         fileSize: sbMessage.size,
+        replyToMessageId: sbMessage.parentMessageId?.toString(),
       );
     } else if (sbMessage is SBAdminMessage) {
       return Message(
@@ -102,6 +132,7 @@ class Message {
       fileUrl: json['fileUrl'] as String?,
       fileName: json['fileName'] as String?,
       fileSize: (json['fileSize'] as num?)?.toInt(),
+      replyToMessageId: json['replyToMessageId'] as String?,
     );
   }
 
@@ -115,9 +146,14 @@ class Message {
       'status': status.index,
       'type': type.index,
       'metadata': metadata,
-      'fileUrl': fileUrl,
+      // Strip ?auth=<eKey> before persisting — eKeys are session-scoped and
+      // expire. Storing them causes 401s on the next app launch. A fresh eKey
+      // is reattached via secureUrl in _mapToSBMessage each time Sendbird
+      // returns the message over the network.
+      'fileUrl': fileUrl?.split('?auth=').first,
       'fileName': fileName,
       'fileSize': fileSize,
+      'replyToMessageId': replyToMessageId,
     };
   }
 
@@ -133,6 +169,8 @@ class Message {
     String? fileUrl,
     String? fileName,
     int? fileSize,
+    String? replyToMessageId,
+    String? localFilePath,
   }) {
     return Message(
       id: id ?? this.id,
@@ -145,6 +183,8 @@ class Message {
       fileUrl: fileUrl ?? this.fileUrl,
       fileName: fileName ?? this.fileName,
       fileSize: fileSize ?? this.fileSize,
+      replyToMessageId: replyToMessageId ?? this.replyToMessageId,
+      localFilePath: localFilePath ?? this.localFilePath,
     );
   }
 

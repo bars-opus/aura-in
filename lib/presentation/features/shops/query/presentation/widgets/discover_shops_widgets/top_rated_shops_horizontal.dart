@@ -8,10 +8,14 @@ class TopRatedShopsHorizontal extends ConsumerWidget {
     final selectedCategory = ref.watch(selectedServiceCategoryProvider);
     final selectedLuxury = ref.watch(selectedLuxuryLevelProvider);
     final topRatedAsync = ref.watch(topRatedShopsProvider);
+    final loc = AppLocalizations.of(context)!;
 
     final locRef = ProviderScope.containerOf(context, listen: false);
     final userLocation = ref.watch(userLocationNotifierProvider);
-    String title = 'Top Rated \nin ${userLocation?.displayName}';
+    String title =
+        userLocation?.displayName == null
+            ? loc.topRatedShopsHorizontalTitle
+            : loc.topRatedShopsHorizontalTitleWithLocation(userLocation?.displayName ?? '');
 
     return topRatedAsync.when(
       data: (shops) {
@@ -33,8 +37,7 @@ class TopRatedShopsHorizontal extends ConsumerWidget {
           titleIconColor: Colors.amber,
           shops: filteredShops,
           isLoading: false,
-          body:
-              'Shops with the highest customer ratings (4.5+ stars) and a solid number of reviews. These are the favorites among our community—consistently praised for quality, service, and professionalism. A great place to start if you want reliable, crowd‑approved options.',
+          body: loc.topRatedShopsHorizontalBody,
           onSeeAllPressed: () {
             context.push('/topRatedShopsScreen');
           },
@@ -58,6 +61,7 @@ class TopRatedShopsHorizontal extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, String? selectedLuxury) {
+    final loc = AppLocalizations.of(context)!;
     return CardInkWell(
       margin: EdgeInsets.only(bottom: Spacing.sm.h),
       onTap: () {},
@@ -66,9 +70,9 @@ class TopRatedShopsHorizontal extends ConsumerWidget {
         compact: true,
         title:
             selectedLuxury == null
-                ? 'No top rated shops available'
-                : 'No $selectedLuxury premium shops available',
-        subtitle: 'Shops would be shown here once they become available',
+                ? loc.topRatedShopsHorizontalEmptyNoFilter
+                : loc.topRatedShopsHorizontalEmptyWithFilter(selectedLuxury),
+        subtitle: loc.topRatedShopsHorizontalEmptySubtitle,
       ),
     );
   }

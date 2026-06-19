@@ -106,7 +106,7 @@ class FreelancerDetailsInfoSection extends ConsumerWidget {
                 shopLng: freelancer.baseLongitude ?? 0,
                 shopName: freelancer.name,
                 shopAddress:
-                    'Mobile service within ${freelancer.travelRadiusKm}km',
+                    'Mobile(Home) service within ${freelancer.travelRadiusKm}km',
               ),
             ),
 

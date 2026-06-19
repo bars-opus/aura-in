@@ -8,6 +8,7 @@ import 'package:nano_embryo/presentation/features/chat/domain/entities/conversat
 import 'package:nano_embryo/presentation/features/chat/presentation/screens/chat_screen.dart';
 import 'package:nano_embryo/presentation/features/chat/presentation/screens/group_chat_creation_screen.dart';
 import 'package:nano_embryo/presentation/features/chat/presentation/state/chat_state.dart';
+import 'package:nano_embryo/presentation/features/chat/presentation/widgets/animated_entry.dart';
 import 'package:nano_embryo/presentation/features/chat/presentation/widgets/chat_sort.dart';
 
 class ConversationsScreen extends ConsumerStatefulWidget {
@@ -23,19 +24,24 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
-  final List<String> _selectedFilters = [];
   late AnimationController _animationController;
   final FocusNode _searchFocusNode = FocusNode();
   bool _hasRequestedFocus = false;
 
-  // Define your filter options
+  // Conversations updated after this timestamp get entry animations.
+  late final DateTime _openedAt;
+
   static const List<String> _availableFilters = [
     'Unread',
     'Groups',
     'Individuals',
-    'Recent',
-    'Archived',
   ];
+
+  static const Map<String, IconData> _filterIcons = {
+    'Unread': Icons.mark_chat_unread_outlined,
+    'Groups': Icons.group_outlined,
+    'Individuals': Icons.person_outlined,
+  };
 
   @override
   void initState() {
@@ -48,6 +54,7 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen>
       vsync: this,
     );
 
+    _openedAt = DateTime.now();
     // Listen to search controller
     _searchController.addListener(_onSearchChanged);
   }
@@ -100,15 +107,12 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen>
         });
       }
     });
-
+    _resetToDefault();
     HapticFeedback.lightImpact();
   }
 
   void _handleFiltersChanged(List<String> newFilters) {
-    setState(() {
-      _selectedFilters.clear();
-      _selectedFilters.addAll(newFilters);
-    });
+    ref.read(activeFiltersProvider.notifier).state = Set.from(newFilters);
   }
 
   void _handleSearchSubmitted(String query) {
@@ -118,10 +122,8 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen>
   void _resetToDefault() {
     ref.read(sortCriteriaProvider.notifier).state = SortCriteria.recent;
     ref.read(searchQueryProvider.notifier).state = '';
+    ref.read(activeFiltersProvider.notifier).state = {};
     _searchController.clear();
-    setState(() {
-      _selectedFilters.clear();
-    });
     HapticFeedback.mediumImpact();
   }
 
@@ -179,7 +181,8 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen>
                 autofocus: false,
                 hintText: 'Search conversations...',
                 filterChips: _availableFilters,
-                selectedFilters: _selectedFilters,
+                filterIcons: _filterIcons,
+                selectedFilters: ref.watch(activeFiltersProvider).toList(),
                 onFiltersChanged: _handleFiltersChanged,
                 onSearchSubmitted: _handleSearchSubmitted,
                 onCancelPressed: _toggleSearch,
@@ -254,6 +257,7 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen>
     // Watch providers
     final filteredConversations = ref.watch(filteredConversationsProvider);
     final isSearchActive = ref.watch(searchQueryProvider).isNotEmpty;
+    final isFilterActive = ref.watch(activeFiltersProvider).isNotEmpty;
 
     return SafeArea(
       child: Scaffold(
@@ -286,9 +290,7 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen>
                                 );
                               },
                               child: Text(
-                                key:
-                                
-                                 ValueKey(
+                                key: ValueKey(
                                   currentSort,
                                 ), // Different key for each sort
                                 currentSort == SortCriteria.recent
@@ -296,8 +298,7 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen>
                                     : currentSort.label,
                                 style: theme.textTheme.headlineMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: 
-                                  theme.colorScheme.onSurface,
+                                  color: theme.colorScheme.onSurface,
                                   fontSize:
                                       currentSort == SortCriteria.recent
                                           ? FontSizeTokens.xl.sp
@@ -399,7 +400,7 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen>
                                                 icon: _getSortIcon(currentSort),
                                                 onPressed: _showSortDialog,
                                                 iconColor:
-                                                    colorScheme.onBackground,
+                                                    colorScheme.onSurface,
                                               ),
                                             ),
                                   );
@@ -440,27 +441,27 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen>
                             .when(
                               data: (allConversations) {
                                 if (filteredConversations.isEmpty) {
+                                  final hasActiveQuery =
+                                      isSearchActive || isFilterActive;
                                   return Center(
                                     child: EmptyStateWidget(
                                       compact: true,
                                       type:
-                                          isSearchActive
+                                          hasActiveQuery
                                               ? EmptyStateType.noResults
                                               : EmptyStateType.noMessages,
                                       title:
-                                          isSearchActive
+                                          hasActiveQuery
                                               ? 'No matches found'
                                               : 'No conversations yet',
                                       subtitle:
-                                          isSearchActive
-                                              ? 'Try a different search term'
+                                          hasActiveQuery
+                                              ? 'Try a different search term or clear filters'
                                               : 'Start a new conversation to see it here',
                                       onAction:
-                                          isSearchActive
-                                              ? () => _searchController.clear()
-                                              : () {
-                                                // Start new conversation logic
-                                              },
+                                          hasActiveQuery
+                                              ? _resetToDefault
+                                              : () {},
                                     ),
                                   );
                                 }
@@ -474,8 +475,23 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen>
                                     padding: EdgeInsets.only(top: Spacing.sm.h),
                                     itemCount: filteredConversations.length,
                                     itemBuilder: (context, index) {
-                                      return _buildConversationItem(
-                                        filteredConversations[index],
+                                      final conv = filteredConversations[index];
+                                      // Key includes updatedAt so a
+                                      // conversation bumped to the top by a
+                                      // new message gets a fresh element and
+                                      // replays its entry animation.
+                                      final shouldAnimate = conv.updatedAt
+                                          .isAfter(_openedAt);
+                                      return AnimatedEntry(
+                                        key: ValueKey(
+                                          '${conv.id}-${conv.updatedAt.millisecondsSinceEpoch}',
+                                        ),
+                                        animate: shouldAnimate,
+                                        beginOffset: const Offset(0, -0.06),
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
+                                        child: _buildConversationItem(conv),
                                       );
                                     },
                                   ),
@@ -521,7 +537,6 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen>
       case SortCriteria.alphabetical:
         return Icons.sort_by_alpha;
       case SortCriteria.recent:
-      default:
         return Icons.sort;
     }
   }

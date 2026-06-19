@@ -1,5 +1,6 @@
+import 'package:nano_embryo/core/providers/routing_providers.dart';
 import 'package:nano_embryo/core/providers/shared_prefs_provider.dart';
-
+import 'package:nano_embryo/core/widgets/animated_circle.dart';
 import 'package:nano_embryo/presentation/features/auth/utility/auth_exports.dart';
 
 class IntroScreen extends ConsumerStatefulWidget {
@@ -67,6 +68,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
   @override
   void dispose() {
     pageController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -79,8 +81,9 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
     final textTheme = theme.textTheme;
 
     return Scaffold(
-      backgroundColor: theme.appColors.appColor,
+      backgroundColor: colorScheme.primary,
 
+      // theme.appColors.appColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -91,30 +94,6 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Gap(Spacing.xxl.h + 30),
-
-                  // Main Title
-                  Text(
-                    'Welcome\n${AppConstants.appName}',
-                    style: textTheme.displayLarge?.copyWith(
-                      fontSize: 30.sp,
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.background,
-                      letterSpacing: 1.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  Gap(Spacing.sm.h),
-
-                  // Legal Text
-                  Text(
-                    'Welcome to this new platform we made for you. Enjoy yourself and have fun. We have the best waiting for you.',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: colorScheme.background,
-                      letterSpacing: 1.2,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
                   Gap(Spacing.xxl.h),
                   SizedBox(
                     width: 200.w,
@@ -122,16 +101,18 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
                       height: 45.h,
                       label: loc.introGetStarted,
                       onPressed: () async {
-                        final prefsService = ref.read(
-                          preferencesServiceProvider,
-                        );
-                        await prefsService.setFirstLaunchCompleted();
+                        await ref
+                            .read(preferencesServiceProvider)
+                            .setFirstLaunchCompleted();
 
-                        // 🚨 CRITICAL: Tell Riverpod to reload isFirstLaunchProvider
-                        ref.invalidate(isFirstLaunchProvider);
+                        // Bypass the 100ms debounce so the router sees
+                        // isFirstLaunch=false before context.go fires,
+                        // preventing a bounce back to /intro.
+                        ref.read(routingNotifierProvider).completeFirstLaunch();
 
-                        // Now navigate
-                        // context.go('/home');
+                        if (context.mounted) {
+                          context.go(RouteNames.home);
+                        }
                       },
 
                       borderRadius: BorderRadiusTokens.xlAll,
@@ -140,6 +121,42 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
                       width: double.infinity,
                       outlineColor: colorScheme.background,
                       textColor: colorScheme.background,
+                    ),
+                  ),
+                  Gap(Spacing.xxl.h),
+
+                  // Main Title
+                  Text(
+                    loc.authIntroTitle(AppConstants.appName),
+                    style: textTheme.displayLarge?.copyWith(
+                      fontSize: 30.sp,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.background,
+                      letterSpacing: 1.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  Gap(Spacing.md.h),
+                  AnimatedCircle(
+                    size: 20,
+                    stroke: 2,
+                    animateSize: true,
+                    animateShape: true,
+                    firstColor: colorScheme.background,
+                    secondColor: colorScheme.background.withValues(alpha: 0.5),
+                  ),
+                  SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        BorderRadiusTokens.md,
+                      ),
+                      child: Image.asset(
+                        color: colorScheme.background,
+                        'assets/images/initializing_logo_no_bg.png',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ],
@@ -170,8 +187,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
                 ],
               ),
             ),
-
-            // Bottom Section with Legal Text and Button
+            Gap(Spacing.md.h),
             GestureDetector(
               onTap: () {
                 BottomSheetUtils.showDocumentationBottomSheet(
@@ -181,7 +197,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
                 );
               },
               child: Text(
-                'Read legalities',
+                loc.authReadLegalities,
                 style: textTheme.bodySmall?.copyWith(
                   color: colorScheme.background,
                   decoration: TextDecoration.underline,
@@ -190,7 +206,8 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
                 textAlign: TextAlign.center,
               ),
             ),
-            Gap(Spacing.xl.h),
+            Gap(Spacing.md.h),
+            // Bottom Section with Legal Text and Button
           ],
         ),
       ),

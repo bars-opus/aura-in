@@ -97,8 +97,8 @@ class _FreelancerLocationScreenState
           children: [
             SemanticContainerWidget(
               content:
-                  'Kindly wait for the paypemt to finish processing and return to your app to generate your appointment',
-              icon: Icons.location_on_outlined,
+                  'Enter the city, coummunity or region you would like to work in.',
+              icon: Icons.location_city_rounded,
               title: 'Enter your location',
               backgroundColor: colorScheme.primary.withOpacity(0.1),
               borderColor: colorScheme.primary,
@@ -141,7 +141,9 @@ class _FreelancerLocationScreenState
                       color: colorScheme.onSurface,
                     ),
                   ),
-                  Gap(Spacing.md.h),
+                  Gap(Spacing.sm.h),
+                  AppDivider(),
+                  Gap(Spacing.sm.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -179,7 +181,6 @@ class _FreelancerLocationScreenState
                     ),
                   ),
                   Gap(Spacing.xl.h),
-
                   // Can travel toggle
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
@@ -217,12 +218,14 @@ class _FreelancerLocationScreenState
             if (!hasLocation)
               Padding(
                 padding: EdgeInsets.only(top: Spacing.md.h),
-                child: Text(
-                  'Please select a base location before saving',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.error,
-                  ),
-                  textAlign: TextAlign.center,
+                child: SemanticContainerWidget(
+                  content: 'Please select a base location before saving',
+                  icon: Icons.warning_amber_rounded,
+                  title: '',
+                  backgroundColor: colorScheme.warning.withOpacity(0.1),
+                  borderColor: colorScheme.warning,
+                  iconColor: colorScheme.warning,
+                  textTheme: theme.textTheme,
                 ),
               ),
           ],

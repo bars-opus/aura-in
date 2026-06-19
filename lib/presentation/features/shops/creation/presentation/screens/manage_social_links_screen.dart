@@ -1,20 +1,10 @@
 // lib/features/shop/creation/presentation/screens/manage_social_links_screen.dart
-
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
-import 'package:nano_embryo/core/utils/bottom_sheet_utils.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_text_button.dart';
-import 'package:nano_embryo/core/widgets/feedback/confirmation_dialog.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/add_social_link_modal.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/display_shop_social_links.dart';
-import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/social_link_tile.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_creation_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/social_links_provider.dart';
-import 'package:nano_embryo/presentation/home/widgets/semantic_container_widget.dart';
 
 class ManageSocialLinksScreen extends ConsumerStatefulWidget {
   const ManageSocialLinksScreen({super.key});
@@ -44,22 +34,8 @@ class _ManageSocialLinksScreenState
         // physics: const NeverScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(horizontal: Spacing.md.h),
         children: [
-          // Padding(
-          //   padding: EdgeInsets.only(bottom: Spacing.xs.h),
-
-          //   child: AppButton(
-          //     elevation: 0,
-          //     label: 'Add Social Link',
-          //     onPressed: _showAddLinkModal,
-          //     size: ButtonSize.small,
-          //     width: double.infinity,
-          //     padding: Spacing.horizontalMd,
-          //     height: 40.h,
-          //   ),
-          // ),
           SemanticContainerWidget(
-            content:
-                'Add links to your social profiles to help customers find you',
+            content: 'Add links to your social media handles.',
             icon: Icons.share,
             title: 'Connect your social media',
             backgroundColor: colorScheme.primary.withOpacity(0.1),
@@ -120,7 +96,8 @@ class _ManageSocialLinksScreenState
         onAction: _showAddLinkModal,
         icon: Icons.share,
         title: 'No social links yet',
-        subtitle: 'Add your Instagram, Facebook, or other profiles',
+        subtitle:
+            'Add your Instagram, Facebook, or other social media handles.',
       ),
     );
   }

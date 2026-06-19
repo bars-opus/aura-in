@@ -120,8 +120,8 @@ class _FreelancerBasicsScreenState
             Gap(Spacing.md.h),
             SemanticContainerWidget(
               content:
-                  'Kindly wait for the paypemt to finish processing and return to your app to generate your appointment',
-              icon: Icons.storefront_rounded,
+                  'Kindly upload a professional image of yourself as your profile image. Dont upload your logo or an abstact image.',
+              icon: Icons.person,
               title: '',
               backgroundColor: colorScheme.primary.withOpacity(0.1),
               borderColor: colorScheme.primary,
@@ -144,7 +144,6 @@ class _FreelancerBasicsScreenState
                           .updateProfile(name: value);
                     },
                   ),
-                  Gap(Spacing.md.h),
                   // Bio
                   AppTextFormField(
                     controller: _bioController,
@@ -244,12 +243,15 @@ class _FreelancerBasicsScreenState
                               label: Text(
                                 specialty,
                                 style: theme.textTheme.bodySmall?.copyWith(
-                                  color: colorScheme.onBackground,
-                                  fontWeight: FontWeight.w400,
+                                  color: colorScheme.onSurface.withOpacity(0.7),
                                 ),
                               ),
                               onDeleted: () => _removeSpecialty(index),
-                              deleteIcon: Icon(Icons.close, size: 10.h),
+                              deleteIcon: Icon(
+                                Icons.close,
+                                size: 10.h,
+                                color: colorScheme.error,
+                              ),
                             );
                           }).toList(),
                     ),
@@ -307,7 +309,7 @@ class _FreelancerBasicsScreenState
                   ),
                 ),
               )
-              : null
+              : null,
     );
   }
 }

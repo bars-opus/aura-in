@@ -62,12 +62,15 @@ class ServiceEditScreen extends ConsumerWidget {
             .single();
         resolvedSlotId = inserted['id'] as String;
       }
-      // Persist add-ons (replaces existing list atomically).
-      if (dto.pendingAddons.isNotEmpty) {
+      // Persist add-ons — always call replaceAddons so deletions are honoured.
+      // An empty list clears all existing add-ons for the slot.
+      if (resolvedSlotId.isNotEmpty) {
         final addonsRepo = ServiceAddonsRepository(supabase);
         await addonsRepo.replaceAddons(
           resolvedSlotId,
-          dto.pendingAddons.map((a) => a.copyWith(slotId: resolvedSlotId)).toList(),
+          dto.pendingAddons
+              .map((a) => a.copyWith(slotId: resolvedSlotId))
+              .toList(),
         );
       }
       if (!context.mounted) return;

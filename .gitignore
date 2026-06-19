@@ -51,3 +51,4 @@ assets/env/.env.*
 .env
 *.env
 .env.*
+.vercel

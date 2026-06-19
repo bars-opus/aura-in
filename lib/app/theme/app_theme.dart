@@ -72,110 +72,111 @@ class AppTheme {
   // Usage in MaterialApp:
   //   MaterialApp(theme: AppTheme.lightTheme, ...)
   // ===========================================================================
-  static ThemeData lightTheme = ThemeData(
-    // Enable Material Design 3 features
+  static ThemeData get lightTheme => ThemeData(
     useMaterial3: true,
-
-    // Set overall brightness to light
     brightness: Brightness.light,
-
-    // ================= COLOR SCHEME =================
-    // Defines the core color roles for Material Design
-    // All colors sourced from LightColors class
     colorScheme: ColorScheme.light(
-      primary: LightColors.primary, // Primary brand color
-      secondary: LightColors.primaryLight, // Secondary/accent color
-      background: LightColors.background, // Main background color
-      surface: LightColors.surface, // Surface/card backgrounds
-      onPrimary: LightColors.white, // Text/icons on primary color
-      onSecondary: LightColors.white, // Text/icons on secondary color
-      onBackground: LightColors.textPrimary, // Text on background
-      onSurface: LightColors.textPrimary, // Text on surfaces
+      primary: LightColors.primary,
+      secondary: LightColors.primaryLight,
+      surface: LightColors.surface,
+      onPrimary: LightColors.white,
+      onSecondary: LightColors.white,
+      onSurface: LightColors.textPrimary,
       error: LightColors.error,
-      primaryContainer: LightColors.foreground, // Error color
-      surfaceDim: LightColors.surface,
+      primaryContainer: LightColors.foreground,
+      surfaceDim: LightColors.background,
     ),
 
-    // Scaffold (main screen) background
-    scaffoldBackgroundColor: LightColors.surface,
+    scaffoldBackgroundColor: LightColors.background,
 
-    // ================= APP BAR THEME =================
+    // Flat app bar — no scroll shadow (Apple never shows elevation on scroll)
     appBarTheme: AppBarTheme(
-      backgroundColor: LightColors.surface, // App bar background
-      elevation: 0, // No shadow (flat design)
-      centerTitle: true, // Center the title
-      iconTheme: IconThemeData(color: LightColors.textPrimary), // Icon color
+      backgroundColor: LightColors.surface,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      centerTitle: true,
+      iconTheme: IconThemeData(color: LightColors.textPrimary),
       titleTextStyle: TextStyle(
-        fontSize: 18,
+        fontSize: 17,
         fontWeight: FontWeight.w600,
-        color: LightColors.textPrimary, // Title text color
+        color: LightColors.textPrimary,
       ),
     ),
 
-    // ================= CARD THEME =================
+    // Cards — white background, hairline border, zero elevation
     cardTheme: CardTheme(
-      color: LightColors.card, // Card background
-      elevation: 2, // Subtle shadow
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: LightColors.card,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: LightColors.divider),
+      ),
     ),
 
-    // ================= ELEVATED BUTTON THEME =================
+    // Primary button — pill shape, flat (Apple signature CTA)
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: LightColors.primary, // Button background
-        foregroundColor: LightColors.white, // Button text/icon color
+        backgroundColor: LightColors.primary,
+        foregroundColor: LightColors.white,
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 0, // Flat design
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+        shape: const StadiumBorder(),
+        elevation: 0,
       ),
     ),
 
-    // ================= TEXT BUTTON THEME =================
+    // Ghost pill — secondary action (transparent + primary border)
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: LightColors.primary,
+        side: BorderSide(color: LightColors.primary),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+        shape: const StadiumBorder(),
+      ),
+    ),
+
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: LightColors.primary, // Text color
-        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        foregroundColor: LightColors.primary,
+        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       ),
     ),
 
-    // ================= INPUT FIELD THEME =================
+    // Inputs — clean rounded, no fill, hairline border
     inputDecorationTheme: InputDecorationTheme(
-      filled: true, // Fill background
-      fillColor: LightColors.surface, // Background color
+      filled: true,
+      fillColor: LightColors.surface,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: LightColors.divider), // Border color
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: LightColors.divider),
       ),
       enabledBorder: OutlineInputBorder(
-        // Normal state border
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: LightColors.divider),
       ),
       focusedBorder: OutlineInputBorder(
-        // Focused state border
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: LightColors.primary), // Primary color
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: LightColors.primary, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
-        // Error state border
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: LightColors.error), // Error color
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: LightColors.error),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: LightColors.error, width: 1.5),
       ),
     ),
 
-    // ================= DIVIDER THEME =================
+    // Hairline dividers — Apple uses 0.5px, not 1px
     dividerTheme: DividerThemeData(
-      color: LightColors.divider, // Divider line color
-      thickness: 1, // Line thickness
-      space: 1, // Spacing around divider
+      color: LightColors.divider,
+      thickness: 0.5,
+      space: 0,
     ),
-  ).copyWith(
-    // ========== APPLY TEXT THEME ==========
-    // .copyWith() creates a new ThemeData with updated textTheme
-    // This applies our custom typography system to the base theme
-    textTheme: AppTextTheme.lightTextTheme, // Custom text styles
-  ); // Semicolon here completes the static property definition
+  ).copyWith(textTheme: AppTextTheme.lightTextTheme);
 
   // ===========================================================================
   // STATIC PROPERTY: darkTheme
@@ -204,105 +205,106 @@ class AppTheme {
   //   MaterialApp(darkTheme: AppTheme.darkTheme, themeMode: ThemeMode.dark, ...)
   //   OR MaterialApp(darkTheme: AppTheme.darkTheme, themeMode: ThemeMode.system)
   // ===========================================================================
-  static ThemeData darkTheme = ThemeData(
-    // Enable Material Design 3
+  static ThemeData get darkTheme => ThemeData(
     useMaterial3: true,
-
-    // Set overall brightness to dark
     brightness: Brightness.dark,
-
-    // ================= COLOR SCHEME =================
-    // Uses DarkColors for all color roles
     colorScheme: ColorScheme.dark(
-      primary: DarkColors.primary, // Primary for dark mode
-      secondary: DarkColors.primaryLight, // Secondary for dark mode
-      background: DarkColors.background, // Dark background
-      surface: DarkColors.surface, // Dark surface
-      onPrimary: DarkColors.white, // Text on primary
-      onSecondary: DarkColors.white, // Text on secondary
-      onBackground: DarkColors.textPrimary, // Text on dark background
-      onSurface: DarkColors.textPrimary, // Text on dark surfaces
-      error: DarkColors.error, // Error color for dark mode
+      primary: DarkColors.primary,
+      secondary: DarkColors.primaryLight,
+      surface: DarkColors.surface,
+      onPrimary: DarkColors.white,
+      onSecondary: DarkColors.white,
+      onSurface: DarkColors.textPrimary,
+      error: DarkColors.error,
       primaryContainer: DarkColors.foreground,
       surfaceDim: DarkColors.background,
     ),
 
-    // Scaffold with dark background
     scaffoldBackgroundColor: DarkColors.background,
 
-    // ================= APP BAR THEME =================
     appBarTheme: AppBarTheme(
-      backgroundColor: DarkColors.surface, // Dark app bar
+      backgroundColor: DarkColors.surface,
       elevation: 0,
+      scrolledUnderElevation: 0,
       centerTitle: true,
-      iconTheme: IconThemeData(color: DarkColors.textPrimary), // Light icons
+      iconTheme: IconThemeData(color: DarkColors.textPrimary),
       titleTextStyle: TextStyle(
-        fontSize: 18,
+        fontSize: 17,
         fontWeight: FontWeight.w600,
-        color: DarkColors.textPrimary, // Light text on dark
+        color: DarkColors.textPrimary,
       ),
     ),
 
-    // ================= CARD THEME =================
+    // Cards — Apple dark surface 2, no elevation
     cardTheme: CardTheme(
-      color: DarkColors.card, // Dark card background
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: DarkColors.card,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: DarkColors.divider),
+      ),
     ),
 
-    // ================= ELEVATED BUTTON THEME =================
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: DarkColors.primary, // Primary on dark
-        foregroundColor: DarkColors.white, // Text on primary
+        backgroundColor: DarkColors.primary,
+        foregroundColor: DarkColors.white,
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+        shape: const StadiumBorder(),
         elevation: 0,
       ),
     ),
 
-    // ================= TEXT BUTTON THEME =================
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-        foregroundColor: DarkColors.primary, // Primary colored text
-        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: DarkColors.primary,
+        side: BorderSide(color: DarkColors.primary),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+        shape: const StadiumBorder(),
       ),
     ),
 
-    // ================= INPUT FIELD THEME =================
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: DarkColors.primary,
+        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      ),
+    ),
+
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: DarkColors.surface, // Dark input background
+      fillColor: DarkColors.surface,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: DarkColors.divider), // Dark divider
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: DarkColors.divider),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: DarkColors.divider),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: DarkColors.primary), // Primary on focus
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: DarkColors.primary, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: DarkColors.error), // Error in dark
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: DarkColors.error),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: DarkColors.error, width: 1.5),
       ),
     ),
 
-    // ================= DIVIDER THEME =================
     dividerTheme: DividerThemeData(
-      color: DarkColors.divider, // Dark divider
-      thickness: 1,
-      space: 1,
+      color: DarkColors.divider,
+      thickness: 0.5,
+      space: 0,
     ),
-  ).copyWith(
-    // ========== APPLY TEXT THEME ==========
-    // Apply dark text theme (could be same or different from light)
-    textTheme: AppTextTheme.darkTextTheme, // Text styles for dark mode
-  );
+  ).copyWith(textTheme: AppTextTheme.darkTextTheme);
 }
 
 // =============================================================================

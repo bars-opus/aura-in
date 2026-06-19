@@ -35,7 +35,11 @@ class EditableProfileAvatar extends ConsumerWidget {
     if (imageState.selectedImage != null) {
       imageProvider = FileImage(imageState.selectedImage!);
     } else if (currentAvatarUrl != null && currentAvatarUrl!.isNotEmpty) {
-      imageProvider = NetworkImage(currentAvatarUrl!);
+      // localLogoPath can be either a Supabase HTTP URL (existing logo) or a
+      // local file path (just picked, not yet uploaded). Use the right provider.
+      imageProvider = currentAvatarUrl!.startsWith('http')
+          ? NetworkImage(currentAvatarUrl!)
+          : FileImage(File(currentAvatarUrl!));
     }
 
     return Center(
@@ -69,7 +73,7 @@ class EditableProfileAvatar extends ConsumerWidget {
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                 ),
                 child: const Center(
                   child: CircularProgressIndicator(color: Colors.white),
@@ -104,15 +108,20 @@ class EditableProfileAvatar extends ConsumerWidget {
     return Hero(tag: currentUserId, child: child);
   }
 
-  void _handlePick(BuildContext context, WidgetRef ref, bool fromCamera) {
+  Future<void> _handlePick(
+    BuildContext context,
+    WidgetRef ref,
+    bool fromCamera,
+  ) async {
     Navigator.pop(context);
+    // iOS silently drops PHPickerViewController / ImageCropper presentation while
+    // the bottom sheet is still animating. Wait for the animation to finish.
+    await Future.delayed(const Duration(milliseconds: 350));
     if (onImagePicked != null) {
-      ref
+      final file = await ref
           .read(profileImageProvider.notifier)
-          .pickImageOnly(fromCamera: fromCamera)
-          .then((file) {
-            if (file != null) onImagePicked!(file);
-          });
+          .pickImageOnly(fromCamera: fromCamera);
+      if (file != null) onImagePicked!(file);
     } else {
       ref
           .read(profileImageProvider.notifier)
@@ -121,12 +130,13 @@ class EditableProfileAvatar extends ConsumerWidget {
   }
 
   Widget _showImageSourceDialog(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     return SafeArea(
       child: Wrap(
         children: [
           InfoRowWidget(
             subtitle: '',
-            title: 'Take a photo',
+            title: loc.editableProfileAvatarTakePhoto,
             icon: Icons.camera_alt,
             avatarRadius: 30.h,
             onTap: () => _handlePick(context, ref, true),
@@ -136,7 +146,7 @@ class EditableProfileAvatar extends ConsumerWidget {
           ),
           InfoRowWidget(
             subtitle: '',
-            title: 'Choose from gallery',
+            title: loc.editableProfileAvatarChooseGallery,
             icon: Icons.photo_library,
             avatarRadius: 30.h,
             onTap: () => _handlePick(context, ref, false),

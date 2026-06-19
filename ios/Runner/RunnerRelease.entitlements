@@ -9,7 +9,6 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:aurain.barsopus.com</string>
-		<string>webcredentials:example.com</string>
 	</array>
 </dict>
 </plist>

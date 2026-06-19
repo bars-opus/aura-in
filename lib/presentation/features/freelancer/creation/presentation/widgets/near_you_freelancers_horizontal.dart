@@ -16,7 +16,8 @@ class NearYouFreelancersHorizontal extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final nearYouAsync = ref.watch(nearYouFreelancersProvider);
     final userLocation = ref.watch(userLocationNotifierProvider);
-    String title = ' Freelancers Near You in ${userLocation?.displayName}';
+    final loc = AppLocalizations.of(context)!;
+    String title = loc.nearYouFreelancersHorizontalTitle(userLocation?.displayName ?? '');
     final hasLocation = ref.watch(hasLocationProvider);
 
     if (!hasLocation) {
@@ -35,8 +36,7 @@ class NearYouFreelancersHorizontal extends ConsumerWidget {
           titleIconColor: Colors.purple,
           freelancers: freelancers,
           isLoading: false,
-          body:
-              'Handpicked high‑end salons and spas offering luxury experiences. These shops are classified as Luxury or Ultra‑Luxury based on their services, pricing, and customer reviews. Perfect when you\'re looking for that extra touch of elegance.',
+          body: loc.nearYouFreelancersHorizontalBody,
           onSeeAllPressed: () {
             context.push('/nearYouFreelancersScreen');
           },
@@ -60,6 +60,7 @@ class NearYouFreelancersHorizontal extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return CardInkWell(
       margin: EdgeInsets.only(bottom: Spacing.sm.h),
       onTap: () {},
@@ -67,8 +68,8 @@ class NearYouFreelancersHorizontal extends ConsumerWidget {
         icon: Icons.near_me,
         type: EmptyStateType.noShops,
         compact: true,
-        title: 'No top rated freelancers available',
-        subtitle: 'Freelancers would be shown here once they become available',
+        title: loc.nearYouFreelancersHorizontalEmpty,
+        subtitle: loc.nearYouFreelancersHorizontalEmptySubtitle,
       ),
     );
   }

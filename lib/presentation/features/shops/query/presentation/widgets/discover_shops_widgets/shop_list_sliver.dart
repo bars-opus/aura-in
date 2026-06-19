@@ -29,7 +29,8 @@ class ShopListSliver extends ConsumerWidget {
   int _childCount(AsyncValue<ShopListState> async) {
     return async.when(
       data: (s) {
-        if (s.shops.isEmpty) return 1; // empty state or shimmer (shouldn't happen post-build)
+        if (s.shops.isEmpty)
+          return 1; // empty state or shimmer (shouldn't happen post-build)
         return s.shops.length + (s.hasReachedMax ? 0 : 1);
       },
       loading: () => 1,
@@ -47,17 +48,19 @@ class ShopListSliver extends ConsumerWidget {
       // Initial load — provider is in AsyncLoading
       loading: () => const ShopListviewLoadingShimmer(),
 
-      error: (error, stack) => Padding(
-        padding: const EdgeInsets.only(top: Spacing.xl),
-        child: ErrorStateWidget(
-          title: '',
-          subtitle:
-              'Failed to load shops\nCheck your connection and try again.',
-          errorDetails: stack.toString(),
-          type: ErrorStateType.genericError,
-          onPrimaryAction: () => ref.read(shopListProvider.notifier).refresh(),
-        ),
-      ),
+      error:
+          (error, stack) => Padding(
+            padding: const EdgeInsets.only(top: Spacing.xl),
+            child: ErrorStateWidget(
+              title: '',
+              subtitle:
+                  'Failed to load shops\nCheck your connection and try again.',
+              errorDetails: stack.toString(),
+              type: ErrorStateType.networkError,
+              onPrimaryAction:
+                  () => ref.read(shopListProvider.notifier).refresh(),
+            ),
+          ),
 
       data: (state) {
         // Empty result after a successful fetch

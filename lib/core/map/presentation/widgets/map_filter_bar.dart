@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/map/config/feature/map_config.dart';
@@ -33,15 +34,14 @@ class MapFilterBar extends ConsumerWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: Spacing.sm.h),
+      margin: EdgeInsets.symmetric(horizontal: Spacing.lg.h),
+
       decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(BorderRadiusTokens.xl),
-          topRight: Radius.circular(BorderRadiusTokens.xl),
-        ),
+        color: colorScheme.background,
+        borderRadius: BorderRadius.circular(BorderRadiusTokens.xl),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withOpacity(0.3),
             blurRadius: 8.r,
             offset: Offset(0, 2.h),
           ),
@@ -74,9 +74,8 @@ class MapFilterBar extends ConsumerWidget {
     }
 
     // Empty state: tabs + chips + empty widget below.
-    final showEmpty = !mapState.isLoading &&
-        !mapState.isFetching &&
-        mapState.pins.isEmpty;
+    final showEmpty =
+        !mapState.isLoading && !mapState.isFetching && mapState.pins.isEmpty;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -114,15 +113,19 @@ class MapFilterBar extends ConsumerWidget {
     MapFilterSchema schema,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
+    final loc = AppLocalizations.of(context)!;
     final selectedPrimary = ref.watch(selectedPrimaryFilterProvider);
 
     final primaryEntries = <FilterOption>[
       if (schema.primaryAllOption != null) schema.primaryAllOption!,
       ...schema.primaryTabs,
     ];
-    final primaryLabels = primaryEntries.map((e) => e.label).toList();
+    final primaryLabels =
+        primaryEntries.map((e) => _getLocalizedLabel(e.value, loc)).toList();
     final selectedPrimaryLabel =
-        selectedPrimary?.label ?? schema.primaryAllOption?.label;
+        selectedPrimary != null
+            ? _getLocalizedLabel(selectedPrimary.value, loc)
+            : _getLocalizedLabel(schema.primaryAllOption?.value ?? 'all', loc);
 
     return ShakeTransition(
       duration: const Duration(milliseconds: 700),
@@ -131,7 +134,7 @@ class MapFilterBar extends ConsumerWidget {
         selectedCategory: selectedPrimaryLabel,
         onCategorySelected: (label) {
           final picked = primaryEntries.firstWhere(
-            (e) => e.label == label,
+            (e) => _getLocalizedLabel(e.value, loc) == label,
             orElse: () => primaryEntries.first,
           );
           ref.read(selectedPrimaryFilterProvider.notifier).state =
@@ -154,6 +157,7 @@ class MapFilterBar extends ConsumerWidget {
     MapFilterSchema schema,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
+    final loc = AppLocalizations.of(context)!;
     final selectedSecondary = ref.watch(selectedSecondaryFilterProvider);
 
     return ShakeTransition(
@@ -167,13 +171,15 @@ class MapFilterBar extends ConsumerWidget {
               Padding(
                 padding: EdgeInsets.only(right: Spacing.sm.w),
                 child: AppFilterChip(
-                  label: schema.secondaryAllOption!.label,
+                  label: _getLocalizedLabel(
+                    schema.secondaryAllOption!.value,
+                    loc,
+                  ),
                   selected: selectedSecondary == null,
                   onSelected: (selected) {
                     if (selected) {
-                      ref
-                          .read(selectedSecondaryFilterProvider.notifier)
-                          .state = null;
+                      ref.read(selectedSecondaryFilterProvider.notifier).state =
+                          null;
                     }
                   },
                   selectedColor: colorScheme.primary,
@@ -186,12 +192,11 @@ class MapFilterBar extends ConsumerWidget {
               return Padding(
                 padding: EdgeInsets.only(right: Spacing.sm.w),
                 child: AppFilterChip(
-                  label: opt.label,
+                  label: _getLocalizedLabel(opt.value, loc),
                   selected: isSelected,
                   onSelected: (selected) {
-                    ref
-                        .read(selectedSecondaryFilterProvider.notifier)
-                        .state = selected ? opt : null;
+                    ref.read(selectedSecondaryFilterProvider.notifier).state =
+                        selected ? opt : null;
                   },
                   selectedColor: colorScheme.primary,
                   backgroundColor: colorScheme.surface,
@@ -204,5 +209,33 @@ class MapFilterBar extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  String _getLocalizedLabel(String value, AppLocalizations loc) {
+    if (value == 'all') return loc.categoriesAll;
+    switch (value) {
+      case 'salon':
+        return loc.categoriesSalon;
+      case 'barbershop':
+        return loc.categoriesBarbershop;
+      case 'spa':
+        return loc.categoriesSpa;
+      case 'nail_salon':
+        return loc.categoriesNailSalon;
+      case 'lash_studio':
+        return loc.categoriesLashStudio;
+      case 'waxing':
+        return loc.categoriesWaxing;
+      case 'massage':
+        return loc.categoriesMassage;
+      case 'Moderate':
+        return loc.luxuryLevelModerate;
+      case 'Luxury':
+        return loc.luxuryLevelLuxury;
+      case 'UltraLuxury':
+        return loc.luxuryLevelUltraLuxury;
+      default:
+        return value;
+    }
   }
 }

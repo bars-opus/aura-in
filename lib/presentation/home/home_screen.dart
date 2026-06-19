@@ -15,6 +15,10 @@ import 'package:nano_embryo/presentation/home/widgets/home_widget_responsive.dar
 import 'package:nano_embryo/presentation/home/widgets/owner_dashboard_tab.dart';
 import 'package:nano_embryo/presentation/home/widgets/owner_schedule_tab.dart';
 
+/// Write a tab index to this provider before navigating to `/home` to land
+/// on a specific tab (e.g. index 3 for Profile). Resets to 0 after reading.
+final homeTabIndexProvider = StateProvider<int>((ref) => 0);
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -22,10 +26,13 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context)!;
     final user = ref.watch(currentUserProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+
     final unreadCount = ref.watch(unreadCountProvider).valueOrNull ?? 0;
 
     // Default to client while the async role fetch is in flight — no flicker.
-    final role = ref.watch(currentUserPrimaryRoleProvider).valueOrNull ??
+    final role =
+        ref.watch(currentUserPrimaryRoleProvider).valueOrNull ??
         AccountType.client;
 
     final isOwner = role == AccountType.shop || role == AccountType.worker;
@@ -35,7 +42,7 @@ class HomeScreen extends ConsumerWidget {
       if (isOwner)
         HomeTab(
           id: 'schedule',
-          label: 'Schedule',
+          label: loc.homeScheduleTabLabel,
           icon: Icons.calendar_today_outlined,
           activeIcon: Icons.calendar_today,
           screen: OwnerScheduleTab(role: role),
@@ -53,7 +60,7 @@ class HomeScreen extends ConsumerWidget {
       if (isOwner)
         HomeTab(
           id: 'dashboard',
-          label: 'Dashboard',
+          label: loc.homeDashboardTabLabel,
           icon: Icons.bar_chart_outlined,
           activeIcon: Icons.bar_chart,
           screen: OwnerDashboardTab(role: role),
@@ -61,9 +68,10 @@ class HomeScreen extends ConsumerWidget {
       else
         HomeTab(
           id: 'map',
-          label: 'Map',
+          label: loc.homeMapTabLabel,
           icon: Icons.map_outlined,
           activeIcon: Icons.map,
+          
           screen: MapEngineScreen(),
         ),
 
@@ -81,18 +89,25 @@ class HomeScreen extends ConsumerWidget {
         label: loc.profileTitle,
         icon: Icons.person_outlined,
         activeIcon: Icons.person,
-        screen: user != null
-            ? ProfileScreen(
-                currentUserId: user.id,
-                profileUserId: user.id,
-                profileSearchResult: null,
-              )
-            : const LoginProfile(),
+        screen:
+            user != null
+                ? ProfileScreen(
+                  currentUserId: user.id,
+                  profileUserId: user.id,
+                  profileSearchResult: null,
+                )
+                : const LoginProfile(),
       ),
     ];
 
+    final initialTab = ref.watch(homeTabIndexProvider);
+
     return NetworkStatus(
-      child: HomeWidgetResponsive.adaptive(context: context, tabs: tabs),
+      child: HomeWidgetResponsive.adaptive(
+        context: context,
+        tabs: tabs,
+        initialTabIndex: initialTab,
+      ),
     );
   }
 }

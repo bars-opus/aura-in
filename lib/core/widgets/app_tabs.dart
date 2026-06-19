@@ -319,13 +319,13 @@ class SimpleTabs extends StatelessWidget {
             // Uses low opacity for subtle separation without visual competition
             dividerColor:
                 style.showDivider
-                    ? (style.inactiveColor ?? colors.onSurface.withOpacity(0.3))
+                    ? (style.inactiveColor ?? colors.onSurface.withValues(alpha: 0.3))
                     : Colors.transparent,
             dividerHeight: 0.3,
 
             // Inactive tab color with reduced opacity for hierarchy
             unselectedLabelColor:
-                style.inactiveColor ?? colors.onSurface.withOpacity(0.6),
+                style.inactiveColor ?? colors.onSurface.withValues(alpha: 0.6),
 
             // Custom underline indicator with precise positioning
             // FIX: Uses UnderlineTabIndicator for exact Material Design alignment

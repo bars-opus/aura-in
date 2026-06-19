@@ -16,7 +16,6 @@ class ServiceAddonsRepository {
           .from('service_addons')
           .select()
           .eq('slot_id', slotId)
-          .eq('is_active', true)
           .order('name');
       return (response as List)
           .map((r) => ServiceAddonDTO.fromJson(Map<String, dynamic>.from(r as Map)))
@@ -28,19 +27,22 @@ class ServiceAddonsRepository {
   }
 
   /// Upsert the full add-on list for a slot (replaces existing on publish/update).
+  /// Throws on failure so callers can surface the error to the user.
   Future<void> replaceAddons(String slotId, List<ServiceAddonDTO> addons) async {
     await _client.from('service_addons').delete().eq('slot_id', slotId);
     if (addons.isEmpty) return;
     await _client.from('service_addons').insert(
-      addons.map((a) => {
-        'id': a.id.isEmpty ? const Uuid().v4() : a.id,
-        'slot_id': slotId,
-        'name': a.name,
-        'price': a.priceMinor,
-        'duration_minutes': a.durationMinutes,
-        'is_active': a.isActive,
-      }).toList(),
-    );
+          addons
+              .map((a) => {
+                    'id': a.id.isEmpty ? const Uuid().v4() : a.id,
+                    'slot_id': slotId,
+                    'name': a.name,
+                    'price': a.priceMinor,
+                    'duration_minutes': a.durationMinutes,
+                    'is_active': true,
+                  })
+              .toList(),
+        );
   }
 
   /// Fetch template add-ons for a template id (shown in ServiceTemplatesSheet).

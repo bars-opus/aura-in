@@ -168,7 +168,7 @@ class ValidationUtils {
     // Additional checks
     if (email.length > 254) {
       return ValidationResult.invalid(
-        'Email is too long (max 254 characters)',
+        _config.messages.emailTooLong,
         field: fieldName,
       );
     }
@@ -176,7 +176,7 @@ class ValidationUtils {
     final parts = email.split('@');
     if (parts[0].length > 64) {
       return ValidationResult.invalid(
-        'Local part of email is too long',
+        _config.messages.emailLocalPartTooLong,
         field: fieldName,
       );
     }
@@ -215,7 +215,10 @@ class ValidationUtils {
     if (requirements.maxLength != null &&
         password.length > requirements.maxLength!) {
       return ValidationResult.invalid(
-        'Password must be at most ${requirements.maxLength} characters',
+        _config.messages.passwordMaxLength.replaceFirst(
+          '{max}',
+          requirements.maxLength.toString(),
+        ),
         field: fieldName,
       );
     }
@@ -273,14 +276,14 @@ class ValidationUtils {
     // Additional security checks
     if (_hasRepeatingCharacters(password)) {
       return ValidationResult.invalid(
-        'Password contains too many repeating characters',
+        _config.messages.passwordRepeatingChars,
         field: fieldName,
       );
     }
 
     if (_isSequential(password)) {
       return ValidationResult.invalid(
-        'Password contains sequential characters',
+        _config.messages.passwordSequential,
         field: fieldName,
       );
     }
@@ -322,7 +325,7 @@ class ValidationUtils {
         case 'CA':
           if (digitsOnly.length != 10) {
             return ValidationResult.invalid(
-              'Phone number must be 10 digits',
+              _config.messages.phoneDigits.replaceFirst('{digits}', '10'),
               field: fieldName,
               correctedValue: _formatPhoneNumber(digitsOnly, countryCode),
             );
@@ -333,7 +336,7 @@ class ValidationUtils {
           if (digitsOnly.length != 11 &&
               !(digitsOnly.startsWith('44') && digitsOnly.length == 12)) {
             return ValidationResult.invalid(
-              'Invalid UK phone number',
+              _config.messages.phoneUK,
               field: fieldName,
             );
           }
@@ -375,7 +378,10 @@ class ValidationUtils {
     // Scheme validation
     if (!allowedSchemes.contains(uri.scheme)) {
       return ValidationResult.invalid(
-        'URL must start with ${allowedSchemes.join(' or ')}',
+        _config.messages.urlScheme.replaceFirst(
+          '{schemes}',
+          allowedSchemes.join(' or '),
+        ),
         field: fieldName,
       );
     }
@@ -390,13 +396,16 @@ class ValidationUtils {
 
     // Domain validation
     if (!_isValidDomain(uri.host)) {
-      return ValidationResult.invalid('Invalid domain name', field: fieldName);
+      return ValidationResult.invalid(
+        _config.messages.urlDomain,
+        field: fieldName,
+      );
     }
 
     // Block private/loopback targets to prevent SSRF if the URL is ever fetched server-side.
     if (_isPrivateOrLoopback(uri.host)) {
       return ValidationResult.invalid(
-        'URL must point to a public address',
+        _config.messages.urlPublicAddress,
         field: fieldName,
       );
     }
@@ -435,7 +444,9 @@ class ValidationUtils {
 
     if (maxLength != null && name.length > maxLength) {
       return ValidationResult.invalid(
-        '$fieldName must be at most $maxLength characters',
+        _config.messages.nameMaxLength
+            .replaceFirst('{field}', fieldName)
+            .replaceFirst('{max}', maxLength.toString()),
         field: fieldName,
       );
     }
@@ -469,7 +480,7 @@ class ValidationUtils {
     final trimmedName = name.trim();
     if (RegExp(r'[\-\s]{2,}').hasMatch(trimmedName)) {
       return ValidationResult.invalid(
-        '$fieldName cannot contain consecutive hyphens or spaces',
+        _config.messages.nameConsecutiveChars.replaceFirst('{field}', fieldName),
         field: fieldName,
       );
     }
@@ -493,7 +504,7 @@ class ValidationUtils {
 
     if (!_creditCardRegex.hasMatch(input)) {
       return ValidationResult.invalid(
-        'Please enter a valid credit card number',
+        _config.messages.creditCardFormat,
         field: fieldName,
       );
     }
@@ -501,7 +512,7 @@ class ValidationUtils {
     // Luhn algorithm check
     if (!_isValidLuhn(input)) {
       return ValidationResult.invalid(
-        'Invalid credit card number',
+        _config.messages.creditCardInvalid,
         field: fieldName,
       );
     }
@@ -537,7 +548,7 @@ class ValidationUtils {
 
     if (!allowPast && date.isBefore(now)) {
       return ValidationResult.invalid(
-        'Date cannot be in the past',
+        _config.messages.datePastNotAllowed,
         field: fieldName,
       );
     }
@@ -584,7 +595,7 @@ class ValidationUtils {
       case 'US':
         if (!_postalCodeRegex.hasMatch(input)) {
           return ValidationResult.invalid(
-            'Please enter a valid ZIP code (e.g., 12345 or 12345-6789)',
+            _config.messages.postalCodeZip,
             field: fieldName,
           );
         }
@@ -592,7 +603,7 @@ class ValidationUtils {
       case 'CA':
         if (!RegExp(r'^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$').hasMatch(input)) {
           return ValidationResult.invalid(
-            'Please enter a valid Canadian postal code (e.g., A1A 1A1)',
+            _config.messages.postalCodeCanadian,
             field: fieldName,
           );
         }
@@ -601,7 +612,7 @@ class ValidationUtils {
         // Generic validation for other countries
         if (input.length < 3 || input.length > 10) {
           return ValidationResult.invalid(
-            'Please enter a valid postal code',
+            _config.messages.postalCodeGeneric,
             field: fieldName,
           );
         }
@@ -623,7 +634,7 @@ class ValidationUtils {
 
     if (!_ssnRegex.hasMatch(input)) {
       return ValidationResult.invalid(
-        'Please enter a valid SSN (e.g., 123-45-6789)',
+        _config.messages.ssnFormat,
         field: fieldName,
       );
     }
@@ -636,17 +647,17 @@ class ValidationUtils {
 
     // No SSNs with 000 in any segment
     if (area == '000' || group == '00' || serial == '0000') {
-      return ValidationResult.invalid('Invalid SSN', field: fieldName);
+      return ValidationResult.invalid(_config.messages.ssnInvalid, field: fieldName);
     }
 
     // No SSNs with 666 as area number
     if (area == '666') {
-      return ValidationResult.invalid('Invalid SSN', field: fieldName);
+      return ValidationResult.invalid(_config.messages.ssnInvalid, field: fieldName);
     }
 
     // No SSNs from 987-65-4320 to 987-65-4329 (advertising)
     if (area == '987' && group == '65' && serial.startsWith('432')) {
-      return ValidationResult.invalid('Invalid SSN', field: fieldName);
+      return ValidationResult.invalid(_config.messages.ssnInvalid, field: fieldName);
     }
 
     return ValidationResult.valid();

@@ -1,16 +1,23 @@
 // lib/features/shops/presentation/widgets/shop_filter_bottom_sheet.dart
 
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/luxury_level_provider.dart';
-// lib/features/shops/presentation/widgets/shop_filter_bottom_sheet.dart
+import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 
 class ShopFilterBottomSheet extends ConsumerStatefulWidget {
   final String selectedCategory;
   final String? initialLuxuryLevel;
   final bool initialVerifiedOnly;
   final bool initialSortByRating;
+  final double initialRadiusKm;
   final VoidCallback onReset;
-  final Function(String? luxuryLevel, bool verifiedOnly, bool sortByRating)
+  final Function(
+    String? luxuryLevel,
+    bool verifiedOnly,
+    bool sortByRating,
+    double radiusKm,
+  )
   onApply;
 
   const ShopFilterBottomSheet({
@@ -19,6 +26,7 @@ class ShopFilterBottomSheet extends ConsumerStatefulWidget {
     required this.initialLuxuryLevel,
     required this.initialVerifiedOnly,
     required this.initialSortByRating,
+    required this.initialRadiusKm,
     required this.onReset,
     required this.onApply,
   });
@@ -32,6 +40,7 @@ class _ShopFilterBottomSheetState extends ConsumerState<ShopFilterBottomSheet> {
   late String? _selectedLuxuryLevel;
   late bool _verifiedOnly;
   late bool _sortByRating;
+  late double _radiusKm;
 
   @override
   void initState() {
@@ -39,19 +48,26 @@ class _ShopFilterBottomSheetState extends ConsumerState<ShopFilterBottomSheet> {
     _selectedLuxuryLevel = widget.initialLuxuryLevel;
     _verifiedOnly = widget.initialVerifiedOnly;
     _sortByRating = widget.initialSortByRating;
+    _radiusKm = widget.initialRadiusKm;
   }
 
   void _handleReset() {
     setState(() {
       _selectedLuxuryLevel = null;
       _verifiedOnly = false;
-      _sortByRating = true; // Default to rating
+      _sortByRating = true;
+      _radiusKm = kSearchRadiusDefaultKm;
     });
     widget.onReset();
   }
 
   void _handleApply() {
-    widget.onApply(_selectedLuxuryLevel, _verifiedOnly, _sortByRating);
+    widget.onApply(
+      _selectedLuxuryLevel,
+      _verifiedOnly,
+      _sortByRating,
+      _radiusKm,
+    );
     Navigator.pop(context);
   }
 
@@ -68,11 +84,13 @@ class _ShopFilterBottomSheetState extends ConsumerState<ShopFilterBottomSheet> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        BottomSheetHeader(title: 'Filter & Sort'),
+          AppTextButton(text: 'Apply',onPressed: _handleApply, ),
+        // BottomSheetHeader(title: 'Filter & Sort'),
         Gap(Spacing.md.h),
         // Sort Options Section
         CardInkWell(
           onTap: () {},
+        
           child: Column(
             children: [
               InfoRowWidget(
@@ -155,6 +173,60 @@ class _ShopFilterBottomSheetState extends ConsumerState<ShopFilterBottomSheet> {
           ),
         ),
 
+        // Search radius slider
+        CardInkWell(
+          onTap: () {},
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: Spacing.md.w,
+              vertical: Spacing.sm.h,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Search radius',
+                      style: textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    MiniContainerIndicator(
+                      color: colorScheme.primary,
+                      text: '${_radiusKm.toInt()} km',
+                      fontSize: 16,
+                    ),
+                  ],
+                ),
+                Slider(
+                  value: _radiusKm,
+                  min: kSearchRadiusMinKm,
+                  max: kSearchRadiusMaxKm,
+                  divisions:
+                      (kSearchRadiusMaxKm - kSearchRadiusMinKm).toInt(),
+                  label: '${_radiusKm.toInt()} km',
+                  onChanged: (value) {
+                    if (value.toInt() != _radiusKm.toInt()) {
+                      HapticFeedback.selectionClick();
+                    }
+                    setState(() => _radiusKm = value);
+                  },
+                  onChangeEnd: (_) => HapticFeedback.lightImpact(),
+                ),
+                Text(
+                  'Showing results within ${_radiusKm.toInt()}km of your location',
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
         // Luxury Level Section
         CardInkWell(
           onTap: () {},
@@ -231,18 +303,18 @@ class _ShopFilterBottomSheetState extends ConsumerState<ShopFilterBottomSheet> {
             //     child: const Text('Reset'),
             //   ),
             // ),
-            Gap(Spacing.md.w),
-            Expanded(
-              child: AppButton(
-                elevation: 0,
-                label: 'Apply',
-                onPressed: _handleApply,
-                size: ButtonSize.small,
-                width: double.infinity,
-                padding: Spacing.horizontalMd,
-                height: 40.h,
-              ),
-            ),
+            // Gap(Spacing.md.w),
+            // Expanded(
+            //   child: AppButton(
+            //     elevation: 0,
+            //     label: 'Apply',
+            //     onPressed: _handleApply,
+            //     size: ButtonSize.small,
+            //     width: double.infinity,
+            //     padding: Spacing.horizontalMd,
+            //     height: 40.h,
+            //   ),
+            // ),
             // Expanded(
             //   child: ElevatedButton(
             //     onPressed: _handleApply,

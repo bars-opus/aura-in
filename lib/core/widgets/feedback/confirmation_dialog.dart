@@ -52,6 +52,7 @@ class ConfirmationDialog extends StatelessWidget {
         minHeight: 150.h, // Set minimum height
       ),
       child: CircularDocumentationContainer(
+        color: Colors.transparent,
         // Custom padding or default from container
         padding: 10.h,
         child: Column(
@@ -158,7 +159,7 @@ class ConfirmationDialog extends StatelessWidget {
           customColor: _getConfirmButtonColor(colorScheme),
         ),
         Gap(Spacing.md.h),
-        
+
         if (showCancel) ...[
           AppButton(
             elevation: 0,

@@ -5,6 +5,7 @@ import 'package:nano_embryo/presentation/features/freelancer/data/models/nearby_
 import 'package:nano_embryo/presentation/features/freelancer/data/repositories/supabase_freelancer_repository.dart';
 import 'package:nano_embryo/presentation/features/freelancer/enums/freelancer_category_mapper.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/paginated_result.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/service_category_provider.dart';
 
 /// Filter state for freelancer discovery
@@ -91,13 +92,15 @@ final topRatedFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((
   );
 });
 
-/// Provider for nearby freelancers (horizontal section)
+/// Provider for nearby freelancers (horizontal section).
+/// Watches the discover-screen radius slider so changes refetch automatically.
 final nearYouFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((
   ref,
 ) async {
   final userLocation = ref.watch(userLocationNotifierProvider);
   final selectedCategory = ref.watch(selectedServiceCategoryProvider);
   final repository = ref.watch(freelancerRepositoryProvider);
+  final radiusKm = ref.watch(searchRadiusKmProvider);
 
   if (userLocation == null) return [];
   final freelancerTypes =
@@ -106,7 +109,7 @@ final nearYouFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((
   return repository.getNearbyFreelancers(
     latitude: userLocation.latitude,
     longitude: userLocation.longitude,
-    radiusKm: 5,
+    radiusKm: radiusKm,
     freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
     limit: 10,
     sortBy: 'distance',
@@ -116,20 +119,22 @@ final nearYouFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((
 /// ✅ Provider for main freelancer grid with pagination support
 // In freelancer_discovery_provider.dart
 
-/// Provider for all freelancers (handles both location and no location)
+/// Provider for all freelancers (handles both location and no location).
+/// Watches the discover-screen radius slider so changes refetch automatically.
 final allFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((ref) async {
   final userLocation = ref.watch(userLocationNotifierProvider);
   final selectedCategory = ref.watch(selectedServiceCategoryProvider);
   final repository = ref.watch(freelancerRepositoryProvider);
-  
+  final radiusKm = ref.watch(searchRadiusKmProvider);
+
   final freelancerTypes = FreelancerCategoryMapper.getFreelancerTypesForCategory(selectedCategory);
-  
+
   // If location is available, get nearby
   if (userLocation != null) {
     return repository.getNearbyFreelancers(
       latitude: userLocation.latitude,
       longitude: userLocation.longitude,
-      radiusKm: 10,
+      radiusKm: radiusKm,
       limit: 50,
       freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
       sortBy: 'distance',

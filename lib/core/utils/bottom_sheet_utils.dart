@@ -28,6 +28,7 @@ class BottomSheetUtils {
     final sheetMaxHeight =
         maxHeight ?? MediaQuery.of(context).size.height * 0.9;
     final contentPadding = padding ?? Spacing.xl.h;
+    final colorScheme = Theme.of(context).colorScheme;
 
     await showModalBottomSheet(
       context: context,
@@ -37,7 +38,7 @@ class BottomSheetUtils {
       // Keeping enableDrag: true here would create two competing gesture
       // recognisers and break the drag-to-dismiss on scrollable content.
       enableDrag: false,
-      backgroundColor: Colors.transparent,
+      backgroundColor: backgroundColor ?? colorScheme.neutral,
       constraints: BoxConstraints(maxHeight: sheetMaxHeight),
       builder: (sheetContext) {
         final colorScheme = Theme.of(sheetContext).colorScheme;
@@ -46,47 +47,60 @@ class BottomSheetUtils {
           initialChildSize: 1.0,
           minChildSize: 0.3,
           maxChildSize: 1.0,
+
           expand: false,
           // Pops the modal automatically when the user drags past minChildSize.
           shouldCloseOnMinExtent: isDismissible && enableDrag,
           builder: (_, scrollController) {
-            return CircularDocumentationContainer(
-              color: backgroundColor,
-              // Zero out container padding — we apply it manually below
-              // so the drag handle sits flush at the rounded top edge.
-              padding: 0,
-              child: Column(
-                children: [
-                  if (enableDrag) _DragHandle(colorScheme: colorScheme),
-                  Expanded(
-                    // PrimaryScrollController threads the DraggableScrollableSheet's
-                    // scrollController into every descendant ListView /
-                    // SingleChildScrollView that doesn't set its own controller.
-                    // This is what lets drag-to-dismiss work with scrollable content:
-                    // the sheet sees scroll events through the shared controller and
-                    // starts collapsing once the list reaches its top edge.
-                    child: PrimaryScrollController(
-                      controller: scrollController,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          contentPadding,
-                          enableDrag ? Spacing.xs.h : contentPadding,
-                          contentPadding,
-                          contentPadding,
-                        ),
-                        child: widget ??
-                            LegalDocumentationModalSheet(
-                              document: document!,
-                              onAgree: onAgree,
-                              onDecline: onDecline,
-                              agreeButtonText: agreeButtonText,
-                              declineButtonText: declineButtonText,
-                              showButtons: showButtons,
+            // ScaffoldMessenger + Scaffold provide a local snackbar scope
+            // within the modal overlay. Without this, ScaffoldMessenger.of()
+            // from inside the sheet resolves to the root ScaffoldMessenger,
+            // which renders snackbars in the underlying page's Scaffold —
+            // behind the modal and invisible to the user.
+            return ScaffoldMessenger(
+              child: Scaffold(
+                backgroundColor: Colors.transparent,
+                resizeToAvoidBottomInset: false,
+                body: CircularDocumentationContainer(
+                  color: backgroundColor ?? colorScheme.neutral,
+                  // Zero out container padding — we apply it manually below
+                  // so the drag handle sits flush at the rounded top edge.
+                  padding: 0,
+                  child: Column(
+                    children: [
+                      if (enableDrag) _DragHandle(colorScheme: colorScheme),
+                      Expanded(
+                        // PrimaryScrollController threads the DraggableScrollableSheet's
+                        // scrollController into every descendant ListView /
+                        // SingleChildScrollView that doesn't set its own controller.
+                        // This is what lets drag-to-dismiss work with scrollable content:
+                        // the sheet sees scroll events through the shared controller and
+                        // starts collapsing once the list reaches its top edge.
+                        child: PrimaryScrollController(
+                          controller: scrollController,
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              contentPadding,
+                              enableDrag ? Spacing.xs.h : contentPadding,
+                              contentPadding,
+                              contentPadding,
                             ),
+                            child:
+                                widget ??
+                                LegalDocumentationModalSheet(
+                                  document: document!,
+                                  onAgree: onAgree,
+                                  onDecline: onDecline,
+                                  agreeButtonText: agreeButtonText,
+                                  declineButtonText: declineButtonText,
+                                  showButtons: showButtons,
+                                ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             );
           },

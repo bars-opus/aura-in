@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/utils/location/location_search_mode.dart';
 import 'package:nano_embryo/presentation/features/currency/domain/entities/parsed_address.dart';
-import 'package:nano_embryo/presentation/features/currency/domain/mappers/country_currency_mapper.dart';
 
 class LocationPickerBottomSheet extends ConsumerStatefulWidget {
   final Function(ParsedAddress)? onLocationSelected;
@@ -116,38 +115,37 @@ class _LocationPickerBottomSheetState
     setState(() => _isLoading = true);
 
     try {
-      final parsedAddress =
-          await ref
-              .read(locationServiceProvider)
-              .getCurrentLocationWithDetails();
+      if (_isAddressMode) {
+        // Shop / freelancer: get GPS and hand the result to the caller.
+        final parsedAddress = await ref
+            .read(locationServiceProvider)
+            .getCurrentLocationWithDetails();
 
-      if (mounted) {
-        setState(() => _isLoading = false);
-
-        if (parsedAddress != null) {
-          if (!_isAddressMode && parsedAddress.countryCode != null) {
-            final detectedCurrency = CountryCurrencyMapper.getPrimaryCurrency(
-              parsedAddress.countryCode,
-            );
-            if (detectedCurrency != null) {
-              await ref
-                  .read(userLocationNotifierProvider.notifier)
-                  .updateCurrency(detectedCurrency);
-            }
-          }
-
-          if (widget.onLocationSelected != null) {
-            widget.onLocationSelected!(parsedAddress);
-          }
-
-          if (mounted) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          if (parsedAddress != null) {
+            widget.onLocationSelected?.call(parsedAddress);
             Navigator.pop(context);
             context.showSuccessSnackbar('Location updated successfully');
+          } else {
+            context.showErrorSnackbar('Failed to get location. Please try again.');
           }
-        } else {
-          context.showErrorSnackbar(
-            'Failed to get location. Please try again.',
-          );
+        }
+      } else {
+        // Personal browsing location: the notifier handles GPS + persistence
+        // + currency detection in one call.
+        final success = await ref
+            .read(userLocationNotifierProvider.notifier)
+            .setCurrentLocation();
+
+        if (mounted) {
+          setState(() => _isLoading = false);
+          if (success) {
+            Navigator.pop(context);
+            context.showSuccessSnackbar('Location updated successfully');
+          } else {
+            context.showErrorSnackbar('Failed to get location. Please try again.');
+          }
         }
       }
     } catch (e) {

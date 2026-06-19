@@ -91,7 +91,7 @@ class CreateFreelancerDataSource {
                     : 'Tap to manage your service offerings',
             icon: Icons.content_cut,
             type: SettingsItemType.navigation,
-            routeName: '/manageServices',
+            routeName: '/manageServices?freelancerMode=true',
             iconColor: Colors.grey,
             trailing: SectionStatusIndicator(
               isComplete: draft.isServicesComplete,

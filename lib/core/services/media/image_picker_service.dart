@@ -12,11 +12,15 @@ import 'package:path/path.dart' as path;
 class ImagePickerService {
   final ImagePicker _picker = ImagePicker();
 
-  /// Pick an image from gallery or camera
+  /// Pick an image from gallery or camera.
+  /// [crop] — show the crop UI after picking.
+  /// [lockAspectRatio] — when true the crop tool locks to [cropRatio] (default
+  ///   1:1 square). Pass false for freeform crop (e.g. chat images).
   Future<File?> pickImage({
     required bool fromCamera,
     bool crop = false,
     CropAspectRatio? cropRatio,
+    bool lockAspectRatio = true,
   }) async {
     try {
       // On web, we can't crop or compress the same way
@@ -49,7 +53,11 @@ class ImagePickerService {
 
       // Crop if requested
       if (crop) {
-        final cropped = await _cropImage(permanentFile, cropRatio: cropRatio);
+        final cropped = await _cropImage(
+          permanentFile,
+          cropRatio: cropRatio,
+          lockAspectRatio: lockAspectRatio,
+        );
         if (cropped != null) {
           return await _compressImage(cropped);
         }
@@ -105,24 +113,34 @@ class ImagePickerService {
     }
   }
 
-  /// Crop image (Mobile only)
-  Future<File?> _cropImage(File imageFile, {CropAspectRatio? cropRatio}) async {
+  /// Crop image (Mobile only).
+  /// [lockAspectRatio] false → freeform; true → locked to [cropRatio] (default 1:1).
+  Future<File?> _cropImage(
+    File imageFile, {
+    CropAspectRatio? cropRatio,
+    bool lockAspectRatio = true,
+  }) async {
     // Don't crop on web
     if (kIsWeb) return imageFile;
 
     try {
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: imageFile.path,
-        aspectRatio: cropRatio ?? const CropAspectRatio(ratioX: 1, ratioY: 1),
+        aspectRatio: lockAspectRatio
+            ? (cropRatio ?? const CropAspectRatio(ratioX: 1, ratioY: 1))
+            : null,
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: 'Crop Image',
             toolbarColor: Colors.deepOrange,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.square,
-            lockAspectRatio: true,
+            lockAspectRatio: lockAspectRatio,
           ),
-          IOSUiSettings(title: 'Crop Image', aspectRatioLockEnabled: true),
+          IOSUiSettings(
+            title: 'Crop Image',
+            aspectRatioLockEnabled: lockAspectRatio,
+          ),
         ],
       );
 

@@ -27,19 +27,16 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final state = ref.watch(
       clientManagementControllerProviderFamily(
         ClientManagementParams(shopId: widget.shopId),
       ),
     );
 
-   
-
     return Scaffold(
-
       body: CardInkWell(
         elevation: 0,
-
         margin: EdgeInsets.all(Spacing.md),
         child: Column(
           children: [
@@ -48,7 +45,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
               child: SearchFormField(
                 controller: _searchController,
                 autofocus: false,
-                hintText: 'Search by name...',
+                hintText: loc.clientsSearchHint,
                 onChanged: (query) {
                   ref
                       .read(
@@ -69,6 +66,8 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
   }
 
   Widget _buildContent(ClientManagementState state) {
+    final loc = AppLocalizations.of(context)!;
+
     if (state.isLoading) {
       return ListView.separated(
         shrinkWrap: true,
@@ -80,7 +79,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     if (state.hasError) {
       return Center(
         child: ErrorStateWidget(
-          subtitle: 'Failed to load clients',
+          subtitle: loc.clientsLoadError,
           onPrimaryAction:
               () =>
                   ref
@@ -100,11 +99,11 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
       return Center(
         child: EmptyStateWidget(
           icon: Icons.people_outline,
-          title: hasSearch ? 'No Clients Match' : 'No Clients Yet',
+          title: hasSearch ? loc.clientsNotFound : loc.clientsEmpty,
           subtitle:
               hasSearch
-                  ? 'No clients match "${state.searchQuery}"'
-                  : 'Clients will appear here when they make their first booking.',
+                  ? loc.clientsSearchEmpty(state.searchQuery ?? '')
+                  : loc.clientsEmptySubtitle,
         ),
       );
     }

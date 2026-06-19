@@ -1,5 +1,5 @@
-
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/core/widgets/animated_circle.dart';
 
 class AppInfoWidget extends StatelessWidget {
   final bool showLogo;
@@ -37,26 +37,46 @@ class AppInfoWidget extends StatelessWidget {
         Gap(Spacing.xl.h),
         // App Logo/Icon
         if (showLogo) ...[
-          Container(
-            width: 80.w,
-            height: 80.h,
-            decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20.r),
-              boxShadow: [
-                BoxShadow(
-                  color:
-                      colorScheme.shadow?.withOpacity(0.1) ??
-                      Colors.black.withOpacity(0.1),
-                  blurRadius: 10.r,
-                  offset: Offset(0, 4.h),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Icon(Icons.apps, size: 40.h, color: colorScheme.primary),
+          AnimatedCircle(
+            size: 20,
+            stroke: 2,
+            animateSize: true,
+            animateShape: true,
+            firstColor: colorScheme.primary,
+            secondColor: colorScheme.primary.withValues(alpha: 0.5),
+          ),
+          SizedBox(
+            width: 50,
+            height: 50,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(BorderRadiusTokens.md),
+              child: Image.asset(
+                color: colorScheme.primary,
+                'assets/images/initializing_logo_no_bg.png',
+                fit: BoxFit.cover,
+              ),
             ),
           ),
+          // Container(
+          //   width: 80.w,
+          //   height: 80.h,
+          //   decoration: BoxDecoration(
+          //     color: colorScheme.primary.withOpacity(0.1),
+          //     borderRadius: BorderRadius.circular(20.r),
+          //     boxShadow: [
+          //       BoxShadow(
+          //         color:
+          //             colorScheme.shadow?.withOpacity(0.1) ??
+          //             Colors.black.withOpacity(0.1),
+          //         blurRadius: 10.r,
+          //         offset: Offset(0, 4.h),
+          //       ),
+          //     ],
+          //   ),
+          //   child: Center(
+          //     child: Icon(Icons.apps, size: 40.h, color: colorScheme.primary),
+          //   ),
+          // ),
           Gap(Spacing.lg.h),
         ],
 

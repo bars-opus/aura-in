@@ -1,4 +1,4 @@
-import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/discover_shops_widgets/shop_no_location_set.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 
 class NearYouShopsHorizontal extends ConsumerWidget {
@@ -6,18 +6,20 @@ class NearYouShopsHorizontal extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hasLocation = ref.watch(hasLocationProvider);
+    // final hasLocation = ref.watch(hasLocationProvider);
     final selectedLuxury = ref.watch(selectedLuxuryLevelProvider);
     final nearYouAsync = ref.watch(nearYouShopsProvider);
     final colorScheme = Theme.of(context).colorScheme;
     final userLocation = ref.watch(userLocationNotifierProvider);
+    final loc = AppLocalizations.of(context)!;
 
-    String title = 'Near You\nwithin 2km';
+    final radiusKm = ref.watch(searchRadiusKmProvider);
+    final title = loc.nearYouShopsTitle(radiusKm.toInt());
 
-    // If no location set, show empty state with CTA
-    if (!hasLocation) {
-      return ShopNoLocationSet();
-    }
+    // // If no location set, show empty state with CTA
+    // if (!hasLocation) {
+    //   return ShopNoLocationSet();
+    // }
 
     return nearYouAsync.when(
       data: (shops) {
@@ -38,8 +40,7 @@ class NearYouShopsHorizontal extends ConsumerWidget {
         }
         return HorizontalShopSection(
           title: title,
-          body:
-              'Shops located within 2 km of your current location, shown from closest to farthest. Simply set your location once, and we\'ll show you what\'s nearby—whether you\'re at home, work, or exploring a new neighborhood. Handy for last‑minute bookings or when you prefer to walk.',
+          body: loc.nearYouShopsBody(radiusKm.toInt()),
           titleIcon: Icons.near_me,
           titleIconColor: colorScheme.primary,
           shops: filteredShops,
@@ -71,6 +72,7 @@ class NearYouShopsHorizontal extends ConsumerWidget {
     String? selectedLuxury,
     String location,
   ) {
+    final loc = AppLocalizations.of(context)!;
     return CardInkWell(
       margin: EdgeInsets.only(bottom: Spacing.sm.h),
       onTap: () {},
@@ -79,10 +81,9 @@ class NearYouShopsHorizontal extends ConsumerWidget {
         compact: true,
         title:
             selectedLuxury == null
-                ? 'No shops found nearby'
-                : 'No $selectedLuxury shops found nearby',
-        subtitle:
-            'Shops in ${location} would be shown here once they become available',
+                ? loc.nearYouShopsEmptyNoFilter
+                : loc.nearYouShopsEmptyWithFilter(selectedLuxury),
+        subtitle: loc.nearYouShopsEmptySubtitle(location),
       ),
     );
   }

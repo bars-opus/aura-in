@@ -1,5 +1,8 @@
 // lib/features/wallet/presentation/widgets/withdrawal_sheet.dart
 
+import 'dart:async';
+
+import 'package:nano_embryo/core/feedback/review/review_providers.dart';
 import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/payment/presentation/widgets/info_row.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
@@ -88,6 +91,7 @@ class _WithdrawalSheetState extends ConsumerState<WithdrawalSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     return DraggableScrollableSheet(
       initialChildSize: 1.0, // Now 1.0 relative to the Container
@@ -102,48 +106,56 @@ class _WithdrawalSheetState extends ConsumerState<WithdrawalSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                BottomSheetHeader(title: 'Withdraw'),
+                BottomSheetHeader(title: loc.withdrawalTitle),
                 Gap(Spacing.lg.h),
                 SemanticContainerWidget(
-                  content:
-                      'Withdrawals are processed immediately and sent to your connected account. A ${withdrawalFeePercentage}% fee (min GHS $minFee) applies.',
+                  content: loc.withdrawalInfo(
+                    withdrawalFeePercentage,
+                    widget.shopCurrency,
+                    minFee,
+                  ),
                   icon: Icons.monetization_on,
-                  title:
-                      'Available balance: GHS ${widget.availableBalance.toStringAsFixed(2)}',
+                  title: loc.withdrawalAvailableBalance(
+                    widget.shopCurrency,
+                    widget.availableBalance.toStringAsFixed(2),
+                  ),
                   backgroundColor: colorScheme.primary.withOpacity(0.1),
                   borderColor: colorScheme.primary,
                   iconColor: colorScheme.primary,
                   textTheme: theme.textTheme,
                 ),
 
-                _errorAndLoading(),
+                _errorAndLoading(loc),
 
                 Gap(Spacing.lg.h),
 
                 // Amount field
                 AppTextFormField(
                   controller: _amountController,
-                
-                  label: 'Amount (${widget.shopCurrency})',
-                  hintText: 'Enter amount to withdraw',
+
+                  label: loc.withdrawalAmountInputLabel(widget.shopCurrency),
+                  hintText: loc.withdrawalAmountHint,
                   keyboardType: TextInputType.number,
                   prefixIcon: Icons.attach_money,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter an amount';
+                      return loc.withdrawalAmountRequired;
                     }
                     final amount = double.tryParse(value);
                     if (amount == null) {
-                      return 'Please enter a valid amount';
+                      return loc.withdrawalAmountInvalid;
                     }
                     if (amount < minWithdrawal) {
-                      return 'Minimum withdrawal is GHS $minWithdrawal';
+                      return loc.withdrawalMinimum(widget.shopCurrency, minWithdrawal);
                     }
                     if (amount > maxWithdrawal) {
-                      return 'Maximum withdrawal per transaction is GHS $maxWithdrawal';
+                      return loc.withdrawalMaximum(widget.shopCurrency, maxWithdrawal);
                     }
                     if (amount > widget.availableBalance) {
-                      return 'Insufficient balance. Available: GHS ${widget.availableBalance.toStringAsFixed(2)}';
+                      return loc.withdrawalInsufficientBalance(
+                        widget.shopCurrency,
+                        widget.availableBalance.toStringAsFixed(2),
+                      );
                     }
                     return null;
                   },
@@ -153,7 +165,7 @@ class _WithdrawalSheetState extends ConsumerState<WithdrawalSheet> {
 
                 // Fee breakdown
                 if (_amountController.text.isNotEmpty)
-                  _buildFeeBreakdown(theme, colorScheme),
+                  _buildFeeBreakdown(theme, colorScheme, loc),
                 Gap(Spacing.xl.h),
 
                 // Submit button
@@ -165,8 +177,8 @@ class _WithdrawalSheetState extends ConsumerState<WithdrawalSheet> {
                       elevation: 0,
                       label:
                           _isSubmitting
-                              ? 'Processing...'
-                              : 'Request Withdrawal',
+                              ? loc.withdrawalProcessing
+                              : loc.withdrawalRequestButton,
                       onPressed:
                           _isSubmitting || _connectedProvider == null
                               ? null
@@ -187,21 +199,21 @@ class _WithdrawalSheetState extends ConsumerState<WithdrawalSheet> {
     );
   }
 
-  _errorAndLoading() {
+  _errorAndLoading(AppLocalizations loc) {
     return Column(
       children: [
         // Connected payment method
         if (_isLoadingProvider)
           const Center(child: LoadingStateWidget(type: LoadingStateType.inline))
         else if (_connectedProvider == null)
-          _buildErrorWidget('No payment method connected')
+          _buildErrorWidget(loc.withdrawalNoPaymentMethod)
         else
           SizedBox.shrink(),
       ],
     );
   }
 
-  Widget _buildFeeBreakdown(ThemeData theme, ColorScheme colorScheme) {
+  Widget _buildFeeBreakdown(ThemeData theme, ColorScheme colorScheme, AppLocalizations loc) {
     final amount = double.tryParse(_amountController.text) ?? 0;
     final fee = _calculateFee(amount);
     final netAmount = _calculateNetAmount(amount);
@@ -216,20 +228,20 @@ class _WithdrawalSheetState extends ConsumerState<WithdrawalSheet> {
         children: [
           InfoRow(
             valueColor: colorScheme.onBackground,
-            label: 'Withdrawal amount:',
-            value: 'GHS ${amount.toStringAsFixed(2)}',
+            label: loc.withdrawalBreakdownAmount,
+            value: '${widget.shopCurrency} ${amount.toStringAsFixed(2)}',
           ),
 
           InfoRow(
             valueColor: colorScheme.error,
-            label: 'Fee (${withdrawalFeePercentage}%):',
-            value: '- GHS ${fee.toStringAsFixed(2)}',
+            label: loc.withdrawalFeeLabel(withdrawalFeePercentage),
+            value: '- ${widget.shopCurrency} ${fee.toStringAsFixed(2)}',
           ),
 
           InfoRow(
             valueColor: colorScheme.primary,
-            label: 'You will receive:',
-            value: 'GHS ${netAmount.toStringAsFixed(2)}',
+            label: loc.withdrawalNetAmount,
+            value: '${widget.shopCurrency} ${netAmount.toStringAsFixed(2)}',
           ),
         ],
       ),
@@ -255,13 +267,28 @@ class _WithdrawalSheetState extends ConsumerState<WithdrawalSheet> {
       );
 
       if (mounted) {
+        final loc = AppLocalizations.of(context)!;
+
+        // Feedback engine — a successful withdrawal is the canonical
+        // shop-owner happy moment. Capture the prompter BEFORE Navigator.pop
+        // because `ref` will be detached once this sheet is gone. Delay the
+        // OS prompt a beat so the success snackbar gets to render first.
+        final prompter = ref.read(reviewPrompterProvider);
+        unawaited(prompter.recordHappyMoment());
+
         Navigator.pop(context);
         widget.onSuccess();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Withdrawal request submitted successfully!'),
+          SnackBar(
+            content: Text(loc.withdrawalSuccess),
             backgroundColor: Colors.green,
           ),
+        );
+
+        unawaited(
+          Future<void>.delayed(const Duration(milliseconds: 1500), () {
+            prompter.maybeAsk();
+          }),
         );
       }
     } catch (e) {

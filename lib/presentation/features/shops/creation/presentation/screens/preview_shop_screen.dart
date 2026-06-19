@@ -55,6 +55,7 @@ class _PreviewShopScreenState extends ConsumerState<PreviewShopScreen>
   Widget build(BuildContext context) {
     final draft = ref.watch(shopCreationProvider);
     final publishState = ref.watch(publishProvider);
+    final colorScheme = Theme.of(context).colorScheme;
 
     // Convert draft to ShopDetailsDTO
     final previewDTO = ShopDetailsDTO.fromDraft(draft);
@@ -76,9 +77,16 @@ class _PreviewShopScreenState extends ConsumerState<PreviewShopScreen>
               AppTabItem(
                 label: 'Services',
                 icon: null,
-                content: Padding(
-                  padding: const EdgeInsets.all(Spacing.md),
-                  child: _buildServicesPreview(draft),
+                content: Material(
+                  color: colorScheme.background,
+                  child: Padding(
+                    padding: const EdgeInsets.all(Spacing.md),
+                    child: MediaQuery.removePadding(
+                      removeTop: true,
+                      context: context,
+                      child: _buildServicesPreview(draft),
+                    ),
+                  ),
                 ),
               ),
               AppTabItem(label: 'Buy', icon: null, content: Container()),
@@ -95,6 +103,7 @@ class _PreviewShopScreenState extends ConsumerState<PreviewShopScreen>
         shop: previewDTO,
         tabController: _tabController,
         tabs: _tabs,
+        coverImageUrl: '',
       ),
       bottomNavigationBar:
           widget.mode == 'edit'
@@ -104,27 +113,7 @@ class _PreviewShopScreenState extends ConsumerState<PreviewShopScreen>
               : SafeArea(
                 child: Padding(
                   padding: EdgeInsets.all(Spacing.md.h),
-                  child:
-                  // publishState.isPublishing
-                  //     ? SizedBox(
-                  //       height: 50.h,
-                  //       child: InfoRowWidget(
-                  //         subtitle: 'please wait....',
-                  //         title: 'Publishing shop',
-                  //         icon: Icons.storefront_rounded,
-                  //         avatarRadius: 0,
-                  //         iconSize: 0,
-                  //         trailing: CircularLoadingIndicator(),
-                  //         onTap: () {},
-                  //         showAvatar: false,
-                  //         showDivider: false,
-                  //         disableTrailing: false,
-                  //         showTrailingArrow: false,
-                  //       ),
-                  //     )
-                  //     //  CircularLoadingIndicator()
-                  //     :
-                  AppButton(
+                  child: AppButton(
                     elevation: 0,
                     label: 'Publish Shop',
                     center: false,
@@ -181,17 +170,23 @@ class _PreviewShopScreenState extends ConsumerState<PreviewShopScreen>
           context.showLoadingSnackbar('Publishing your shop...');
           final notifier = ref.read(publishProvider.notifier);
           final success = await notifier.publish();
-
           if (success && context.mounted) {
             final shopId = ref.read(publishProvider).shopId;
-            _showSuccessDialog(context, shopId ?? '');
-            // // Navigate after dialog closes
-            // Future.delayed(const Duration(milliseconds: 500), () {
-            //   if (context.mounted) {
-            //     context.push('/shop/$shopId');
-            //   }
-            // });
+            // Navigate to the Profile tab inside HomeScreen, then show the
+            // success dialog. Writing homeTabIndexProvider (index 3) before
+            // context.go ensures HomeWidget switches to the profile tab as
+            // soon as it becomes active.
+            ScaffoldMessenger.of(context).clearSnackBars();
+            Navigator.pop(context); // dismiss confirmation sheet
+            ref.read(homeTabIndexProvider.notifier).state = 3;
+            context.go(RouteNames.home);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                _showSuccessDialog(context, shopId ?? '');
+              }
+            });
           } else if (context.mounted) {
+            ScaffoldMessenger.of(context).clearSnackBars();
             final error = ref.read(publishProvider).error;
             context.showErrorSnackbar(error ?? 'Failed to publish shop');
             ref.read(publishProvider.notifier).reset();
@@ -223,26 +218,4 @@ class _PreviewShopScreenState extends ConsumerState<PreviewShopScreen>
       ),
     );
   }
-
-  // void _showSuccessDialog(BuildContext context, WidgetRef ref) {
-  //   showDialog(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder:
-  //         (ctx) => AlertDialog(
-  //           title: const Text('Shop Submitted! 🎉'),
-  //           content: const Text(
-  //             'Your shop has been submitted for verification. You\'ll be notified once it\'s approved. You can continue editing while pending.',
-  //           ),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () {
-  //                 Navigator.pop(ctx);
-  //               },
-  //               child: const Text('OK'),
-  //             ),
-  //           ],
-  //         ),
-  //   );
-  // }
 }

@@ -1,25 +1,25 @@
 // lib/features/freelancer/presentation/screens/freelancer_details_screen.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
-
 import 'package:nano_embryo/presentation/features/freelancer/presentation/providers/freelancer_details_provider.dart';
 import 'package:nano_embryo/presentation/features/freelancer/presentation/widgets/freelancer_details_content.dart';
 import 'package:nano_embryo/presentation/features/freelancer/presentation/widgets/freelancer_details_info_section.dart';
-
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/client/service_selection_screen.dart';
-import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/compact_profile_schimmer.dart';
-import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_image_pageview.dart';
+import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_loading_schimmer.dart';
 
 // lib/features/freelancer/presentation/screens/freelancer_details_screen.dart
 
 /// Screen displaying detailed freelancer profile
 class FreelancerDetailsScreen extends ConsumerStatefulWidget {
   final String freelancerId;
+  final String freelancurrency;
+
   final String coverImageUrl;
 
   const FreelancerDetailsScreen({
     super.key,
     required this.freelancerId,
+    required this.freelancurrency,
     required this.coverImageUrl,
   });
 
@@ -90,6 +90,7 @@ class _FreelancerDetailsScreenState
                         context: context,
                         child: ServiceSelectionScreen(
                           shopId: widget.freelancerId,
+                          shopCurrency: widget.freelancurrency,
                         ),
                       ),
                     ),
@@ -106,58 +107,12 @@ class _FreelancerDetailsScreenState
           freelancerDetails: freelancerDetails,
           tabController: _tabController,
           tabs: _tabs,
+          coverImageUrl: widget.coverImageUrl,
         );
       },
-      loading: () => _loadingSchimmer(context, widget.coverImageUrl),
+      loading:
+          () => ShopDetailsLoadingSchimmer(coverImageUrl: widget.coverImageUrl),
       error: (error, _) => _buildErrorWidget(error.toString()),
-    );
-  }
-
-  Widget _loadingSchimmer(BuildContext context, String coverImageUrl) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      backgroundColor: colorScheme.background,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                SizedBox(
-                  height: 450.h,
-                  width: double.infinity,
-                  child: ShopImagePageview(shopImageUrls: [coverImageUrl]),
-                ),
-                Positioned(
-                  top: 50.h,
-                  left: 10.h,
-                  child: AppIconButton(
-                    onPressed: () => Navigator.pop(context),
-                    backgroundColor: colorScheme.background.withOpacity(0.6),
-                    icon: Icons.close,
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: Spacing.md),
-              child: Column(
-                children: [
-                  Gap(20.h),
-                  const CompactProfileSchimmer(),
-                  Gap(20.h),
-                  const ShopSchimmerSkeleton(height: 20),
-                  Gap(5.h),
-                  const ShopSchimmerSkeleton(height: 20),
-                  Gap(5.h),
-                  const ShopSchimmerSkeleton(height: 20),
-                  Gap(20.h),
-                  const ShopSchimmerSkeleton(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -178,6 +133,3 @@ class _FreelancerDetailsScreenState
     );
   }
 }
-
-
-

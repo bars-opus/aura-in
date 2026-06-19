@@ -7,7 +7,7 @@ part of 'slot_generation_controller.dart';
 // **************************************************************************
 
 String _$slotGenerationControllerHash() =>
-    r'e5dc6d7f11e3174d82792632cfc538f9d36b732b';
+    r'edca722cee1cd87b65941714f1c036a9092aa4a2';
 
 /// See also [SlotGenerationController].
 @ProviderFor(SlotGenerationController)

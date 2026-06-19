@@ -1,5 +1,6 @@
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/freelancer_card.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/models/nearby_freelancer_dto.dart';
+import 'package:nano_embryo/presentation/features/search/presentation/widgets/category_header.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 
 /// A reusable horizontal scrollable section for displaying shops
@@ -81,80 +82,84 @@ class HorizontalFreelancerSection extends StatelessWidget {
   }
 
   _header(BuildContext context, bool isLoading) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: Spacing.horizontalLG,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                BottomSheetUtils.showDocumentationBottomSheet(
-                  maxHeight: 320.h,
-                  context: context,
-                  widget: Column(
-                    children: [
-                      Gap(Spacing.md),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            title,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.headlineSmall?.copyWith(
-                              color: colorScheme.onBackground,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-
-                          AppTextButton(),
-                        ],
-                      ),
-                      Gap(Spacing.md),
-                      Text(
-                        body,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onBackground,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: colorScheme.onBackground,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-
-                  Text(
-                    isLoading ? 'Loading...' : 'Learn more',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.primary,
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (onSeeAllPressed != null)
-            AppTextButton(text: 'See all', onPressed: onSeeAllPressed),
-        ],
-      ),
+    return CategoryHeader(
+      title: title,
+      body: body,
+      showSeeAll: freelancers.length > 4,
+      onPressed: onSeeAllPressed ?? () {},
     );
+    // return Padding(
+    //   padding: Spacing.horizontalLG,
+    //   child: Row(
+    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //     children: [
+    //       Expanded(
+    //         child: GestureDetector(
+    //           onTap: () {
+    //             BottomSheetUtils.showDocumentationBottomSheet(
+    //               maxHeight: 320.h,
+    //               context: context,
+    //               widget: Column(
+    //                 children: [
+    //                   Gap(Spacing.md),
+    //                   Row(
+    //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                     children: [
+    //                       Text(
+    //                         title,
+    //                         style: Theme.of(
+    //                           context,
+    //                         ).textTheme.headlineSmall?.copyWith(
+    //                           color: colorScheme.onBackground,
+    //                           fontWeight: FontWeight.bold,
+    //                         ),
+    //                       ),
+
+    //                       AppTextButton(),
+    //                     ],
+    //                   ),
+    //                   Gap(Spacing.md),
+    //                   Text(
+    //                     body,
+    //                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+    //                       color: colorScheme.onBackground,
+    //                     ),
+    //                   ),
+    //                 ],
+    //               ),
+    //             );
+    //           },
+    //           child: Column(
+    //             mainAxisAlignment: MainAxisAlignment.start,
+    //             crossAxisAlignment: CrossAxisAlignment.start,
+    //             children: [
+    //               Text(
+    //                 title,
+    //                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+    //                   color: colorScheme.onBackground,
+    //                   fontWeight: FontWeight.bold,
+    //                 ),
+    //                 maxLines: 2,
+    //                 overflow: TextOverflow.ellipsis,
+    //               ),
+
+    //               Text(
+    //                 isLoading ? 'Loading...' : 'Learn more',
+    //                 style: TextStyle(
+    //                   fontWeight: FontWeight.bold,
+    //                   color: colorScheme.primary,
+    //                   fontSize: 12.sp,
+    //                 ),
+    //               ),
+    //             ],
+    //           ),
+    //         ),
+    //       ),
+    //       if (onSeeAllPressed != null)
+    //         AppTextButton(text: 'See all', onPressed: onSeeAllPressed),
+    //     ],
+    //   ),
+    // );
   }
 
   Widget _buildDefaultLoadingShimmer(BuildContext context) {

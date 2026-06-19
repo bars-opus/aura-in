@@ -1,6 +1,7 @@
 // lib/features/booking/presentation/controllers/booking_creation_controller.dart
 
 import 'package:nano_embryo/core/utils/money.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/providers/service_addons_provider.dart';
 import 'package:nano_embryo/presentation/features/freelancer/presentation/providers/freelancer_details_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_sanitizer.dart';
@@ -453,11 +454,17 @@ class BookingCreationController extends _$BookingCreationController {
   ) {
     final all = <BookingServiceModel>[];
 
+    final addonsNotifier = ref.read(selectedAddonsProvider.notifier);
+
     for (final service in services) {
       final quantity = quantities[service.id] ?? 1;
       final workerEntries = workers[service.id] ??
           List.generate(quantity, (_) => {'id': null, 'name': null});
       final duration = DurationUtils.parse(service.duration);
+      // Reserve the real appointment length: base + selected add-on minutes.
+      final addonMinutes = addonsNotifier
+          .forSlot(service.id)
+          .fold<int>(0, (s, a) => s + (a.durationMinutes ?? 0));
       final timeSlot = timeSlots[service.id];
 
       // Phase 17: effective price in int kobo. Both priceMinor and service.price
@@ -476,7 +483,7 @@ class BookingCreationController extends _$BookingCreationController {
             slotId: service.id,
             workerId: entry['id'],
             priceAtBookingMinor: effectivePriceMinor,
-            durationMinutes: duration.inMinutes,
+            durationMinutes: duration.inMinutes + addonMinutes,
             createdAt: DateTime.now(),
             serviceName: service.serviceName,
             workerName: entry['name'],
@@ -496,11 +503,16 @@ class BookingCreationController extends _$BookingCreationController {
     Map<String, TimeSlotModel> timeSlots,
   ) {
     final all = <BookingServiceModel>[];
+    final addonsNotifier = ref.read(selectedAddonsProvider.notifier);
 
     for (final service in services) {
       final quantity = quantities[service.id] ?? 1;
       final timeSlot = timeSlots[service.id];
       final duration = DurationUtils.parse(service.duration);
+      // Reserve the real appointment length: base + selected add-on minutes.
+      final addonMinutes = addonsNotifier
+          .forSlot(service.id)
+          .fold<int>(0, (s, a) => s + (a.durationMinutes ?? 0));
       // Phase 17: effective price in int kobo. service.price is minor units.
       final effectivePriceMinor = timeSlot?.priceMinor ?? service.price;
 
@@ -512,7 +524,7 @@ class BookingCreationController extends _$BookingCreationController {
             slotId: service.id,
             workerId: null,
             priceAtBookingMinor: effectivePriceMinor,
-            durationMinutes: duration.inMinutes,
+            durationMinutes: duration.inMinutes + addonMinutes,
             createdAt: DateTime.now(),
             serviceName: service.serviceName,
             workerName: null,

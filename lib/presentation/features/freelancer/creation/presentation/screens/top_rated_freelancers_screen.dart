@@ -44,7 +44,7 @@ class _TopRatedFreelancersScreenState
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Text(
-          'Top rated freelancers',
+          loc.topRatedFreelancersScreenTitle,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface.withOpacity(0.8),
@@ -59,8 +59,8 @@ class _TopRatedFreelancersScreenState
 
           if (state.freelancers.isEmpty && !state.isLoading) {
             return EmptyStateWidget(
-              title: 'No top rated freelancers found',
-              subtitle: 'Try adjusting your search area',
+              title: loc.topRatedFreelancersEmpty,
+              subtitle: loc.topRatedFreelancersEmptySubtitle,
               onAction:
                   () =>
                       ref
@@ -114,8 +114,8 @@ class _TopRatedFreelancersScreenState
         error:
             (error, stack) => Center(
               child: ErrorStateWidget(
-                showDetails: true,
-                errorDetails: 'Failed to load top rated freelancers\n$error',
+                title: loc.commonSomethingWentWrong,
+                subtitle: error.toString(),
                 type: ErrorStateType.genericError,
                 onPrimaryAction:
                     () =>

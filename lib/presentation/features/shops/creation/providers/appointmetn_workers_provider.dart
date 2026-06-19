@@ -16,6 +16,9 @@ final appointmentWorkerRepositoryProvider = Provider<WorkerRepository>((ref) {
 // Active workers for a shop
 final shopActiveWorkersProvider =
     FutureProvider.family<List<WorkerDTO>, String>((ref, shopId) async {
+      // During shop creation the shop doesn't exist yet (empty id) — skip the
+      // query to avoid a `invalid input syntax for type uuid: ""` Postgrest error.
+      if (shopId.isEmpty) return const [];
       final repository = ref.read(appointmentWorkerRepositoryProvider);
       return repository.getActiveWorkersForShop(shopId);
     });

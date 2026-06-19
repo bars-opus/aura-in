@@ -1,8 +1,4 @@
-// Generic widget that works with any type
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gap/gap.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
 class SimpleProviderTabs<T> extends StatelessWidget {
   final List<SimpleProviderTabItem<T>> tabs;
@@ -18,7 +14,7 @@ class SimpleProviderTabs<T> extends StatelessWidget {
     required this.selectedValue,
     required this.onValueSelected,
     this.height = 80,
-    this.iconSize = 30,
+    this.iconSize = 25,
     this.fontSize = 12,
   });
 
@@ -29,59 +25,59 @@ class SimpleProviderTabs<T> extends StatelessWidget {
 
     return Container(
       height: height.h,
-      padding: EdgeInsets.only(top: Spacing.md),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: colorScheme.outline.withOpacity(0.1),
+            color: colorScheme.outline.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children:
             tabs.map((tab) {
               final isSelected = tab.value == selectedValue;
+              final color =
+                  isSelected
+                      ? colorScheme.primary
+                      : colorScheme.onSurface.withValues(alpha: 0.6);
 
-              return GestureDetector(
-                onTap: () => onValueSelected(tab.value),
-                child: Container(
-                  width: MediaQuery.of(context).size.width / tabs.length,
-                  color: Colors.transparent,
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => onValueSelected(tab.value),
+                  behavior: HitTestBehavior.opaque,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeInOut,
-                        child: Icon(
-                          isSelected ? tab.selectedIcon : tab.icon,
-                          color:
-                              isSelected
-                                  ? colorScheme.primary
-                                  : colorScheme.onSurface.withOpacity(0.6),
-                          size: iconSize,
+                      Expanded(
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isSelected ? tab.selectedIcon : tab.icon,
+                                color: color,
+                                size: iconSize.r,
+                              ),
+                              Gap(Spacing.xs.h),
+                              Text(
+                                tab.label,
+                                style: textTheme.labelMedium?.copyWith(
+                                  color: color,
+                                  fontWeight:
+                                      isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
+                                  fontSize: fontSize.sp,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      Gap(Spacing.xs.h),
-                      Text(
-                        tab.label,
-                        style: textTheme.labelMedium?.copyWith(
-                          color:
-                              isSelected
-                                  ? colorScheme.primary
-                                  : colorScheme.onSurface.withOpacity(0.6),
-                          fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.normal,
-                          fontSize: fontSize,
-                        ),
-                      ),
-                      Gap(Spacing.sm),
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
                         curve: Curves.easeInOut,
-                        height: 2.h,
+                        height: 2.r,
                         width: isSelected ? 40.w : 0,
                         decoration: BoxDecoration(
                           color:

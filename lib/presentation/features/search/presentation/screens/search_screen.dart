@@ -1,20 +1,17 @@
 // lib/features/search/presentation/screens/search_screen.dart
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/widgets/search_text_field.dart';
 import 'package:nano_embryo/presentation/features/search/domain/models/category_search_section.dart';
 import 'package:nano_embryo/presentation/features/search/models/search_category.dart';
 import 'package:nano_embryo/presentation/features/search/models/unified_search_result.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/screens/category_results_screen.dart';
+import 'package:nano_embryo/presentation/features/search/presentation/screens/search_loading_shimmer.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/state/search_providers.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/widgets/category_result_card.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/widgets/horizontal_shop_list.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/widgets/search_suggestions.dart';
-import 'package:nano_embryo/presentation/features/search/presentation/widgets/shop_card_shimmer.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/widgets/vertical_category_list.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
@@ -313,7 +310,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           child: Column(children: children),
         );
       },
-      loading: () => const SearchLoadingShimmer(),
+      loading: () => SearchLoadingShimmer(selectedCategory: selectedCategory),
       error: (error, stack) => _buildErrorState(loc),
     );
   }

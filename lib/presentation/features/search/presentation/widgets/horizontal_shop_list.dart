@@ -1,10 +1,5 @@
 // lib/features/search/presentation/widgets/horizontal_shop_list.dart
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gap/gap.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_text_button.dart';
-import 'package:nano_embryo/core/widgets/card_inkwell.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/search/models/unified_search_result.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/widgets/category_header.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/widgets/category_result_card.dart';
@@ -23,13 +18,14 @@ class HorizontalShopList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     if (shops.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Gap(Spacing.md),
         CategoryHeader(
-          title: 'Shops',
+          title: loc.searchResultsShopsHeader,
           showSeeAll: shops.length > 4,
           onPressed: onSeeAll,
         ),

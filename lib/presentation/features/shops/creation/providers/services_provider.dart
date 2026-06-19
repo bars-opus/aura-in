@@ -4,9 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/draft_context_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/utils/undo_service.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/appointment_slot_dto.dart';
+import 'package:uuid/uuid.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/providers/freelancer_creation_provider.dart'
     show freelancerCreationProvider;
 import 'shop_creation_provider.dart';
+
+/// Holds the last successfully saved service so the next "Add service" form
+/// can be pre-filled with operational values (price, duration, buffers, etc.).
+final lastSavedServiceProvider =
+    StateProvider<AppointmentSlotDTO?>((ref) => null);
 
 class ServicesNotifier extends StateNotifier<List<AppointmentSlotDTO>>
     with UndoCapability<List<AppointmentSlotDTO>> {
@@ -19,7 +25,11 @@ class ServicesNotifier extends StateNotifier<List<AppointmentSlotDTO>>
        super(initialServices ?? []);
 
   void addService(AppointmentSlotDTO service) {
-    state = [...state, service];
+    final s = service.id.isEmpty
+        ? service.copyWith(id: const Uuid().v4())
+        : service;
+    state = [...state, s];
+    _ref.read(lastSavedServiceProvider.notifier).state = s;
     _updateDraft();
   }
 

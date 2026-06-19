@@ -78,6 +78,7 @@ CREATE INDEX IF NOT EXISTS idx_in_app_notif_unread
 -- Row-Level Security
 ALTER TABLE in_app_notifications ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "users_own_notifications" ON in_app_notifications;
 CREATE POLICY "users_own_notifications" ON in_app_notifications
   FOR ALL USING (auth.uid() = user_id);
 
@@ -97,6 +98,7 @@ CREATE TABLE IF NOT EXISTS notification_settings (
 
 ALTER TABLE notification_settings ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "users_own_settings" ON notification_settings;
 CREATE POLICY "users_own_settings" ON notification_settings
   FOR ALL USING (auth.uid() = user_id);
 
@@ -136,12 +138,15 @@ CREATE INDEX IF NOT EXISTS idx_push_tokens_user
 
 ALTER TABLE push_tokens ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "users_own_tokens" ON push_tokens;
 CREATE POLICY "users_own_tokens" ON push_tokens
   FOR ALL USING (auth.uid() = user_id);
 
 -- ── 5. User Locations (geo-notifications) ────────────────────────────────────
 -- Store last-known device location for "new shop nearby" style notifications.
 -- Requires PostGIS extension.
+
+CREATE EXTENSION IF NOT EXISTS postgis;
 
 CREATE TABLE IF NOT EXISTS user_locations (
   user_id    UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -153,10 +158,12 @@ CREATE TABLE IF NOT EXISTS user_locations (
 
 ALTER TABLE user_locations ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "users_own_location" ON user_locations;
 CREATE POLICY "users_own_location" ON user_locations
   FOR ALL USING (auth.uid() = user_id);
 
 -- Returns user IDs within radius_km kilometres of (shop_lat, shop_lng).
+-- Uses PostGIS geography ST_DWithin (radius in metres).
 CREATE OR REPLACE FUNCTION get_nearby_users(
   shop_lat  DOUBLE PRECISION,
   shop_lng  DOUBLE PRECISION,
@@ -166,8 +173,9 @@ RETURNS TABLE (user_id UUID) LANGUAGE sql STABLE AS $$
   SELECT ul.user_id
   FROM   user_locations ul
   WHERE  ul.is_active = true
-    AND  (
-      point(ul.longitude, ul.latitude) <@>
-      point(shop_lng, shop_lat)
-    ) * 1.60934 <= radius_km;
+    AND  ST_DWithin(
+           ST_SetSRID(ST_MakePoint(ul.longitude, ul.latitude), 4326)::geography,
+           ST_SetSRID(ST_MakePoint(shop_lng, shop_lat), 4326)::geography,
+           radius_km * 1000
+         );
 $$;

@@ -1,17 +1,22 @@
 // lib/features/search/presentation/widgets/shop_card_shimmer.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 
 class ShopCardShimmer extends StatelessWidget {
-  const ShopCardShimmer({super.key});
+  final String category;
+  const ShopCardShimmer({super.key, required this.category});
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    Color valueColor = Colors.black.withOpacity(.2);
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.onBackground.withOpacity(.1),
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Row(
@@ -19,14 +24,17 @@ class ShopCardShimmer extends StatelessWidget {
         children: [
           // Image placeholder
           Container(
-            width: 70.w,
-            height: 70.h,
+            width: 50.w,
+            height: 50.h,
             decoration: BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.circular(8.r),
+              color: Colors.black.withOpacity(.2),
+              shape:
+                  category == 'Products' ? BoxShape.rectangle : BoxShape.circle,
+              borderRadius:
+                  category == 'Products' ? BorderRadius.circular(8.r) : null,
             ),
           ),
-          SizedBox(width: 12.w),
+          Gap(12.w),
 
           // Text placeholders
           Expanded(
@@ -36,30 +44,35 @@ class ShopCardShimmer extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   height: 16.h,
-                  color: Colors.grey,
+                  decoration: BoxDecoration(
+                    color: valueColor,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-                SizedBox(height: 8.h),
-                Container(width: 100.w, height: 12.h, color: Colors.grey),
-                SizedBox(height: 8.h),
-                Container(width: 80.w, height: 10.h, color: Colors.grey),
+                Gap(8.h),
+                Container(
+                  width: 100.w,
+                  height: 12.h,
+                  decoration: BoxDecoration(
+                    color: valueColor,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                Gap(8.h),
+                if (category != 'Profiles')
+                  Container(
+                    width: 80.w,
+                    height: 10.h,
+                    decoration: BoxDecoration(
+                      color: valueColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-// Loading list with shimmer
-class SearchLoadingShimmer extends StatelessWidget {
-  const SearchLoadingShimmer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: 6,
-      itemBuilder: (context, index) => const ShopCardShimmer(),
     );
   }
 }

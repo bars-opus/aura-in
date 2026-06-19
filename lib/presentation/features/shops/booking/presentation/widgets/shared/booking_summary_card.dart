@@ -1,6 +1,9 @@
 // lib/features/booking/presentation/widgets/shared/booking_summary_card.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/domain/models/service_addon_dto.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/providers/service_addons_provider.dart';
 
 /// A beautiful card displaying a complete booking summary.
 ///
@@ -67,6 +70,7 @@ class BookingSummaryCard extends ConsumerWidget {
 
     // Now you can use ref here
     final quantities = ref.watch(serviceQuantityProvider);
+    final selectedAddons = ref.watch(selectedAddonsProvider);
 
     return Column(
       children: [
@@ -126,30 +130,45 @@ class BookingSummaryCard extends ConsumerWidget {
                   }
                 }
 
+                // Effective (override-applied) price in minor units, matching
+                // the time-slot and confirmation screens. Falls back to the
+                // service base price when no slot is mapped.
+                final effectiveMinor = timeSlot?.priceMinor ?? service.price;
+                final addons = selectedAddons[service.id] ?? const [];
+
                 return Padding(
-                  padding: EdgeInsets.symmetric(vertical: Spacing.sm),
-                  child: ClientServiceTable(
-                    rows: [
-                      TableRowData(
-                        leftLabel: 'Service',
-                        leftValue:
-                            quantity > 1
-                                ? '${service.serviceName} x$quantity'
-                                : service.serviceName,
-                        rightLabel: 'Worker',
-                        rightValue: worker != null ? worker.name : '',
+                  padding: EdgeInsets.symmetric(vertical: Spacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ClientServiceTable(
+                        rows: [
+                          TableRowData(
+                            leftLabel: 'Service',
+                            leftValue:
+                                quantity > 1
+                                    ? '${service.serviceName} x$quantity'
+                                    : service.serviceName,
+                            rightLabel: 'Worker',
+                            rightValue: worker != null ? worker.name : '',
+                          ),
+                          TableRowData(
+                            leftLabel: formatMoney(
+                              effectiveMinor * quantity,
+                              shopCurrency,
+                            ),
+                            leftValue: '',
+                            rightLabel: _getTimeDisplay(
+                              timeSlot,
+                              isCombinedView,
+                              service.serviceName,
+                            ),
+                            rightValue: '',
+                          ),
+                        ],
                       ),
-                      TableRowData(
-                        leftLabel:
-                            '$shopCurrency ${(service.price * quantity / 100).toStringAsFixed(2)}',
-                        leftValue: '',
-                        rightLabel: _getTimeDisplay(
-                          timeSlot,
-                          isCombinedView,
-                          service.serviceName,
-                        ),
-                        rightValue: '',
-                      ),
+                      if (addons.isNotEmpty)
+                        _buildAddonsSection(context, addons, quantity),
                     ],
                   ),
                 );
@@ -170,6 +189,89 @@ class BookingSummaryCard extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  /// Compact list of the add-ons the client picked for this service, rendered
+  /// below the service table so the two-row table contract stays intact.
+  Widget _buildAddonsSection(
+    BuildContext context,
+    List<ServiceAddonDTO> addons,
+    int quantity,
+  ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      margin: EdgeInsets.only(top: Spacing.xs.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: Spacing.sm.w,
+        vertical: Spacing.xs.h,
+      ),
+      decoration: BoxDecoration(
+        color: colorScheme.primary.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(width: 0.5, color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: Spacing.xs.h),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.add_circle_outline,
+                  size: 14.h,
+                  color: colorScheme.primary,
+                ),
+                Gap(6.w),
+                Text(
+                  'Add-ons',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: colorScheme.onBackground.withOpacity(0.7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ...addons.map((a) {
+            final priceLabel = formatMoney(
+              a.priceMinor * quantity,
+              shopCurrency,
+            );
+            final hasDuration =
+                a.durationMinutes != null && a.durationMinutes! > 0;
+            return Padding(
+              padding: EdgeInsets.symmetric(vertical: 2.h),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      hasDuration
+                          ? '${a.name}  ·  +${a.durationMinutes} min'
+                          : a.name,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onBackground,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Gap(Spacing.sm.w),
+                  Text(
+                    '+$priceLabel',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
     );
   }
 

@@ -78,9 +78,6 @@ class _AddSocialLinkModalState extends State<AddSocialLinkModal> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final header =
-        widget.initialLink == null ? 'Add Social Link to ' : 'Edit Social Link of ';
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -103,16 +100,6 @@ class _AddSocialLinkModalState extends State<AddSocialLinkModal> {
         key: _formKey,
         child: ListView(
           children: [
-            Gap(Spacing.lg.h),
-            SemanticContainerWidget(
-              content: '${header}your social profiles to help customers find you',
-              title: '',
-              backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
-              borderColor: colorScheme.primary,
-              iconColor: colorScheme.primary,
-              textTheme: theme.textTheme,
-            ),
-
             Gap(Spacing.lg.h),
 
             Text(
@@ -185,25 +172,26 @@ class _AddSocialLinkModalState extends State<AddSocialLinkModal> {
       child: Wrap(
         spacing: 5.w,
         runSpacing: .5.h,
-        children: SocialPlatform.values.map((platform) {
-          final isSelected = _selectedPlatform == platform;
-          return AppFilterChip(
-            avatarIcon: platform.icon,
-            label: platform.displayName,
-            selected: isSelected,
-            onSelected: (selected) {
-              setState(() {
-                _selectedPlatform = selected ? platform : null;
-                _urlController.clear();
-                _platformError = null;
-              });
-            },
-            selectedColor: colorScheme.primary,
-            backgroundColor: colorScheme.surface,
-            labelColor: colorScheme.onSurface.withValues(alpha: 0.3),
-            borderWidth: 0.3,
-          );
-        }).toList(),
+        children:
+            SocialPlatform.values.map((platform) {
+              final isSelected = _selectedPlatform == platform;
+              return AppFilterChip(
+                avatarIcon: platform.icon,
+                label: platform.displayName,
+                selected: isSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    _selectedPlatform = selected ? platform : null;
+                    _urlController.clear();
+                    _platformError = null;
+                  });
+                },
+                selectedColor: colorScheme.primary,
+                backgroundColor: colorScheme.surface,
+                labelColor: colorScheme.onSurface.withValues(alpha: 0.7),
+                borderWidth: 0.3,
+              );
+            }).toList(),
       ),
     );
   }

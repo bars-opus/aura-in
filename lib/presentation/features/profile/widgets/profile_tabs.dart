@@ -1,30 +1,46 @@
-import 'package:flutter/material.dart';
-import 'package:nano_embryo/core/widgets/app_tabs.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/shops/calendar/presentation/screens/calendar_screen.dart';
 
-List<AppTabItem> buildProfileTabs(String currentUserId, isCurrentUser) {
+List<AppTabItem> buildProfileTabs(
+  String profileUserId,
+  isCurrentUser,
+  isLogin, {
+  AppLocalizations? loc,
+}) {
+  // If loc is not provided, we're just building for tab count in initState
+  // The actual labels will be used when the tabs are rendered in _buildBody
+  if (loc == null) {
+    // Return with placeholder labels for initialization
+    return [
+      const AppTabItem(label: '', icon: null, content: null),
+      const AppTabItem(label: '', icon: null, content: null),
+      const AppTabItem(label: '', icon: null, content: null),
+    ];
+  }
+
+  final labels = loc;
   return [
     AppTabItem(
-      label: 'Appointments',
+      label: labels.profileTabsAppointments,
       icon: null,
       content:
-          currentUserId.isEmpty
-              ? SizedBox.shrink()
+          isLogin
+              ? const SizedBox.shrink()
               : CalendarScreen(
                 isShopOwner: false,
-                currentUserId: currentUserId,
+                currentUserId: profileUserId,
                 isCurrentUser: isCurrentUser,
               ),
     ),
     AppTabItem(
-      label: 'Save',
+      label: labels.profileTabsBuys,
       icon: null,
-      content: currentUserId.isEmpty ? SizedBox.shrink() : Container(),
+      content: isLogin ? const SizedBox.shrink() : Container(),
     ),
     AppTabItem(
-      label: 'Shops',
+      label: labels.profileTabsSaves,
       icon: null,
-      content: currentUserId.isEmpty ? SizedBox.shrink() : Container(),
+      content: isLogin ? const SizedBox.shrink() : Container(),
     ),
   ];
 }

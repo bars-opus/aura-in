@@ -1,85 +1,60 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:nano_embryo/core/config/env.dart';
 
+/// The app no longer uses `flutter_dotenv`. Configuration is compile-time via
+/// `String.fromEnvironment` (`--dart-define` / `--dart-define-from-file`),
+/// surfaced through the [Environment] class. These tests assert the real
+/// contract: the defaults that ship when no dart-define is supplied (the state
+/// under `flutter test`), the null-coalescing of optional keys, and the
+/// platform-switching getter.
 void main() {
-  group('Environment Tests', () {
-    // Create a test .env content
-    const testEnvContent = '''
-SUPABASE_URL=https://test.supabase.co
-SUPABASE_ANON_KEY=test_anon_key_12345
-SENDBIRD_APP_ID=test_app_id_67890
-DEBUG=true
-''';
-
-    setUp(() async {
-      // Reset dotenv before each test
-      dotenv.clean();
-
-      // Load test environment from string
-      dotenv.testLoad(fileInput: testEnvContent);
+  group('Environment defaults (no --dart-define supplied)', () {
+    test('linkBaseDomain falls back to its default', () {
+      expect(Environment.linkBaseDomain, 'aura-in.app');
     });
 
-    test('should return true for isEveryDefined with all variables', () {
-      final hasAllVars = dotenv.isEveryDefined([
-        'SUPABASE_URL',
-        'SUPABASE_ANON_KEY',
-        'SENDBIRD_APP_ID',
-      ]);
-      expect(hasAllVars, isTrue);
+    test('linkScheme falls back to its default', () {
+      expect(Environment.linkScheme, 'aurain');
     });
 
-    test('should get Supabase URL correctly', () {
-      final url = dotenv.env['SUPABASE_URL'];
-      expect(url, 'https://test.supabase.co');
+    test('appId falls back to its default', () {
+      expect(Environment.appId, 'aurain');
     });
 
-    test('should get Supabase Anon Key correctly', () {
-      final key = dotenv.env['SUPABASE_ANON_KEY'];
-      expect(key, 'test_anon_key_12345');
-    });
-
-    test('should get Sendbird App ID correctly', () {
-      final appId = dotenv.env['SENDBIRD_APP_ID'];
-      expect(appId, 'test_app_id_67890');
-    });
-
-    test('should return null for missing key', () {
-      final missing = dotenv.env['MISSING_KEY'];
-      expect(missing, isNull);
-    });
-
-    test('should have DEBUG as true in test env', () {
-      final debug = dotenv.env['DEBUG'];
-      expect(debug, 'true');
-    });
-
-    test('should handle case-insensitive boolean checks', () {
-      final debugValue = dotenv.env['DEBUG']?.toLowerCase();
-      expect(debugValue, anyOf('true', 'false'));
+    test('isDebug defaults to false', () {
+      expect(Environment.isDebug, isFalse);
     });
   });
 
-  group('Environment.get Method Tests', () {
-    setUp(() async {
-      dotenv.clean();
-      const testEnv = '''
-SUPABASE_URL=https://test.supabase.co
-SUPABASE_ANON_KEY=test_key
-SENDBIRD_APP_ID=test_app
-''';
-      dotenv.testLoad(fileInput: testEnv);
+  group('Environment required keys (empty when undefined)', () {
+    // Required secrets have NO hardcoded fallback by design — they resolve to
+    // the empty string when not provided, so the app can fail fast at startup
+    // rather than ship a secret in the binary.
+    test('supabaseUrl is empty without a dart-define', () {
+      expect(Environment.supabaseUrl, isEmpty);
     });
 
-    test('should return value for existing key', () {
-      // Since Environment.get requires initialization,
-      // we test dotenv directly
-      final value = dotenv.env['SUPABASE_URL'];
-      expect(value, 'https://test.supabase.co');
+    test('supabaseAnonKey is empty without a dart-define', () {
+      expect(Environment.supabaseAnonKey, isEmpty);
     });
 
-    test('should return null for non-existing key', () {
-      final value = dotenv.env['NON_EXISTENT'];
-      expect(value, isNull);
+    test('sendbirdAppId is empty without a dart-define', () {
+      expect(Environment.sendbirdAppId, isEmpty);
+    });
+  });
+
+  group('Environment optional keys', () {
+    test('oneSignalAppId is null when unset (not empty string)', () {
+      // The const ternary maps '' -> null so callers can use ?? cleanly.
+      expect(Environment.oneSignalAppId, isNull);
+    });
+  });
+
+  group('Environment platform-aware getters', () {
+    test('googleMapsApiKey returns a String for the current platform', () {
+      // Without a dart-define this is the empty string, but the getter must not
+      // throw and must always return a non-null value for the active platform.
+      expect(Environment.googleMapsApiKey, isA<String>());
     });
   });
 }

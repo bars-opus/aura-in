@@ -14,6 +14,7 @@ class HomeWidgetFactory {
       initialTabIndex: initialTabIndex,
       navigationBarHeight: 64.h,
       iconSize: 22.h,
+      // navigationBarColor: tabs.label.,
       activeIconSize: 24.h,
       showLabels: true,
     );

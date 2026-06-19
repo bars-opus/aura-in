@@ -1,11 +1,16 @@
 // lib/core/widgets/home_widget.dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/utils/exports/export_packages.dart';
+import 'package:nano_embryo/presentation/home/home_screen.dart';
 import 'package:nano_embryo/presentation/home/widgets/home_tab.dart';
 
 /// Simple, scalable home widget with bottom navigation
 /// Supports 2-5 tabs with minimal, clean implementation
-class HomeWidget extends StatefulWidget {
+
+/// Simple, scalable home widget with bottom navigation
+/// Supports 2-5 tabs with minimal, clean implementation
+class HomeWidget extends ConsumerStatefulWidget {
   final List<HomeTab> tabs;
   final int initialTabIndex;
   final Color? backgroundColor;
@@ -37,10 +42,10 @@ class HomeWidget extends StatefulWidget {
        );
 
   @override
-  State<HomeWidget> createState() => _HomeWidgetState();
+  ConsumerState<HomeWidget> createState() => _HomeWidgetState();
 }
 
-class _HomeWidgetState extends State<HomeWidget> {
+class _HomeWidgetState extends ConsumerState<HomeWidget> {
   late int _currentIndex;
   late final Set<int> _visitedIndices;
 
@@ -49,6 +54,24 @@ class _HomeWidgetState extends State<HomeWidget> {
     super.initState();
     _currentIndex = widget.initialTabIndex;
     _visitedIndices = {widget.initialTabIndex};
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // React to programmatic tab jumps (e.g. navigate-to-profile after publish).
+    // Using a listen here so we catch changes that arrive after the widget is
+    // already live (context.go back to /home won't rebuild initState).
+    ref.listenManual(homeTabIndexProvider, (_, next) {
+      if (next != _currentIndex) {
+        setState(() {
+          _currentIndex = next;
+          _visitedIndices.add(next);
+        });
+        // Reset so the next normal /home navigation starts at tab 0.
+        ref.read(homeTabIndexProvider.notifier).state = 0;
+      }
+    });
   }
 
   Widget _buildBottomNavigationBarWithCustomFab(
@@ -66,31 +89,35 @@ class _HomeWidgetState extends State<HomeWidget> {
     final activeIconSize =
         widget.activeIconSize ?? (isWideScreen ? 28.h : 24.h);
 
-    // Calculate total height including safe area
-    final totalHeight = navBarHeight + MediaQuery.of(context).padding.bottom;
-
-    return Stack(
-      children: [
-        // Bottom Navigation Bar Background
-        Container(
-          height: totalHeight,
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          Spacing.lg.w,
+          Spacing.sm.h,
+          Spacing.lg.w,
+          0,
+        ),
+        child: Container(
+          height: navBarHeight,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: widget.navigationBarColor ?? colorScheme.surface,
-            border: Border(
-              top: BorderSide(
-                color: colorScheme.outline.withOpacity(0.1),
-                width: BorderWidthTokens.hairline,
-              ),
+            borderRadius: BorderRadius.circular(
+              BorderRadiusTokens.floatingNav.r,
             ),
+            border: Border.all(
+              color: colorScheme.outline.withValues(alpha: 0.1),
+              width: BorderWidthTokens.hairline,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.shadow.withValues(alpha: 0.08),
+                blurRadius: ElevationTokens.lg.r,
+                offset: Offset(0, ElevationTokens.xs.h),
+              ),
+            ],
           ),
-        ),
-
-        // Navigation Items
-        Positioned(
-          left: 0,
-          right: 0,
-          top: 0,
-          bottom: MediaQuery.of(context).padding.bottom,
           child: Row(
             children: List.generate(widget.tabs.length, (index) {
               final tab = widget.tabs[index];
@@ -104,15 +131,16 @@ class _HomeWidgetState extends State<HomeWidget> {
                 activeIconSize: activeIconSize,
                 colorScheme: colorScheme,
                 textTheme: textTheme,
-                onTap: () => setState(() {
-                  _visitedIndices.add(index);
-                  _currentIndex = index;
-                }),
+                onTap:
+                    () => setState(() {
+                      _visitedIndices.add(index);
+                      _currentIndex = index;
+                    }),
               );
             }),
           ),
         ),
-      ],
+      ),
     );
   }
 
@@ -121,21 +149,31 @@ class _HomeWidgetState extends State<HomeWidget> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      backgroundColor: widget.backgroundColor ?? colorScheme.background,
+      extendBody: true,
+      backgroundColor: widget.backgroundColor ?? colorScheme.surfaceDim,
       body: Stack(
-        children: List.generate(widget.tabs.length, (index) {
-          if (!_visitedIndices.contains(index)) return const SizedBox.shrink();
-          return Offstage(
-            offstage: index != _currentIndex,
-            child: widget.tabs[index].screen,
-          );
-        }),
+        fit: StackFit.expand,
+        children: [
+          ...List.generate(widget.tabs.length, (index) {
+            if (!_visitedIndices.contains(index))
+              return const SizedBox.shrink();
+            return Offstage(
+              offstage: index != _currentIndex,
+              child: widget.tabs[index].screen,
+            );
+          }),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _buildBottomNavigationBarWithCustomFab(
+              context,
+              colorScheme,
+              textTheme,
+            ),
+          ),
+        ],
       ),
-      bottomNavigationBar: _buildBottomNavigationBarWithCustomFab(
-        context,
-        colorScheme,
-        textTheme,
-      ), // UPDATED
     );
   }
 
@@ -152,21 +190,24 @@ class _HomeWidgetState extends State<HomeWidget> {
     final iconColor =
         isActive
             ? (tab.activeIconColor ?? colorScheme.primary)
-            : (tab.iconColor ?? colorScheme.onSurface.withOpacity(0.6));
+            : (tab.iconColor ??
+                colorScheme.onSurface.withValues(alpha: OpacityTokens.medium));
 
     final labelColor =
         isActive
             ? (tab.activeLabelColor ?? colorScheme.primary)
-            : (tab.labelColor ?? colorScheme.onSurface.withOpacity(0.6));
+            : (tab.labelColor ??
+                colorScheme.onSurface.withValues(alpha: OpacityTokens.medium));
 
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: Spacing.sm.h),
+          padding: EdgeInsets.symmetric(vertical: 2.h),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Icon with optional unread badge
               Badge(
@@ -184,12 +225,12 @@ class _HomeWidgetState extends State<HomeWidget> {
 
               // Label
               if (widget.showLabels) ...[
-                Gap(Spacing.xs.h),
+                Gap(2.h),
                 Text(
                   tab.label,
                   style: textTheme.labelSmall?.copyWith(
                     color: labelColor,
-                    fontSize: 10.sp,
+                    fontSize: 9,
                     fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                   ),
                   maxLines: 1,

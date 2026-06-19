@@ -1,3 +1,4 @@
+import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -7,17 +8,18 @@ part 'near_you_shops_provider.g.dart';
 Future<List<ShopListItemDTO>> nearYouShops(NearYouShopsRef ref) {
   final userLocation = ref.watch(userLocationNotifierProvider);
 
-  // If no location set, return empty list
   if (userLocation == null) {
     return Future.value([]);
   }
 
   final repository = ref.watch(shopRepositoryProvider);
+  // Watch radius so this provider re-runs when the slider commits.
+  final radiusKm = ref.watch(searchRadiusKmProvider);
 
   return repository.getNearbyShops(
     latitude: userLocation.latitude,
     longitude: userLocation.longitude,
-    radiusKm: 10.0,
+    radiusKm: radiusKm,
     limit: 10,
   );
 }

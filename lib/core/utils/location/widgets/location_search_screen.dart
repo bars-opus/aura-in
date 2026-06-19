@@ -332,16 +332,16 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
       await _saveRecentSearch(resolved.fullAddress);
       if (mounted) context.pop(resolved);
     } else {
+      // Use the already-resolved ParsedAddress directly — avoids a redundant
+      // second geocoding call (setSearchedLocation re-geocodes the query string
+      // via the geocoding package, which can silently fail).
       final success = await ref
           .read(userLocationNotifierProvider.notifier)
-          .setSearchedLocation(resolved.fullAddress);
+          .setFromParsedAddress(resolved);
 
       if (success && mounted) {
         await _saveRecentSearch(resolved.fullAddress);
-        if (mounted) {
-          Navigator.pop(context);
-          Navigator.pop(context);
-        }
+        if (mounted) Navigator.pop(context);
       } else if (mounted) {
         _showNotFoundError();
       }

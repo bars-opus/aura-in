@@ -108,6 +108,7 @@ class SemanticContainerWidget extends StatelessWidget {
   /// Should semantically match the content type (e.g., info, warning, help).
   /// Size is controlled by `IconSizes.md` token for consistency.
   final IconData? icon;
+  final IconData? trailingIcon;
 
   /// Title text displayed prominently at the top of the container.
   ///
@@ -152,7 +153,8 @@ class SemanticContainerWidget extends StatelessWidget {
   const SemanticContainerWidget({
     super.key,
     required this.content,
-     this.icon,
+    this.icon,
+    this.trailingIcon,
     required this.title,
     required this.backgroundColor,
     required this.borderColor,
@@ -182,8 +184,7 @@ class SemanticContainerWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           // Semantic icon with consistent sizing
-          if(icon != null)
-          Icon(icon, size: IconSizes.md.r, color: iconColor),
+          if (icon != null) Icon(icon, size: IconSizes.md.r, color: iconColor),
           // Gap between icon and title
           // Gap(Spacing.sm.w),
           // Container(color: iconColor, width: .3.w, height: 30.h),
@@ -214,6 +215,14 @@ class SemanticContainerWidget extends StatelessWidget {
               ],
             ),
           ),
+
+          if (trailingIcon != null) Gap(Spacing.sm.w),
+
+          if (trailingIcon != null)
+            Icon(trailingIcon, size: IconSizes.md.r, color: iconColor),
+          // Gap between icon and title
+          // Gap(Spacing.sm.w),
+          // Container(color: iconColor, width: .3.w, height: 30.h),
         ],
       ),
     );

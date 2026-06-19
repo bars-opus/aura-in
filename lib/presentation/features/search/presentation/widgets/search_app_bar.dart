@@ -1,8 +1,5 @@
 // lib/features/search/presentation/widgets/search_app_bar.dart
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_icon_button.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
 
 class SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -26,6 +23,7 @@ class SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return AppBar(
       automaticallyImplyLeading: false,
       titleSpacing: 0,
@@ -54,7 +52,7 @@ class SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
                         controller: controller,
                         focusNode: focusNode,
                         decoration: InputDecoration(
-                          hintText: 'Search...',
+                          hintText: loc.searchAppBarSearchHint,
                           border: InputBorder.none,
                           hintStyle: TextStyle(
                             color: Theme.of(context)

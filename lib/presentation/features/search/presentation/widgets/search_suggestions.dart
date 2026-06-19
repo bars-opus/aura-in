@@ -15,6 +15,7 @@ class SearchSuggestions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     final recentSearches = ref.watch(searchHistoryProvider);
 
@@ -22,8 +23,7 @@ class SearchSuggestions extends ConsumerWidget {
       return Center(
         child: EmptyStateWidget(
           icon: Icons.search,
-          subtitle:
-              'Search for shops, professionls for homeservice, or hair products to buy',
+          subtitle: loc.searchSuggestionsHint,
         ),
       );
     }
@@ -40,16 +40,16 @@ class SearchSuggestions extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Recent Searches',
+                  loc.searchSuggestionsRecentSearches,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onBackground,
                   ),
                 ),
 
                 AppTextButton(
-                  text: 'Clear All',
+                  text: loc.searchSuggestionsClearAll,
                   fontSize: 12.sp,
-                  textColor: Colors.red,
+                  textColor: colorScheme.error,
                   onPressed: () {
                     ref.read(searchHistoryProvider.notifier).clearHistory();
                   },
@@ -67,7 +67,8 @@ class SearchSuggestions extends ConsumerWidget {
                 itemCount: recentSearches.length,
                 itemBuilder: (context, index) {
                   final query = recentSearches[index];
-                  return InfoRowWidget(
+                
+                return InfoRowWidget(
                     subtitle: '',
                     title: query,
                     iconSize: 25.sp,
@@ -79,6 +80,7 @@ class SearchSuggestions extends ConsumerWidget {
                     disableTrailing: false,
                     showAvatar: false,
                     showTrailingArrow: false,
+                    showDivider: false,
                     trailing: AppIconButton(
                       icon: Icons.close,
                       iconSize: 25.sp,
@@ -90,29 +92,6 @@ class SearchSuggestions extends ConsumerWidget {
                       },
                     ),
                   );
-
-                  // ListTile(
-                  //   leading: Icon(
-                  //     Icons.history,
-                  //     size: 20.h,
-                  //     color: Colors.grey.shade600,
-                  //   ),
-                  //   title: Text(query, style: TextStyle(fontSize: 14.sp)),
-                  //   trailing: IconButton(
-                  //     icon: Icon(
-                  //       Icons.close,
-                  //       size: 16.h,
-                  //       color: Colors.grey.shade400,
-                  //     ),
-                  // onPressed: () {
-                  //   ref
-                  //       .read(searchHistoryProvider.notifier)
-                  //       .removeFromHistory(query);
-                  // },
-                  //   ),
-                  //   onTap: () => onSuggestionSelected(query),
-                  //   contentPadding: EdgeInsets.zero,
-                  // );
                 },
               ),
             ),

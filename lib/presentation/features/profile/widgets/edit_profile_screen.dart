@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/core/providers/profile_providers/profile_edit_provider.dart';
 import 'package:nano_embryo/core/providers/profile_providers/profile_provider.dart';
+
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/screens/freelancer_creation_dashboard.dart';
+import 'package:nano_embryo/presentation/features/profile/models/profile_role.dart';
 import 'package:nano_embryo/presentation/features/profile/widgets/editable_profile_avatar.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -26,6 +28,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late String _originalBio;
   late String _originalAvatarUrl;
 
+  // Role selection state
+  AccountType? _selectedRole;
+  bool _isSavingRole = false;
+  List<UserRole> _currentRoles = [];
+
+  // Available roles for selection
+  final List<AccountType> _availableRoles = [
+    AccountType.client,
+    AccountType.shop,
+    AccountType.worker,
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -33,11 +47,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _originalName = profile?.displayName ?? '';
     _originalUsername = profile?.username ?? '';
     _originalBio = profile?.bio ?? '';
-    _originalBio = profile?.bio ?? '';
     _originalAvatarUrl = profile?.avatarUrl ?? '';
 
     // Initialize controllers with current profile values
-
     _nameController = TextEditingController(text: profile?.displayName ?? '');
     _userNameController = TextEditingController(text: profile?.username ?? '');
     _bioController = TextEditingController(text: profile?.bio ?? '');
@@ -46,6 +58,23 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _nameController.addListener(_onNameChanged);
     _userNameController.addListener(_onUsernameChanged);
     _bioController.addListener(_onBioChanged);
+
+    // Load current roles
+    _loadCurrentRoles();
+  }
+
+  Future<void> _loadCurrentRoles() async {
+    final repo = ref.read(profileRepositoryProvider);
+    final roles = await repo.fetchActiveUserRoles(widget.currentUserId);
+    if (mounted) {
+      setState(() {
+        _currentRoles = roles;
+        // Set selected role to first active role
+        if (roles.isNotEmpty) {
+          _selectedRole = roles.first.role;
+        }
+      });
+    }
   }
 
   void _onNameChanged() {
@@ -75,6 +104,134 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     }
   }
 
+  Future<void> _updateRole(AccountType role) async {
+    if (_selectedRole == role) return;
+
+    setState(() {
+      _isSavingRole = true;
+    });
+
+    try {
+      final repo = ref.read(profileRepositoryProvider);
+
+      // If user already has a primary role, remove it (or keep multiple)
+      // For now, we'll replace the primary role
+      if (_currentRoles.isNotEmpty) {
+        await repo.removeRole(widget.currentUserId, _currentRoles.first.role);
+      }
+
+      // Add new role
+      await repo.addRole(widget.currentUserId, role);
+
+      // Update local state
+      setState(() {
+        _selectedRole = role;
+        _currentRoles = [
+          UserRole(
+            id: '',
+            userId: widget.currentUserId,
+            role: role,
+            isActive: true,
+            metadata: {},
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+        ];
+      });
+
+      // Refresh role providers so HomeScreen re-evaluates tabs immediately.
+      ref.invalidate(currentUserProfileProvider);
+      ref.invalidate(currentUserPrimaryRoleProvider);
+
+      if (mounted) {
+        context.showSuccessSnackbar(
+          'Account type updated to ${role.displayName}',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        print(e.toString());
+        context.showErrorSnackbar('Error updating role: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSavingRole = false;
+        });
+      }
+    }
+  }
+
+  Widget _buildRoleSelector(AppLocalizations loc) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          loc.editProfileScreenAccountTypeLabel,
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface.withOpacity(0.8),
+          ),
+        ),
+        Gap(Spacing.md),
+        Text(
+          loc.editProfileScreenAccountTypeSubtitle,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: colorScheme.onSurface.withOpacity(0.6),
+          ),
+        ),
+        Gap(Spacing.sm),
+        Wrap(
+          spacing: 8.w,
+          runSpacing: 8.h,
+          children:
+              _availableRoles.map((role) {
+                final isSelected = _selectedRole == role;
+                final isDisabled = _isSavingRole;
+
+                return AppFilterChip(
+                  label: role.displayName,
+                  selected: isSelected,
+                  onSelected:
+                      isDisabled
+                          ? (bool) {}
+                          : (selected) {
+                            if (selected) {
+                              _updateRole(role);
+                            }
+                          },
+                  selectedColor: colorScheme.primary,
+                  backgroundColor: colorScheme.background,
+                  labelColor:
+                      isSelected
+                          ? Colors.white
+                          : colorScheme.onSurface.withOpacity(0.6),
+                  borderWidth: 0.3,
+                  avatarIcon: role.icon,
+                );
+              }).toList(),
+        ),
+        if (_isSavingRole)
+          Padding(
+            padding: EdgeInsets.only(top: 8.h),
+            child: Row(
+              children: [
+                const CircularLoadingIndicator(),
+                Gap(Spacing.md.w),
+                Text(
+                  loc.editProfileScreenUpdatingAccountType,
+                  style: theme.textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -93,12 +250,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final currentUser = ref.watch(currentUserProvider);
     final userId = currentUser?.id;
 
-    print(userId);
-    print(widget.currentUserId);
-
     // Handle not logged in state
     if (userId == null) {
-      return const Scaffold(body: Center(child: Text('Please log in')));
+      return Scaffold(body: Center(child: Text(loc.editProfileScreenPleaseLogIn)));
     }
 
     // Watch profile and edit state
@@ -123,7 +277,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: true,
         title: Text(
-          'Edit profile',
+          loc.editProfileScreenTitle,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface.withOpacity(0.8),
@@ -149,8 +303,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   AppTextFormField(
                     controller: _nameController,
                     isSmall: true,
-                    label: 'Name',
-                    hintText: 'Enter your name',
+                    label: loc.editProfileScreenNameLabel,
+                    hintText: loc.editProfileScreenNameHint,
                     prefixIcon: Icons.person_outline,
                     maxLines: 1,
                     keyboardType: TextInputType.name,
@@ -158,32 +312,31 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     errorText: editState.displayNameError,
                     suffixIcon:
                         editState.isSavingDisplayName
-                            ? TextFieldLoadingIndicator()
+                            ? const TextFieldLoadingIndicator()
                             : null,
                   ),
                   // Username field
                   AppTextFormField(
                     controller: _userNameController,
                     isSmall: true,
-                    label: 'Username',
-                    hintText: 'Enter username',
+                    label: loc.editProfileScreenUsernameLabel,
+                    hintText: loc.editProfileScreenUsernameHint,
                     prefixIcon: Icons.alternate_email,
                     maxLines: 1,
-
                     keyboardType: TextInputType.text,
                     textInputAction: TextInputAction.next,
                     errorText: editState.usernameError,
                     suffixIcon:
                         editState.isSavingUsername
-                            ? TextFieldLoadingIndicator()
+                            ? const TextFieldLoadingIndicator()
                             : null,
                   ),
                   // Bio field
                   AppTextFormField(
                     controller: _bioController,
                     isSmall: true,
-                    label: 'Bio',
-                    hintText: 'Tell something about yourself',
+                    label: loc.editProfileScreenBioLabel,
+                    hintText: loc.editProfileScreenBioHint,
                     prefixIcon: Icons.info_outline,
                     maxLines: 3,
                     keyboardType: TextInputType.multiline,
@@ -191,14 +344,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     errorText: editState.bioError,
                     suffixIcon:
                         editState.isSavingBio
-                            ? TextFieldLoadingIndicator()
+                            ? const TextFieldLoadingIndicator()
                             : null,
                   ),
+                  // ✅ Role Selection Section (Added here)
+                  Gap(Spacing.lg),
+
+                  _buildRoleSelector(loc),
                   Gap(Spacing.md),
                 ],
               ),
             ),
             Gap(Spacing.sm),
+            _selectedRole?.displayName == 'worker'?
             CardInkWell(
               margin: EdgeInsets.only(bottom: 10.h),
               onTap: () {},
@@ -210,18 +368,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     icon: Icons.storefront_rounded,
                     avatarRadius: 25.h,
                     onTap: () => context.push('/myShopsScreen'),
-                    // CreationNavigation.navigateToShopCreation(
-                    //   context,
-                    //   ref,
-                    // ),
-                    // context.push('/shopCreation'),
                     showAvatar: false,
                     showTrailingArrow: true,
                     showDivider: false,
                   ),
                 ],
               ),
-            ),
+            )_selectedRole?.displayName == 'shop'?
 
             CardInkWell(
               margin: EdgeInsets.only(bottom: 10.h),
@@ -230,25 +383,43 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 children: [
                   InfoRowWidget(
                     subtitle: loc.editProfileScreenEditShopSubtitle,
-                    title: 'Edit work profile',
+                    title: loc.editProfileScreenEditWorkProfileTitle,
                     icon: Icons.person,
                     avatarRadius: 25.h,
                     onTap:
-                        () => {
-                          context.push(
-                            '/freelancerCreationDashboard',
-                            extra: {
-                              'shopId': widget.currentUserId,
-                              'mode': FreelancerMode.create,
-                            },
-                          ),
-                        },
+                        () => context.push(
+                          '/freelancerCreationDashboard',
+                          extra: {
+                            'userId': widget.currentUserId,
+                            'mode': FreelancerMode.create,
+                          },
+                        ),
+                    showAvatar: false,
+                    showTrailingArrow: true,
+                    showDivider: false,
+                  ),
+                ],
+              ),
+            ),
 
-                    // CreationNavigation.navigateToShopCreation(
-                    //   context,
-                    //   ref,
-                    // ),
-                    // context.push('/shopCreation'),
+             CardInkWell(
+              margin: EdgeInsets.only(bottom: 10.h),
+              onTap: () {},
+              child: Column(
+                children: [
+                  InfoRowWidget(
+                    subtitle: 'Sell your neauty products like pomades, shampoos, hairbrushes and more.',
+                    title: 'Sell a product',
+                    icon: Icons.person,
+                    avatarRadius: 25.h,
+                    onTap:
+                        () => context.push(
+                          '/freelancerCreationDashboard',
+                          extra: {
+                            'userId': widget.currentUserId,
+                            'mode': FreelancerMode.create,
+                          },
+                        ),
                     showAvatar: false,
                     showTrailingArrow: true,
                     showDivider: false,

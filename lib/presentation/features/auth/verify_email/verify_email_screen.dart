@@ -56,19 +56,19 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   Future<void> _resendEmail() async {
     if (_secondsRemaining > 0 || _isResending) return;
 
+    final loc = AppLocalizations.of(context)!;
+
     setState(() => _isResending = true);
     try {
       final authService = ref.read(authServiceProvider);
       await authService.resendConfirmationEmail(widget.email);
       if (mounted) {
-        context.showSuccessSnackbar(
-          'Confirmation email resent. Check your inbox.',
-        );
+        context.showSuccessSnackbar(loc.authConfirmationResent);
         _startCooldown();
       }
     } catch (e) {
       if (mounted) {
-        context.showErrorSnackbar('Failed to resend email. Please try again.');
+        context.showErrorSnackbar(loc.authResendFailed);
       }
     } finally {
       if (mounted) setState(() => _isResending = false);
@@ -80,6 +80,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor:
@@ -116,7 +117,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
               Gap(32.h),
               // Title
               Text(
-                'Check your email',
+                loc.authVerifyEmailTitle,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: colorScheme.onSurface,
@@ -126,7 +127,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
               Gap(12.h),
               // Subtitle
               Text(
-                'We sent a confirmation link to',
+                loc.authVerifyEmailSubtitle,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
@@ -143,7 +144,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
               ),
               Gap(8.h),
               Text(
-                'Tap the link in the email to verify your account and continue.',
+                loc.authVerifyEmailNote,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
@@ -161,7 +162,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
               TextButton(
                 onPressed: () => context.go('/login'),
                 child: Text(
-                  'Back to sign in',
+                  loc.authBackToSignIn,
                   style: TextStyle(
                     color: colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 14.sp,
@@ -190,6 +191,7 @@ class _ResendButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final canResend = secondsRemaining == 0 && !isResending;
     final theme = Theme.of(context);
     final primary = theme.appColors.appColor;
@@ -218,8 +220,8 @@ class _ResendButton extends StatelessWidget {
                 )
                 : Text(
                   secondsRemaining > 0
-                      ? 'Resend email (${secondsRemaining}s)'
-                      : 'Resend confirmation email',
+                      ? loc.authResendEmailCooldown(secondsRemaining)
+                      : loc.authResendEmailButton,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15.sp,

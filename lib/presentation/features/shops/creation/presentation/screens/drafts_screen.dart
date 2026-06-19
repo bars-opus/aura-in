@@ -1,22 +1,13 @@
 // lib/features/shop/creation/presentation/screens/drafts_screen.dart
-
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nano_embryo/app/app.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_icon_button.dart';
-import 'package:nano_embryo/core/widgets/info_row_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/data/local_draft_storage.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/draft_preview.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/drafts_provider.dart';
 import 'package:nano_embryo/core/providers/auth_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_creation_provider.dart';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'shop_creation.dart';
+
 
 class DraftsScreen extends ConsumerStatefulWidget {
   const DraftsScreen({super.key});
@@ -208,11 +199,7 @@ class _DraftsScreenState extends ConsumerState<DraftsScreen> {
                               width: double.infinity,
                               padding: Spacing.horizontalMd,
                               height: 40.h,
-                              // AppButton(
-                              //   label: 'Continue Editing',
-                              //   onPressed: _continueEditing,
-                              // type: AppButtonType.primary,
-                              // icon: Icons.edit,
+                              
                             ),
                           ],
                         ),
@@ -236,7 +223,6 @@ class _DraftsScreenState extends ConsumerState<DraftsScreen> {
           ),
           // Divider with OR
           Gap(Spacing.xl.h),
-
           // Start New Shop Button
           CardInkWell(
             elevation: 0,
@@ -280,43 +266,7 @@ class _DraftsScreenState extends ConsumerState<DraftsScreen> {
               showDivider: false,
             ),
           ),
-
-          // AppButton(
-          //   elevation: 0,
-          //   label: 'Start New Shop',
-          //   onPressed: _confirmStartNew,
-
-          //   size: ButtonSize.small,
-          //   width: double.infinity,
-          //   padding: Spacing.horizontalMd,
-          //   customColor: Colors.grey,
-          //   height: 40.h,
-
-          //   // type: AppButtonType.outline,
-          //   // icon: Icons.add_business,
-          // ),
           Gap(Spacing.md.h),
-
-          // SemanticContainerWidget(
-          //   content: 'Starting a new shop will replace your current draft',
-          //   icon: Icons.warning,
-          //   title: 'Continue where you left off',
-          //   backgroundColor: Colors.orange.withOpacity(0.1),
-          //   borderColor: Colors.orange,
-          //   iconColor: Colors.orange,
-          //   textTheme: theme.textTheme,
-          // ),
-
-          // Info text
-          // Center(
-          //   child: Text(
-          //     'Starting a new shop will replace your current draft',
-          //     style: theme.textTheme.bodySmall?.copyWith(
-          //       color: theme.colorScheme.onSurface.withOpacity(0.5),
-          //     ),
-          //     textAlign: TextAlign.center,
-          //   ),
-          // ),
         ],
       ),
     );
@@ -362,34 +312,6 @@ class _DraftsScreenState extends ConsumerState<DraftsScreen> {
       }
     }
   }
-
-  // Future<void> _confirmStartNew() async {
-  //   final confirmed = await showDialog<bool>(
-  //     context: context,
-  //     builder:
-  //         (ctx) => AlertDialog(
-  //           title: const Text('Start New Shop?'),
-  //           content: const Text(
-  //             'This will replace your current draft progress. Are you sure you want to continue?',
-  //           ),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () => Navigator.pop(ctx, false),
-  //               child: const Text('Cancel'),
-  //             ),
-  //             TextButton(
-  //               onPressed: () => Navigator.pop(ctx, true),
-  //               style: TextButton.styleFrom(foregroundColor: Colors.red),
-  //               child: const Text('Start New'),
-  //             ),
-  //           ],
-  //         ),
-  //   );
-
-  // if (confirmed == true) {
-  //   _startNewShop();
-  // }
-  // }
 
   void _continueEditing() {
     context.push('/shopCreation');

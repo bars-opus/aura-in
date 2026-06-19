@@ -1,13 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
-import 'package:nano_embryo/core/widgets/info_row_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/opening_hours_dto.dart';
-import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/mini_container_indicator.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_details_section.dart';
 
 class OpeningHoursWidget extends StatefulWidget {
@@ -305,21 +300,6 @@ class _OpeningHoursWidgetState extends State<OpeningHoursWidget> {
       fontSize: 10,
       text: '$label $timeString',
     );
-    //  Container(
-    //   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-    //   decoration: BoxDecoration(
-    //     color: color.withOpacity(0.1),
-    //     borderRadius: BorderRadius.circular(12.r),
-    //   ),
-    //   child: Text(
-    //     '$label $timeString',
-    //     style: TextStyle(
-    //       fontSize: 10.sp,
-    //       color: color,
-    //       fontWeight: FontWeight.w500,
-    //     ),
-    //   ),
-    // );
   }
 
   TimeOfDay _parseTimeOfDay(String timeStr) {

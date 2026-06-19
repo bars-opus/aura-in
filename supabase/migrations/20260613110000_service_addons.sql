@@ -18,18 +18,18 @@ CREATE INDEX IF NOT EXISTS idx_service_addons_slot_id ON service_addons (slot_id
 
 ALTER TABLE service_addons ENABLE ROW LEVEL SECURITY;
 
--- Public read — any authenticated user can see add-ons for a slot they can see.
+DROP POLICY IF EXISTS "service_addons_read" ON service_addons;
 CREATE POLICY "service_addons_read" ON service_addons
   FOR SELECT USING (true);
 
--- Write access — only the shop owner can manage add-ons.
+DROP POLICY IF EXISTS "service_addons_owner_write" ON service_addons;
 CREATE POLICY "service_addons_owner_write" ON service_addons
   FOR ALL USING (
     EXISTS (
       SELECT 1 FROM appointment_slots s
       JOIN shops sh ON sh.id = s.shop_id
       WHERE s.id = service_addons.slot_id
-        AND sh.owner_id = auth.uid()
+        AND sh.user_id = auth.uid()
     )
   );
 
@@ -46,6 +46,8 @@ CREATE INDEX IF NOT EXISTS idx_template_addons_template_id
   ON service_template_addons (template_id);
 
 ALTER TABLE service_template_addons ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "template_addons_read" ON service_template_addons;
 CREATE POLICY "template_addons_read" ON service_template_addons
   FOR SELECT USING (true);
 
@@ -58,41 +60,41 @@ SELECT t.id, a.name, a.price, a.dur
 FROM t
 JOIN (VALUES
   -- Barbershop
-  ('Barbershop', 'Haircut',         'Fade',            'Hot towel finish',       NULL, 5),
-  ('Barbershop', 'Haircut',         'Fade',            'Beard line-up',          NULL, 10),
-  ('Barbershop', 'Haircut',         'Skin Fade',       'Scalp treatment',        NULL, 10),
-  ('Barbershop', 'Beard Trim',      'Beard Trim',      'Hot towel shave',        NULL, 15),
-  ('Barbershop', 'Hot Towel Shave', 'Hot Towel Shave', 'Moisturising treatment', NULL, 5),
-  ('Barbershop', 'Design Cut',      'Design Cut',      'Hair colouring',         NULL, 30),
+  ('Barbershop', 'Haircut',         'Fade',            'Hot towel finish',       NULL::INT, 5),
+  ('Barbershop', 'Haircut',         'Fade',            'Beard line-up',          NULL::INT, 10),
+  ('Barbershop', 'Haircut',         'Skin Fade',       'Scalp treatment',        NULL::INT, 10),
+  ('Barbershop', 'Beard Trim',      'Beard Trim',      'Hot towel shave',        NULL::INT, 15),
+  ('Barbershop', 'Hot Towel Shave', 'Hot Towel Shave', 'Moisturising treatment', NULL::INT, 5),
+  ('Barbershop', 'Design Cut',      'Design Cut',      'Hair colouring',         NULL::INT, 30),
 
   -- Salon
-  ('Salon', 'Haircut',        'Haircut',         'Blowout finish',        NULL, 20),
-  ('Salon', 'Haircut',        'Haircut',         'Deep conditioning',     NULL, 15),
-  ('Salon', 'Hair Colour',    'Full Colour',     'Gloss treatment',       NULL, 20),
-  ('Salon', 'Hair Colour',    'Highlights',      'Toner',                 NULL, 15),
-  ('Salon', 'Braids',         'Box Braids',      'Scalp oil treatment',   NULL, 10),
-  ('Salon', 'Weave',          'Weave Install',   'Closure install',       NULL, 30),
-  ('Salon', 'Wig Install',    'Wig Install',     'Custom wig cut',        NULL, 20),
-  ('Salon', 'Natural Styling','Afro',            'Moisturising treatment',NULL, 10),
+  ('Salon', 'Haircut',        'Haircut',         'Blowout finish',         NULL::INT, 20),
+  ('Salon', 'Haircut',        'Haircut',         'Deep conditioning',      NULL::INT, 15),
+  ('Salon', 'Hair Colour',    'Full Colour',     'Gloss treatment',        NULL::INT, 20),
+  ('Salon', 'Hair Colour',    'Highlights',      'Toner',                  NULL::INT, 15),
+  ('Salon', 'Braids',         'Box Braids',      'Scalp oil treatment',    NULL::INT, 10),
+  ('Salon', 'Weave',          'Weave Install',   'Closure install',        NULL::INT, 30),
+  ('Salon', 'Wig Install',    'Wig Install',     'Custom wig cut',         NULL::INT, 20),
+  ('Salon', 'Natural Styling','Afro',            'Moisturising treatment', NULL::INT, 10),
 
   -- Spa
-  ('Spa', 'Swedish Massage',     'Swedish Massage', 'Aromatherapy oils',   NULL, 0),
-  ('Spa', 'Swedish Massage',     'Swedish Massage', 'Hot stones add-on',   NULL, 15),
-  ('Spa', 'Deep Tissue Massage', 'Deep Tissue',     'CBD oil upgrade',     NULL, 0),
-  ('Spa', 'Facial',              'Classic Facial',  'Eye treatment',       NULL, 10),
-  ('Spa', 'Facial',              'Hydrafacial',     'Lip peel add-on',     NULL, 10),
-  ('Spa', 'Waxing',              'Eyebrow Wax',     'Tint add-on',         NULL, 10),
-  ('Spa', 'Eyelash Extensions',  'Classic Lashes',  'Lash lift add-on',    NULL, 20),
-  ('Spa', 'Foot Treatment',      'Foot Massage',    'Exfoliation scrub',   NULL, 10),
+  ('Spa', 'Swedish Massage',     'Swedish Massage', 'Aromatherapy oils',   NULL::INT, 0),
+  ('Spa', 'Swedish Massage',     'Swedish Massage', 'Hot stones add-on',   NULL::INT, 15),
+  ('Spa', 'Deep Tissue Massage', 'Deep Tissue',     'CBD oil upgrade',     NULL::INT, 0),
+  ('Spa', 'Facial',              'Classic Facial',  'Eye treatment',       NULL::INT, 10),
+  ('Spa', 'Facial',              'Hydrafacial',     'Lip peel add-on',     NULL::INT, 10),
+  ('Spa', 'Waxing',              'Eyebrow Wax',     'Tint add-on',         NULL::INT, 10),
+  ('Spa', 'Eyelash Extensions',  'Classic Lashes',  'Lash lift add-on',    NULL::INT, 20),
+  ('Spa', 'Foot Treatment',      'Foot Massage',    'Exfoliation scrub',   NULL::INT, 10),
 
   -- Nail Salon
-  ('Nail Salon', 'Manicure',  'Classic Manicure',  'Gel upgrade',        NULL, 10),
-  ('Nail Salon', 'Manicure',  'Classic Manicure',  'Nail art (2 nails)', NULL, 10),
-  ('Nail Salon', 'Pedicure',  'Classic Pedicure',  'Gel upgrade',        NULL, 10),
-  ('Nail Salon', 'Pedicure',  'Classic Pedicure',  'Callus removal',     NULL, 10),
-  ('Nail Salon', 'Gel Nails', 'Gel Manicure',      'Nail art (2 nails)', NULL, 10),
-  ('Nail Salon', 'Acrylic Nails', 'Full Set Acrylics', 'Ombre effect',   NULL, 15),
-  ('Nail Salon', 'Nail Art',  'Nail Art',           '3D gems add-on',    NULL, 10)
+  ('Nail Salon', 'Manicure',      'Classic Manicure',  'Gel upgrade',        NULL::INT, 10),
+  ('Nail Salon', 'Manicure',      'Classic Manicure',  'Nail art (2 nails)', NULL::INT, 10),
+  ('Nail Salon', 'Pedicure',      'Classic Pedicure',  'Gel upgrade',        NULL::INT, 10),
+  ('Nail Salon', 'Pedicure',      'Classic Pedicure',  'Callus removal',     NULL::INT, 10),
+  ('Nail Salon', 'Gel Nails',     'Gel Manicure',      'Nail art (2 nails)', NULL::INT, 10),
+  ('Nail Salon', 'Acrylic Nails', 'Full Set Acrylics', 'Ombre effect',       NULL::INT, 15),
+  ('Nail Salon', 'Nail Art',      'Nail Art',          '3D gems add-on',     NULL::INT, 10)
 ) AS a(shop_type, svc_name, svc_type, name, price, dur)
   ON t.shop_type = a.shop_type
  AND t.service_name = a.svc_name

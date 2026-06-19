@@ -73,6 +73,13 @@ serve(async (req: Request) => {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+        },
+      },
     );
 
     const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
@@ -94,6 +101,24 @@ serve(async (req: Request) => {
     }
 
     const currentUserId = user.id;
+
+    const { data: moderationState, error: moderationError } = await supabase.rpc(
+      "is_moderation_blocked",
+      { p_other_user_id: target_user_id },
+    );
+    if (moderationError) {
+      console.error("Moderation check failed:", moderationError.message);
+      return new Response(JSON.stringify({ error: "Moderation check failed" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (moderationState?.is_blocked === true) {
+      return new Response(JSON.stringify({ error: "blocked" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // 3. Fetch both user profiles from Supabase so Sendbird gets real names.
     const [{ data: currentProfile }, { data: targetProfile }] = await Promise.all([

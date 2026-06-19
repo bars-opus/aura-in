@@ -136,6 +136,7 @@ abstract class BookingRepository {
     required Map<String, int> quantities, // Add quantities
     Map<String, List<String>>? selectedWorkerIds, // Update to List<String>
     int? defaultBufferMinutes, // Add this
+    Map<String, int>? extraMinutesBySlot, // Per-service add-on minutes
   });
 
   /// Gets available workers for a specific slot at a specific time.

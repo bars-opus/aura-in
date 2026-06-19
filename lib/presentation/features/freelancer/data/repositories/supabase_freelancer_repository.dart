@@ -218,6 +218,9 @@ class SupabaseFreelancerRepository {
     required String workerId,
     required List<File> images,
   }) async {
+    if (images.length > 20) {
+      throw ArgumentError('Maximum 20 portfolio images allowed');
+    }
     final List<String> urls = [];
 
     for (int i = 0; i < images.length; i++) {
@@ -249,6 +252,9 @@ class SupabaseFreelancerRepository {
     required String workerId,
     required List<File> documents,
   }) async {
+    if (documents.length > 10) {
+      throw ArgumentError('Maximum 10 documents allowed');
+    }
     final List<String> urls = [];
 
     for (int i = 0; i < documents.length; i++) {
@@ -497,20 +503,18 @@ class SupabaseFreelancerRepository {
         });
       }
 
-      // 14. Update awards (if freelancers have awards)
-      if (draft.awards.isNotEmpty) {
-        await _client.from('shop_awards').delete().eq('shop_id', workerId);
-        for (final award in draft.awards) {
-          await _client.from('shop_awards').insert({
-            'shop_id': workerId,
-            'name': award.name,
-            'issuer': award.issuer,
-            'date_received': award.dateReceived,
-            'description': award.description,
-            'link': award.link,
-            'sort_order': award.sortOrder,
-          });
-        }
+      // 14. Update awards — always delete-and-reinsert so removing all awards works.
+      await _client.from('shop_awards').delete().eq('shop_id', workerId);
+      for (final award in draft.awards) {
+        await _client.from('shop_awards').insert({
+          'shop_id': workerId,
+          'name': award.name,
+          'issuer': award.issuer,
+          'date_received': award.dateReceived,
+          'description': award.description,
+          'link': award.link,
+          'sort_order': award.sortOrder,
+        });
       }
 
     } catch (e, stack) {

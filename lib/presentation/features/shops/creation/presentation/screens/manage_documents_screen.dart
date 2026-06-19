@@ -48,9 +48,9 @@ class _ManageDocumentsScreenState extends ConsumerState<ManageDocumentsScreen> {
         children: [
           SemanticContainerWidget(
             content:
-                'Upload licenses, certifications, and other documents for verification',
+                'Upload business regustration documents, licenses, certifications, and other relevants documents for verification',
             icon: Icons.description,
-            title: 'Business Documents',
+            title: 'Documents',
             backgroundColor: colorScheme.primary.withOpacity(0.1),
             borderColor: colorScheme.primary,
             iconColor: colorScheme.primary,
@@ -119,7 +119,5 @@ class _ManageDocumentsScreenState extends ConsumerState<ManageDocumentsScreen> {
     );
   }
 
-  void _saveAndExit() {
-    Navigator.pop(context);
-  }
+ 
 }

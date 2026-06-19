@@ -155,6 +155,7 @@ class _FreelancerPreviewScreenState
           tabController: _tabController,
           tabs: _tabs,
           mode: 'preview',
+          coverImageUrl: '',
         ),
         bottomNavigationBar:
             widget.mode == FreelancerMode.edit
@@ -278,7 +279,13 @@ class _FreelancerPreviewScreenState
 
       await ref.read(freelancerCreationProvider.notifier).clearDraft();
 
-      if (mounted) _showSuccessDialog(context, freelancerId);
+      if (mounted) {
+        ref.read(homeTabIndexProvider.notifier).state = 3;
+        context.go(RouteNames.home);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) _showSuccessDialog(context, freelancerId);
+        });
+      }
     } catch (e) {
       if (mounted) {
         context.showErrorSnackbar('Failed to publish: $e');

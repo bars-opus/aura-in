@@ -1,6 +1,10 @@
 // lib/features/booking/presentation/screens/booking_confirmation_screen.dart
+import 'dart:async';
+
+import 'package:nano_embryo/core/feedback/review/review_providers.dart';
 import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/core/utils/money.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/data/models/applied_promo.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/controllers/booking_creation_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/payment/config/payment_config.dart';
@@ -204,26 +208,25 @@ class _BookingConfirmationScreenState
               ),
 
               Gap(Spacing.md.h),
+              AppDivider(),
 
               // Phase 13: promo code field. Auto-applies any silent
               // loyalty / recovery code on mount; manual entry replaces
               // the auto-applied one. The widget passes back the
               // promotionId + amountOff via _onPromoApplied.
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: Spacing.md.w),
-                child: ClientPromoCodeField(
-                  shopId: shopId,
-                  userId: profile?.id,
-                  guestProfileId: null,
-                  // Phase 17: ClientPromoCodeField widget signature stays
-                  // major-units until Wave 5.1 flips it. Boundary-convert.
-                  bookingTotal: totalPriceMinor / 100,
-                  serviceIds: services.map((s) => s.id).toList(),
-                  onApplied: _onPromoApplied,
-                ),
+              ClientPromoCodeField(
+                shopId: shopId,
+                userId: profile?.id,
+                guestProfileId: null,
+                // Phase 17: ClientPromoCodeField widget signature stays
+                // major-units until Wave 5.1 flips it. Boundary-convert.
+                bookingTotal: totalPriceMinor / 100,
+                serviceIds: services.map((s) => s.id).toList(),
+                onApplied: _onPromoApplied,
               ),
 
-              Gap(Spacing.md.h),
+              AppDivider(),
+              Gap(Spacing.lg.h),
 
               SemanticContainerWidget(
                 content:
@@ -274,7 +277,6 @@ class _BookingConfirmationScreenState
   }
 
   Widget _buildErrorState(
-  
     ThemeData theme,
     ColorScheme colorScheme,
     bool isCombinedView,
@@ -320,16 +322,15 @@ class _BookingConfirmationScreenState
     Map<String, TimeSlotModel> timeSlots,
     Map<String, List<dynamic>> selectedAddons,
   ) {
-    return services.fold<int>(
-      0,
-      (sum, service) {
-        final effectiveMinor = timeSlots[service.id]?.priceMinor ?? service.price;
-        final qty = quantities[service.id] ?? 1;
-        final addonMinor = (selectedAddons[service.id] ?? [])
-            .fold<int>(0, (s, a) => s + (a.priceMinor as int));
-        return sum + (effectiveMinor + addonMinor) * qty;
-      },
-    );
+    return services.fold<int>(0, (sum, service) {
+      final effectiveMinor = timeSlots[service.id]?.priceMinor ?? service.price;
+      final qty = quantities[service.id] ?? 1;
+      final addonMinor = (selectedAddons[service.id] ?? []).fold<int>(
+        0,
+        (s, a) => s + (a.priceMinor as int),
+      );
+      return sum + (effectiveMinor + addonMinor) * qty;
+    });
   }
 
   Future<void> _confirmBooking() async {
@@ -353,7 +354,12 @@ class _BookingConfirmationScreenState
       final timeSlots = ref.read(selectedTimeSlotsProvider);
       final addons = ref.read(selectedAddonsProvider);
       // Phase 17: int kobo end-to-end. Add-on prices included in total.
-      final totalPriceMinor = _calculateTotalPriceMinor(services, quantities, timeSlots, addons);
+      final totalPriceMinor = _calculateTotalPriceMinor(
+        services,
+        quantities,
+        timeSlots,
+        addons,
+      );
       final firstSlot = timeSlots.values.first;
 
       // Phase 13: when a promo code is applied, the discounted total
@@ -361,22 +367,27 @@ class _BookingConfirmationScreenState
       // and the platform fee recomputes against that new total. The
       // pre-discount totalPrice is no longer used after this point.
       // Phase 17: AppliedPromo now carries int kobo (Wave 5.1).
-      final effectiveTotalMinor = _appliedPromo?.newTotalMinor ?? totalPriceMinor;
+      final effectiveTotalMinor =
+          _appliedPromo?.newTotalMinor ?? totalPriceMinor;
 
       // Expand services by quantity so the server-side amount validation
       // (sum(priceAtBookingMinor) == totalAmountMinor) holds for group bookings.
       // Phase 17: send both legacy + new keys; edge function reads either.
-      final servicesData = services
-          .expand<Map<String, dynamic>>((service) {
+      final servicesData =
+          services.expand<Map<String, dynamic>>((service) {
             final qty = quantities[service.id] ?? 1;
             final workerEntries = workers[service.id] ?? [];
             final effectivePriceMinor =
                 timeSlots[service.id]?.priceMinor ?? service.price;
             final serviceAddons = addons[service.id] ?? [];
-            final addonMinor =
-                serviceAddons.fold<int>(0, (s, a) => s + (a.priceMinor as int));
+            final addonMinor = serviceAddons.fold<int>(
+              0,
+              (s, a) => s + (a.priceMinor as int),
+            );
             final addonDurationMins = serviceAddons.fold<int>(
-                0, (s, a) => s + ((a.durationMinutes as int?) ?? 0));
+              0,
+              (s, a) => s + ((a.durationMinutes as int?) ?? 0),
+            );
             return List.generate(qty, (i) {
               final worker = i < workerEntries.length ? workerEntries[i] : null;
               return {
@@ -385,22 +396,24 @@ class _BookingConfirmationScreenState
                 'priceAtBookingMinor': effectivePriceMinor + addonMinor,
                 'durationMinutes':
                     DurationUtils.parse(service.duration).inMinutes +
-                        addonDurationMins,
+                    addonDurationMins,
                 'serviceName': service.serviceName,
                 'workerName': worker?['name'] ?? '',
                 if (serviceAddons.isNotEmpty)
-                  'addons': serviceAddons
-                      .map((a) => {
-                            'id': a.id,
-                            'name': a.name,
-                            'priceMinor': a.priceMinor,
-                            'durationMinutes': a.durationMinutes,
-                          })
-                      .toList(),
+                  'addons':
+                      serviceAddons
+                          .map(
+                            (a) => {
+                              'id': a.id,
+                              'name': a.name,
+                              'priceMinor': a.priceMinor,
+                              'durationMinutes': a.durationMinutes,
+                            },
+                          )
+                          .toList(),
               };
             });
-          })
-          .toList();
+          }).toList();
 
       final paymentProvider = _getPaymentProvider(widget.shopCurrency);
 
@@ -469,6 +482,19 @@ class _BookingConfirmationScreenState
   Future<void> _showBookingSuccess(Map<String, dynamic> result) async {
     final booking = BookingModel.fromJson(result);
 
+    // Feedback engine — a successful booking is a canonical "happy moment".
+    // Record it now (cheap, persistent) and try the rating prompt once the
+    // user dismisses the success sheet. The heuristic decides whether to
+    // actually ask; this call is a no-op if launch count / freshness gates
+    // aren't met.
+    final prompter = ref.read(reviewPrompterProvider);
+    unawaited(prompter.recordHappyMoment());
+
+    // Only ask for a rating when the user dismissed via "Done" — not when
+    // they tapped "View booking," because the OS dialog would stack over
+    // the booking-detail sheet.
+    var viewedBooking = false;
+
     await BottomSheetUtils.showDocumentationBottomSheet(
       maxHeight: 500.h,
       context: context,
@@ -482,6 +508,7 @@ class _BookingConfirmationScreenState
           'Remaining: ${formatMoney(booking.remainingBalanceMinor, widget.shopCurrency)} (pay after service)',
         ],
         onViewBooking: () {
+          viewedBooking = true;
           Navigator.pop(context);
           BottomSheetUtils.showDocumentationBottomSheet(
             context: context,
@@ -506,6 +533,10 @@ class _BookingConfirmationScreenState
         },
       ),
     );
+
+    if (!viewedBooking && mounted) {
+      unawaited(prompter.maybeAsk());
+    }
   }
 
   void _showPaymentDialog() {

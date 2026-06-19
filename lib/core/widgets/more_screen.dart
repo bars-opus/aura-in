@@ -1,4 +1,6 @@
 // lib/features/settings/screens/settings_screen.dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/moderation/data/moderation_models.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/shops/appointments/presentation/widgets/shop_schedule_hub.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/screens/edit_shop_screen.dart';
@@ -83,39 +85,29 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/s
 ///   child: ...
 /// )
 /// ```
-class MoreScreen extends StatelessWidget {
+class MoreScreen extends ConsumerWidget {
   /// Creates a More/Settings screen with dynamically loaded settings sections.
   ///
   /// The screen structure is fixed, but content is dynamically loaded from
   /// `ProfileMoreData.getSettingsSections` to support different user contexts,
   /// feature flags, or localization requirements.
-  final String shopId;
-  final String accountType;
-  final String shopName;
-  final String shopOwnerId;
-  final String shopCountry;
-  final String shopCurrencyCode;
-  final bool isFreelancer;
 
-  const MoreScreen({
-    super.key,
-    required this.shopId,
-    required this.shopName,
-    required this.accountType,
-    required this.shopOwnerId,
-    required this.shopCurrencyCode,
-    required this.shopCountry,
-    required this.isFreelancer,
-  });
+  final ModerationTarget? moderationTarget;
+
+  const MoreScreen({super.key, this.moderationTarget});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     // Retrieve structured settings data for the current context
     // This method should handle localization, feature flags, and user permissions
-    final sections = ProfileMoreData.getSettingsSections(context);
+    final sections = ProfileMoreData.getSettingsSections(
+      context,
+      moderationTarget: moderationTarget,
+    );
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
       // AppBar with minimal styling for clean interface
       appBar: AppBar(
         // Transparent background for seamless integration with content
@@ -135,76 +127,76 @@ class MoreScreen extends StatelessWidget {
       // Body uses CustomScrollView for efficient rendering of multiple sections
       body: CustomScrollView(
         slivers: [
-          SliverList(
-            delegate: SliverChildListDelegate([
-              AppButton(
-                elevation: 0,
-                label: 'Edit shop',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EditShopScreen(shopId: shopId),
-                    ),
-                  );
-                },
+          // SliverList(
+          //   delegate: SliverChildListDelegate([
+          //     AppButton(
+          //       elevation: 0,
+          //       label: 'Edit shop',
+          //       onPressed: () {
+          //         Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //             builder: (context) => EditShopScreen(shopId: shopId),
+          //           ),
+          //         );
+          //       },
 
-                size: ButtonSize.small,
-                width: double.infinity,
-                padding: Spacing.horizontalMd,
-                height: 35.h,
-              ),
-              AppButton(
-                elevation: 0,
-                label: 'Bookings',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => ShopScheduleHub(
-                            shopId: shopId,
-                            accountType: accountType,
-                          ),
-                    ),
-                  );
-                },
+          //       size: ButtonSize.small,
+          //       width: double.infinity,
+          //       padding: Spacing.horizontalMd,
+          //       height: 35.h,
+          //     ),
+          //     AppButton(
+          //       elevation: 0,
+          //       label: 'Bookings',
+          //       onPressed: () {
+          //         Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //             builder:
+          //                 (context) => ShopScheduleHub(
+          //                   shopId: shopId,
+          //                   accountType: accountType,
+          //                 ),
+          //           ),
+          //         );
+          //       },
 
-                size: ButtonSize.small,
-                width: double.infinity,
-                padding: Spacing.horizontalMd,
-                height: 35.h,
-              ),
+          //       size: ButtonSize.small,
+          //       width: double.infinity,
+          //       padding: Spacing.horizontalMd,
+          //       height: 35.h,
+          //     ),
 
-              AppButton(
-                elevation: 0,
-                label: 'Dashboard',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => OwnerDashboardScreen(
-                            shopId: shopId,
-                            isFreelancer: isFreelancer,
-                            accountType: accountType,
-                            // subaccountId: '',
-                            shopOwnerId: shopOwnerId,
-                            shopName: shopName,
-                            shopCurrencyCode: shopCurrencyCode,
-                            shopCountry: shopCountry,
-                          ),
-                    ),
-                  );
-                },
+          //     AppButton(
+          //       elevation: 0,
+          //       label: 'Dashboard',
+          //       onPressed: () {
+          //         Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //             builder:
+          //                 (context) => OwnerDashboardScreen(
+          //                   shopId: shopId,
+          //                   isFreelancer: isFreelancer,
+          //                   accountType: accountType,
+          //                   // subaccountId: '',
+          //                   shopOwnerId: shopOwnerId,
+          //                   shopName: shopName,
+          //                   shopCurrencyCode: shopCurrencyCode,
+          //                   shopCountry: shopCountry,
+          //                 ),
+          //           ),
+          //         );
+          //       },
 
-                size: ButtonSize.small,
-                width: double.infinity,
-                padding: Spacing.horizontalMd,
-                height: 35.h,
-              ),
-            ]),
-          ),
+          //       size: ButtonSize.small,
+          //       width: double.infinity,
+          //       padding: Spacing.horizontalMd,
+          //       height: 35.h,
+          //     ),
+          //   ]),
+          // ),
           // Dynamically generate sliver lists for each settings section
           // Using spread operator (...) to flatten the list of SliverList widgets
           ...sections.map((section) {
@@ -234,7 +226,7 @@ class MoreScreen extends StatelessWidget {
                 ),
               ]),
             );
-          }).toList(),
+          }),
           // Additional slivers could be added here:
           // - SliverToBoxAdapter for headers/footers
           // - SliverPadding for additional spacing

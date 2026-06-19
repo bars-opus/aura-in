@@ -1,5 +1,4 @@
 // lib/core/widgets/app_filter_chip.dart
-import 'package:flutter/material.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/utils/exports/export_packages.dart';
 
@@ -9,6 +8,7 @@ class AppFilterChip extends StatelessWidget {
   final ValueChanged<bool> onSelected;
   final Color? selectedColor;
   final Color? backgroundColor;
+
   final Color? labelColor;
   final Color? selectedLabelColor;
   final double? fontSize;
@@ -40,32 +40,32 @@ class AppFilterChip extends StatelessWidget {
 
     final effectiveSelectedColor = selectedColor ?? colorScheme.primary;
     final effectiveBackgroundColor =
-        backgroundColor ?? colorScheme.surfaceVariant;
-    final effectiveLabelColor = labelColor ?? colorScheme.onSurfaceVariant;
-    final effectiveSelectedLabelColor =
-        selectedLabelColor ?? colorScheme.onPrimary;
-
+        backgroundColor ?? colorScheme.surfaceContainerHighest;
     return ChoiceChip(
       avatar:
           avatarIcon == null
               ? null
               : Icon(
                 avatarIcon,
-                size: 16.sp,
+                size: 16.r,
                 color:
                     selected
-                        ? colorScheme.primary
-                        : colorScheme.onBackground.withOpacity(.5),
+                        ? colorScheme.onPrimary
+                        : colorScheme.onSurface.withValues(alpha: 0.5),
               ),
       label: Text(
         label,
         style: theme.textTheme.labelMedium?.copyWith(
-          color: selected ? colorScheme.background : colorScheme.onBackground,
+          color:
+              selected
+                  ? (selectedLabelColor ?? colorScheme.onPrimary)
+                  : (labelColor ?? colorScheme.onSurface),
           fontSize: fontSize ?? FontSizeTokens.xxs,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
         ),
       ),
       selected: selected,
+      showCheckmark: avatarIcon == null,
       onSelected: onSelected,
       padding:
           padding ??
@@ -76,12 +76,9 @@ class AppFilterChip extends StatelessWidget {
       labelPadding: EdgeInsets.symmetric(horizontal: Spacing.xs.w),
       backgroundColor: effectiveBackgroundColor,
       selectedColor: effectiveSelectedColor,
-      labelStyle: theme.textTheme.labelMedium?.copyWith(
-        color: selected ? effectiveSelectedLabelColor : effectiveLabelColor,
-      ),
       shape: RoundedRectangleBorder(
         side: BorderSide(
-          color: selected ? effectiveSelectedColor : colorScheme.primary,
+          color: selected ? colorScheme.primary : colorScheme.onSurface,
           width: borderWidth?.w ?? 1.0,
         ),
         borderRadius:

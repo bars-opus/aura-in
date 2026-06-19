@@ -15,6 +15,7 @@ import 'package:nano_embryo/presentation/features/shops/creation/presentation/wi
 import 'package:nano_embryo/presentation/features/shops/creation/providers/edit_shop_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_creation_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/repository/supabase_shop_creation_repository.dart';
+import 'package:nano_embryo/presentation/features/shops/query/presentation/screens/my_shops_screen.dart';
 
 enum ShopMode { create, edit }
 
@@ -53,7 +54,6 @@ class _ShopCreationState extends ConsumerState<ShopCreation> {
 
   Future<bool> _showUnsavedChangesDialog(BuildContext context) async {
     final completer = Completer<bool>();
-
     BottomSheetUtils.showDocumentationBottomSheet(
       context: context,
       maxHeight: 400.h,
@@ -251,12 +251,23 @@ class _ShopCreationState extends ConsumerState<ShopCreation> {
                 Gap(Spacing.xl.h),
                 SemanticContainerWidget(
                   content:
-                      'Payout details for withdrawing money from your wallet would be collected after profile approval',
+                      'Payout details for withdrawing money from your wallet would be collected on your dashboard after is published',
                   icon: Icons.payment,
                   title: '',
                   backgroundColor: colorScheme.success.withOpacity(0.1),
                   borderColor: colorScheme.success,
                   iconColor: colorScheme.success,
+                  textTheme: theme.textTheme,
+                ),
+                Gap(Spacing.md.h),
+                SemanticContainerWidget(
+                  content:
+                      'Your dashboard and daily appointment schedules would show after your shop is published',
+                  icon: Icons.dashboard_outlined,
+                  title: '',
+                  backgroundColor: colorScheme.primary.withOpacity(0.1),
+                  borderColor: colorScheme.primary,
+                  iconColor: colorScheme.primary,
                   textTheme: theme.textTheme,
                 ),
                 Gap(Spacing.md.h),
@@ -306,8 +317,9 @@ class _ShopCreationState extends ConsumerState<ShopCreation> {
             }
 
             ScaffoldMessenger.of(context).clearSnackBars();
-            context.showSuccessSnackbar('Shop deleted successfully');
-            Navigator.popUntil(context, (route) => route.isFirst);
+            ref.read(shopFlashMessageProvider.notifier).state =
+                'Shop deleted successfully';
+            context.go(RouteNames.myShopsScreen);
           } catch (e) {
             ScaffoldMessenger.of(context).clearSnackBars();
             context.showErrorSnackbar('Failed to delete shop: $e');
@@ -319,7 +331,6 @@ class _ShopCreationState extends ConsumerState<ShopCreation> {
 
   Future<bool> _saveChanges(BuildContext context, ShopDraft draft) async {
     if (widget.shopId == null) return false;
-
     if (!draft.isMinimumViable) {
       context.showErrorSnackbar(
         'Please complete all required fields before saving',

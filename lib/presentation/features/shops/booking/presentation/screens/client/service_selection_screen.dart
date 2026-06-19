@@ -149,27 +149,22 @@ class _ServiceSelectionScreenState extends ConsumerState<ServiceSelectionScreen>
   }
 
   List<String> _extractCategories(List<AppointmentSlotDTO> services) {
-    // Get unique slotType values
-    final categories = services.map((s) => s.slotType).toSet().toList();
-
-    // Remove any accidental 'All' from data
+    final categories = services.map((s) => s.serviceName).toSet().toList();
     categories.remove('All');
-
-    // Sort alphabetically for consistent order
     categories.sort();
-
-    // Return with 'All' at the beginning
     return ['All', ...categories];
   }
 
   List<AppointmentSlotDTO> _filterServices(List<AppointmentSlotDTO> services) {
     if (_selectedCategory == 'All') return services;
-    return services.where((s) => s.slotType == _selectedCategory).toList();
+    return services.where((s) => s.serviceName == _selectedCategory).toList();
   }
 
   void _toggleService(AppointmentSlotDTO service) {
     final currentSelected = ref.read(selectedServicesProvider);
-    final selectedServicesNotifier = ref.read(selectedServicesProvider.notifier);
+    final selectedServicesNotifier = ref.read(
+      selectedServicesProvider.notifier,
+    );
     final quantityNotifier = ref.read(serviceQuantityProvider.notifier);
 
     if (currentSelected.any((s) => s.id == service.id)) {

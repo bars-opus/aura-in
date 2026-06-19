@@ -36,13 +36,15 @@ class _AddContactModalState extends State<AddContactModal> {
     _isPrimary = widget.initialContact?.isPrimary ?? false;
     if (widget.initialContact != null) {
       _selectedType = widget.initialContact!.type;
-      _e164Phone = widget.initialContact!.type == ContactType.phone
-          ? widget.initialContact!.value
-          : null;
+      _e164Phone =
+          widget.initialContact!.type == ContactType.phone
+              ? widget.initialContact!.value
+              : null;
       _valueController = TextEditingController(
-        text: widget.initialContact!.type == ContactType.phone
-            ? '' // PhoneFieldWidget owns its own controller
-            : widget.initialContact!.value,
+        text:
+            widget.initialContact!.type == ContactType.phone
+                ? '' // PhoneFieldWidget owns its own controller
+                : widget.initialContact!.value,
       );
     } else {
       _valueController = TextEditingController();
@@ -90,20 +92,17 @@ class _AddContactModalState extends State<AddContactModal> {
       case ContactType.email:
         return (value) => ValidationUtils.validateEmail(value).toErrorString();
       case ContactType.website:
-        return (value) => ValidationUtils.validateUrl(
-          _normaliseValue(value ?? ''),
-          requireHttps: false,
-        ).toErrorString();
+        return (value) =>
+            ValidationUtils.validateUrl(
+              _normaliseValue(value ?? ''),
+              requireHttps: false,
+            ).toErrorString();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final header =
-        widget.initialContact == null ? 'Add contact to ' : 'Edit contact of ';
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -125,82 +124,76 @@ class _AddContactModalState extends State<AddContactModal> {
         key: _formKey,
         child: ListView(
           children: [
-            Gap(Spacing.lg.h),
-            SemanticContainerWidget(
-              content:
-                  '${header}your social profiles to help customers find you',
-              title: '',
-              backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
-              borderColor: colorScheme.primary,
-              iconColor: colorScheme.primary,
-              textTheme: theme.textTheme,
-            ),
-            Gap(Spacing.lg.h),
             Gap(Spacing.md.h),
-
-            Text(
-              'Contact Type',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
-            Gap(Spacing.sm.h),
-            _buildTypeSelector(),
-
-            if (_typeError != null) ...[
-              Gap(Spacing.xs.h),
-              Text(
-                _typeError!,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.error,
-                ),
-              ),
-            ],
-
-            Gap(Spacing.md.h),
-
-            if (_selectedType == ContactType.phone)
-              PhoneFieldWidget(
-                initialCountryIsoCode: widget.shopCountryIsoCode,
-                initialValue: widget.initialContact?.type == ContactType.phone
-                    ? widget.initialContact!.value
-                    : null,
-                onChanged: (e164) => setState(() => _e164Phone = e164),
-              )
-            else
-              AppTextFormField(
-                debounceDuration: const Duration(milliseconds: 300),
-                onDebouncedChanged: (_) => _autoSave(),
-                controller: _valueController,
-                label: _getLabel(),
-                hintText: _getHint(),
-                prefixIcon: _selectedType?.icon,
-                keyboardType: _getKeyboardType(),
-                inputFormatters: _getInputFormatters(),
-                // Validator is wired to ValidationUtils — Form.validate() triggers it.
-                validator: _getValidator(),
-              ),
-
-            Gap(Spacing.md.h),
-
-            if (widget.initialContact == null)
-              Row(
+            CardInkWell(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Checkbox(
-                    value: _isPrimary,
-                    onChanged: (v) => setState(() => _isPrimary = v ?? false),
-                  ),
-                  Expanded(
-                    child: Text(
-                      'Set as primary contact',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface,
-                      ),
+                  Text(
+                    'Contact Type',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
+                  Gap(Spacing.sm.h),
+                  _buildTypeSelector(),
+
+                  if (_typeError != null) ...[
+                    Gap(Spacing.xs.h),
+                    Text(
+                      _typeError!,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.error,
+                      ),
+                    ),
+                  ],
+
+                  Gap(Spacing.md.h),
+
+                  if (_selectedType == ContactType.phone)
+                    PhoneFieldWidget(
+                      initialCountryIsoCode: widget.shopCountryIsoCode,
+                      initialValue:
+                          widget.initialContact?.type == ContactType.phone
+                              ? widget.initialContact!.value
+                              : null,
+                      onChanged: (e164) => setState(() => _e164Phone = e164),
+                    )
+                  else
+                    AppTextFormField(
+                      debounceDuration: const Duration(milliseconds: 300),
+                      onDebouncedChanged: (_) => _autoSave(),
+                      controller: _valueController,
+                      label: _getLabel(),
+                      hintText: _getHint(),
+                      prefixIcon: _selectedType?.icon,
+                      keyboardType: _getKeyboardType(),
+                      inputFormatters: _getInputFormatters(),
+                      // Validator is wired to ValidationUtils — Form.validate() triggers it.
+                      validator: _getValidator(),
+                    ),
+                  if (widget.initialContact == null)
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _isPrimary,
+                          onChanged:
+                              (v) => setState(() => _isPrimary = v ?? false),
+                        ),
+                        Expanded(
+                          child: Text(
+                            'Set as primary contact',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
+            ),
 
             Gap(Spacing.lg.h),
           ],
@@ -215,25 +208,26 @@ class _AddContactModalState extends State<AddContactModal> {
     return Wrap(
       spacing: 8.w,
       runSpacing: 8.h,
-      children: ContactType.values.map((type) {
-        final isSelected = _selectedType == type;
-        return AppFilterChip(
-          avatarIcon: type.icon,
-          label: type.displayName,
-          selected: isSelected,
-          onSelected: (selected) {
-            setState(() {
-              _selectedType = selected ? type : null;
-              _valueController.clear();
-              _typeError = null;
-            });
-          },
-          selectedColor: colorScheme.primary,
-          backgroundColor: colorScheme.surface,
-          labelColor: colorScheme.onSurface.withValues(alpha: 0.3),
-          borderWidth: 0.3,
-        );
-      }).toList(),
+      children:
+          ContactType.values.map((type) {
+            final isSelected = _selectedType == type;
+            return AppFilterChip(
+              avatarIcon: type.icon,
+              label: type.displayName,
+              selected: isSelected,
+              onSelected: (selected) {
+                setState(() {
+                  _selectedType = selected ? type : null;
+                  _valueController.clear();
+                  _typeError = null;
+                });
+              },
+              selectedColor: colorScheme.primary,
+              backgroundColor: colorScheme.surface,
+              labelColor: colorScheme.onSurface.withValues(alpha: 0.7),
+              borderWidth: 0.3,
+            );
+          }).toList(),
     );
   }
 
@@ -308,12 +302,14 @@ class _AddContactModalState extends State<AddContactModal> {
         _formKey.currentState!.validate();
         return;
       }
-      widget.onSave(ContactDraft(
-        id: widget.initialContact?.id,
-        type: ContactType.phone,
-        value: _e164Phone!,
-        isPrimary: _isPrimary,
-      ));
+      widget.onSave(
+        ContactDraft(
+          id: widget.initialContact?.id,
+          type: ContactType.phone,
+          value: _e164Phone!,
+          isPrimary: _isPrimary,
+        ),
+      );
       Navigator.pop(context);
       return;
     }
@@ -322,12 +318,14 @@ class _AddContactModalState extends State<AddContactModal> {
     if (!_formKey.currentState!.validate()) return;
 
     final finalValue = _normaliseValue(_valueController.text.trim());
-    widget.onSave(ContactDraft(
-      id: widget.initialContact?.id,
-      type: _selectedType!,
-      value: finalValue,
-      isPrimary: _isPrimary,
-    ));
+    widget.onSave(
+      ContactDraft(
+        id: widget.initialContact?.id,
+        type: _selectedType!,
+        value: finalValue,
+        isPrimary: _isPrimary,
+      ),
+    );
     Navigator.pop(context);
   }
 }

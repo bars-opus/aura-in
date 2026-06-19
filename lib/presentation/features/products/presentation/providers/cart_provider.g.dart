@@ -6,9 +6,15 @@ part of 'cart_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$cartNotifierHash() => r'93c16587963d5b6a814daad6a32cd023186c2b09';
+String _$cartNotifierHash() => r'248058ffdba562702a438b875fb7f487c9ef9ca3';
 
-/// See also [CartNotifier].
+/// Cart is **per-user**. Storage key is namespaced by `auth.uid()` so
+/// signing out and back in as a different user on the same device does
+/// not surface the previous user's cart. Sign-out triggers a rebuild
+/// (via ref.watch on currentUserProvider) that re-loads from the new
+/// (or guest) bucket.
+///
+/// Copied from [CartNotifier].
 @ProviderFor(CartNotifier)
 final cartNotifierProvider =
     AutoDisposeNotifierProvider<CartNotifier, CartState>.internal(
