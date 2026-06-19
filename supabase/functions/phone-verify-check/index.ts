@@ -27,6 +27,10 @@ export async function handler(req: Request): Promise<Response> {
 
   // Resolve the caller's user id from their JWT using the anon key.
   const userClient = createClient(url, anonKey, {
+
+
+  // Resolve the caller's user id from their JWT.
+  const userClient = createClient(url, serviceRole, {
     global: { headers: { Authorization: `Bearer ${userJwt}` } },
   });
   const { data: userData, error: userErr } = await userClient.auth.getUser();
@@ -63,6 +67,11 @@ export async function handler(req: Request): Promise<Response> {
     .select("id");
   if (updErr) return json({ error: "Could not save verification" }, 500);
   if (!updRows || updRows.length !== 1) return json({ error: "Could not save verification" }, 500);
+
+    .from("profiles")
+    .update({ phone_e164: phone, phone_verified_at: new Date().toISOString() })
+    .eq("id", userId);
+  if (updErr) return json({ error: "Could not save verification" }, 500);
 
   return json({ verified: true }, 200);
 }
