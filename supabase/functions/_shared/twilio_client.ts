@@ -34,7 +34,7 @@ export async function startVerification(
     },
   );
   if (!res.ok) {
-    throw new Error(`Twilio start failed: ${res.status} ${await res.text()}`);
+    throw new Error(`Twilio start failed: ${res.status}`);
   }
   const data = await res.json();
   return { status: data.status };
@@ -59,7 +59,7 @@ export async function checkVerification(
   if (!res.ok) {
     // 404 here means no pending verification (expired / wrong number).
     if (res.status === 404) return { status: "expired" };
-    throw new Error(`Twilio check failed: ${res.status} ${await res.text()}`);
+    throw new Error(`Twilio check failed: ${res.status}`);
   }
   const data = await res.json();
   return { status: data.status }; // "approved" | "pending" | ...
