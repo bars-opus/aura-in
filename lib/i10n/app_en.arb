@@ -293,6 +293,13 @@
   "editProfileScreenEditShopTitle": "Edit Shop",
   "editProfileScreenEditShopSubtitle": "Change your shop information",
 
+  "editProfileScreenCreateFreelancerTitle": "Create freelancer profile",
+  "editProfileScreenCreateFreelancerSubtitle": "Set up your work profile so clients can find and book you.",
+  "editProfileScreenCreateShopTitle": "Create shop",
+  "editProfileScreenCreateShopSubtitle": "Set up your shop so clients can find and book your services.",
+  "editProfileScreenSellProductTitle": "Sell a product",
+  "editProfileScreenSellProductSubtitle": "Sell your beauty products like pomades, shampoos, hairbrushes and more.",
+
   "languageScreenSubtitle": "Choose your preferred language for the app interface.\nThis will not affect your device settings.",
   "languageScreeUseDeviceLang": "Use Device Language.",
   "languageScreeUseDeviceLangNote": "This will reset to match your device system language.",

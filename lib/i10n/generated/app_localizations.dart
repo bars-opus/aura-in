@@ -1003,6 +1003,42 @@ abstract class AppLocalizations {
   /// **'Change your shop information'**
   String get editProfileScreenEditShopSubtitle;
 
+  /// No description provided for @editProfileScreenCreateFreelancerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create freelancer profile'**
+  String get editProfileScreenCreateFreelancerTitle;
+
+  /// No description provided for @editProfileScreenCreateFreelancerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your work profile so clients can find and book you.'**
+  String get editProfileScreenCreateFreelancerSubtitle;
+
+  /// No description provided for @editProfileScreenCreateShopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create shop'**
+  String get editProfileScreenCreateShopTitle;
+
+  /// No description provided for @editProfileScreenCreateShopSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your shop so clients can find and book your services.'**
+  String get editProfileScreenCreateShopSubtitle;
+
+  /// No description provided for @editProfileScreenSellProductTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell a product'**
+  String get editProfileScreenSellProductTitle;
+
+  /// No description provided for @editProfileScreenSellProductSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell your beauty products like pomades, shampoos, hairbrushes and more.'**
+  String get editProfileScreenSellProductSubtitle;
+
   /// No description provided for @languageScreenSubtitle.
   ///
   /// In en, this message translates to:

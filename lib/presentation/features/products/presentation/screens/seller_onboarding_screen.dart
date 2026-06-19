@@ -91,7 +91,10 @@ class _SellerOnboardingScreenState
       return;
     }
     final userId = ref.read(currentUserProvider)?.id;
-    if (userId == null) return;
+    if (userId == null) {
+      setState(() => _error = 'Your session has expired. Please sign in again.');
+      return;
+    }
 
     setState(() {
       _submitting = true;

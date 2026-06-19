@@ -177,19 +177,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }) {
     return CardInkWell(
       margin: EdgeInsets.only(bottom: 10.h),
-      child: Column(
-        children: [
-          InfoRowWidget(
-            subtitle: subtitle,
-            title: title,
-            icon: icon,
-            avatarRadius: 25.h,
-            onTap: onTap,
-            showAvatar: false,
-            showTrailingArrow: true,
-            showDivider: false,
-          ),
-        ],
+      child: InfoRowWidget(
+        subtitle: subtitle,
+        title: title,
+        icon: icon,
+        avatarRadius: 25.h,
+        onTap: onTap,
+        showAvatar: false,
+        showTrailingArrow: true,
+        showDivider: false,
       ),
     );
   }
@@ -199,8 +195,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       children: [
         if (_selectedRole == AccountType.worker)
           _producerCard(
-            title: loc.editProfileScreenEditWorkProfileTitle,
-            subtitle: loc.editProfileScreenEditShopSubtitle,
+            title: loc.editProfileScreenCreateFreelancerTitle,
+            subtitle: loc.editProfileScreenCreateFreelancerSubtitle,
             icon: Icons.person,
             onTap: () => _gatedPush(
               () => context.push(
@@ -214,15 +210,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           ),
         if (_selectedRole == AccountType.shop)
           _producerCard(
-            title: loc.editProfileScreenEditShopTitle,
-            subtitle: loc.editProfileScreenEditShopSubtitle,
+            title: loc.editProfileScreenCreateShopTitle,
+            subtitle: loc.editProfileScreenCreateShopSubtitle,
             icon: Icons.storefront_rounded,
             onTap: () => _gatedPush(() => context.push('/myShopsScreen')),
           ),
         _producerCard(
-          title: 'Sell a product',
-          subtitle:
-              'Sell your beauty products like pomades, shampoos, hairbrushes and more.',
+          title: loc.editProfileScreenSellProductTitle,
+          subtitle: loc.editProfileScreenSellProductSubtitle,
           icon: Icons.sell_outlined,
           onTap: () => _gatedPush(() => context.push('/sellerOnboarding')),
         ),
