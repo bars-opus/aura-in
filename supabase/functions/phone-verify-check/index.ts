@@ -22,10 +22,11 @@ export async function handler(req: Request): Promise<Response> {
   const userJwt = auth.slice("Bearer ".length);
 
   const url = Deno.env.get("SUPABASE_URL")!;
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
   const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-  // Resolve the caller's user id from their JWT.
-  const userClient = createClient(url, serviceRole, {
+  // Resolve the caller's user id from their JWT using the anon key.
+  const userClient = createClient(url, anonKey, {
     global: { headers: { Authorization: `Bearer ${userJwt}` } },
   });
   const { data: userData, error: userErr } = await userClient.auth.getUser();
@@ -55,11 +56,13 @@ export async function handler(req: Request): Promise<Response> {
 
   // Persist via service role (bypasses the client write-guard trigger).
   const admin = createClient(url, serviceRole);
-  const { error: updErr } = await admin
+  const { data: updRows, error: updErr } = await admin
     .from("profiles")
     .update({ phone_e164: phone, phone_verified_at: new Date().toISOString() })
-    .eq("id", userId);
+    .eq("id", userId)
+    .select("id");
   if (updErr) return json({ error: "Could not save verification" }, 500);
+  if (!updRows || updRows.length !== 1) return json({ error: "Could not save verification" }, 500);
 
   return json({ verified: true }, 200);
 }
