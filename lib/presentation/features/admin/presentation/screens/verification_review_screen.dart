@@ -92,33 +92,38 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
 
   Future<void> _promptReject() async {
     final controller = TextEditingController();
-    final reason = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Reject submission'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLines: 3,
-          decoration: const InputDecoration(
-            hintText: 'Reason (shown to the producer)',
+    final String? reason;
+    try {
+      reason = await showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Reject submission'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            maxLines: 3,
+            decoration: const InputDecoration(
+              hintText: 'Reason (shown to the producer)',
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final r = controller.text.trim();
+                if (r.isNotEmpty) Navigator.pop(ctx, r);
+              },
+              child: const Text('Reject'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              final r = controller.text.trim();
-              if (r.isNotEmpty) Navigator.pop(ctx, r);
-            },
-            child: const Text('Reject'),
-          ),
-        ],
-      ),
-    );
+      );
+    } finally {
+      controller.dispose();
+    }
     if (reason != null && reason.isNotEmpty) {
       await _decide('rejected', reason: reason);
     }
