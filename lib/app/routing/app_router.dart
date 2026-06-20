@@ -83,6 +83,7 @@ import 'package:nano_embryo/presentation/features/products/presentation/screens/
 import 'package:nano_embryo/presentation/features/products/presentation/screens/product_form_screen.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/screens/seller_onboarding_screen.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
+import 'package:nano_embryo/presentation/features/admin/presentation/screens/verification_review_screen.dart';
 
 /// Route names for type-safe navigation
 class RouteNames {
@@ -172,6 +173,7 @@ class RouteNames {
   static const String featureSurvey = '/featureSurvey';
   static const String feedback = '/feedback';
   static const String feedbackHistory = '/feedback/history';
+  static const String adminVerificationQueue = '/adminVerificationQueue';
 
 
 
@@ -1106,6 +1108,11 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         path: RouteNames.feedbackHistory,
         name: 'feedbackHistory',
         builder: (context, state) => const FeedbackHistoryScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.adminVerificationQueue,
+        name: 'adminVerificationQueue',
+        builder: (context, state) => const VerificationReviewScreen(),
       ),
     ],
   );
