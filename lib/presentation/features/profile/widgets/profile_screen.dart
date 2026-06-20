@@ -12,6 +12,7 @@ import 'package:nano_embryo/presentation/features/chat/presentation/screens/chat
 import 'package:nano_embryo/presentation/features/chat/presentation/state/chat_state.dart';
 import 'package:nano_embryo/presentation/features/profile/models/profile.dart';
 import 'package:nano_embryo/presentation/features/profile/models/profile_search_result.dart';
+import 'package:nano_embryo/presentation/features/admin/providers/admin_provider.dart';
 import 'package:nano_embryo/presentation/features/profile/widgets/tab_bar_delegate.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -347,6 +348,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                       showStats: true,
                       showActions: true,
                     ),
+                    if (isAuthor)
+                      ref.watch(isCurrentUserAdminProvider).maybeWhen(
+                        data: (isAdmin) => isAdmin
+                            ? CardInkWell(
+                                margin: EdgeInsets.only(bottom: 10.h),
+                                child: InfoRowWidget(
+                                  title: 'Verification queue',
+                                  subtitle: 'Review pending producer documents',
+                                  icon: Icons.verified_user_outlined,
+                                  avatarRadius: 25.h,
+                                  onTap: () => context.push('/adminVerificationQueue'),
+                                  showAvatar: false,
+                                  showTrailingArrow: true,
+                                  showDivider: false,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                        orElse: () => const SizedBox.shrink(),
+                      ),
                   ],
                 ),
               ),

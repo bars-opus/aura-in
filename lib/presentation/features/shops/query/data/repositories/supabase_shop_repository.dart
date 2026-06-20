@@ -122,7 +122,7 @@ class SupabaseShopRepository implements ShopRepository {
           query = query.eq('luxury_level', params.luxuryLevel!);
         }
         if (params.verifiedOnly == true) {
-          query = query.eq('verified', true);
+          query = query.eq('verification_status', 'approved');
         }
         if (params.minRating != null) {
           query = query.gte('average_rating', params.minRating);
@@ -364,7 +364,7 @@ class SupabaseShopRepository implements ShopRepository {
         }
 
         if (verifiedOnly == true) {
-          query = query.eq('verified', true);
+          query = query.eq('verification_status', 'approved');
         }
 
         // Sort with id tie-break so offset pagination is stable.
@@ -512,7 +512,7 @@ class SupabaseShopRepository implements ShopRepository {
         }
 
         if (verifiedOnly == true) {
-          query = query.eq('verified', true);
+          query = query.eq('verification_status', 'approved');
         }
 
         switch (sortBy) {
