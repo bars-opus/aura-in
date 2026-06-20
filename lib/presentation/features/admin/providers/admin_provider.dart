@@ -44,7 +44,8 @@ final pendingVerificationsProvider =
     final p = (r['profiles'] as Map?) ?? {};
     final media = ((r['shop_media'] as List?) ?? [])
         .where((m) => (m as Map)['media_type'] == 'document')
-        .map((m) => (m as Map)['url'] as String)
+        .map((m) => (m as Map)['url'] as String?)
+        .whereType<String>()
         .toList();
     out.add(VerificationSubmission(
       entityType: 'shop',
