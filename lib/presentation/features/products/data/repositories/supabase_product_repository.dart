@@ -75,58 +75,50 @@ class SupabaseProductRepository implements ProductRepository {
     bool showVerifiedOnly = false,
     required int limit,
     required int page,
+    int seed = 0,
   }) async {
     try {
-      // Rebuild the query inside the retry lambda — each attempt gets a
-      // fresh FilterBuilder and a fresh network request.
+      // Map SortOption to RPC's p_sort_by string.
+      final String rpcSortBy;
+      switch (sortBy ?? SortOption.recent) {
+        case SortOption.recent:
+          rpcSortBy = 'recent';
+          break;
+        case SortOption.priceLowHigh:
+          rpcSortBy = 'price_low';
+          break;
+        case SortOption.priceHighLow:
+          rpcSortBy = 'price_high';
+          break;
+        case SortOption.popular:
+          rpcSortBy = 'popular';
+          break;
+      }
+
       final response = await RetryPolicy.run(
-        () {
-          var query = _supabase
-              .from('products')
-              .select('''
-                *,
-                shops!inner (
-                  id,
-                  shop_name,
-                  verified,
-                  luxury_level,
-                  average_rating
-                )
-              ''')
-              .eq('is_active', true);
-
-          if (category != null && category.isNotEmpty) {
-            query = query.eq('category', category);
-          }
-          if (minPrice != null) query = query.gte('price', minPrice);
-          if (maxPrice != null) query = query.lte('price', maxPrice);
-          if (showVerifiedOnly) query = query.eq('shops.verified', true);
-
-          PostgrestTransformBuilder filteredQuery;
-          switch (sortBy ?? SortOption.recent) {
-            case SortOption.recent:
-              filteredQuery = query.order('created_at', ascending: false);
-              break;
-            case SortOption.priceLowHigh:
-              filteredQuery = query.order('price', ascending: true);
-              break;
-            case SortOption.priceHighLow:
-              filteredQuery = query.order('price', ascending: false);
-              break;
-            case SortOption.popular:
-              filteredQuery =
-                  query.order('total_orders_count', ascending: false);
-              break;
-          }
-
-          final from = page * limit;
-          return filteredQuery.range(from, from + limit - 1);
-        },
+        () => _supabase.rpc(
+          'discover_products',
+          params: {
+            'p_seed': seed,
+            'p_category': category,
+            'p_min_price': minPrice,
+            'p_max_price': maxPrice,
+            'p_sort_by': rpcSortBy,
+            'p_limit': limit,
+            'p_offset': page * limit,
+          },
+        ),
         operationName: 'getMarketplaceProducts',
       );
 
+      // RPC returns rows of {product: jsonb} — unwrap before parsing.
       return (response as List)
-          .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
+          .map(
+            (row) => ProductModel.fromJson(
+              (row as Map<String, dynamic>)['product']
+                  as Map<String, dynamic>,
+            ),
+          )
           .toList();
     } catch (e, stack) {
       MarketplaceLogger.error('getMarketplaceProducts failed',

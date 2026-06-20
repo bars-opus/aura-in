@@ -2,6 +2,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:nano_embryo/presentation/features/discover/providers/discovery_seed_provider.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/paginated_list_notifier.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
@@ -81,6 +82,7 @@ class MarketplaceFilter extends _$MarketplaceFilter {
 Future<List<ProductModel>> marketplaceProducts(Ref ref) {
   final filter = ref.watch(marketplaceFilterProvider);
   final repository = ref.watch(productRepositoryProvider);
+  final seed = ref.watch(discoverySeedProvider);
 
   return repository.getMarketplaceProducts(
     category: filter.category,
@@ -90,6 +92,7 @@ Future<List<ProductModel>> marketplaceProducts(Ref ref) {
     showVerifiedOnly: filter.showVerifiedOnly,
     limit: filter.limit,
     page: filter.page,
+    seed: seed,
   );
 }
 
@@ -107,6 +110,7 @@ class MarketplaceProductsPagedNotifier extends PagedListNotifier<ProductModel> {
   @override
   Future<List<ProductModel>> fetchPage(int page, int limit) {
     final filter = _ref.read(marketplaceFilterProvider);
+    final seed = _ref.read(discoverySeedProvider);
     return _ref.read(productRepositoryProvider).getMarketplaceProducts(
           category: filter.category,
           sortBy: filter.sortBy,
@@ -115,6 +119,7 @@ class MarketplaceProductsPagedNotifier extends PagedListNotifier<ProductModel> {
           showVerifiedOnly: filter.showVerifiedOnly,
           limit: limit,
           page: page,
+          seed: seed,
         );
   }
 }

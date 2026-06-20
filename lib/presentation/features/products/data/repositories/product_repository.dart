@@ -22,6 +22,7 @@ abstract class ProductRepository {
     bool showVerifiedOnly = false,
     required int limit,
     required int page,
+    int seed = 0,
   });
 
   Future<List<ProductModel>> searchProducts({

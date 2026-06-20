@@ -98,57 +98,43 @@ class SupabaseShopRepository implements ShopRepository {
       opName: 'getShops',
       userMessage: "Couldn't load shops. Please try again.",
       () async {
-        dynamic query = _client.from('shops_with_cover').select('''
-        id,
-        shop_name,
-        average_rating,
-        number_clients_worked,
-        luxury_level,
-        verified,
-        shop_type,
-        cover_image_url,
-        created_at
-      ''');
+        final offset = int.tryParse(params.cursor ?? '') ?? 0;
+        final clampedLimit = params.limit.clamp(1, 50);
 
-        if (params.searchQuery != null && params.searchQuery!.isNotEmpty) {
-          // Escape ilike wildcards so user input "%" / "_" matches literally.
-          query = query.ilike('shop_name', '%${_escapeLike(params.searchQuery!)}%');
-        }
-
-        if (params.shopType != null && params.shopType!.isNotEmpty) {
-          query = query.eq('shop_type', params.shopType!);
-        }
-        if (params.luxuryLevel != null && params.luxuryLevel!.isNotEmpty) {
-          query = query.eq('luxury_level', params.luxuryLevel!);
-        }
-        if (params.verifiedOnly == true) {
-          query = query.eq('verification_status', 'approved');
-        }
-        if (params.minRating != null) {
-          query = query.gte('average_rating', params.minRating);
-        }
-
-        // Sort with id tie-break so offset pagination is stable.
+        // Map sortBy to the RPC's p_sort_by. 'rating' and 'name' are supported;
+        // anything else (default/created_at) passes null so the RPC shuffles
+        // by seed instead of falling back to created_at ordering.
+        final String? rpcSortBy;
         switch (params.sortBy) {
           case 'rating':
-            query =
-                query.order('average_rating', ascending: false).order('id');
+            rpcSortBy = 'rating';
             break;
           case 'name':
-            query = query.order('shop_name', ascending: true).order('id');
+            rpcSortBy = 'name';
             break;
           default:
-            query = query.order('created_at', ascending: false).order('id');
+            rpcSortBy = null;
         }
 
-        final offset = int.tryParse(params.cursor ?? '') ?? 0;
-        final limit = params.limit.clamp(1, 50);
-        final response =
-            await query.range(offset, offset + limit - 1) as PostgrestList;
+        final response = await _client.rpc(
+          'discover_shops',
+          params: {
+            'p_seed': params.seed ?? 0,
+            'p_search': params.searchQuery,
+            'p_shop_type': params.shopType,
+            'p_luxury_level': params.luxuryLevel,
+            'p_min_rating': params.minRating,
+            'p_sort_by': rpcSortBy,
+            'p_limit': clampedLimit,
+            'p_offset': offset,
+          },
+        );
 
-        final rawCount = response.length;
+        final List<dynamic> data = response as List<dynamic>;
+        final rawCount = data.length;
+
         final shops = _dedupe(
-          response
+          data
               .map(
                 (json) => ShopListItemDTO(
                   id: json['id'] as String,
@@ -170,7 +156,7 @@ class SupabaseShopRepository implements ShopRepository {
         // Compare raw response length (not deduped) so we don't terminate
         // pagination early when the view fans out duplicates.
         final nextCursor =
-            rawCount < limit ? null : (offset + limit).toString();
+            rawCount < clampedLimit ? null : (offset + clampedLimit).toString();
 
         return SearchPaginatedResult(
           items: shops,
@@ -179,14 +165,6 @@ class SupabaseShopRepository implements ShopRepository {
         );
       },
     );
-  }
-
-  /// Escapes `%`, `_`, `\` so user-typed wildcards match literally in ilike.
-  static String _escapeLike(String input) {
-    return input
-        .replaceAll('\\', '\\\\')
-        .replaceAll('%', '\\%')
-        .replaceAll('_', '\\_');
   }
 
   @override
