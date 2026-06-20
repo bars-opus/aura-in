@@ -6,7 +6,7 @@ part of 'top_rated_shops_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$topRatedShopsHash() => r'97c91a044fa84fd72b0be5ab4ac08c17546e3705';
+String _$topRatedShopsHash() => r'939d37903aa12704a99197866eccd1fa0c28d79f';
 
 /// See also [topRatedShops].
 @ProviderFor(topRatedShops)

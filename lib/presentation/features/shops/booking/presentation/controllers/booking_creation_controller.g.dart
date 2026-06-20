@@ -7,7 +7,7 @@ part of 'booking_creation_controller.dart';
 // **************************************************************************
 
 String _$bookingCreationControllerHash() =>
-    r'728c0132b948b59b0d043208c71787f429f01757';
+    r'746e1578d06419ac0990025b84354ff2dabfca15';
 
 /// Controller responsible for creating bookings after payment.
 ///

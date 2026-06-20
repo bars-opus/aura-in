@@ -6,7 +6,7 @@ part of 'top_rated_shops_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$topRatedShopsListHash() => r'80207e94033eca554b66a40f668a280794beb8c0';
+String _$topRatedShopsListHash() => r'2fd98c7bd950dcbc7a50fbc84a4735a414bea591';
 
 /// keepAlive: discover-screen data persists across tab/route switches.
 /// Call refresh() to invalidate stale data.

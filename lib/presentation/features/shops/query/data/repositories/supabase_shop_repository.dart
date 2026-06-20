@@ -739,6 +739,12 @@ class SupabaseShopRepository implements ShopRepository {
       userMessage: "Couldn't load nearby shops. Please try again.",
       () async {
         final clampedLimit = limit.clamp(1, 50);
+        // OFFSET pagination: cursor is a stringified int offset, matching the
+        // other discover_* RPCs. The old keyset (cursor_id) is replaced by
+        // p_page_offset so pages 2+ don't skip/duplicate rows under the
+        // band-blend ORDER BY.
+        final offset = int.tryParse(cursor ?? '') ?? 0;
+
         final Map<String, dynamic> params = {
           'user_lat': latitude,
           'user_lng': longitude,
@@ -746,9 +752,10 @@ class SupabaseShopRepository implements ShopRepository {
           'filter_luxury_level': null,
           'verified_only': false,
           'sort_by': 'distance',
-          'cursor_id': null,
+          'cursor_id': null, // kept for RPC signature compat; unused server-side
           'page_limit': clampedLimit,
           'p_seed': seed,
+          'p_page_offset': offset,
         };
         if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
           params['filter_luxury_level'] = luxuryLevel;
@@ -759,17 +766,10 @@ class SupabaseShopRepository implements ShopRepository {
         if (sortBy != null) {
           params['sort_by'] = sortBy;
         }
-        if (cursor != null && cursor.isNotEmpty) {
-          params['cursor_id'] = cursor;
-        }
+
         final response =
             await _client.rpc('get_nearby_shops', params: params);
         final List<dynamic> data = response as List<dynamic>;
-
-        // Capture the raw last row's id BEFORE dedup so the next page anchors
-        // to the actual server-side cursor position, not our deduped tail.
-        final rawLastId =
-            data.isNotEmpty ? data.last['id'] as String? : null;
         final rawCount = data.length;
 
         final shops = _dedupe(
@@ -792,10 +792,10 @@ class SupabaseShopRepository implements ShopRepository {
               .toList(),
         );
 
-        // Terminate when the RPC returned fewer rows than requested.
-        // NOTE: assumes get_nearby_shops orders by (distance, id) and uses
-        // cursor_id as a keyset on id within the same distance. Verify SQL.
-        final nextCursor = rawCount < clampedLimit ? null : rawLastId;
+        // Use raw (pre-dedupe) count to avoid terminating pagination early
+        // when the view produces duplicates that get filtered client-side.
+        final nextCursor =
+            rawCount < clampedLimit ? null : (offset + clampedLimit).toString();
         return SearchPaginatedResult(
           items: shops,
           nextCursor: nextCursor,

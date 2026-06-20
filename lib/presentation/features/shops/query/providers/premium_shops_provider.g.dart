@@ -6,7 +6,7 @@ part of 'premium_shops_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$premiumShopsHash() => r'86065975950ae0467333ff4bb49ff770feee690e';
+String _$premiumShopsHash() => r'b21e78e18fbce8637739316dcd0095bb423bc014';
 
 /// See also [premiumShops].
 @ProviderFor(premiumShops)

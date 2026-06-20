@@ -7,7 +7,7 @@ part of 'freelancer_list_providers.dart';
 // **************************************************************************
 
 String _$topRatedFreelancersListHash() =>
-    r'24e60579a010577c7295a1331f733051953fd0c9';
+    r'1075bcb49ea6223eaa4cf3eeb01540fd1573bcd5';
 
 /// Provider for top rated freelancers list (paginated).
 /// keepAlive: discover-screen data persists across tab/route switches.
@@ -28,7 +28,7 @@ final topRatedFreelancersListProvider = AsyncNotifierProvider<
 
 typedef _$TopRatedFreelancersList = AsyncNotifier<FreelancerListState>;
 String _$nearbyFreelancersListHash() =>
-    r'3744b845d71175891d3808afa719862f2658b54a';
+    r'24026a06c39f409051aa9b53797ef0ac6dc5a6a1';
 
 /// Provider for nearby freelancers list (paginated).
 /// keepAlive: discover-screen data persists across tab/route switches.

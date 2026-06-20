@@ -6,7 +6,7 @@ part of 'premium_shops_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$premiumShopsListHash() => r'ab098aaf78b3da2581ffe31fed46354b3ee40bb3';
+String _$premiumShopsListHash() => r'6c1de0bc66b8618bb1022c34bf07920d52fa208d';
 
 /// keepAlive: discover-screen data persists across tab/route switches so the
 /// user doesn't refetch on every back-navigation. Memory is bounded (a few

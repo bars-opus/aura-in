@@ -6,7 +6,7 @@ part of 'near_you_shops_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$nearYouShopsListHash() => r'57f735b67421d7ee6ef0e57533eded0b7855cf46';
+String _$nearYouShopsListHash() => r'97f44967249c3b5e6e227ac2a6c7e9b09395c786';
 
 /// keepAlive: discover-screen data persists across tab/route switches.
 /// Call refresh() to invalidate stale data. NOTE: if the user's location
