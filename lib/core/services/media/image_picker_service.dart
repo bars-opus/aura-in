@@ -51,19 +51,25 @@ class ImagePickerService {
         File(pickedFile.path),
       );
 
-      // Crop if requested
+      // Crop if requested. _cropImage returns null ONLY when the user cancels
+      // the crop UI (a crop *failure* falls back to the original). On cancel we
+      // abort the whole pick so a cancelled crop doesn't silently add/upload
+      // the uncropped original.
       if (crop) {
         final cropped = await _cropImage(
           permanentFile,
           cropRatio: cropRatio,
           lockAspectRatio: lockAspectRatio,
         );
-        if (cropped != null) {
-          return await _compressImage(cropped);
+        if (cropped == null) {
+          // User cancelled the cropper — clean up the copied source and bail.
+          await deleteFile(permanentFile);
+          return null;
         }
+        return await _compressImage(cropped);
       }
 
-      // Always compress
+      // No crop requested: compress and return.
       return await _compressImage(permanentFile);
     } catch (e) {
       debugPrint('Failed to pick image: $e');
