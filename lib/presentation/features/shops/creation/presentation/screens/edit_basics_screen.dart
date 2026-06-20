@@ -1,6 +1,7 @@
 // lib/features/shop/creation/presentation/screens/edit_basics_screen.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/constants/shop_types.dart';
 import 'package:nano_embryo/core/providers/profile_image_provider.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/profile/widgets/editable_profile_avatar.dart';
@@ -21,7 +22,7 @@ class _EditBasicsScreenState extends ConsumerState<EditBasicsScreen> {
   String? _selectedType;
   // String? _selectedLuxuryLevel;
 
-  final List<String> _shopTypes = ['Salon', 'Barbershop', 'Spa', 'Nail Salon'];
+  final List<String> _shopTypes = ShopTypes.all;
 
   // final List<String> _luxuryLevels = [
   //   'Standard',
