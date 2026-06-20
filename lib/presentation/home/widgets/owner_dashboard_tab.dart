@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/providers/profile_providers/profile_provider.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/presentation/features/admin/providers/admin_provider.dart';
 import 'package:nano_embryo/presentation/features/profile/models/profile_role.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/owner_dashboard_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
@@ -13,6 +14,103 @@ class OwnerDashboardTab extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<OwnerDashboardTab> createState() => _OwnerDashboardTabState();
+}
+
+/// Thin banner shown to the shop/worker owner while their entity is pending or
+/// rejected. Dismissed automatically once approved.
+class _VerificationBanner extends ConsumerWidget {
+  final String entityType; // 'shop' | 'worker'
+  final String entityId;
+
+  const _VerificationBanner({
+    required this.entityType,
+    required this.entityId,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final statusAsync = ref.watch(
+      entityVerificationStatusProvider(
+        (entityType: entityType, entityId: entityId),
+      ),
+    );
+
+    return statusAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (vs) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+
+        if (vs.status == 'approved') return const SizedBox.shrink();
+
+        if (vs.status == 'rejected') {
+          return Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: Spacing.md,
+              vertical: Spacing.xs,
+            ),
+            child: SemanticContainerWidget(
+              icon: Icons.cancel_outlined,
+              title: 'Verification rejected',
+              content:
+                  'Rejected: ${vs.rejectionReason ?? 'No reason provided.'}',
+              backgroundColor: colorScheme.error.withOpacity(0.1),
+              borderColor: colorScheme.error,
+              iconColor: colorScheme.error,
+              textTheme: theme.textTheme,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: () => _resubmit(context, ref),
+                  child: const Text('Re-upload & resubmit'),
+                ),
+              ),
+            ),
+          );
+        }
+
+        // pending
+        return Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.md,
+            vertical: Spacing.xs,
+          ),
+          child: SemanticContainerWidget(
+            icon: Icons.hourglass_top_outlined,
+            title: 'Under review',
+            content: 'Pending review — hidden from clients until approved.',
+            backgroundColor: colorScheme.primary.withOpacity(0.08),
+            borderColor: colorScheme.primary,
+            iconColor: colorScheme.primary,
+            textTheme: theme.textTheme,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _resubmit(BuildContext context, WidgetRef ref) async {
+    await context.push(RouteNames.manageDocuments);
+    // After returning from doc upload, re-submit for review.
+    if (!context.mounted) return;
+    try {
+      await ref
+          .read(verificationActionsProvider)
+          .submit(entityType: entityType, entityId: entityId);
+      ref.invalidate(
+        entityVerificationStatusProvider(
+          (entityType: entityType, entityId: entityId),
+        ),
+      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not resubmit for review: $e')),
+        );
+      }
+    }
+  }
 }
 
 class _OwnerDashboardTabState extends ConsumerState<OwnerDashboardTab> {
@@ -70,6 +168,10 @@ class _OwnerDashboardTabState extends ConsumerState<OwnerDashboardTab> {
         return Column(
           children: [
             OwnerTabShopSwitcher(shops: shops),
+            _VerificationBanner(
+              entityType: 'shop',
+              entityId: currentShop.id,
+            ),
             Expanded(
               child: OwnerDashboardScreen(
                 shopId: currentShop.id,

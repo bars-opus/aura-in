@@ -6,6 +6,7 @@
 // business document, create a minimal seller-shop, and open the product form.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/presentation/features/admin/providers/admin_provider.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/screens/product_form_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/data/upload_document_image.dart';
@@ -127,6 +128,17 @@ class _SellerOnboardingScreenState
             documentUrls: documentUrls,
             logoUrl: null,
           );
+
+      // Best-effort: submit for verification. Failure is non-fatal because the
+      // shop already exists and defaults to 'pending' in the DB.
+      try {
+        await ref.read(verificationActionsProvider).submit(
+          entityType: 'shop',
+          entityId: shopId,
+        );
+      } catch (e) {
+        debugPrint('⚠️ Verification submit failed (non-fatal): $e');
+      }
 
       if (!mounted) return;
       _openProductForm(shopId);

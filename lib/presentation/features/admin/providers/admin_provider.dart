@@ -126,3 +126,29 @@ class VerificationActions {
 
 final verificationActionsProvider =
     Provider<VerificationActions>((ref) => VerificationActions(ref));
+
+/// Lightweight record of the owner's current verification status.
+class EntityVerificationStatus {
+  final String status; // 'pending' | 'approved' | 'rejected'
+  final String? rejectionReason;
+  const EntityVerificationStatus({required this.status, this.rejectionReason});
+}
+
+/// Fetches verification_status + verification_rejection_reason for a single
+/// entity.  [entityType] is 'shop' or 'worker'.
+/// Keeps the owner-facing banner decoupled from the heavier DTO providers.
+final entityVerificationStatusProvider = FutureProvider.family<
+    EntityVerificationStatus,
+    ({String entityType, String entityId})>((ref, args) async {
+  final client = ref.watch(supabaseClientProvider);
+  final table = args.entityType == 'worker' ? 'workers' : 'shops';
+  final row = await client
+      .from(table)
+      .select('verification_status, verification_rejection_reason')
+      .eq('id', args.entityId)
+      .single();
+  return EntityVerificationStatus(
+    status: (row['verification_status'] as String?) ?? 'pending',
+    rejectionReason: row['verification_rejection_reason'] as String?,
+  );
+});

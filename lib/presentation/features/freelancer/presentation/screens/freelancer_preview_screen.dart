@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/presentation/features/admin/providers/admin_provider.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/domain/models/freelancer_draft.dart';
@@ -276,6 +277,18 @@ class _FreelancerPreviewScreenState
         portfolioImages: portfolioFiles,
         documents: documentFiles,
       );
+
+      // Best-effort verification submit. Failure is non-fatal: the worker row
+      // already defaults to 'pending'; this just stamps submitted_at so the
+      // admin queue orders correctly.
+      try {
+        await ref.read(verificationActionsProvider).submit(
+          entityType: 'worker',
+          entityId: freelancerId,
+        );
+      } catch (e) {
+        debugPrint('⚠️ Freelancer verification submit failed (non-fatal): $e');
+      }
 
       await ref.read(freelancerCreationProvider.notifier).clearDraft();
 
