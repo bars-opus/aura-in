@@ -15,6 +15,7 @@ part 'marketplace_providers.freezed.dart';
 // Sort Option Enum
 // ============================================
 enum SortOption {
+  discover('Discover'),
   recent('Newest First'),
   priceLowHigh('Price: Low to High'),
   priceHighLow('Price: High to Low'),
@@ -31,7 +32,7 @@ enum SortOption {
 class MarketplaceFilterState with _$MarketplaceFilterState {
   const factory MarketplaceFilterState({
     @Default(null) String? category,
-    @Default(SortOption.recent) SortOption sortBy,
+    @Default(SortOption.discover) SortOption sortBy,
     @Default(null) double? minPrice,
     @Default(null) double? maxPrice,
     @Default(false) bool showVerifiedOnly,

@@ -184,7 +184,7 @@ class __$$MarketplaceFilterStateImplCopyWithImpl<$Res>
 class _$MarketplaceFilterStateImpl implements _MarketplaceFilterState {
   const _$MarketplaceFilterStateImpl(
       {this.category = null,
-      this.sortBy = SortOption.recent,
+      this.sortBy = SortOption.discover,
       this.minPrice = null,
       this.maxPrice = null,
       this.showVerifiedOnly = false,

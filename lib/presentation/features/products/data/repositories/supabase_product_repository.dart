@@ -79,8 +79,12 @@ class SupabaseProductRepository implements ProductRepository {
   }) async {
     try {
       // Map SortOption to RPC's p_sort_by string.
-      final String rpcSortBy;
-      switch (sortBy ?? SortOption.recent) {
+      // discover (and null) → null so the RPC uses seeded shuffle.
+      final String? rpcSortBy;
+      switch (sortBy ?? SortOption.discover) {
+        case SortOption.discover:
+          rpcSortBy = null;
+          break;
         case SortOption.recent:
           rpcSortBy = 'recent';
           break;
