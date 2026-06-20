@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:nano_embryo/presentation/features/discover/providers/discovery_seed_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 
@@ -238,6 +239,7 @@ class NearYouShopsList extends _$NearYouShopsList {
   }
 
   Future<void> refresh() async {
+    reshuffleDiscovery(ref);
     await loadFirstPage();
   }
 }

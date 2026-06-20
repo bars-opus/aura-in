@@ -1,3 +1,4 @@
+import 'package:nano_embryo/presentation/features/discover/providers/discovery_seed_provider.dart';
 import 'package:nano_embryo/presentation/features/search/models/search_paginated_result.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
@@ -242,6 +243,7 @@ class PremiumShopsList extends _$PremiumShopsList {
   }
 
   Future<void> refresh() async {
+    reshuffleDiscovery(ref);
     await loadFirstPage();
   }
 }

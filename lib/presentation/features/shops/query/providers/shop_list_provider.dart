@@ -1,5 +1,6 @@
 // lib/features/shops/presentation/providers/shop_list_provider.dart
 
+import 'package:nano_embryo/presentation/features/discover/providers/discovery_seed_provider.dart';
 import 'package:nano_embryo/presentation/features/search/models/shop_query_params.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/selected_luxury_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/service_category_provider.dart';
@@ -80,6 +81,7 @@ class ShopList extends _$ShopList {
   Future<ShopListState> build() async {
     final shopType = ref.watch(selectedServiceCategoryProvider);
     final luxuryLevel = ref.watch(selectedLuxuryLevelProvider);
+    final seed = ref.watch(discoverySeedProvider);
     _generation++;
 
     final params = ShopQueryParams(
@@ -88,6 +90,7 @@ class ShopList extends _$ShopList {
       verifiedOnly: false,
       sortBy: 'created_at',
       limit: AppConstants.shopsPerPage,
+      seed: seed,
     );
 
     final result = await ref.read(shopRepositoryProvider).getShops(params);
@@ -122,6 +125,7 @@ class ShopList extends _$ShopList {
         verifiedOnly: false,
         sortBy: 'created_at',
         limit: AppConstants.shopsPerPage,
+        seed: ref.read(discoverySeedProvider),
       );
 
       final result = await ref
@@ -152,7 +156,9 @@ class ShopList extends _$ShopList {
   }
 
   /// Forces a fresh first-page load with the current filter state.
+  /// Regenerates the discovery seed so the reshuffled order is used.
   Future<void> refresh() async {
+    reshuffleDiscovery(ref);
     ref.invalidateSelf();
     await future;
   }
