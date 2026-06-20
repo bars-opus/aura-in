@@ -2,10 +2,13 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:nano_embryo/core/providers/location_provider.dart';
 import 'package:nano_embryo/presentation/features/discover/providers/discovery_seed_provider.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/paginated_list_notifier.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/service_category_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'marketplace_providers.g.dart';
@@ -84,6 +87,17 @@ Future<List<ProductModel>> marketplaceProducts(Ref ref) {
   final filter = ref.watch(marketplaceFilterProvider);
   final repository = ref.watch(productRepositoryProvider);
   final seed = ref.watch(discoverySeedProvider);
+  final userLocation = ref.watch(userLocationNotifierProvider);
+  final radiusKm = ref.watch(searchRadiusKmProvider);
+  final selectedCategory = ref.watch(selectedServiceCategoryProvider);
+
+  // 'salon' (lowercase) is the sentinel default set before any tab tap.
+  // Treat it as "no filter" so all shop types are returned.
+  // A real tab tap sets a capitalized value (e.g. 'Salon') that matches DB.
+  final shopTypesFilter =
+      selectedCategory.isEmpty || selectedCategory == 'salon'
+          ? null
+          : [selectedCategory];
 
   return repository.getMarketplaceProducts(
     category: filter.category,
@@ -94,6 +108,10 @@ Future<List<ProductModel>> marketplaceProducts(Ref ref) {
     limit: filter.limit,
     page: filter.page,
     seed: seed,
+    userLat: userLocation?.latitude,
+    userLng: userLocation?.longitude,
+    radiusKm: userLocation != null ? radiusKm : null,
+    shopTypes: shopTypesFilter,
   );
 }
 
@@ -112,6 +130,17 @@ class MarketplaceProductsPagedNotifier extends PagedListNotifier<ProductModel> {
   Future<List<ProductModel>> fetchPage(int page, int limit) {
     final filter = _ref.read(marketplaceFilterProvider);
     final seed = _ref.read(discoverySeedProvider);
+    final userLocation = _ref.read(userLocationNotifierProvider);
+    final radiusKm = _ref.read(searchRadiusKmProvider);
+    final selectedCategory = _ref.read(selectedServiceCategoryProvider);
+
+    // 'salon' (lowercase) is the sentinel default before any tab tap.
+    // Treat it as "no filter"; a real tap sets a capitalized value (e.g. 'Salon').
+    final shopTypesFilter =
+        selectedCategory.isEmpty || selectedCategory == 'salon'
+            ? null
+            : [selectedCategory];
+
     return _ref.read(productRepositoryProvider).getMarketplaceProducts(
           category: filter.category,
           sortBy: filter.sortBy,
@@ -121,6 +150,10 @@ class MarketplaceProductsPagedNotifier extends PagedListNotifier<ProductModel> {
           limit: limit,
           page: page,
           seed: seed,
+          userLat: userLocation?.latitude,
+          userLng: userLocation?.longitude,
+          radiusKm: userLocation != null ? radiusKm : null,
+          shopTypes: shopTypesFilter,
         );
   }
 }

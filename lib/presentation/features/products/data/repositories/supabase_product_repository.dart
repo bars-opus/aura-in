@@ -76,6 +76,10 @@ class SupabaseProductRepository implements ProductRepository {
     required int limit,
     required int page,
     int seed = 0,
+    double? userLat,
+    double? userLng,
+    double? radiusKm,
+    List<String>? shopTypes,
   }) async {
     try {
       // Map SortOption to RPC's p_sort_by string.
@@ -110,6 +114,10 @@ class SupabaseProductRepository implements ProductRepository {
             'p_sort_by': rpcSortBy,
             'p_limit': limit,
             'p_offset': page * limit,
+            'p_user_lat': userLat,
+            'p_user_lng': userLng,
+            'p_radius_km': radiusKm,
+            'p_shop_types': shopTypes,
           },
         ),
         operationName: 'getMarketplaceProducts',

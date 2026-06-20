@@ -23,6 +23,10 @@ abstract class ProductRepository {
     required int limit,
     required int page,
     int seed = 0,
+    double? userLat,
+    double? userLng,
+    double? radiusKm,
+    List<String>? shopTypes,
   });
 
   Future<List<ProductModel>> searchProducts({
