@@ -931,6 +931,7 @@ class SupabaseFreelancerRepository {
     List<String>? freelancerTypes,
     double? minRating,
     String sortBy = 'distance',
+    int seed = 0,
   }) {
     // No location → no nearby search possible. Return empty without erroring.
     if (latitude == 0 || longitude == 0) {
@@ -953,6 +954,7 @@ class SupabaseFreelancerRepository {
             'p_sort_by': sortBy,
             'p_page_limit': clampedLimit,
             'p_page_offset': offset,
+            'p_seed': seed,
           },
         );
 
@@ -971,6 +973,7 @@ class SupabaseFreelancerRepository {
     int offset = 0,
     List<String>? freelancerTypes,
     int limit = 20,
+    int seed = 0,
   }) {
     return runRepoQuery(
       opName: 'getTopRatedFreelancersPaginated',
@@ -992,6 +995,7 @@ class SupabaseFreelancerRepository {
               'p_freelancer_types': freelancerTypes,
               'p_min_rating': 4.5,
               'p_sort_by': 'rating',
+              'p_seed': seed,
             },
           );
         } else {
@@ -1056,6 +1060,7 @@ class SupabaseFreelancerRepository {
     int offset = 0,
     List<String>? freelancerTypes,
     int limit = 20,
+    int seed = 0,
   }) {
     // No location → empty result (not an error condition).
     if (latitude == 0 || longitude == 0) {
@@ -1079,6 +1084,7 @@ class SupabaseFreelancerRepository {
             'p_page_offset': offset,
             'p_freelancer_types': freelancerTypes,
             'p_sort_by': 'distance',
+            'p_seed': seed,
           },
         );
 
@@ -1106,6 +1112,7 @@ class SupabaseFreelancerRepository {
     int limit = 20,
     int offset = 0,
     List<String>? freelancerTypes,
+    int seed = 0,
   }) {
     return runRepoQuery(
       opName: 'getAllFreelancers',
@@ -1125,6 +1132,7 @@ class SupabaseFreelancerRepository {
               'p_page_offset': offset,
               'p_freelancer_types': freelancerTypes,
               'p_sort_by': 'distance',
+              'p_seed': seed,
             },
           );
         } else {

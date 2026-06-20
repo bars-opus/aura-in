@@ -98,6 +98,7 @@ abstract class ShopRepository {
     required double longitude,
     double radiusKm = 2.0,
     int limit = 10,
+    int seed = 0,
   });
 
   /// Get paginated nearby shops for "See all"
@@ -108,8 +109,9 @@ abstract class ShopRepository {
     String? cursor,
     String? luxuryLevel,
     int limit = 20,
-    bool? verifiedOnly, // 👈 Add this
+    bool? verifiedOnly,
     String? sortBy,
+    int seed = 0,
   });
 
   //Get map shops

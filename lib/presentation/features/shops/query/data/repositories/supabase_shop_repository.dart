@@ -676,6 +676,7 @@ class SupabaseShopRepository implements ShopRepository {
     required double longitude,
     double radiusKm = 10.0,
     int limit = 10,
+    int seed = 0,
   }) {
     return runRepoQuery(
       opName: 'getNearbyShops',
@@ -693,6 +694,7 @@ class SupabaseShopRepository implements ShopRepository {
             'sort_by': 'distance',
             'cursor_id': null,
             'page_limit': clampedLimit,
+            'p_seed': seed,
           },
         );
 
@@ -730,6 +732,7 @@ class SupabaseShopRepository implements ShopRepository {
     int limit = 20,
     bool? verifiedOnly,
     String? sortBy,
+    int seed = 0,
   }) {
     return runRepoQuery(
       opName: 'getNearbyShopsPaginated',
@@ -745,6 +748,7 @@ class SupabaseShopRepository implements ShopRepository {
           'sort_by': 'distance',
           'cursor_id': null,
           'page_limit': clampedLimit,
+          'p_seed': seed,
         };
         if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
           params['filter_luxury_level'] = luxuryLevel;

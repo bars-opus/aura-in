@@ -20,6 +20,9 @@ class NearYouShopsListState {
   final bool verifiedOnly;
   final String sortBy; // 'rating' or 'name'
 
+  /// Seed captured at first-page load; held constant so offset pagination stays stable.
+  final int seed;
+
   NearYouShopsListState({
     required this.shops,
     this.nextCursor,
@@ -30,6 +33,7 @@ class NearYouShopsListState {
     this.luxuryLevel,
     this.verifiedOnly = false,
     this.sortBy = 'rating',
+    this.seed = 0,
   });
 
   NearYouShopsListState copyWith({
@@ -42,6 +46,7 @@ class NearYouShopsListState {
     String? luxuryLevel,
     bool? verifiedOnly,
     String? sortBy,
+    int? seed,
   }) {
     return NearYouShopsListState(
       shops: shops ?? this.shops,
@@ -53,6 +58,7 @@ class NearYouShopsListState {
       luxuryLevel: luxuryLevel ?? this.luxuryLevel,
       verifiedOnly: verifiedOnly ?? this.verifiedOnly,
       sortBy: sortBy ?? this.sortBy,
+      seed: seed ?? this.seed,
     );
   }
 
@@ -67,6 +73,7 @@ class NearYouShopsListState {
       luxuryLevel: null,
       verifiedOnly: false,
       sortBy: 'rating',
+      seed: 0,
     );
   }
 }
@@ -115,6 +122,9 @@ class NearYouShopsList extends _$NearYouShopsList {
         verifiedOnly ?? currentState?.verifiedOnly ?? false;
     final effectiveSortBy = sortBy ?? currentState?.sortBy ?? 'rating';
 
+    // Capture a fresh seed for this page-1 load so pagination stays stable.
+    final seed = ref.read(discoverySeedProvider);
+
     state = const AsyncValue.loading();
 
     try {
@@ -128,6 +138,7 @@ class NearYouShopsList extends _$NearYouShopsList {
         verifiedOnly: effectiveVerifiedOnly,
         sortBy: effectiveSortBy,
         limit: AppConstants.shopsPerPage,
+        seed: seed,
       );
 
       final hasReachedMax = result.items.isEmpty || result.nextCursor == null;
@@ -141,6 +152,7 @@ class NearYouShopsList extends _$NearYouShopsList {
           luxuryLevel: effectiveLuxuryLevel,
           verifiedOnly: effectiveVerifiedOnly,
           sortBy: effectiveSortBy,
+          seed: seed,
         ),
       );
     } catch (e, stack) {
@@ -212,6 +224,7 @@ class NearYouShopsList extends _$NearYouShopsList {
         verifiedOnly: data.verifiedOnly,
         sortBy: data.sortBy,
         limit: AppConstants.shopsPerPage,
+        seed: data.seed,
       );
 
       final seen = <String>{...data.shops.map((s) => s.id)};

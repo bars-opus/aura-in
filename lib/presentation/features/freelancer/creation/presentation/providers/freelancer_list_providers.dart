@@ -1,5 +1,6 @@
 // lib/features/freelancer/presentation/providers/freelancer_list_providers.dart
 
+import 'package:nano_embryo/presentation/features/discover/providers/discovery_seed_provider.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/repositories/supabase_freelancer_repository.dart';
 import 'package:nano_embryo/presentation/features/freelancer/enums/freelancer_category_mapper.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
@@ -19,6 +20,9 @@ class FreelancerListState {
   final String? errorMessage;
   final bool hasReachedMax;
 
+  /// Seed captured at first-page load; held constant so offset pagination stays stable.
+  final int seed;
+
   FreelancerListState({
     required this.freelancers,
     this.nextOffset,
@@ -26,6 +30,7 @@ class FreelancerListState {
     this.hasError = false,
     this.errorMessage,
     this.hasReachedMax = false,
+    this.seed = 0,
   });
 
   FreelancerListState copyWith({
@@ -35,6 +40,7 @@ class FreelancerListState {
     bool? hasError,
     String? errorMessage,
     bool? hasReachedMax,
+    int? seed,
   }) {
     return FreelancerListState(
       freelancers: freelancers ?? this.freelancers,
@@ -43,6 +49,7 @@ class FreelancerListState {
       hasError: hasError ?? this.hasError,
       errorMessage: errorMessage ?? this.errorMessage,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      seed: seed ?? this.seed,
     );
   }
 
@@ -54,6 +61,7 @@ class FreelancerListState {
       hasError: false,
       errorMessage: null,
       hasReachedMax: false,
+      seed: 0,
     );
   }
 }
@@ -83,6 +91,9 @@ class TopRatedFreelancersList extends _$TopRatedFreelancersList {
           selectedCategory,
         );
 
+    // Capture a fresh seed for this page-1 load so pagination stays stable.
+    final seed = ref.read(discoverySeedProvider);
+
     state = const AsyncValue.loading();
 
     try {
@@ -92,6 +103,7 @@ class TopRatedFreelancersList extends _$TopRatedFreelancersList {
         offset: 0,
         limit: 20,
         freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
+        seed: seed,
       );
 
       state = AsyncValue.data(
@@ -100,6 +112,7 @@ class TopRatedFreelancersList extends _$TopRatedFreelancersList {
           nextOffset: result.nextOffset,
           isLoading: false,
           hasReachedMax: result.nextOffset == null,
+          seed: seed,
         ),
       );
     } catch (e, stack) {
@@ -139,6 +152,7 @@ class TopRatedFreelancersList extends _$TopRatedFreelancersList {
         offset: data.nextOffset ?? 0,
         limit: 20,
         freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
+        seed: data.seed,
       );
 
       final seen = <String>{...data.freelancers.map((f) => f.id)};
@@ -198,6 +212,9 @@ class NearbyFreelancersList extends _$NearbyFreelancersList {
           selectedCategory,
         );
 
+    // Capture a fresh seed for this page-1 load so pagination stays stable.
+    final seed = ref.read(discoverySeedProvider);
+
     state = const AsyncValue.loading();
 
     try {
@@ -208,6 +225,7 @@ class NearbyFreelancersList extends _$NearbyFreelancersList {
         offset: 0,
         limit: 20,
         freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
+        seed: seed,
       );
 
       state = AsyncValue.data(
@@ -216,6 +234,7 @@ class NearbyFreelancersList extends _$NearbyFreelancersList {
           nextOffset: result.nextOffset,
           isLoading: false,
           hasReachedMax: result.nextOffset == null,
+          seed: seed,
         ),
       );
     } catch (e, stack) {
@@ -256,6 +275,7 @@ class NearbyFreelancersList extends _$NearbyFreelancersList {
         offset: data.nextOffset ?? 0,
         limit: 20,
         freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
+        seed: data.seed,
       );
 
       final seen = <String>{...data.freelancers.map((f) => f.id)};
