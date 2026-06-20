@@ -41,6 +41,7 @@ abstract class ProductRepository {
     required double price,
     required List<String> images,
     required String category,
+    required List<String> shopTypes,
     int stockQuantity = 0,
   });
 
@@ -53,6 +54,7 @@ abstract class ProductRepository {
     String? category,
     bool? isActive,
     int? stockQuantity,
+    List<String>? shopTypes,
   });
 
   Future<void> deleteProduct(String productId);

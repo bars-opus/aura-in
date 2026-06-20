@@ -227,6 +227,7 @@ class SupabaseProductRepository implements ProductRepository {
     required double price,
     required List<String> images,
     required String category,
+    required List<String> shopTypes,
     int stockQuantity = 0,
   }) async {
     try {
@@ -239,6 +240,7 @@ class SupabaseProductRepository implements ProductRepository {
             'price': price,
             'images': images,
             'category': category,
+            'shop_types': shopTypes,
             'is_active': true,
             'stock_quantity': stockQuantity,
           })
@@ -262,6 +264,7 @@ class SupabaseProductRepository implements ProductRepository {
     String? category,
     bool? isActive,
     int? stockQuantity,
+    List<String>? shopTypes,
   }) async {
     try {
       final updateData = <String, dynamic>{
@@ -272,6 +275,7 @@ class SupabaseProductRepository implements ProductRepository {
         if (category != null) 'category': category,
         if (isActive != null) 'is_active': isActive,
         if (stockQuantity != null) 'stock_quantity': stockQuantity,
+        if (shopTypes != null) 'shop_types': shopTypes,
         'updated_at': DateTime.now().toIso8601String(),
       };
 
