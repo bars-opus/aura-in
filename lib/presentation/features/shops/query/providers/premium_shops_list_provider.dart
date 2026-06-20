@@ -91,11 +91,9 @@ class PremiumShopsList extends _$PremiumShopsList {
     return Future.value(PremiumShopsListState.initial());
   }
 
-  /// Fetches a page of premium shops using the quality-ranked non-spatial
-  /// view. Premium = best luxury shops platform-wide; radius is not a filter
-  /// here (that's NearYou's job). Radius changes still trigger a refetch so
-  /// the filter-modal radius value is persisted globally, but the query itself
-  /// is always non-spatial — matching what PremiumShopsHorizontal shows.
+  /// Fetches a page of premium shops. The default-order path uses the seeded
+  /// discover_premium_shops RPC; explicit sortBy='name'/'rating' falls back
+  /// to the view query so user-chosen sorts are still honoured.
   Future<SearchPaginatedResult<ShopListItemDTO>> _fetchPage({
     required String shopType,
     String? cursor,
@@ -104,6 +102,7 @@ class PremiumShopsList extends _$PremiumShopsList {
     String? sortBy,
   }) async {
     final repository = ref.read(shopRepositoryProvider);
+    final seed = ref.read(discoverySeedProvider);
     return repository.getPremiumShopsPaginated(
       shopType: shopType,
       luxuryLevel: luxuryLevel,
@@ -111,6 +110,7 @@ class PremiumShopsList extends _$PremiumShopsList {
       sortBy: sortBy,
       cursor: cursor,
       limit: AppConstants.shopsPerPage,
+      seed: seed,
     );
   }
 

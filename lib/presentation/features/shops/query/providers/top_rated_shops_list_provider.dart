@@ -86,10 +86,9 @@ class TopRatedShopsList extends _$TopRatedShopsList {
     return Future.value(TopRatedShopsListState.initial());
   }
 
-  /// Fetches a page of top-rated shops using the quality-ranked non-spatial
-  /// view. Top-rated = highest-rated shops platform-wide; radius is not a
-  /// filter here (that's NearYou's job). Matches what TopRatedShopsHorizontal
-  /// shows so the "See all" screen is consistent with the horizontal preview.
+  /// Fetches a page of top-rated shops. The default-order path uses the seeded
+  /// discover_top_rated_shops RPC; explicit sortBy='name'/'rating' falls back
+  /// to the view query so user-chosen sorts are still honoured.
   Future<SearchPaginatedResult<ShopListItemDTO>> _fetchPage({
     required String shopType,
     String? cursor,
@@ -98,6 +97,7 @@ class TopRatedShopsList extends _$TopRatedShopsList {
     String? sortBy,
   }) async {
     final repository = ref.read(shopRepositoryProvider);
+    final seed = ref.read(discoverySeedProvider);
     return repository.getTopRatedShopsPaginated(
       shopType: shopType,
       luxuryLevel: luxuryLevel,
@@ -105,6 +105,7 @@ class TopRatedShopsList extends _$TopRatedShopsList {
       sortBy: sortBy,
       cursor: cursor,
       limit: AppConstants.shopsPerPage,
+      seed: seed,
     );
   }
 

@@ -173,11 +173,12 @@ class SupabaseShopRepository implements ShopRepository {
     String? luxuryLevel,
     UserLocation? userLocation,
     int limit = 10,
+    int seed = 0,
   }) async {
     final clampedLimit = limit.clamp(1, 50);
 
     if (userLocation == null) {
-      return _getPremiumShopsUnsorted(shopType, luxuryLevel, clampedLimit);
+      return _getPremiumShopsSeeded(shopType, luxuryLevel, clampedLimit, seed);
     }
 
     // Try distance-sorted RPC first; fall back to unsorted on persistent failure
@@ -249,44 +250,39 @@ class SupabaseShopRepository implements ShopRepository {
         },
       );
     } on RepositoryException {
-      // RPC failed after retries — log was already emitted, fall back gracefully.
-      return _getPremiumShopsUnsorted(shopType, luxuryLevel, clampedLimit);
+      // RPC failed after retries — log was already emitted, fall back to seeded.
+      return _getPremiumShopsSeeded(shopType, luxuryLevel, clampedLimit, seed);
     }
   }
 
-  Future<List<ShopListItemDTO>> _getPremiumShopsUnsorted(
+  /// Default (non-distance) path: uses discover_premium_shops RPC for seeded
+  /// shuffle. Falls back to a raw view query on RPC error so the screen never
+  /// goes blank.
+  Future<List<ShopListItemDTO>> _getPremiumShopsSeeded(
     String shopType,
     String? luxuryLevel,
     int limit,
+    int seed,
   ) {
     return runRepoQuery(
-      opName: 'getPremiumShops.unsorted',
+      opName: 'getPremiumShops.seeded',
       userMessage: "Couldn't load premium shops. Please try again.",
       () async {
-        var query = _client
-            .from('shops_with_cover')
-            .select('''
-            id,
-            shop_name,
-            average_rating,
-            number_clients_worked,
-            luxury_level,
-            verified,
-            shop_type,
-            cover_image_url
-          ''')
-            .eq('shop_type', shopType);
+        final response = await _client.rpc(
+          'discover_premium_shops',
+          params: {
+            'p_seed': seed,
+            'p_shop_type': shopType,
+            'p_luxury_level': luxuryLevel,
+            'p_limit': limit,
+            'p_offset': 0,
+          },
+        );
 
-        if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
-          query = query.eq('luxury_level', luxuryLevel);
-        } else {
-          query = query.inFilter('luxury_level', _premiumLuxuryLevels);
-        }
-
-        final response = await query.limit(limit);
+        final List<dynamic> data = response as List<dynamic>;
 
         return _dedupe(
-          response
+          data
               .map(
                 (json) => ShopListItemDTO(
                   id: json['id'] as String,
@@ -316,56 +312,102 @@ class SupabaseShopRepository implements ShopRepository {
     int limit = 20,
     bool? verifiedOnly,
     String? sortBy,
+    int seed = 0,
   }) {
     return runRepoQuery(
       opName: 'getPremiumShopsPaginated',
       userMessage: "Couldn't load premium shops. Please try again.",
       () async {
-        dynamic query = _client
-            .from('shops_with_cover')
-            .select('''
-            id,
-            shop_name,
-            average_rating,
-            number_clients_worked,
-            luxury_level,
-            verified,
-            shop_type,
-            cover_image_url
-          ''')
-            .eq('shop_type', shopType);
-
-        if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
-          query = query.eq('luxury_level', luxuryLevel);
-        } else {
-          query = query.inFilter('luxury_level', _premiumLuxuryLevels);
-        }
-
-        if (verifiedOnly == true) {
-          query = query.eq('verification_status', 'approved');
-        }
-
-        // Sort with id tie-break so offset pagination is stable.
-        switch (sortBy) {
-          case 'name':
-            query = query.order('shop_name', ascending: true).order('id');
-            break;
-          case 'rating':
-          default:
-            query =
-                query.order('average_rating', ascending: false).order('id');
-            break;
-        }
-
         final offset = int.tryParse(cursor ?? '') ?? 0;
         final clampedLimit = limit.clamp(1, 50);
-        final response =
-            await query.range(offset, offset + clampedLimit - 1)
-                as PostgrestList;
 
-        final rawCount = response.length;
+        // Explicit sort paths (name / rating) keep the old view query so the
+        // user-chosen sort is honoured. The default path (null / anything else)
+        // uses the seeded RPC so browse order is shuffled per session.
+        if (sortBy == 'name' || sortBy == 'rating') {
+          dynamic query = _client
+              .from('shops_with_cover')
+              .select('''
+              id,
+              shop_name,
+              average_rating,
+              number_clients_worked,
+              luxury_level,
+              verified,
+              shop_type,
+              cover_image_url
+            ''')
+              .eq('shop_type', shopType);
+
+          if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
+            query = query.eq('luxury_level', luxuryLevel);
+          } else {
+            query = query.inFilter('luxury_level', _premiumLuxuryLevels);
+          }
+
+          if (verifiedOnly == true) {
+            query = query.eq('verification_status', 'approved');
+          }
+
+          if (sortBy == 'name') {
+            query = query.order('shop_name', ascending: true).order('id');
+          } else {
+            query = query.order('average_rating', ascending: false).order('id');
+          }
+
+          final response =
+              await query.range(offset, offset + clampedLimit - 1)
+                  as PostgrestList;
+
+          final rawCount = response.length;
+          final shops = _dedupe(
+            response
+                .map(
+                  (json) => ShopListItemDTO(
+                    id: json['id'] as String,
+                    shopName: json['shop_name'] as String,
+                    coverImageUrl: json['cover_image_url'] as String?,
+                    averageRating: (json['average_rating'] as num?)?.toDouble(),
+                    numberClientsWorked: json['number_clients_worked'] as int?,
+                    luxuryLevel: json['luxury_level'] as String?,
+                    distanceKm: null,
+                    verified: json['verified'] as bool? ?? false,
+                    shopType: json['shop_type'] as String?,
+                    isOpen: false,
+                    openStatus: null,
+                  ),
+                )
+                .toList(),
+          );
+
+          final nextCursor = rawCount < clampedLimit
+              ? null
+              : (offset + clampedLimit).toString();
+
+          return SearchPaginatedResult(
+            items: shops,
+            nextCursor: nextCursor,
+            totalCount: 0,
+          );
+        }
+
+        // Default path: seeded shuffle via discover_premium_shops RPC.
+        final response = await _client.rpc(
+          'discover_premium_shops',
+          params: {
+            'p_seed': seed,
+            'p_shop_type': shopType,
+            'p_luxury_level': luxuryLevel,
+            'p_limit': clampedLimit,
+            'p_offset': offset,
+          },
+        );
+
+        final List<dynamic> data = response as List<dynamic>;
+        final rawCount = data.length;
+
         final shops = _dedupe(
-          response
+          data
               .map(
                 (json) => ShopListItemDTO(
                   id: json['id'] as String,
@@ -404,33 +446,32 @@ class SupabaseShopRepository implements ShopRepository {
     double minRating = 4.5,
     int minReviews = 5,
     int limit = 10,
+    int seed = 0,
   }) {
     return runRepoQuery(
       opName: 'getTopRatedShops',
       userMessage: "Couldn't load top rated shops. Please try again.",
       () async {
         final clampedLimit = limit.clamp(1, 50);
-        final response = await _client
-            .from('shops_with_cover')
-            .select('''
-            id,
-            shop_name,
-            average_rating,
-            number_clients_worked,
-            luxury_level,
-            verified,
-            shop_type,
-            cover_image_url
-          ''')
-            .eq('shop_type', shopType)
-            .gte('average_rating', minRating)
-            .gte('number_clients_worked', minReviews)
-            .order('average_rating', ascending: false)
-            .order('id')
-            .limit(clampedLimit);
+
+        // Uses discover_top_rated_shops RPC for seeded shuffle.
+        // minReviews is not a parameter of the RPC (it gates on rating only);
+        // the view already excludes shops with very few ratings via average_rating.
+        final response = await _client.rpc(
+          'discover_top_rated_shops',
+          params: {
+            'p_seed': seed,
+            'p_shop_type': shopType,
+            'p_min_rating': minRating,
+            'p_limit': clampedLimit,
+            'p_offset': 0,
+          },
+        );
+
+        final List<dynamic> data = response as List<dynamic>;
 
         return _dedupe(
-          response
+          data
               .map(
                 (json) => ShopListItemDTO(
                   id: json['id'] as String,
@@ -462,57 +503,104 @@ class SupabaseShopRepository implements ShopRepository {
     int limit = 20,
     bool? verifiedOnly,
     String? sortBy,
+    int seed = 0,
   }) {
     return runRepoQuery(
       opName: 'getTopRatedShopsPaginated',
       userMessage: "Couldn't load top rated shops. Please try again.",
       () async {
-        dynamic query = _client
-            .from('shops_with_cover')
-            .select('''
-            id,
-            shop_name,
-            average_rating,
-            number_clients_worked,
-            luxury_level,
-            verified,
-            shop_type,
-            cover_image_url
-          ''')
-            .eq('shop_type', shopType)
-            .gte('average_rating', minRating)
-            .gte('number_clients_worked', minReviews);
-
-        if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
-          query = query.eq('luxury_level', luxuryLevel);
-        } else {
-          query = query.inFilter('luxury_level', _premiumLuxuryLevels);
-        }
-
-        if (verifiedOnly == true) {
-          query = query.eq('verification_status', 'approved');
-        }
-
-        switch (sortBy) {
-          case 'name':
-            query = query.order('shop_name', ascending: true).order('id');
-            break;
-          case 'rating':
-          default:
-            query =
-                query.order('average_rating', ascending: false).order('id');
-            break;
-        }
-
         final offset = int.tryParse(cursor ?? '') ?? 0;
         final clampedLimit = limit.clamp(1, 50);
-        final response =
-            await query.range(offset, offset + clampedLimit - 1)
-                as PostgrestList;
 
-        final rawCount = response.length;
+        // Explicit sort paths (name / rating) keep the old view query so the
+        // user-chosen sort is honoured. The default path uses the seeded RPC.
+        if (sortBy == 'name' || sortBy == 'rating') {
+          dynamic query = _client
+              .from('shops_with_cover')
+              .select('''
+              id,
+              shop_name,
+              average_rating,
+              number_clients_worked,
+              luxury_level,
+              verified,
+              shop_type,
+              cover_image_url
+            ''')
+              .eq('shop_type', shopType)
+              .gte('average_rating', minRating)
+              .gte('number_clients_worked', minReviews);
+
+          if (luxuryLevel != null && luxuryLevel.isNotEmpty) {
+            query = query.eq('luxury_level', luxuryLevel);
+          } else {
+            query = query.inFilter('luxury_level', _premiumLuxuryLevels);
+          }
+
+          if (verifiedOnly == true) {
+            query = query.eq('verification_status', 'approved');
+          }
+
+          if (sortBy == 'name') {
+            query = query.order('shop_name', ascending: true).order('id');
+          } else {
+            query = query.order('average_rating', ascending: false).order('id');
+          }
+
+          final response =
+              await query.range(offset, offset + clampedLimit - 1)
+                  as PostgrestList;
+
+          final rawCount = response.length;
+          final shops = _dedupe(
+            response
+                .map(
+                  (json) => ShopListItemDTO(
+                    id: json['id'] as String,
+                    shopName: json['shop_name'] as String,
+                    coverImageUrl: json['cover_image_url'] as String?,
+                    averageRating: (json['average_rating'] as num?)?.toDouble(),
+                    numberClientsWorked: json['number_clients_worked'] as int?,
+                    luxuryLevel: json['luxury_level'] as String?,
+                    distanceKm: null,
+                    verified: json['verified'] as bool? ?? false,
+                    shopType: json['shop_type'] as String?,
+                    isOpen: false,
+                    openStatus: null,
+                  ),
+                )
+                .toList(),
+          );
+
+          final nextCursor = rawCount < clampedLimit
+              ? null
+              : (offset + clampedLimit).toString();
+
+          return SearchPaginatedResult(
+            items: shops,
+            nextCursor: nextCursor,
+            totalCount: 0,
+          );
+        }
+
+        // Default path: seeded shuffle via discover_top_rated_shops RPC.
+        final response = await _client.rpc(
+          'discover_top_rated_shops',
+          params: {
+            'p_seed': seed,
+            'p_shop_type': shopType,
+            'p_luxury_level': luxuryLevel,
+            'p_min_rating': minRating,
+            'p_limit': clampedLimit,
+            'p_offset': offset,
+          },
+        );
+
+        final List<dynamic> data = response as List<dynamic>;
+        final rawCount = data.length;
+
         final shops = _dedupe(
-          response
+          data
               .map(
                 (json) => ShopListItemDTO(
                   id: json['id'] as String,
@@ -531,7 +619,7 @@ class SupabaseShopRepository implements ShopRepository {
               .toList(),
         );
 
-        // Compare raw response length (not deduped) — see getPremiumShopsPaginated.
+        // Compare raw response length (not deduped) — see getShops.
         final nextCursor = rawCount < clampedLimit
             ? null
             : (offset + clampedLimit).toString();

@@ -95,3 +95,77 @@ begin
   limit v_limit offset v_offset;
 end;
 $function$;
+
+-- ── discover_premium_shops ───────────────────────────────────────────────────
+-- Returns approved shops that have a non-empty luxury_level (premium = has a
+-- luxury tier). Ordered by seeded shuffle so each session sees a different
+-- permutation; explicit luxury_level filter narrows within the premium set.
+-- NOTE: shops_with_cover does NOT expose verification_status — we join the
+-- base shops table solely for the approval gate (same pattern as discover_shops).
+create or replace function public.discover_premium_shops(
+  p_seed int default 0,
+  p_shop_type text default null,
+  p_luxury_level text default null,
+  p_limit int default 10,
+  p_offset int default 0
+)
+returns table(
+  id uuid, shop_name text, average_rating numeric,
+  number_clients_worked integer, luxury_level text, verified boolean,
+  shop_type text, cover_image_url text
+)
+language plpgsql
+as $function$
+declare
+  v_limit int := least(greatest(coalesce(p_limit, 10), 1), 50);
+  v_offset int := greatest(coalesce(p_offset, 0), 0);
+begin
+  return query
+  select s.id, s.shop_name, s.average_rating, s.number_clients_worked,
+         s.luxury_level, s.verified, s.shop_type, s.cover_image_url
+  from public.shops_with_cover s
+  join public.shops base on base.id = s.id
+  where base.verification_status = 'approved'
+    and (p_shop_type is null or p_shop_type = '' or s.shop_type = p_shop_type)
+    and (p_luxury_level is null or p_luxury_level = '' or s.luxury_level = p_luxury_level)
+    and coalesce(s.luxury_level, '') <> ''  -- premium = has a luxury level
+  order by md5(s.id::text || p_seed::text)
+  limit v_limit offset v_offset;
+end;
+$function$;
+
+-- ── discover_top_rated_shops ─────────────────────────────────────────────────
+-- Returns approved shops with average_rating >= p_min_rating (default 4.0).
+-- Ordered by seeded shuffle; same join-to-base verification gate as above.
+create or replace function public.discover_top_rated_shops(
+  p_seed int default 0,
+  p_shop_type text default null,
+  p_luxury_level text default null,
+  p_min_rating numeric default 4.0,
+  p_limit int default 10,
+  p_offset int default 0
+)
+returns table(
+  id uuid, shop_name text, average_rating numeric,
+  number_clients_worked integer, luxury_level text, verified boolean,
+  shop_type text, cover_image_url text
+)
+language plpgsql
+as $function$
+declare
+  v_limit int := least(greatest(coalesce(p_limit, 10), 1), 50);
+  v_offset int := greatest(coalesce(p_offset, 0), 0);
+begin
+  return query
+  select s.id, s.shop_name, s.average_rating, s.number_clients_worked,
+         s.luxury_level, s.verified, s.shop_type, s.cover_image_url
+  from public.shops_with_cover s
+  join public.shops base on base.id = s.id
+  where base.verification_status = 'approved'
+    and (p_shop_type is null or p_shop_type = '' or s.shop_type = p_shop_type)
+    and (p_luxury_level is null or p_luxury_level = '' or s.luxury_level = p_luxury_level)
+    and s.average_rating >= coalesce(p_min_rating, 4.0)
+  order by md5(s.id::text || p_seed::text)
+  limit v_limit offset v_offset;
+end;
+$function$;
