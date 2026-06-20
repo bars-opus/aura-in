@@ -139,6 +139,19 @@ class _AddContactModalState extends ConsumerState<AddContactModal> {
         child: ListView(
           children: [
             Gap(Spacing.md.h),
+            if (widget.verifyMode) ...[
+              SemanticContainerWidget(
+                content:
+                    'You have to enter a verified phone number to continue. This would be used for communication. ',
+                icon: Icons.phone,
+                title: 'Enter phone number',
+                backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                borderColor: theme.colorScheme.primary,
+                iconColor: theme.colorScheme.primary,
+                textTheme: theme.textTheme,
+              ),
+              Gap(Spacing.md.h),
+            ],
             CardInkWell(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,14 +244,20 @@ class _AddContactModalState extends ConsumerState<AddContactModal> {
                       ),
                       Gap(Spacing.sm.h),
                     ],
+
                     AppButton(
-                      label: _busy
-                          ? 'Please wait...'
-                          : (_codeSent ? 'Verify' : 'Send code'),
-                      onPressed: _busy
-                          ? null
-                          : (_codeSent ? _verifyCode : _sendCode),
+                      elevation: 0,
+                      label:
+                          _busy
+                              ? 'Please wait...'
+                              : (_codeSent ? 'Verify' : 'Send code'),
+                      onPressed:
+                          _busy ? null : (_codeSent ? _verifyCode : _sendCode),
+
+                      size: ButtonSize.small,
                       width: double.infinity,
+                      padding: Spacing.horizontalMd,
+                      height: 40.h,
                     ),
                   ],
                 ],
@@ -389,9 +408,7 @@ class _AddContactModalState extends ConsumerState<AddContactModal> {
       _verifyError = null;
     });
     try {
-      await ref
-          .read(phoneVerificationControllerProvider)
-          .sendCode(_e164Phone!);
+      await ref.read(phoneVerificationControllerProvider).sendCode(_e164Phone!);
       setState(() => _codeSent = true);
     } catch (e) {
       setState(() => _verifyError = 'Could not send code. Please try again.');
