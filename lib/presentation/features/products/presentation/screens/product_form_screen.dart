@@ -3,12 +3,14 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/constants/shop_types.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/utils/image_cropper_platform.dart';
 import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/input_sanitizer.dart';
+import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/no_image_added.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/image_source_dialog.dart';
@@ -43,6 +45,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
   String? _selectedCategory;
   bool _isActive = true;
+  List<String> _selectedShopTypes = [];
+  String? _shopCurrencySymbol;
 
   // Image handling
   final List<String> _existingImageUrls = [];
@@ -63,7 +67,19 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       _selectedCategory = widget.product!.category;
       _isActive = widget.product!.isActive;
       _existingImageUrls.addAll(widget.product!.images);
+      _selectedShopTypes = List.of(widget.product!.shopTypes);
     }
+    _loadShopCurrency();
+  }
+
+  Future<void> _loadShopCurrency() async {
+    final row = await ref
+        .read(supabaseClientProvider)
+        .from('shops')
+        .select('currency_symbol')
+        .eq('id', widget.shopId)
+        .maybeSingle();
+    if (mounted) setState(() => _shopCurrencySymbol = row?['currency_symbol'] as String?);
   }
 
   @override
@@ -97,7 +113,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   // MediaUploadService (see _uploadImageFile). We pick the File here rather
   // than pickAndUpload so images aren't uploaded until the product is saved.
   Future<void> _addImage({required bool fromCamera}) async {
-    final pickedFile = await ref.read(imagePickerServiceProvider).pickImage(
+    final pickedFile = await ref
+        .read(imagePickerServiceProvider)
+        .pickImage(
           fromCamera: fromCamera,
           crop: true,
           cropRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
@@ -127,7 +145,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   Future<String?> _uploadImageFile(File imageFile, String productId) async {
     final ext = imageFile.path.split('.').last.toLowerCase();
     final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
-    final result = await ref.read(mediaUploadServiceProvider).uploadFile(
+    final result = await ref
+        .read(mediaUploadServiceProvider)
+        .uploadFile(
           request: MediaUploadRequest(
             file: imageFile,
             mediaType: MediaType.image,
@@ -171,6 +191,12 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       ).showSnackBar(const SnackBar(content: Text('Please select a category')));
       return;
     }
+    if (_selectedShopTypes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select at least one category type')),
+      );
+      return;
+    }
 
     final price = double.tryParse(_priceController.text);
     if (price == null) return;
@@ -210,6 +236,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           price: price,
           images: allImageUrls,
           category: _selectedCategory!,
+          shopTypes: _selectedShopTypes,
           stockQuantity: stock,
         );
       } else {
@@ -238,6 +265,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           images: allImageUrls,
           category: _selectedCategory,
           isActive: _isActive,
+          shopTypes: _selectedShopTypes,
           stockQuantity: stock,
         );
       }
@@ -261,7 +289,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final state = ref.watch(productFormNotifierProvider);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
 
     return Scaffold(
       backgroundColor: colorScheme.neutral,
@@ -271,7 +298,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           widget.mode == FormMode.create ? 'Add Product' : 'Edit Product',
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface.withOpacity(0.8),
+            color: colorScheme.onSurface.withValues(alpha: 0.8),
           ),
         ),
       ),
@@ -287,141 +314,183 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Product Images Section
-                      Text(
-                        'Product Images',
-                        style: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
+                      CardInkWell(
+                        child: Column(
+                          children: [
+                            // Image Grid
+                            _buildImageGrid(), Gap(Spacing.lg.h),
+
+                            // Add Image Button
+                            if (_existingImageUrls.length +
+                                    _newImageFiles.length <
+                                5)
+                              AppButton(
+                                height: 40.h,
+                                iconData: Icons.add_a_photo,
+                                label: 'Add Image',
+                                onPressed: _showImageSourceDialog,
+                                padding: Spacing.horizontalMd,
+                                variant: ButtonVariant.outline,
+                                size: ButtonSize.small,
+                                width: double.infinity,
+                              ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 8.h),
-
-                      // Image Grid
-                      _buildImageGrid(),
-
-                      // Add Image Button
-                      if (_existingImageUrls.length + _newImageFiles.length < 5)
-                        Padding(
-                          padding: EdgeInsets.only(top: 8.h),
-                          child: OutlinedButton.icon(
-                            onPressed: _showImageSourceDialog,
-                            icon: const Icon(
-                              Icons.add_photo_alternate_outlined,
-                            ),
-                            label: Text('Add Image'),
-                            style: OutlinedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16.w,
-                                vertical: 12.h,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                      SizedBox(height: 24.h),
 
                       // Product Name
-                      AppTextFormField(
-                        controller: _nameController,
-                        label: 'Product Name',
-                        hintText: 'e.g., Premium Hair Pomade',
-                        maxLength: InputSanitizer.maxName,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter product name';
-                          }
-                          if (value.trim().length < 3) {
-                            return 'Name must be at least 3 characters';
-                          }
-                          if (value.length > InputSanitizer.maxName) {
-                            return 'Name cannot exceed ${InputSanitizer.maxName} characters';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 16.h),
+                      CardInkWell(
+                        child: Column(
+                          children: [
+                            AppTextFormField(
+                              controller: _nameController,
+                              label: 'Product Name',
+                              hintText: 'e.g., Premium Hair Pomade',
+                              maxLength: InputSanitizer.maxName,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Please enter product name';
+                                }
+                                if (value.trim().length < 3) {
+                                  return 'Name must be at least 3 characters';
+                                }
+                                if (value.length > InputSanitizer.maxName) {
+                                  return 'Name cannot exceed ${InputSanitizer.maxName} characters';
+                                }
+                                return null;
+                              },
+                            ),
+                            // Description
+                            AppTextFormField(
+                              controller: _descriptionController,
+                              label: 'Description',
+                              hintText: 'Describe your product...',
+                              maxLines: 4,
+                              maxLength: InputSanitizer.maxDescription,
+                              validator: InputSanitizer.optionalLength(
+                                InputSanitizer.maxDescription,
+                                fieldName: 'Description',
+                              ),
+                            ),
 
-                      // Description
-                      AppTextFormField(
-                        controller: _descriptionController,
-                        label: 'Description',
-                        hintText: 'Describe your product...',
-                        maxLines: 4,
-                        maxLength: InputSanitizer.maxDescription,
-                        validator: InputSanitizer.optionalLength(
-                          InputSanitizer.maxDescription,
-                          fieldName: 'Description',
+                            // Shop-type chips
+                            Gap(Spacing.sm.h),
+                            Text(
+                              'Shop Type',
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                            ),
+                            Gap(Spacing.xs.h),
+                            Wrap(
+                              spacing: 8.w,
+                              runSpacing: 8.h,
+                              children: ShopTypes.all.map((type) {
+                                final selected = _selectedShopTypes.contains(type);
+                                return AppFilterChip(
+                                  label: type,
+                                  selected: selected,
+                                  onSelected: (sel) => setState(() {
+                                    if (sel) {
+                                      _selectedShopTypes.add(type);
+                                    } else {
+                                      _selectedShopTypes.remove(type);
+                                    }
+                                  }),
+                                );
+                              }).toList(),
+                            ),
+                            Gap(Spacing.sm.h),
+
+                            // Category Dropdown
+                            DropdownButtonFormField<String>(
+                              value: _selectedCategory,
+                              decoration: InputDecoration(
+                                labelText: 'Category',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                              ),
+                              items:
+                                  ProductCategory.values.map((category) {
+                                    return DropdownMenuItem(
+                                      value: category.name,
+                                      child: Text(
+                                        category.displayName,
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              color: colorScheme.onSurface
+                                                  .withValues(alpha: 0.8),
+                                            ),
+                                      ),
+                                    );
+                                  }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedCategory = value;
+                                });
+                              },
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'Please select a category';
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 16.h),
 
                       // Price
-                      AppTextFormField(
-                        controller: _priceController,
-                        label: 'Price (${Currency.symbol})',
-                        hintText: '0.00',
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter price';
-                          }
-                          final price = double.tryParse(value);
-                          if (price == null || price <= 0) {
-                            return 'Please enter a valid price';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 16.h),
-
-                      // Stock Quantity — REQUIRED for checkout to succeed.
-                      // The DB sets stock_quantity NOT NULL DEFAULT 0, so a
-                      // product saved with 0 here will reject every order
-                      // attempt with "insufficient stock".
-                      AppTextFormField(
-                        controller: _stockController,
-                        label: 'Stock quantity',
-                        hintText: '0',
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter stock quantity';
-                          }
-                          final n = int.tryParse(value.trim());
-                          if (n == null || n < 0) {
-                            return 'Stock must be 0 or more';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 16.h),
-
-                      // Category Dropdown
-                      DropdownButtonFormField<String>(
-                        value: _selectedCategory,
-                        decoration: InputDecoration(
-                          labelText: 'Category',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
+                      CardInkWell(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: AppTextFormField(
+                                controller: _priceController,
+                                label: 'Price (${_shopCurrencySymbol ?? Currency.symbol})',
+                                hintText: '0.00',
+                                keyboardType: TextInputType.number,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter price';
+                                  }
+                                  final price = double.tryParse(value);
+                                  if (price == null || price <= 0) {
+                                    return 'Please enter a valid price';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            Gap(Spacing.sm.w),
+                            // Stock Quantity — REQUIRED for checkout to succeed.
+                            // The DB sets stock_quantity NOT NULL DEFAULT 0, so a
+                            // product saved with 0 here will reject every order
+                            // attempt with "insufficient stock".
+                            Expanded(
+                              flex: 1,
+                              child: AppTextFormField(
+                                controller: _stockController,
+                                label: 'Stock quantity',
+                                hintText: '0',
+                                keyboardType: TextInputType.number,
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Please enter stock quantity';
+                                  }
+                                  final n = int.tryParse(value.trim());
+                                  if (n == null || n < 0) {
+                                    return 'Stock must be 0 or more';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                        items:
-                            ProductCategory.values.map((category) {
-                              return DropdownMenuItem(
-                                value: category.name,
-                                child: Text(category.displayName),
-                              );
-                            }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedCategory = value;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null) return 'Please select a category';
-                          return null;
-                        },
                       ),
-                      SizedBox(height: 16.h),
 
                       // Active Status (Edit mode only)
                       if (widget.mode == FormMode.edit)
@@ -444,10 +513,10 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                           },
                         ),
 
-                      SizedBox(height: 24.h),
-
                       // Save Button
+                      Gap(Spacing.xl),
                       AppButton(
+                        elevation: 0,
                         label:
                             _isSaving
                                 ? 'Saving...'
@@ -455,8 +524,13 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                                     ? 'Create Product'
                                     : 'Save Changes'),
                         onPressed: _isSaving ? null : _saveProduct,
+
+                        size: ButtonSize.small,
                         width: double.infinity,
+                        padding: Spacing.horizontalMd,
+                        height: 40.h,
                       ),
+                      Gap(Spacing.xl),
                     ],
                   ),
                 ),
