@@ -3,7 +3,6 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/utils/image_cropper_platform.dart';
 import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
@@ -11,6 +10,9 @@ import 'package:nano_embryo/presentation/features/products/data/models/product_m
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/input_sanitizer.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/widgets/no_image_added.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/image_source_dialog.dart';
+import 'package:nano_embryo/core/repositories/models/media_upload.dart';
 
 import '../../../../../core/providers/media_ service_providers.dart';
 
@@ -73,25 +75,35 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     super.dispose();
   }
 
-  // Pick image using your existing image picker service
-  Future<void> _pickImage() async {
-    final imagePickerService = ref.read(imagePickerServiceProvider);
-
-    // Show source dialog (camera/gallery)
-    final source = await showDialog<ImageSource>(
+  void _showImageSourceDialog() {
+    BottomSheetUtils.showDocumentationBottomSheet(
       context: context,
-      builder: (context) => _buildImageSourceDialog(),
+      maxHeight: 300.h,
+      widget: ImageSourceDialog(
+        currentCount: _existingImageUrls.length + _newImageFiles.length,
+        onCameraSelected: () {
+          Navigator.pop(context);
+          _addImage(fromCamera: true);
+        },
+        onGallerySelected: () {
+          Navigator.pop(context);
+          _addImage(fromCamera: false);
+        },
+      ),
     );
+  }
 
-    if (source == null) return;
+  // Pick an image into local state. Upload happens on save via
+  // MediaUploadService (see _uploadImageFile). We pick the File here rather
+  // than pickAndUpload so images aren't uploaded until the product is saved.
+  Future<void> _addImage({required bool fromCamera}) async {
+    final pickedFile = await ref.read(imagePickerServiceProvider).pickImage(
+          fromCamera: fromCamera,
+          crop: true,
+          cropRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        );
 
-    final pickedFile = await imagePickerService.pickImage(
-      fromCamera: source == ImageSource.camera,
-      crop: true,
-      cropRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-    );
-
-    if (pickedFile != null) {
+    if (pickedFile != null && mounted) {
       setState(() {
         _newImageFiles.add(pickedFile);
       });
@@ -109,34 +121,37 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     });
   }
 
-  // Upload all new images and return URLs
-  Future<List<String>> _uploadNewImages() async {
+  /// Uploads one image via the shared MediaUploadService to the same
+  /// `product-images` bucket/path the app already uses. Returns the public URL,
+  /// or null on failure (the service catches its own errors).
+  Future<String?> _uploadImageFile(File imageFile, String productId) async {
+    final ext = imageFile.path.split('.').last.toLowerCase();
+    final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
+    final result = await ref.read(mediaUploadServiceProvider).uploadFile(
+          request: MediaUploadRequest(
+            file: imageFile,
+            mediaType: MediaType.image,
+            bucket: 'product-images',
+            customPath: 'products/${widget.shopId}/$productId/$fileName',
+          ),
+          userId: widget.shopId,
+        );
+    return result?.publicUrl;
+  }
+
+  // Upload all new images and return URLs. Throws on any failed upload so the
+  // caller can abort the save instead of persisting a product with missing images.
+  Future<List<String>> _uploadNewImages(String productId) async {
     if (_newImageFiles.isEmpty) return [];
 
     setState(() => _isUploadingImages = true);
-
-    final repository = ref.read(productRepositoryProvider);
     final List<String> uploadedUrls = [];
-
     try {
       for (final imageFile in _newImageFiles) {
-        // For new products, we'll use a temporary ID or create product first
-        // Option 1: Create product first without images, then update
-        // Option 2: Use shopId only and associate later
-        // We'll do Option 2: Use shopId and a placeholder, then update after product creation
-
-        // For now, if we have a product ID (edit mode), use it
-        // For create mode, we'll handle differently in _saveProduct
-        final productId =
-            widget.mode == FormMode.edit && widget.product != null
-                ? widget.product!.id
-                : 'temp'; // Temporary - will be updated after product creation
-
-        final url = await repository.uploadProductImage(
-          shopId: widget.shopId,
-          productId: productId,
-          imageFile: imageFile,
-        );
+        final url = await _uploadImageFile(imageFile, productId);
+        if (url == null) {
+          throw ProductImageUploadException('Failed to upload image.');
+        }
         uploadedUrls.add(url);
       }
       return uploadedUrls;
@@ -170,36 +185,28 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     try {
       if (widget.mode == FormMode.create) {
         if (_newImageFiles.isNotEmpty) {
-          setState(() => _isUploadingImages = true);
           try {
-            final repository = ref.read(productRepositoryProvider);
-            for (final imageFile in _newImageFiles) {
-              final url = await repository.uploadProductImage(
-                shopId: widget.shopId,
-                productId: 'temp_${DateTime.now().millisecondsSinceEpoch}',
-                imageFile: imageFile,
-              );
-              allImageUrls.add(url);
-            }
+            final newUrls = await _uploadNewImages(
+              'temp_${DateTime.now().millisecondsSinceEpoch}',
+            );
+            allImageUrls.addAll(newUrls);
           } on ProductImageUploadException catch (e) {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(e.message)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(e.message)));
             }
             return;
-          } finally {
-            if (mounted) setState(() => _isUploadingImages = false);
           }
         }
 
-        final cleanedDescription =
-            InputSanitizer.clean(_descriptionController.text);
+        final cleanedDescription = InputSanitizer.clean(
+          _descriptionController.text,
+        );
         await notifier.createProduct(
           shopId: widget.shopId,
           name: InputSanitizer.clean(_nameController.text),
-          description:
-              cleanedDescription.isEmpty ? null : cleanedDescription,
+          description: cleanedDescription.isEmpty ? null : cleanedDescription,
           price: price,
           images: allImageUrls,
           category: _selectedCategory!,
@@ -208,25 +215,25 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       } else {
         if (_newImageFiles.isNotEmpty) {
           try {
-            final newUrls = await _uploadNewImages();
+            final newUrls = await _uploadNewImages(widget.product!.id);
             allImageUrls.addAll(newUrls);
           } on ProductImageUploadException catch (e) {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(e.message)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(e.message)));
             }
             return;
           }
         }
 
-        final cleanedDescription =
-            InputSanitizer.clean(_descriptionController.text);
+        final cleanedDescription = InputSanitizer.clean(
+          _descriptionController.text,
+        );
         await notifier.updateProduct(
           productId: widget.product!.id,
           name: InputSanitizer.clean(_nameController.text),
-          description:
-              cleanedDescription.isEmpty ? null : cleanedDescription,
+          description: cleanedDescription.isEmpty ? null : cleanedDescription,
           price: price,
           images: allImageUrls,
           category: _selectedCategory,
@@ -240,9 +247,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       if (result.success) {
         Navigator.pop(context, true);
       } else if (result.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result.error!)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(result.error!)));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -253,26 +260,22 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(productFormNotifierProvider);
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
     return Scaffold(
+      backgroundColor: colorScheme.neutral,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Text(
           widget.mode == FormMode.create ? 'Add Product' : 'Edit Product',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface.withOpacity(0.8),
+          ),
         ),
-        actions:
-            widget.mode == FormMode.edit
-                ? [
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed:
-                        state.isLoading
-                            ? null
-                            : () => _showDeleteConfirmation(context),
-                  ),
-                ]
-                : null,
       ),
+
       body:
           state.isLoading || _isUploadingImages
               ? Center(child: const CircularLoadingIndicator())
@@ -300,7 +303,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                         Padding(
                           padding: EdgeInsets.only(top: 8.h),
                           child: OutlinedButton.icon(
-                            onPressed: _pickImage,
+                            onPressed: _showImageSourceDialog,
                             icon: const Icon(
                               Icons.add_photo_alternate_outlined,
                             ),
@@ -428,8 +431,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                             'Inactive products won\'t appear in marketplace',
                             style: TextStyle(
                               fontSize: 12.sp,
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.6),
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
                             ),
                           ),
                           value: _isActive,
@@ -444,11 +448,12 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
                       // Save Button
                       AppButton(
-                        label: _isSaving
-                            ? 'Saving...'
-                            : (widget.mode == FormMode.create
-                                ? 'Create Product'
-                                : 'Save Changes'),
+                        label:
+                            _isSaving
+                                ? 'Saving...'
+                                : (widget.mode == FormMode.create
+                                    ? 'Create Product'
+                                    : 'Save Changes'),
                         onPressed: _isSaving ? null : _saveProduct,
                         width: double.infinity,
                       ),
@@ -463,34 +468,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final totalImages = _existingImageUrls.length + _newImageFiles.length;
 
     if (totalImages == 0) {
-      return Container(
-        height: 120.h,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300, width: 1),
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.image_outlined,
-                size: 48.w,
-                color: Colors.grey.shade400,
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                'No images added',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 14.sp),
-              ),
-              Text(
-                'Tap "Add Image" to upload',
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 12.sp),
-              ),
-            ],
-          ),
-        ),
-      );
+      return NoImageAdded();
     }
 
     return GridView.builder(
@@ -547,25 +525,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildImageSourceDialog() {
-    return SafeArea(
-      child: Wrap(
-        children: [
-          ListTile(
-            leading: const Icon(Icons.camera_alt),
-            title: const Text('Take a photo'),
-            onTap: () => Navigator.pop(context, ImageSource.camera),
-          ),
-          ListTile(
-            leading: const Icon(Icons.photo_library),
-            title: const Text('Choose from gallery'),
-            onTap: () => Navigator.pop(context, ImageSource.gallery),
-          ),
-        ],
-      ),
     );
   }
 
