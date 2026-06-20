@@ -60,6 +60,7 @@ begin
   if auth.role() <> 'service_role' then
     if tg_op = 'INSERT' then
       if new.verification_status is distinct from 'pending'
+         or new.verification_submitted_at is not null
          or new.verification_reviewed_by is not null
          or new.verification_reviewed_at is not null
          or new.verification_rejection_reason is not null then
@@ -84,27 +85,29 @@ create trigger trg_guard_verification_cols
   before insert or update on public.shops
   for each row execute function public.guard_verification_columns();
 
--- shops.verified is derived from verification_status and must also be
--- client-write-protected (added here for shops only):
-create or replace function public.guard_shop_verified_column()
+-- shops.verified is now a derived column, always computed from verification_status
+-- by the sync trigger below. No separate client-write guard is needed: clients
+-- cannot change verification_status (guarded above), so verified is effectively
+-- protected and always consistent.
+
+drop trigger if exists trg_guard_shop_verified on public.shops;
+drop function if exists public.guard_shop_verified_column();
+
+-- Sync trigger: keep shops.verified = (verification_status = 'approved') always.
+-- Named trg_zsync_* so it fires AFTER the guard triggers (alphabetical BEFORE order).
+create or replace function public.sync_shop_verified_column()
 returns trigger
 language plpgsql
-security definer
-set search_path = public
 as $$
 begin
-  if auth.role() <> 'service_role'
-     and tg_op = 'UPDATE'
-     and new.verified is distinct from old.verified then
-    raise exception 'verified is read-only for clients';
-  end if;
+  new.verified := (new.verification_status = 'approved');
   return new;
 end;
 $$;
-drop trigger if exists trg_guard_shop_verified on public.shops;
-create trigger trg_guard_shop_verified
-  before update on public.shops
-  for each row execute function public.guard_shop_verified_column();
+drop trigger if exists trg_zsync_shop_verified on public.shops;
+create trigger trg_zsync_shop_verified
+  before insert or update on public.shops
+  for each row execute function public.sync_shop_verified_column();
 
 drop trigger if exists trg_guard_verification_cols on public.workers;
 create trigger trg_guard_verification_cols
@@ -155,7 +158,7 @@ create policy workers_public_read on public.workers
 -- 6. Products gated through their shop's verification.
 drop policy if exists products_read_active on public.products;
 create policy products_read_active on public.products
-  for select
+  for select to anon, authenticated
   using (
     is_active = true
     and exists (
@@ -166,3 +169,9 @@ create policy products_read_active on public.products
         and s.verification_status = 'approved'
     )
   );
+
+-- 7. Indexes for verification_status lookups (RLS + admin queries).
+create index if not exists idx_shops_verification_status
+  on public.shops (verification_status);
+create index if not exists idx_workers_verification_status
+  on public.workers (verification_status);
