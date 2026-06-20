@@ -15,9 +15,15 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'marketplace_providers.g.dart';
 part 'marketplace_providers.freezed.dart';
 
-// Maps a discover-tab category value to a [shopTypes] filter list.
-// Returns null for categories with no product equivalent → show all products.
+// Maps a discover-tab category value to a [shopTypes] filter list for products.
+// Returns null (→ show all products) for: categories with no product equivalent
+// (lash_studio/waxing/massage), unknown/empty values, AND the untouched default
+// 'salon'. The SelectedServiceCategory provider defaults to 'salon' before the
+// user taps any tab; on a cold Buy tab we show the full marketplace rather than
+// silently hiding all non-Salon inventory. A deliberate Salon tap therefore also
+// shows all — an acceptable superset for the default/most-common category.
 List<String>? _shopTypesFilter(String selectedCategory) {
+  if (selectedCategory == 'salon') return null; // default → show all
   final label = ShopTypes.labelForTab(selectedCategory);
   return label == null ? null : [label];
 }
