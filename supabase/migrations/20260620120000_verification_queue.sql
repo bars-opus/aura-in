@@ -32,10 +32,24 @@ do $$ begin
     check (verification_status in ('pending','approved','rejected'));
 exception when duplicate_object then null; end $$;
 
--- 2. Backfill: existing verified shops are treated as already approved.
+-- 2. Backfill: existing producers are grandfathered as already approved so the
+-- new gating RLS does not hide live data on deploy.
+-- Shops that were previously verified → approved.
 update public.shops
   set verification_status = 'approved'
   where verified = true and verification_status <> 'approved';
+-- All other existing shops (created before this feature) are grandfathered too,
+-- so currently-live unverified shops are not suddenly removed from discovery.
+-- New shops created after this migration still default to 'pending' via the
+-- column default + submit-on-create flow.
+update public.shops
+  set verification_status = 'approved'
+  where created_at < now() and verification_status = 'pending';
+-- Existing workers/freelancers have no prior verified flag; grandfather all
+-- pre-existing rows to approved so they remain discoverable.
+update public.workers
+  set verification_status = 'approved'
+  where created_at < now() and verification_status = 'pending';
 
 -- 3. Admin allowlist
 create table if not exists public.app_admins (

@@ -60,16 +60,39 @@ final pendingVerificationsProvider =
     ));
   }
 
-  for (final r in (workerRows as List)) {
+  // Freelancer/worker documents are stored in shop_media keyed by shop_id =
+  // worker.id (see supabase_freelancer_repository). There is no declared FK
+  // for an embed, so fetch them in one batched query and group by shop_id.
+  final workerIds =
+      (workerRows as List).map((r) => (r as Map)['id'] as String).toList();
+  final Map<String, List<String>> workerDocs = {};
+  if (workerIds.isNotEmpty) {
+    final mediaRows = await client
+        .from('shop_media')
+        .select('shop_id, url, media_type')
+        .inFilter('shop_id', workerIds)
+        .eq('media_type', 'document');
+    for (final m in (mediaRows as List)) {
+      final mm = m as Map;
+      final sid = mm['shop_id'] as String?;
+      final url = mm['url'] as String?;
+      if (sid == null || url == null) continue;
+      (workerDocs[sid] ??= []).add(url);
+    }
+  }
+
+  for (final r in workerRows) {
     final p = (r['profiles'] as Map?) ?? {};
+    final id = r['id'] as String;
     out.add(VerificationSubmission(
       entityType: 'worker',
-      entityId: r['id'] as String,
+      entityId: id,
       ownerName: (p['display_name'] ?? p['username'] ?? 'Unknown') as String,
       ownerAvatarUrl: p['avatar_url'] as String?,
       submittedAt: r['verification_submitted_at'] == null
           ? null
           : DateTime.tryParse(r['verification_submitted_at'] as String),
+      documentUrls: workerDocs[id] ?? const [],
     ));
   }
 
