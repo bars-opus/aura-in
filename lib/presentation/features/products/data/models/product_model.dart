@@ -19,6 +19,10 @@ class ProductModel extends Equatable {
   // Optional joined fields from `shops!inner(...)` selects.
   final String? shopName;
   final bool? shopVerified;
+  final List<String> shopTypes;
+  final String? shopCurrencySymbol;
+  final String? shopCurrencyCode;
+  final double? distanceKm;
 
   const ProductModel({
     required this.id,
@@ -37,6 +41,10 @@ class ProductModel extends Equatable {
     required this.updatedAt,
     this.shopName,
     this.shopVerified,
+    this.shopTypes = const [],
+    this.shopCurrencySymbol,
+    this.shopCurrencyCode,
+    this.distanceKm,
   });
 
   /// Parses a row in the snake_case shape returned by Supabase.
@@ -61,6 +69,10 @@ class ProductModel extends Equatable {
       updatedAt: DateTime.parse(json['updated_at'] as String),
       shopName: shop?['shop_name'] as String?,
       shopVerified: shop?['verified'] as bool?,
+      shopTypes: (json['shop_types'] as List?)?.map((e) => e as String).toList() ?? const [],
+      shopCurrencySymbol: shop?['currency_symbol'] as String?,
+      shopCurrencyCode: shop?['currency'] as String?,
+      distanceKm: (json['distance_km'] as num?)?.toDouble(),
     );
   }
 
@@ -79,6 +91,7 @@ class ProductModel extends Equatable {
         'review_count': reviewCount,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
+        'shop_types': shopTypes,
       };
 
   bool get isInStock => stockQuantity > 0;
@@ -99,6 +112,12 @@ class ProductModel extends Equatable {
         reviewCount,
         createdAt,
         updatedAt,
+        shopName,
+        shopVerified,
+        shopTypes,
+        shopCurrencySymbol,
+        shopCurrencyCode,
+        distanceKm,
       ];
 }
 
