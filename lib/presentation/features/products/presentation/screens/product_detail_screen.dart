@@ -12,6 +12,7 @@ import 'package:nano_embryo/presentation/features/products/data/utils/marketplac
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
+import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_image_pageview.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/providers/product_review_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/widgets/product_review_display_widget.dart';
 
@@ -48,7 +49,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     setState(() => _isAddingToCart = true);
 
     try {
-      final shopName = product.shopName ??
+      final shopName =
+          product.shopName ??
           (await ref.read(shopNameByIdProvider(product.shopId).future));
 
       final item = CartItemModel(
@@ -86,12 +88,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         return;
       }
     } on MarketplaceException catch (e, stack) {
-      MarketplaceLogger.warn('add to cart rejected',
-          error: e, stack: stack);
+      MarketplaceLogger.warn('add to cart rejected', error: e, stack: stack);
       _toast(e.message);
     } catch (e, stack) {
-      MarketplaceLogger.error('add to cart failed',
-          error: e, stack: stack);
+      MarketplaceLogger.error('add to cart failed', error: e, stack: stack);
       _toast('Failed to add to cart');
     } finally {
       if (mounted) setState(() => _isAddingToCart = false);
@@ -104,14 +104,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   Widget _imagePlaceholder() => Container(
-        color: Colors.grey.shade200,
-        alignment: Alignment.center,
-        child: Icon(
-          Icons.image_outlined,
-          size: 80.w,
-          color: Colors.grey.shade400,
-        ),
-      );
+    color: Colors.grey.shade200,
+    alignment: Alignment.center,
+    child: Icon(Icons.image_outlined, size: 80.w, color: Colors.grey.shade400),
+  );
 
   String _buttonLabel(ProductModel product) {
     if (_isAddingToCart) return MarketplaceStrings.addingToCart;
@@ -122,8 +118,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   Future<bool?> _confirmReplaceCart() => showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
+    context: context,
+    builder:
+        (ctx) => AlertDialog(
           title: const Text(MarketplaceStrings.replaceCartTitle),
           content: const Text(MarketplaceStrings.replaceCartBody),
           actions: [
@@ -137,7 +134,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             ),
           ],
         ),
-      );
+  );
 
   // Add this method to your ProductDetailScreen
   Widget _buildReviewsSection(String productId) {
@@ -271,21 +268,27 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 expandedHeight: 300.h,
                 pinned: true,
                 flexibleSpace: FlexibleSpaceBar(
-                  background: product.images.isNotEmpty
-                      ? Image.network(
-                          product.images.first,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _imagePlaceholder(),
-                          loadingBuilder: (_, child, progress) =>
-                              progress == null
-                                  ? child
-                                  : Container(
-                                      color: Colors.grey.shade200,
-                                      alignment: Alignment.center,
-                                      child: const CircularProgressIndicator(),
-                                    ),
-                        )
-                      : _imagePlaceholder(),
+                  background: ShopImagePageview(
+                    isPreview: false,
+                    shopImageUrls: product.images,
+                  ),
+
+                  //  FlexibleSpaceBar(
+                  //   background: product.images.isNotEmpty
+                  //       ? Image.network(
+                  //           product.images.first,
+                  //           fit: BoxFit.cover,
+                  //           errorBuilder: (_, __, ___) => _imagePlaceholder(),
+                  //           loadingBuilder: (_, child, progress) =>
+                  //               progress == null
+                  //                   ? child
+                  //                   : Container(
+                  //                       color: Colors.grey.shade200,
+                  //                       alignment: Alignment.center,
+                  //                       child: const CircularProgressIndicator(),
+                  //                     ),
+                  //         )
+                  // : _imagePlaceholder(),
                 ),
               ),
 
@@ -376,9 +379,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           ),
                           IconButton(
                             icon: const Icon(Icons.add),
-                            onPressed: () {
-                              setState(() => _quantity++);
-                            },
+                            // Cap at available stock — can't add more than exists.
+                            onPressed: _quantity < product.stockQuantity
+                                ? () => setState(() => _quantity++)
+                                : null,
                           ),
                         ],
                       ),
@@ -429,16 +433,18 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             child: Semantics(
               button: true,
               label: _buttonLabel(product),
-              enabled: !(_isAddingToCart ||
-                  !product.isActive ||
-                  product.stockQuantity == 0),
+              enabled:
+                  !(_isAddingToCart ||
+                      !product.isActive ||
+                      product.stockQuantity == 0),
               child: AppButton(
                 label: _buttonLabel(product),
-                onPressed: _isAddingToCart ||
-                        !product.isActive ||
-                        product.stockQuantity == 0
-                    ? null
-                    : () => _addToCart(product),
+                onPressed:
+                    _isAddingToCart ||
+                            !product.isActive ||
+                            product.stockQuantity == 0
+                        ? null
+                        : () => _addToCart(product),
                 width: double.infinity,
               ),
             ),

@@ -57,7 +57,13 @@ class CartState {
 /// not surface the previous user's cart. Sign-out triggers a rebuild
 /// (via ref.watch on currentUserProvider) that re-loads from the new
 /// (or guest) bucket.
-@riverpod
+///
+/// keepAlive: the cart is app-wide state. Without it the autoDispose notifier
+/// is torn down whenever no widget watches it (e.g. navigating away from
+/// ProductDetailScreen back to Discover), so opening CartScreen rebuilds from
+/// `const CartState()` and shows empty until the async storage reload resolves.
+/// Keeping it alive preserves the in-memory cart and a correct badge count.
+@Riverpod(keepAlive: true)
 class CartNotifier extends _$CartNotifier {
   String? _userId;
 
