@@ -17,6 +17,15 @@ class Currency {
   /// Formats an amount as `₦1,234.56`.
   static String format(num amount) => _formatter.format(amount);
 
+  /// Formats with an explicit per-shop currency [currencySymbol]. Falls back to
+  /// the default [symbol] when null/empty. Groups thousands like [format].
+  static String formatWithSymbol(num amount, String? currencySymbol) {
+    final sym = (currencySymbol != null && currencySymbol.isNotEmpty)
+        ? currencySymbol
+        : symbol;
+    return NumberFormat.currency(symbol: sym, decimalDigits: 2).format(amount);
+  }
+
   /// Short formatter without thousands separators — used inside compact
   /// chips/badges where a grouping comma would wrap.
   static String formatCompact(num amount) =>

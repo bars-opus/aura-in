@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 
 class ProductModel extends Equatable {
   final String id;
@@ -46,6 +47,11 @@ class ProductModel extends Equatable {
     this.shopCurrencyCode,
     this.distanceKm,
   });
+
+  /// Price formatted in the owning shop's currency (falls back to the default
+  /// marketplace symbol when the shop currency is unknown).
+  String get formattedPrice =>
+      Currency.formatWithSymbol(price, shopCurrencySymbol);
 
   /// Parses a row in the snake_case shape returned by Supabase.
   /// If the row was selected with a `shops!inner(...)` join the

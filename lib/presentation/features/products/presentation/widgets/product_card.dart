@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
-import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 
 
 class ProductCard extends StatelessWidget {
@@ -25,7 +24,7 @@ class ProductCard extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: 'Product: ${product.name}, ${Currency.format(product.price)}'
+      label: 'Product: ${product.name}, ${product.formattedPrice}'
           '${product.stockQuantity == 0 ? ', out of stock' : ''}'
           '${product.shopVerified == true ? ', from a verified shop' : ''}',
       child: GestureDetector(
@@ -116,7 +115,7 @@ class ProductCard extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        Currency.format(product.price),
+                        product.formattedPrice,
                         style: textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: theme.colorScheme.primary,
