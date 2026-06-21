@@ -165,3 +165,42 @@ final marketplaceProductsPagedProvider = StateNotifierProvider.autoDispose<
     MarketplaceProductsPagedNotifier, PagedListState<ProductModel>>(
   (ref) => MarketplaceProductsPagedNotifier(ref),
 );
+
+// ============================================
+// Discover Buy-tab rails (reuse discover_products via getMarketplaceProducts)
+// ============================================
+
+/// Top-rated = most-ordered products for the discover Buy-tab rail.
+/// No location filter (top sellers everywhere), mirroring topRatedFreelancers.
+final topRatedProductsProvider = FutureProvider<List<ProductModel>>((ref) async {
+  final repo = ref.watch(productRepositoryProvider);
+  final seed = ref.watch(discoverySeedProvider);
+  final selectedCategory = ref.watch(selectedServiceCategoryProvider);
+  return repo.getMarketplaceProducts(
+    sortBy: SortOption.popular,
+    limit: 10,
+    page: 0,
+    seed: seed,
+    shopTypes: _shopTypesFilter(selectedCategory),
+  );
+});
+
+/// Near-you products for the discover Buy-tab rail. Watches the radius slider.
+final nearYouProductsProvider = FutureProvider<List<ProductModel>>((ref) async {
+  final repo = ref.watch(productRepositoryProvider);
+  final seed = ref.watch(discoverySeedProvider);
+  final userLocation = ref.watch(userLocationNotifierProvider);
+  final radiusKm = ref.watch(searchRadiusKmProvider);
+  final selectedCategory = ref.watch(selectedServiceCategoryProvider);
+  if (userLocation == null) return const [];
+  return repo.getMarketplaceProducts(
+    sortBy: SortOption.discover,
+    limit: 10,
+    page: 0,
+    seed: seed,
+    userLat: userLocation.latitude,
+    userLng: userLocation.longitude,
+    radiusKm: radiusKm,
+    shopTypes: _shopTypesFilter(selectedCategory),
+  );
+});
