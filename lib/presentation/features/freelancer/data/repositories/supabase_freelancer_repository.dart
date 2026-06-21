@@ -6,6 +6,7 @@ import 'package:nano_embryo/core/repositories/repository_helpers.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/domain/models/freelancer_draft.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/models/freelancer_details_dto.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/models/nearby_freelancer_dto.dart';
+import 'package:nano_embryo/presentation/features/freelancer/data/repositories/freelancer_repository.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/contact_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/document_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/opening_hours_draft.dart';
@@ -932,6 +933,7 @@ class SupabaseFreelancerRepository {
     double? minRating,
     String sortBy = 'distance',
     int seed = 0,
+    List<String>? tags,
   }) {
     // No location → no nearby search possible. Return empty without erroring.
     if (latitude == 0 || longitude == 0) {
@@ -955,12 +957,44 @@ class SupabaseFreelancerRepository {
             'p_page_limit': clampedLimit,
             'p_page_offset': offset,
             'p_seed': seed,
+            'p_tags': tags,
           },
         );
 
         final List<dynamic> data = response as List<dynamic>;
         return data
             .map((json) => NearbyFreelancerDTO.fromJson(json))
+            .toList();
+      },
+    );
+  }
+
+  /// Distinct freelancer tags (from the `specialties` column) with counts,
+  /// scoped to discoverable freelancers within radius. Empty if no location.
+  Future<List<TagCount>> getFreelancerTags({
+    double? latitude,
+    double? longitude,
+    double? radiusKm,
+  }) {
+    return runRepoQuery(
+      opName: 'getFreelancerTags',
+      userMessage: "Couldn't load tags. Please try again.",
+      () async {
+        final response = await _client.rpc(
+          'freelancer_tags_with_counts',
+          params: {
+            'p_user_lat': latitude,
+            'p_user_lng': longitude,
+            'p_radius_km': radiusKm,
+            'p_limit': 40,
+          },
+        );
+        final List<dynamic> data = response as List<dynamic>;
+        return data
+            .map<TagCount>((row) => (
+                  tag: (row as Map<String, dynamic>)['tag'] as String,
+                  count: (row['count'] as num).toInt(),
+                ))
             .toList();
       },
     );

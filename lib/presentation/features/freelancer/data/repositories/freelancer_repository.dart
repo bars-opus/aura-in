@@ -3,6 +3,9 @@
 import 'package:nano_embryo/presentation/features/freelancer/data/models/nearby_freelancer_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/paginated_result.dart';
 
+/// A freelancer tag and how many discoverable freelancers carry it.
+typedef TagCount = ({String tag, int count});
+
 abstract class FreelancerRepository {
   // Get nearby freelancers (used by all)
   Future<List<NearbyFreelancerDTO>> getNearbyFreelancers({
@@ -15,6 +18,14 @@ abstract class FreelancerRepository {
     List<String>? freelancerTypes,
     double? minRating,
     String sortBy = 'distance',
+    List<String>? tags,
+  });
+
+  /// Distinct freelancer tags with counts, scoped to discoverable freelancers.
+  Future<List<TagCount>> getFreelancerTags({
+    double? latitude,
+    double? longitude,
+    double? radiusKm,
   });
 
   // Get top rated freelancers (paginated for "See All")
