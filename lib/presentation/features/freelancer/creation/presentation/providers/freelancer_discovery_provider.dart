@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/providers/location_provider.dart';
 import 'package:nano_embryo/presentation/features/discover/providers/discovery_seed_provider.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/models/nearby_freelancer_dto.dart';
+import 'package:nano_embryo/presentation/features/freelancer/data/repositories/freelancer_repository.dart'
+    show TagCount;
 import 'package:nano_embryo/presentation/features/freelancer/data/repositories/supabase_freelancer_repository.dart';
 import 'package:nano_embryo/presentation/features/freelancer/enums/freelancer_category_mapper.dart';
+import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/providers/selected_freelancer_tags_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/paginated_result.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/service_category_provider.dart';
@@ -52,6 +55,7 @@ final freelancerDiscoveryProvider = FutureProvider<List<NearbyFreelancerDTO>>((
   final filter = ref.watch(freelancerFilterProvider);
   final repository = ref.watch(freelancerRepositoryProvider);
   final seed = ref.watch(discoverySeedProvider);
+  final selectedTags = ref.watch(selectedFreelancerTagsProvider);
 
   if (userLocation == null) {
     throw Exception('Location not available. Please set your location.');
@@ -69,6 +73,7 @@ final freelancerDiscoveryProvider = FutureProvider<List<NearbyFreelancerDTO>>((
     minRating: filter.minRating,
     sortBy: filter.sortBy,
     seed: seed,
+    tags: selectedTags.isEmpty ? null : selectedTags.toList(),
   );
 });
 
@@ -80,6 +85,7 @@ final topRatedFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((
   final selectedCategory = ref.watch(selectedServiceCategoryProvider);
   final repository = ref.watch(freelancerRepositoryProvider);
   final seed = ref.watch(discoverySeedProvider);
+  final selectedTags = ref.watch(selectedFreelancerTagsProvider);
 
   if (userLocation == null) return [];
   final freelancerTypes =
@@ -94,6 +100,7 @@ final topRatedFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((
     minRating: 4.5,
     sortBy: 'rating',
     seed: seed,
+    tags: selectedTags.isEmpty ? null : selectedTags.toList(),
   );
 });
 
@@ -107,6 +114,7 @@ final nearYouFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((
   final repository = ref.watch(freelancerRepositoryProvider);
   final radiusKm = ref.watch(searchRadiusKmProvider);
   final seed = ref.watch(discoverySeedProvider);
+  final selectedTags = ref.watch(selectedFreelancerTagsProvider);
 
   if (userLocation == null) return [];
   final freelancerTypes =
@@ -120,6 +128,7 @@ final nearYouFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((
     limit: 10,
     sortBy: 'distance',
     seed: seed,
+    tags: selectedTags.isEmpty ? null : selectedTags.toList(),
   );
 });
 
@@ -178,4 +187,18 @@ final hasFreelancersNearbyProvider = FutureProvider<bool>((ref) async {
   );
 
   return freelancers.isNotEmpty;
+});
+
+/// Available freelancer tags (with counts) within the current radius, for the
+/// discover chip row. Empty when no location.
+final freelancerTagsProvider = FutureProvider<List<TagCount>>((ref) async {
+  final userLocation = ref.watch(userLocationNotifierProvider);
+  final radiusKm = ref.watch(searchRadiusKmProvider);
+  final repository = ref.watch(freelancerRepositoryProvider);
+  if (userLocation == null) return const [];
+  return repository.getFreelancerTags(
+    latitude: userLocation.latitude,
+    longitude: userLocation.longitude,
+    radiusKm: radiusKm,
+  );
 });
