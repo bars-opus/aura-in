@@ -307,7 +307,7 @@ class _ProductProviderElement
 }
 
 String _$productFormNotifierHash() =>
-    r'ca61dec0e956bdbaf8f48a14ab3c48b8810a926a';
+    r'eb1be99eb375b537167bee002e06e9ceba11cbdd';
 
 /// See also [ProductFormNotifier].
 @ProviderFor(ProductFormNotifier)
