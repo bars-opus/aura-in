@@ -8,6 +8,8 @@ import 'package:nano_embryo/presentation/features/freelancer/creation/presentati
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/near_you_freelancers_horizontal.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/top_rated_freelancers_horizontal.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/screens/marketplace_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/widgets/near_you_products_horizontal.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/widgets/top_rated_products_horizontal.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/widgets/dummy_search_container.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/discover_shops_widgets/luxury_level_chips.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/discover_shops_widgets/near_you_shops_horizontal.dart';
@@ -180,6 +182,10 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
             SliverGap(Spacing.sm.h),
             const SliverToBoxAdapter(child: TopRatedFreelancersHorizontal()),
             const SliverToBoxAdapter(child: NearYouFreelancersHorizontal()),
+            SliverGap(Spacing.md.h),
+          ] else if (selectedType == ProviderType.buy) ...[
+            const SliverToBoxAdapter(child: TopRatedProductsHorizontal()),
+            const SliverToBoxAdapter(child: NearYouProductsHorizontal()),
             SliverGap(Spacing.md.h),
           ],
 
