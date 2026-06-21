@@ -8,6 +8,8 @@ import 'package:nano_embryo/presentation/features/search/domain/repositories/sho
 import 'package:nano_embryo/presentation/features/search/models/search_paginated_result.dart';
 import 'package:nano_embryo/presentation/features/search/models/search_category.dart';
 import 'package:nano_embryo/presentation/features/search/models/unified_search_result.dart';
+import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
+import 'package:nano_embryo/presentation/features/products/data/repositories/product_repository.dart';
 
 import 'profile_search_repository.dart';
 
@@ -18,14 +20,31 @@ class UnifiedSearchRepository {
   final ShopSearchRepository _shopRepository;
   final ProfileSearchRepository _profileRepository;
   final FreelancerSearchRepository _freelancerRepository;
+  final ProductRepository _productRepository;
 
   UnifiedSearchRepository({
     required ShopSearchRepository shopRepository,
     required ProfileSearchRepository profileRepository,
     required FreelancerSearchRepository freelancerRepository,
+    required ProductRepository productRepository,
   }) : _shopRepository = shopRepository,
        _profileRepository = profileRepository,
-       _freelancerRepository = freelancerRepository;
+       _freelancerRepository = freelancerRepository,
+       _productRepository = productRepository;
+
+  /// Maps a ProductModel to a UnifiedSearchResult. `id` is the product id so a
+  /// result tap can open product detail; price uses the product's shop currency.
+  UnifiedSearchResult _productToResult(ProductModel p) {
+    return UnifiedSearchResult(
+      id: p.id,
+      title: p.name,
+      subtitle: p.formattedPrice,
+      imageUrl: p.images.isNotEmpty ? p.images.first : null,
+      category: SearchCategory.products,
+      relevanceScore: 0,
+      metadata: {'productId': p.id, 'shopId': p.shopId},
+    );
+  }
 
   /// Search all categories and return sections for "All" view
   Future<List<CategorySearchSection>> searchAllSections({
@@ -34,8 +53,9 @@ class UnifiedSearchRepository {
     // Run all searches in parallel
     final results = await Future.wait([
       _searchCategorySection(SearchCategory.shops, params),
-      _searchCategorySection(SearchCategory.profiles, params),
       _searchCategorySection(SearchCategory.freelancers, params),
+      _searchCategorySection(SearchCategory.products, params),
+      _searchCategorySection(SearchCategory.profiles, params),
     ]);
 
     // Filter out empty sections
@@ -81,6 +101,16 @@ class UnifiedSearchRepository {
           items: result.items,
           nextCursor: result.nextCursor,
           totalCount: result.totalCount,
+        );
+      case SearchCategory.products:
+        final products = await _productRepository
+            .searchProducts(query: params.query, limit: params.limit)
+            .timeout(_searchTimeout);
+        final items = products.map(_productToResult).toList();
+        return SearchPaginatedResult<UnifiedSearchResult>(
+          items: items,
+          nextCursor: null, // searchProducts is single-page (limit-capped)
+          totalCount: items.length,
         );
       default:
         return SearchPaginatedResult<UnifiedSearchResult>.empty();

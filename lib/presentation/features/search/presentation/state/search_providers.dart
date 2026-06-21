@@ -11,6 +11,7 @@ import 'package:nano_embryo/presentation/features/search/domain/models/search_pa
 import 'package:nano_embryo/presentation/features/search/domain/repositories/freelancer_search_repository.dart';
 import 'package:nano_embryo/presentation/features/search/domain/repositories/profile_search_repository.dart';
 import 'package:nano_embryo/presentation/features/search/domain/repositories/shop_search_repository.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
 import 'package:nano_embryo/presentation/features/search/domain/repositories/unified_search_repository.dart';
 import 'package:nano_embryo/presentation/features/search/models/search_paginated_result.dart';
 import 'package:nano_embryo/presentation/features/search/models/search_category.dart';
@@ -59,10 +60,12 @@ final unifiedSearchRepositoryProvider = Provider<UnifiedSearchRepository>((
   final freelancerSearch = ref.watch(
     freelancerSearchRepositoryProvider,
   ); // Add this
+  final productSearch = ref.watch(productRepositoryProvider);
   return UnifiedSearchRepository(
     shopRepository: shopSearch,
     profileRepository: profileSearch,
     freelancerRepository: freelancerSearch, // Add this
+    productRepository: productSearch,
   );
 });
 // ==================== STATE PROVIDERS ====================
