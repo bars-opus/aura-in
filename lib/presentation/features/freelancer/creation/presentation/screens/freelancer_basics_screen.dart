@@ -2,6 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/providers/freelancer_creation_provider.dart';
+import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/freelancer_tags_selector.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/freelancer_type_selector.dart';
 import 'package:nano_embryo/presentation/features/profile/widgets/editable_profile_avatar.dart';
 
@@ -22,8 +23,6 @@ class _FreelancerBasicsScreenState
 
   final _termsController = TextEditingController();
 
-  final _specialtiesController = TextEditingController();
-  final List<String> _specialtiesList = [];
 
   @override
   void initState() {
@@ -37,9 +36,6 @@ class _FreelancerBasicsScreenState
     if (draft.bio != null) _bioController.text = draft.bio!;
 
     if (draft.terms != null) _termsController.text = draft.terms!;
-
-    if (draft.specialties.isNotEmpty)
-      _specialtiesList.addAll(draft.specialties);
   }
 
   @override
@@ -47,31 +43,9 @@ class _FreelancerBasicsScreenState
     _nameController.dispose();
     _bioController.dispose();
     _termsController.dispose();
-    _specialtiesController.dispose();
     super.dispose();
   }
 
-  void _addSpecialty() {
-    final value = _specialtiesController.text.trim();
-    if (value.isNotEmpty && !_specialtiesList.contains(value)) {
-      setState(() {
-        _specialtiesList.add(value);
-        _specialtiesController.clear();
-      });
-      ref
-          .read(freelancerCreationProvider.notifier)
-          .updateProfile(specialties: _specialtiesList);
-    }
-  }
-
-  void _removeSpecialty(int index) {
-    setState(() {
-      _specialtiesList.removeAt(index);
-    });
-    ref
-        .read(freelancerCreationProvider.notifier)
-        .updateProfile(specialties: _specialtiesList);
-  }
 
   // void _saveAndContinue() {
   //   // Save name and bio
@@ -188,74 +162,28 @@ class _FreelancerBasicsScreenState
               ),
             ),
 
+            // Tags (stored in the `specialties` column; concept is "Tags").
             CardInkWell(
-              margin: EdgeInsets.only(bottom: Spacing.md.h), //
+              margin: EdgeInsets.only(bottom: Spacing.md.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Specialties', style: titleStyle),
+                  Text('Tags', style: titleStyle),
                   Text(
-                    'Add any specific skills or areas of expertise',
+                    'Tag the services you offer so clients can find you',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurface.withOpacity(0.6),
                     ),
                   ),
                   Gap(Spacing.sm.h),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AppTextFormField(
-                          controller: _specialtiesController,
-                          hintText: 'e.g., Wedding Hair, Balayage, Deep Tissue',
-                          // onSubmitted: (_) => _addSpecialty(),
-                          label: '',
-                        ),
-                      ),
-                      Gap(Spacing.sm.w),
-                      IconButton(
-                        onPressed: _addSpecialty,
-                        icon: Icon(
-                          Icons.add_circle,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                    ],
+                  FreelancerTagsSelector(
+                    selectedTags: draft.specialties,
+                    onTagsChanged: (tags) {
+                      ref
+                          .read(freelancerCreationProvider.notifier)
+                          .updateProfile(specialties: tags);
+                    },
                   ),
-                  if (_specialtiesList.isNotEmpty) ...[
-                    Gap(Spacing.sm.h),
-                    Wrap(
-                      spacing: Spacing.sm.w,
-                      runSpacing: Spacing.sm.h,
-                      children:
-                          _specialtiesList.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final specialty = entry.value;
-                            return Chip(
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  color: colorScheme.outline.withOpacity(.3),
-                                  width: 1.0,
-                                ),
-                                borderRadius: BorderRadius.circular(
-                                  BorderRadiusTokens.md.r,
-                                ),
-                              ),
-                              label: Text(
-                                specialty,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: colorScheme.onSurface.withOpacity(0.7),
-                                ),
-                              ),
-                              onDeleted: () => _removeSpecialty(index),
-                              deleteIcon: Icon(
-                                Icons.close,
-                                size: 10.h,
-                                color: colorScheme.error,
-                              ),
-                            );
-                          }).toList(),
-                    ),
-                  ],
                 ],
               ),
             ),
