@@ -94,6 +94,19 @@ NotificationConfig buildNanoEmbryoNotificationConfig() {
             GoRouter.of(context).go(RouteNames.home);
           }
 
+        case 'order_placed':
+          // Seller's order detail. create_order's payload carries order_id +
+          // shop_id; shopOrderDetail expects extra: {orderId, shopId}.
+          final orderId = notification.data?['order_id'] as String?;
+          if (orderId != null && orderId.isNotEmpty && shopId != null && shopId.isNotEmpty) {
+            GoRouter.of(context).push(
+              RouteNames.shopOrderDetail,
+              extra: {'orderId': orderId, 'shopId': shopId},
+            );
+          } else {
+            GoRouter.of(context).go(RouteNames.home);
+          }
+
         default:
           GoRouter.of(context).go(RouteNames.home);
       }

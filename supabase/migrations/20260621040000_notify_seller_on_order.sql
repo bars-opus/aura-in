@@ -202,13 +202,17 @@ BEGIN
       VALUES (v_shop_owner, v_title, v_body, v_payload);
 
       -- Immediate push row (drained by process-scheduled-notifications;
-      -- it reads title/body from metadata and checks push_enabled).
+      -- it reads title/body from metadata, then spreads the remaining metadata
+      -- keys into the push `data`. Include type + order_id + shop_id so the
+      -- app's onNotificationTap can deep-link to the seller's order detail.
       INSERT INTO scheduled_notifications (
         user_id, notification_type, shop_id, scheduled_for, status, metadata
       ) VALUES (
         v_shop_owner, 'order_placed', p_shop_id, now(), 'pending',
         jsonb_build_object('title', v_title, 'body', v_body,
-                           'order_id', v_order_id)
+                           'type', 'order_placed',
+                           'order_id', v_order_id,
+                           'shop_id', p_shop_id)
       );
     EXCEPTION WHEN OTHERS THEN
       -- Swallow: a notification failure must not fail the purchase.
