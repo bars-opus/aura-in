@@ -79,8 +79,10 @@ abstract class PagedListNotifier<T> extends StateNotifier<PagedListState<T>> {
   }
 
   Future<void> refresh() async {
-    state = const PagedListState();
-    state = state.copyWith(isRefreshing: true);
+    // Type the reset to T — `const PagedListState()` infers
+    // PagedListState<Never>, so a later copyWith(items: List<T>) throws
+    // "List<T> is not a subtype of List<Never>?".
+    state = PagedListState<T>(isRefreshing: true);
     try {
       final fetched = await fetchPage(0, pageSize);
       state = state.copyWith(
