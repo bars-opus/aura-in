@@ -72,6 +72,10 @@ class OrderModel extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  // Currency (sourced from shop at order-creation time)
+  final String? currencyCode;
+  final String? currencySymbol;
+
   // Joined data
   final String? shopName;
   final bool? shopVerified;
@@ -98,6 +102,8 @@ class OrderModel extends Equatable {
     this.cancelledAt,
     required this.createdAt,
     required this.updatedAt,
+    this.currencyCode,
+    this.currencySymbol,
     this.shopName,
     this.shopVerified,
     this.shopLogo,
@@ -137,6 +143,9 @@ class OrderModel extends Equatable {
       cancelledAt: dt('cancelled_at'),
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
+      currencyCode: json['currency'] as String? ?? shop?['currency'] as String?,
+      currencySymbol:
+          json['currency_symbol'] as String? ?? shop?['currency_symbol'] as String?,
       shopName: shop?['shop_name'] as String? ?? json['shop_name'] as String?,
       shopVerified:
           shop?['verified'] as bool? ?? json['shop_verified'] as bool?,
@@ -190,6 +199,8 @@ class OrderModel extends Equatable {
         cancelledAt,
         createdAt,
         updatedAt,
+        currencyCode,
+        currencySymbol,
       ];
 }
 

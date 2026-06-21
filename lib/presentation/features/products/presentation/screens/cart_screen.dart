@@ -111,9 +111,9 @@ class CartScreen extends ConsumerWidget {
                             style: textTheme.titleMedium,
                           ),
                           Text(
-                            Currency.format(cartState.totalAmount),
+                            Currency.formatWithSymbol(cartState.totalAmount, cartState.currencySymbol),
                             semanticsLabel:
-                                'Total ${Currency.format(cartState.totalAmount)}',
+                                'Total ${Currency.formatWithSymbol(cartState.totalAmount, cartState.currencySymbol)}',
                             style: textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: theme.colorScheme.primary,
@@ -219,7 +219,7 @@ class CartScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      Currency.formatCompact(item.price),
+                      Currency.formatWithSymbol(item.price, item.currencySymbol),
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.primary,

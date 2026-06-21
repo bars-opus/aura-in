@@ -237,7 +237,7 @@ class _ShopOrdersScreenState extends ConsumerState<ShopOrdersScreen> {
                     ),
                   ),
                   Text(
-                    Currency.format(order.totalAmount),
+                    Currency.formatWithSymbol(order.totalAmount, order.currencySymbol),
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.primary,

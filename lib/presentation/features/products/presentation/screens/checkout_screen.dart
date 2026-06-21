@@ -162,7 +162,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                         ),
                                       ),
                                       Text(
-                                        Currency.formatCompact(item.subtotal),
+                                        Currency.formatWithSymbol(item.subtotal, item.currencySymbol),
                                         style: textTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.w500,
                                         ),
@@ -183,7 +183,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                     ),
                                   ),
                                   Text(
-                                    Currency.format(cartState.totalAmount),
+                                    Currency.formatWithSymbol(cartState.totalAmount, cartState.currencySymbol),
                                     style: textTheme.titleLarge?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: theme.colorScheme.primary,

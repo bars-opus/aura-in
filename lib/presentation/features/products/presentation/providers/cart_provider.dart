@@ -28,6 +28,10 @@ class CartState {
   /// so this is always meaningful when [items] is non-empty.
   String? get singleShopId => items.isEmpty ? null : items.first.shopId;
 
+  /// The cart is single-shop (addItem enforces it), so currency is uniform.
+  String? get currencySymbol =>
+      items.isEmpty ? null : items.first.currencySymbol;
+
   bool get hasMultipleShops =>
       items.map((item) => item.shopId).toSet().length > 1;
 

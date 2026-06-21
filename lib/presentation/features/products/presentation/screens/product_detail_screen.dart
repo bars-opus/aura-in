@@ -59,6 +59,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         quantity: _quantity,
         shopId: product.shopId,
         shopName: shopName ?? 'Unknown shop',
+        currencySymbol: product.shopCurrencySymbol,
+        currencyCode: product.shopCurrencyCode,
       );
 
       await ref.read(cartNotifierProvider.notifier).addItem(item);

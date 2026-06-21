@@ -12,6 +12,8 @@ class CartItemModel extends Equatable {
   final int quantity;
   final String shopId;
   final String shopName;
+  final String? currencySymbol;
+  final String? currencyCode;
 
   const CartItemModel({
     required this.productId,
@@ -21,6 +23,8 @@ class CartItemModel extends Equatable {
     required this.quantity,
     required this.shopId,
     required this.shopName,
+    this.currencySymbol,
+    this.currencyCode,
   });
 
   double get subtotal => price * quantity;
@@ -38,6 +42,8 @@ class CartItemModel extends Equatable {
     int? quantity,
     String? shopId,
     String? shopName,
+    String? currencySymbol,
+    String? currencyCode,
   }) {
     return CartItemModel(
       productId: productId ?? this.productId,
@@ -47,6 +53,8 @@ class CartItemModel extends Equatable {
       quantity: quantity ?? this.quantity,
       shopId: shopId ?? this.shopId,
       shopName: shopName ?? this.shopName,
+      currencySymbol: currencySymbol ?? this.currencySymbol,
+      currencyCode: currencyCode ?? this.currencyCode,
     );
   }
 
@@ -59,5 +67,7 @@ class CartItemModel extends Equatable {
     quantity,
     shopId,
     shopName,
+    currencySymbol,
+    currencyCode,
   ];
 }

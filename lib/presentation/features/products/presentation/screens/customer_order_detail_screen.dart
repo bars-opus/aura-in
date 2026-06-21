@@ -30,7 +30,7 @@ class _CustomerOrderDetailScreenState
     extends ConsumerState<CustomerOrderDetailScreen> {
   bool _isReordering = false;
 
-  Future<void> _reorder() async {
+  Future<void> _reorder(OrderModel order) async {
     if (_isReordering) return;
     setState(() => _isReordering = true);
 
@@ -61,6 +61,8 @@ class _CustomerOrderDetailScreenState
               quantity: qty,
               shopId: item['shop_id'] as String,
               shopName: item['shop_name'] as String? ?? '',
+              currencySymbol: order.currencySymbol,
+              currencyCode: order.currencyCode,
             ),
           );
           added++;
@@ -275,7 +277,7 @@ class _CustomerOrderDetailScreenState
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final item = items[index];
-                    return _buildOrderItem(item, theme);
+                    return _buildOrderItem(item, theme, order.currencySymbol);
                   }, childCount: items.length),
                 ),
               ),
@@ -291,7 +293,7 @@ class _CustomerOrderDetailScreenState
                     child: AppButton(
                       label:
                           _isReordering ? 'Adding to Cart...' : 'Reorder Items',
-                      onPressed: _isReordering ? null : _reorder,
+                      onPressed: _isReordering ? null : () => _reorder(order),
                       width: double.infinity,
                     ),
                   ),
@@ -538,7 +540,7 @@ class _CustomerOrderDetailScreenState
     );
   }
 
-  Widget _buildOrderItem(OrderItemModel item, ThemeData theme) {
+  Widget _buildOrderItem(OrderItemModel item, ThemeData theme, String? currencySymbol) {
     return Card(
       margin: EdgeInsets.only(bottom: 8.h),
       child: Padding(
@@ -578,7 +580,7 @@ class _CustomerOrderDetailScreenState
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    '${item.quantity} x ${Currency.formatCompact(item.unitPrice)}',
+                    '${item.quantity} x ${Currency.formatWithSymbol(item.unitPrice, currencySymbol)}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: Colors.grey.shade600,
                     ),
@@ -587,7 +589,7 @@ class _CustomerOrderDetailScreenState
               ),
             ),
             Text(
-              Currency.formatCompact(item.subtotal),
+              Currency.formatWithSymbol(item.subtotal, currencySymbol),
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.primary,

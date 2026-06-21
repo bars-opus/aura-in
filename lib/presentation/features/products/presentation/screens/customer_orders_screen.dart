@@ -180,7 +180,7 @@ class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
           button: true,
           label:
               'Order ${order.id.substring(0, 8)}, ${order.status.displayName}, '
-              '${Currency.format(order.totalAmount)}',
+              '${Currency.formatWithSymbol(order.totalAmount, order.currencySymbol)}',
           child: Padding(
             padding: EdgeInsets.all(12.w),
             child: Column(
@@ -235,7 +235,7 @@ class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
                           ?.copyWith(color: Colors.grey.shade600),
                     ),
                     Text(
-                      Currency.format(order.totalAmount),
+                      Currency.formatWithSymbol(order.totalAmount, order.currencySymbol),
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.primary,

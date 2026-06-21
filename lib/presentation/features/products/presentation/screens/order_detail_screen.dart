@@ -136,7 +136,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final item = items[index];
-                    return _buildOrderItem(item, theme);
+                    return _buildOrderItem(item, theme, order.currencySymbol);
                   }, childCount: items.length),
                 ),
               ),
@@ -291,7 +291,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     );
   }
 
-  Widget _buildOrderItem(OrderItemModel item, ThemeData theme) {
+  Widget _buildOrderItem(OrderItemModel item, ThemeData theme, String? currencySymbol) {
     return Card(
       margin: EdgeInsets.only(bottom: 8.h),
       child: Padding(
@@ -332,7 +332,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    '${item.quantity} x ${Currency.formatCompact(item.unitPrice)}',
+                    '${item.quantity} x ${Currency.formatWithSymbol(item.unitPrice, currencySymbol)}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: Colors.grey.shade600,
                     ),
@@ -341,7 +341,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
               ),
             ),
             Text(
-              Currency.formatCompact(item.subtotal),
+              Currency.formatWithSymbol(item.subtotal, currencySymbol),
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.primary,
