@@ -7,7 +7,11 @@ import 'package:nano_embryo/presentation/features/freelancer/creation/presentati
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/freelancer_tag_chips.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/near_you_freelancers_horizontal.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/top_rated_freelancers_horizontal.dart';
-import 'package:nano_embryo/presentation/features/products/presentation/screens/marketplace_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/marketplace_providers.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/marketplace_screen.dart'
+    show FilterBottomSheet;
+import 'package:nano_embryo/presentation/features/products/presentation/widgets/filter_chip_row.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/widgets/marketplace_grid_sliver.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/near_you_products_horizontal.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/top_rated_products_horizontal.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/widgets/dummy_search_container.dart';
@@ -158,6 +162,18 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
                             .selectLuxury(level);
                       },
                     ),
+                  // Buy tab: product category filter, same slot as shops'
+                  // LuxuryLevelChips. marketplaceProductsPagedProvider watches
+                  // marketplaceFilterProvider and auto-reloads on category change.
+                  if (selectedType == ProviderType.buy)
+                    FilterChipRow(
+                      selectedCategory:
+                          ref.watch(marketplaceFilterProvider).category,
+                      onCategorySelected: (category) => ref
+                          .read(marketplaceFilterProvider.notifier)
+                          .setCategory(category),
+                      onFilterPressed: () => _showMarketplaceFilterSheet(ref),
+                    ),
                   // Radius slider: shows for shops and freelancers (both have
                   // proximity-based queries). Buy/marketplace tab has no data
                   // fetch yet so hide it there.
@@ -212,7 +228,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
           else if (selectedType == ProviderType.freelancers)
             const FreelancerGridSliver()
           else
-            SliverFillRemaining(child: MarketplaceScreen()),
+            const MarketplaceGridSliver(),
         ],
       ),
     );
@@ -223,6 +239,28 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  /// Buy-tab price/sort/verified filter sheet. Reuses the marketplace
+  /// FilterBottomSheet and applies into marketplaceFilterProvider, mirroring
+  /// how the standalone Marketplace route applies its filters.
+  void _showMarketplaceFilterSheet(WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (context) => FilterBottomSheet(
+        onApply: (minPrice, maxPrice, sortBy, showVerifiedOnly) {
+          final notifier = ref.read(marketplaceFilterProvider.notifier);
+          notifier.setPriceRange(minPrice, maxPrice);
+          notifier.setSortBy(sortBy);
+          notifier.setShowVerifiedOnly(showVerifiedOnly);
+          Navigator.pop(context);
+        },
+      ),
+    );
   }
 }
 

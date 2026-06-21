@@ -2,11 +2,13 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
-import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/marketplace_providers.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/filter_chip_row.dart';
-import 'package:nano_embryo/presentation/features/products/presentation/widgets/product_grid_item.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/widgets/marketplace_grid_sliver.dart';
 
+/// Standalone Marketplace route (e.g. "Browse products" from orders). Hosts the
+/// category FilterChipRow + the shared [MarketplaceGridSliver] in one scroll
+/// view. The Discover Buy tab renders the same chip row + grid sliver inline.
 class MarketplaceScreen extends ConsumerStatefulWidget {
   const MarketplaceScreen({super.key});
 
@@ -15,155 +17,39 @@ class MarketplaceScreen extends ConsumerStatefulWidget {
 }
 
 class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
-  final _searchController = TextEditingController();
-  bool _isSearching = false;
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final filter = ref.watch(marketplaceFilterProvider);
-    final loc = AppLocalizations.of(context)!;
-
-    final state = ref.watch(marketplaceProductsPagedProvider);
-    final notifier = ref.read(marketplaceProductsPagedProvider.notifier);
-    final theme = Theme.of(context);
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Marketplace',
+          style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
+        ),
+      ),
       body: SafeArea(
-        child: Column(
-          children: [
-            if (!_isSearching)
-              FilterChipRow(
-                selectedCategory: filter.category,
-                onCategorySelected:
-                    (category) => ref
-                        .read(marketplaceFilterProvider.notifier)
-                        .setCategory(category),
-                onFilterPressed: () => _showFilterBottomSheet(),
+        child: RefreshIndicator(
+          onRefresh:
+              ref.read(marketplaceProductsPagedProvider.notifier).refresh,
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: FilterChipRow(
+                  selectedCategory: filter.category,
+                  onCategorySelected:
+                      (category) => ref
+                          .read(marketplaceFilterProvider.notifier)
+                          .setCategory(category),
+                  onFilterPressed: () => _showFilterBottomSheet(),
+                ),
               ),
-            Expanded(child: _buildGrid(state, notifier, theme, loc)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGrid(
-    dynamic state,
-    dynamic notifier,
-    ThemeData theme,
-    AppLocalizations loc,
-  ) {
-    if (state.isInitialLoading) {
-      return const Center(child: CircularLoadingIndicator());
-    }
-    if (state.error != null && state.items.isEmpty) {
-      return Center(
-        child: ErrorStateWidget(
-          subtitle: state.error!,
-          title: MarketplaceStrings.failedToLoad,
-          onPrimaryAction: notifier.refresh,
-        ),
-      );
-    }
-    if (state.items.isEmpty) {
-      return _buildEmptyState(loc);
-    }
-
-    return RefreshIndicator(
-      onRefresh: notifier.refresh,
-      child: NotificationListener<ScrollNotification>(
-        onNotification: (n) {
-          if (n.metrics.pixels >= n.metrics.maxScrollExtent - 200) {
-            notifier.loadNext();
-          }
-          return false;
-        },
-        child: GridView.builder(
-          padding: EdgeInsets.all(12.w),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12.w,
-            mainAxisSpacing: 12.h,
-            childAspectRatio: 0.75,
+              SliverGap(Spacing.sm.h),
+              const MarketplaceGridSliver(),
+            ],
           ),
-          itemCount: state.items.length + (state.hasMore ? 2 : 0),
-          itemBuilder: (context, index) {
-            if (index >= state.items.length) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            final product = state.items[index];
-            return ProductGridItem(
-              product: product,
-              onTap:
-                  () => context.pushNamed('productDetail', extra: product.id),
-            );
-          },
         ),
       ),
-    );
-  }
-
-  AppBar _buildMainAppBar() {
-    return AppBar(
-      title: Text(
-        'Marketplace',
-        style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () {
-            setState(() {
-              _isSearching = true;
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  AppBar _buildSearchAppBar() {
-    return AppBar(
-      title: AppTextFormField(
-        controller: _searchController,
-        hintText: 'Search products...',
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.clear),
-          onPressed: () {
-            _searchController.clear();
-            // TODO: Implement search
-          },
-        ),
-        onChanged: (value) {
-          // TODO: Implement debounced search
-        },
-        label: '',
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () {
-            setState(() {
-              _isSearching = false;
-              _searchController.clear();
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEmptyState(AppLocalizations loc) {
-    return EmptyStateWidget(
-      subtitle: loc.discoverMarketplaceSubtitle,
-      title: loc.discoverMarketplaceTitle,
-      icon: Icons.shopping_bag_outlined,
     );
   }
 
