@@ -52,3 +52,11 @@ assets/env/.env.*
 *.env
 .env.*
 .vercel
+
+# Generated / scratch — never commit
+graphify-out/
+**/graphify-out/
+.graphify*
+**/.graphify*
+supabase/.temp/
+.superpowers/
