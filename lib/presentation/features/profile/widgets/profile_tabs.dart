@@ -1,4 +1,5 @@
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/presentation/features/profile/widgets/profile_buys_tab.dart';
 import 'package:nano_embryo/presentation/features/shops/calendar/presentation/screens/calendar_screen.dart';
 
 List<AppTabItem> buildProfileTabs(
@@ -35,7 +36,12 @@ List<AppTabItem> buildProfileTabs(
     AppTabItem(
       label: labels.profileTabsBuys,
       icon: null,
-      content: isLogin ? const SizedBox.shrink() : Container(),
+      content: isLogin
+          ? const SizedBox.shrink()
+          : ProfileBuysTab(
+              profileUserId: profileUserId,
+              isCurrentUser: isCurrentUser,
+            ),
     ),
     AppTabItem(
       label: labels.profileTabsSaves,

@@ -227,7 +227,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final tabs = buildProfileTabs(
-      widget.currentUserId,
+      // The tabs reflect the profile being VIEWED, so the first arg is
+      // profileUserId (matches the init call above). Passing currentUserId
+      // here showed the viewer's own data on other people's profiles.
+      widget.profileUserId,
       isAuthor,
       false,
       loc: loc,
