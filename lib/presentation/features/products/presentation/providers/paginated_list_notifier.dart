@@ -50,7 +50,10 @@ class PagedListState<T> {
 abstract class PagedListNotifier<T> extends StateNotifier<PagedListState<T>> {
   static const int pageSize = 30;
 
-  PagedListNotifier() : super(const PagedListState()) {
+  // PagedListState<T>() not `const PagedListState()` — the const form infers
+  // PagedListState<Never>, so the first copyWith(items: List<T>) in loadNext
+  // throws "List<T> is not a subtype of List<Never>?".
+  PagedListNotifier() : super(PagedListState<T>()) {
     // Kick off the first page eagerly so the UI shows the spinner.
     loadNext();
   }
