@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nano_embryo/core/utils/phone_field_widget.dart';
 import 'package:nano_embryo/core/widgets/app_text_form_field.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
@@ -13,6 +14,7 @@ import 'package:nano_embryo/presentation/features/products/data/utils/marketplac
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/connectivity_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
@@ -25,8 +27,19 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final _formKey = GlobalKey<FormState>();
   final _addressController = TextEditingController();
-  final _phoneController = TextEditingController();
   final _notesController = TextEditingController();
+
+  // Phone uses PhoneFieldWidget (same as AddContactModal); it owns its own
+  // controller and reports the validated E.164 string here.
+  String? _e164Phone;
+  // Saved phone (E.164) loaded from device, used to prefill PhoneFieldWidget.
+  String? _initialPhone;
+  bool _prefsLoaded = false;
+
+  // Device-persisted checkout details so returning buyers don't re-type their
+  // address/phone. Order notes are intentionally NOT persisted.
+  static const _kSavedAddress = 'checkout_delivery_address';
+  static const _kSavedPhone = 'checkout_customer_phone';
 
   bool _isPlacingOrder = false;
 
@@ -37,15 +50,63 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   late final String _idempotencyKey = const Uuid().v4();
 
   @override
+  void initState() {
+    super.initState();
+    _loadSavedDetails();
+  }
+
+  /// Prefill delivery address + phone from the last successful checkout.
+  Future<void> _loadSavedDetails() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedAddress = prefs.getString(_kSavedAddress);
+      final savedPhone = prefs.getString(_kSavedPhone);
+      if (!mounted) return;
+      setState(() {
+        if (savedAddress != null) _addressController.text = savedAddress;
+        if (savedPhone != null && savedPhone.isNotEmpty) {
+          _initialPhone = savedPhone;
+          _e164Phone = savedPhone; // valid until the user edits the field
+        }
+        _prefsLoaded = true;
+      });
+    } catch (e, stack) {
+      MarketplaceLogger.warn('checkout prefs load failed', error: e, stack: stack);
+      if (mounted) setState(() => _prefsLoaded = true);
+    }
+  }
+
+  Future<void> _saveDetails(String address, String phone) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_kSavedAddress, address);
+      await prefs.setString(_kSavedPhone, phone);
+    } catch (e, stack) {
+      MarketplaceLogger.warn('checkout prefs save failed', error: e, stack: stack);
+    }
+  }
+
+  @override
   void dispose() {
     _addressController.dispose();
-    _phoneController.dispose();
     _notesController.dispose();
     super.dispose();
   }
 
   Future<void> _placeOrder() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // PhoneFieldWidget reports E.164 only when valid; null/empty = invalid.
+    final phone = _e164Phone;
+    if (phone == null || phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid phone number'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
 
     final cartState = ref.read(cartNotifierProvider);
     if (cartState.isEmpty) return;
@@ -77,17 +138,20 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
     try {
       final orderNotifier = ref.read(orderNotifierProvider.notifier);
+      final cleanAddress = InputSanitizer.clean(_addressController.text);
       final orderId = await orderNotifier.createOrder(
         shopId: shopId,
         items: items,
         totalAmount: cartState.totalAmount,
-        deliveryAddress: InputSanitizer.clean(_addressController.text),
-        customerPhone: InputSanitizer.clean(_phoneController.text),
+        deliveryAddress: cleanAddress,
+        customerPhone: phone,
         customerNotes: InputSanitizer.clean(_notesController.text),
         idempotencyKey: _idempotencyKey,
       );
 
       if (mounted && orderId != null) {
+        // Remember address + phone for next checkout (notes excluded).
+        await _saveDetails(cleanAddress, phone);
         // Clear cart and navigate to order confirmation
         await ref.read(cartNotifierProvider.notifier).clearCart();
         if (!mounted) return;
@@ -220,13 +284,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ),
                       SizedBox(height: 16.h),
 
-                      AppTextFormField(
-                        controller: _phoneController,
-                        label: 'Phone Number',
-                        hintText: 'Enter your phone number',
-                        keyboardType: TextInputType.phone,
-                        maxLength: InputSanitizer.maxCustomerPhone,
-                        validator: InputSanitizer.validatePhone,
+                      // Same phone widget as AddContactModal — reports E.164.
+                      // Keyed on _prefsLoaded so it rebuilds with the saved
+                      // initial value once device prefs resolve.
+                      PhoneFieldWidget(
+                        key: ValueKey('checkout_phone_$_prefsLoaded'),
+                        initialValue: _initialPhone,
+                        onChanged: (e164) => setState(() => _e164Phone = e164),
                       ),
                       SizedBox(height: 16.h),
 
