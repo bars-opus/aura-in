@@ -145,6 +145,14 @@ class SupabaseProductRepository implements ProductRepository {
     int limit = 20,
   }) async {
     try {
+      // Partial / prefix matching for type-ahead search. Full-text
+      // (textSearch on search_vector) only matched whole words, so "pom"
+      // wouldn't find "pomade". ilike '%query%' matches substrings; escape
+      // user-typed %/_/\ so they're treated literally, not as wildcards.
+      final escaped = query
+          .replaceAll('\\', '\\\\')
+          .replaceAll('%', '\\%')
+          .replaceAll('_', '\\_');
       final response = await RetryPolicy.run(
         () => _supabase
             .from('products')
@@ -158,7 +166,7 @@ class SupabaseProductRepository implements ProductRepository {
               )
             ''')
             .eq('is_active', true)
-            .textSearch('search_vector', query)
+            .ilike('name', '%$escaped%')
             .limit(limit),
         operationName: 'searchProducts',
       );
