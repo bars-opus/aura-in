@@ -4,8 +4,10 @@ import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/utils/location/widgets/location_display_widget.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/freelancer_grid_sliver.dart';
+import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/freelancer_tag_chips.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/near_you_freelancers_horizontal.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/widgets/top_rated_freelancers_horizontal.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/marketplace_screen.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/widgets/dummy_search_container.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/discover_shops_widgets/luxury_level_chips.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/discover_shops_widgets/near_you_shops_horizontal.dart';
@@ -174,6 +176,8 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
             const SliverToBoxAdapter(child: NearYouShopsHorizontal()),
             SliverGap(Spacing.md.h),
           ] else if (selectedType == ProviderType.freelancers) ...[
+            const SliverToBoxAdapter(child: FreelancerTagChips()),
+            SliverGap(Spacing.sm.h),
             const SliverToBoxAdapter(child: TopRatedFreelancersHorizontal()),
             const SliverToBoxAdapter(child: NearYouFreelancersHorizontal()),
             SliverGap(Spacing.md.h),
@@ -202,54 +206,8 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
           else if (selectedType == ProviderType.freelancers)
             const FreelancerGridSliver()
           else
-            SliverFillRemaining(child: _buildMarketplaceCTA(context, loc)),
+            SliverFillRemaining(child: MarketplaceScreen()),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMarketplaceCTA(BuildContext context, AppLocalizations loc) {
-    final theme = Theme.of(context);
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: Spacing.lg.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.shopping_bag_outlined,
-              size: 80.r,
-              color: theme.colorScheme.primary.withValues(alpha: 0.6),
-            ),
-            Gap(Spacing.md.h),
-            Text(
-              loc.discoverMarketplaceTitle,
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Gap(Spacing.sm.h),
-            Text(
-              loc.discoverMarketplaceSubtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            Gap(Spacing.lg.h),
-            FilledButton.icon(
-              icon: const Icon(Icons.storefront_outlined),
-              label: Text(loc.discoverBrowseProducts),
-              onPressed: () => context.pushNamed('marketplace'),
-            ),
-            Gap(Spacing.sm.h),
-            TextButton.icon(
-              icon: const Icon(Icons.receipt_long_outlined),
-              label: Text(loc.discoverMyOrders),
-              onPressed: () => context.pushNamed('customerOrders'),
-            ),
-          ],
-        ),
       ),
     );
   }
