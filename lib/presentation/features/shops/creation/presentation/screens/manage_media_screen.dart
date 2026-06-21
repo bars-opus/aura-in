@@ -65,20 +65,7 @@ class ManageMediaScreen extends ConsumerWidget {
   }
 
   void _saveAndContinue(BuildContext context) {
-    // if (_formKey.currentState?.validate() ?? false) {
-    //   ref
-    //       .read(shopCreationProvider.notifier)
-    //       .updateBasics(
-    //         shopName: _nameController.text,
-    //         shopType: _selectedType,
-    //         luxuryLevel: _selectedLuxuryLevel,
-    //         overview:
-    //             _overviewController.text.isNotEmpty
-    //                 ? _overviewController.text
-    //                 : null,
-    //         terms:
-    //             _termsController.text.isNotEmpty ? _termsController.text : null,
-    //       );
+   
     Navigator.pop(context);
     // context.push('/location'); // Use your navigation method
   }

@@ -1,9 +1,6 @@
 // lib/features/products/presentation/screens/shop_products_screen.dart
 
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
+
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/paginated_list_notifier.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
@@ -24,6 +21,7 @@ class ShopProductsScreen extends ConsumerWidget {
     final textTheme = theme.textTheme;
 
     return Scaffold(
+      
       appBar: AppBar(
         title: Text(
           'My Products',

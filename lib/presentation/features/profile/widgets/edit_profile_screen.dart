@@ -198,15 +198,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             title: loc.editProfileScreenCreateFreelancerTitle,
             subtitle: loc.editProfileScreenCreateFreelancerSubtitle,
             icon: Icons.person,
-            onTap: () => _gatedPush(
-              () => context.push(
-                '/freelancerCreationDashboard',
-                extra: {
-                  'userId': widget.currentUserId,
-                  'mode': FreelancerMode.create,
-                },
-              ),
-            ),
+            onTap:
+                () => _gatedPush(
+                  () => context.push(
+                    '/freelancerCreationDashboard',
+                    extra: {
+                      'userId': widget.currentUserId,
+                      'mode': FreelancerMode.create,
+                    },
+                  ),
+                ),
           ),
         if (_selectedRole == AccountType.shop)
           _producerCard(
@@ -218,7 +219,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         _producerCard(
           title: loc.editProfileScreenSellProductTitle,
           subtitle: loc.editProfileScreenSellProductSubtitle,
-          icon: Icons.sell_outlined,
+          icon: Icons.sell,
           onTap: () => _gatedPush(() => context.push('/sellerOnboarding')),
         ),
       ],
@@ -315,7 +316,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     // Handle not logged in state
     if (userId == null) {
-      return Scaffold(body: Center(child: Text(loc.editProfileScreenPleaseLogIn)));
+      return Scaffold(
+        body: Center(child: Text(loc.editProfileScreenPleaseLogIn)),
+      );
     }
 
     // Watch profile and edit state

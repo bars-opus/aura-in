@@ -2,6 +2,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/widgets/no_image_added.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/image_source_dialog.dart';
 import 'dart:io';
 
@@ -33,11 +34,10 @@ class ShopMediaGrid extends ConsumerWidget {
                   fontWeight: FontWeight.w600, // Bold for prominence
                 ),
               ),
-
               Gap(Spacing.sm.h),
               AppDivider(),
               Gap(Spacing.sm.h),
-
+              if (images.isNotEmpty) NoImageAdded(),
               // Reorderable grid using ReorderableWrap
               if (images.isNotEmpty)
                 Center(

@@ -7,6 +7,9 @@
 
 
 
+// insert into app_admins (user_id) values ('<your-auth-user-id>');
+
+
 
 
 // supabase secrets set WHATSAPP_VERIFY_TOKEN=3765b6803b1f283313ae9d7e6708b4fe1cd83103

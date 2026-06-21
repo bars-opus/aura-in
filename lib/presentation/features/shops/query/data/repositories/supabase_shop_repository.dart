@@ -547,6 +547,8 @@ class SupabaseShopRepository implements ShopRepository {
             query = query.order('average_rating', ascending: false).order('id');
           }
 
+          
+
           final response =
               await query.range(offset, offset + clampedLimit - 1)
                   as PostgrestList;
