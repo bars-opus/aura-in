@@ -142,6 +142,10 @@ final allFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((ref) a
   final selectedCategory = ref.watch(selectedServiceCategoryProvider);
   final repository = ref.watch(freelancerRepositoryProvider);
   final radiusKm = ref.watch(searchRadiusKmProvider);
+  // This is the provider the visible "All Freelancers" grid renders, so it
+  // must honor the discover tag filter (the no-location branch below can't —
+  // get_top_rated_freelancers has no p_tags param). Empty set = no filter.
+  final selectedTags = ref.watch(selectedFreelancerTagsProvider);
 
   final freelancerTypes = FreelancerCategoryMapper.getFreelancerTypesForCategory(selectedCategory);
 
@@ -155,6 +159,7 @@ final allFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((ref) a
       freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
       sortBy: 'distance',
       seed: ref.watch(discoverySeedProvider),
+      tags: selectedTags.isEmpty ? null : selectedTags.toList(),
     );
   }
 
