@@ -272,10 +272,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           );
         }
 
-        // Define display order: Shops (horizontal) → Freelancers → Profiles
+        // Define display order: Shops (horizontal) → Freelancers → Products → Profiles
         const displayOrder = [
           SearchCategory.shops,
           SearchCategory.freelancers,
+          SearchCategory.products,
           SearchCategory.profiles,
         ];
 
@@ -404,6 +405,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         break;
 
       case SearchCategory.products:
+        // result.id is the product id (set in UnifiedSearchRepository).
+        context.pushNamed('productDetail', extra: result.id);
         break;
       case SearchCategory.all:
         break;
