@@ -34,6 +34,9 @@ class FreelancerTags {
 
   /// Normalize a tag for storage / comparison: trim + collapse internal
   /// whitespace. Returns '' if nothing remains after trimming.
-  static String normalize(String raw) =>
-      raw.trim().replaceAll(RegExp(r'\s+'), ' ');
+  static String normalize(String raw) {
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) return '';
+    return trimmed.replaceAll(RegExp(r'\s+'), ' ');
+  }
 }
