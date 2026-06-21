@@ -90,6 +90,21 @@ serve(async (req) => {
 // Create OAuth Link
 // ============================================================================
 async function createOAuthLink(shopId: string, userId: string) {
+  // Rate limit: max 5 pending OAuth initiations per user to prevent OAuth-state table flooding
+  const { count: pendingCount } = await supabase
+    .from('oauth_states')
+    .select('state_nonce', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('expires_at', new Date().toISOString());
+
+  if ((pendingCount ?? 0) >= 5) {
+    console.warn('🚫 Stripe OAuth rate limit exceeded for user:', userId);
+    return json(
+      { error: 'Too many pending connection attempts. Please wait a few minutes before trying again.' },
+      429,
+    );
+  }
+
   const stateNonce = crypto.randomUUID();
 
   const { error } = await supabase.from('oauth_states').insert({
@@ -171,6 +186,7 @@ async function handleOAuthCallback(
   await supabase.from('oauth_states').delete().eq('state_nonce', state);
 
   try {
+    // 1. Exchange auth code for access token
     const tokenResponse = await withTimeout(
       stripe.oauth.token({ grant_type: 'authorization_code', code }),
       10_000,
@@ -179,35 +195,33 @@ async function handleOAuthCallback(
     const { stripe_user_id } = tokenResponse;
     if (!stripe_user_id) throw new Error('No stripe_user_id in token response');
 
-    // ✅ Save ONLY essential fields (matching your clean schema)
-    await supabase.from('payment_settings').upsert({
-      shop_id: oauthState.shop_id,
-      payment_provider: 'stripe',
-      stripe_account_id: stripe_user_id,
-      stripe_verified: true,  // Using your field name
-      stripe_currency: 'USD',  // Default or get from shop
-      connected_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
-
-    // Optional: Fetch account capabilities for additional verification
+    // 2. Fetch capabilities BEFORE writing — avoids a race window where
+    //    stripe_verified=true is committed but the account isn't ready yet.
     const account = await withTimeout(
       stripe.accounts.retrieve(stripe_user_id),
       10_000,
     );
 
-    // Update with more detailed status if needed
-    await supabase
-      .from('payment_settings')
-      .update({
-        stripe_verified: account.charges_enabled && account.payouts_enabled,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('shop_id', oauthState.shop_id);
+    const isVerified = !!(account.charges_enabled && account.payouts_enabled);
+    const currency = (account.default_currency ?? 'usd').toUpperCase();
+
+    // 3. Single atomic upsert with the correct verified status
+    const { error: upsertError } = await supabase.from('payment_settings').upsert({
+      shop_id: oauthState.shop_id,
+      payment_provider: 'stripe',
+      stripe_account_id: stripe_user_id,
+      stripe_verified: isVerified,
+      stripe_currency: currency,
+      connected_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+
+    if (upsertError) throw upsertError;
 
     return htmlResponse('success');
   } catch (error) {
     console.error('Stripe OAuth token exchange failed:', error);
+    // Clean up any partial state — only removes the row if it was just created.
     await supabase
       .from('payment_settings')
       .delete()

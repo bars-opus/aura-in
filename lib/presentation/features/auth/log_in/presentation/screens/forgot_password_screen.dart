@@ -1,9 +1,10 @@
-import 'package:nano_embryo/presentation/features/auth/log_in/presentation/screens/password_reset_email_sent_screen.dart';
 import 'package:nano_embryo/presentation/features/auth/utility/auth_exports.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show AuthException;
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
-  const ForgotPasswordScreen({super.key});
+  final String? initialEmail;
+
+  const ForgotPasswordScreen({super.key, this.initialEmail});
 
   @override
   ConsumerState<ForgotPasswordScreen> createState() =>
@@ -11,13 +12,22 @@ class ForgotPasswordScreen extends ConsumerStatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
-  final _emailController = TextEditingController();
+  late final TextEditingController _emailController;
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   String? _emailError;
   bool _isEmailValid = false;
 
   final _emailFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController(text: widget.initialEmail ?? '');
+    if (widget.initialEmail != null && widget.initialEmail!.isNotEmpty) {
+      _validateEmail(widget.initialEmail);
+    }
+  }
 
   @override
   void dispose() {
@@ -50,8 +60,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   }
 
   Future<void> _handleSendResetEmail() async {
+    final loc = AppLocalizations.of(context)!;
+
     if (_emailController.text.isEmpty) {
-      context.showErrorSnackbar('Enter your email and try again');
+      context.showErrorSnackbar(loc.commonEnterEmailAndRetry);
       return;
     }
     if (!_formKey.currentState!.validate() || _isLoading) return;
@@ -62,23 +74,16 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       await authOps.resetPassword(_emailController.text.trim());
 
       if (mounted) {
-        Navigator.pop(context);
-        BottomSheetUtils.showDocumentationBottomSheet(
-          context: context,
-          widget: PasswordResetEmailSentScreen(
-            email: _emailController.text.trim(),
-          ),
+        context.go(
+          RouteNames.passwordResetSentScreen,
+          extra: _emailController.text.trim(),
         );
-        // context.go(
-        //   RouteNames.passwordResetSentScreen,
-        //   extra: _emailController.text.trim(),
-        // );
       }
     } on AuthException catch (e) {
       if (mounted) context.showErrorSnackbar(e.message);
     } catch (_) {
       if (mounted)
-        context.showErrorSnackbar('Something went wrong. Please try again.');
+        context.showErrorSnackbar(loc.commonSomethingWentWrong);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -90,18 +95,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final loc = AppLocalizations.of(context);
 
     if (error != null) {
-      final message =
-          //  loc != null
-          //     ? '${loc.fieldValidationError(field)}: $error'
-          //     :
-          '$field: $error';
+      final message = '$field: $error';
       context.showErrorSnackbar(message);
     } else {
-      final message =
-          //  loc != null
-          //     ? '${loc.fieldValidationSuccess(field)}'
-          //     :
-          ' $field is valid';
+      final message = loc?.commonFieldIsValid(field) ?? '$field is valid';
       context.showSuccessSnackbar(backgroundColor: Colors.green, message);
     }
   }
@@ -119,14 +116,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         elevation: 0,
         automaticallyImplyLeading: false,
         centerTitle: false,
-        title: AppIconButton(
-          icon: Icons.close,
-          onPressed: () => Navigator.pop(context),
-        ),
+        title: AppIconButton(icon: Icons.close, onPressed: () => context.pop()),
       ),
       body: Form(
         key: _formKey,
         child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: Spacing.md),
           children: [
             const Gap(Spacing.md),
             IconAvatar(
@@ -141,7 +136,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
             const Gap(Spacing.md),
             Text(
-              'Forgot your password?',
+              loc.authForgotPasswordTitle,
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: colorScheme.onSurface,
@@ -150,7 +145,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             ),
             Gap(12.h),
             Text(
-              'Enter your email and we\'ll send you a link to reset your password.',
+              loc.authForgotPasswordSubtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurface.withValues(alpha: 0.6),
               ),
@@ -189,32 +184,21 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             ),
             const Gap(Spacing.xxl),
             AppButton(
-                  label: 'Send reset link',
-                  onPressed: _isLoading ? null : _handleSendResetEmail,
-                  isLoading:  _isLoading,
-                  elevation: 1,
-                  size: ButtonSize.small,
-                  width: double.infinity,
-                  padding: Spacing.horizontalMd,
-                  height: 40.h,
-                ),
+              label: loc.authSendResetLink,
+              onPressed: _isLoading ? null : _handleSendResetEmail,
+              isLoading: _isLoading,
+              elevation: 1,
+              size: ButtonSize.small,
+              width: double.infinity,
+              padding: Spacing.horizontalMd,
+              height: 40.h,
+            ),
 
             Gap(16.h),
             TextButton(
-              onPressed:
-                  _isLoading
-                      ? null
-                      : () {
-                        Navigator.pop(context);
-                        BottomSheetUtils.showDocumentationBottomSheet(
-                          context: context,
-                          widget: LoginScreen(isCreateAccount: false),
-                        );
-                      },
-
-              // => context.go(RouteNames.login),
+              onPressed: _isLoading ? null : () => context.go(RouteNames.login),
               child: Text(
-                'Back to sign in',
+                loc.authBackToSignIn,
                 style: TextStyle(
                   color: colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 14.sp,

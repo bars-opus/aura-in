@@ -91,6 +91,7 @@ class ProductFormNotifier extends _$ProductFormNotifier {
     required double price,
     required List<String> images,
     required String category,
+    required List<String> shopTypes,
     int stockQuantity = 0,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -103,6 +104,7 @@ class ProductFormNotifier extends _$ProductFormNotifier {
                 price: price,
                 images: images,
                 category: category,
+                shopTypes: shopTypes,
                 stockQuantity: stockQuantity,
               );
       state = state.copyWith(
@@ -130,6 +132,7 @@ class ProductFormNotifier extends _$ProductFormNotifier {
     String? category,
     bool? isActive,
     int? stockQuantity,
+    List<String>? shopTypes,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
@@ -143,6 +146,7 @@ class ProductFormNotifier extends _$ProductFormNotifier {
                 category: category,
                 isActive: isActive,
                 stockQuantity: stockQuantity,
+                shopTypes: shopTypes,
               );
       state = state.copyWith(
         isLoading: false,

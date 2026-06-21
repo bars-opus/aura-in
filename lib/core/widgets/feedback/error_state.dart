@@ -1,14 +1,13 @@
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
-/// Predefined error types for consistent error handling
 enum ErrorStateType {
-  networkError, // Network/connection issues
-  serverError, // Server 5xx errors
-  clientError, // Client 4xx errors
-  parsingError, // Data parsing failures
-  permissionError, // Missing permissions
-  genericError, // Unknown/generic errors
-  custom, // Custom configuration
+  networkError,
+  serverError,
+  clientError,
+  parsingError,
+  permissionError,
+  genericError,
+  custom,
 }
 
 class ErrorStateWidget extends StatelessWidget {
@@ -17,9 +16,7 @@ class ErrorStateWidget extends StatelessWidget {
   final String? subtitle;
   final String? errorDetails;
   final String? primaryActionLabel;
-  final String? secondaryActionLabel;
   final VoidCallback? onPrimaryAction;
-  final VoidCallback? onSecondaryAction;
   final bool showDetails;
   final bool compact;
 
@@ -30,9 +27,7 @@ class ErrorStateWidget extends StatelessWidget {
     this.subtitle,
     this.errorDetails = '',
     this.primaryActionLabel,
-    this.secondaryActionLabel,
     this.onPrimaryAction,
-    this.onSecondaryAction,
     this.showDetails = false,
     this.compact = true,
   });
@@ -44,33 +39,32 @@ class ErrorStateWidget extends StatelessWidget {
 
     final config = _getConfiguration(context);
 
-    return Container(
+    final effectiveTitle = title ?? config.$2;
+    final effectiveSubtitle = subtitle ?? config.$3;
+
+    return Padding(
       padding:
           compact
-              ? EdgeInsets.all(Spacing.lg.h)
+              ? EdgeInsets.all(Spacing.lg.r)
               : EdgeInsets.symmetric(
                 vertical: Spacing.xxl.h,
                 horizontal: Spacing.xl.w,
               ),
       child: Column(
-        // mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Error icon with background
           Icon(
             config.$1,
-            size: compact ? 48.h : 60.h,
+            size: compact ? 48.r : 60.r,
             color: colorScheme.error,
           ),
 
           Gap(Spacing.md.h),
-          // Title
-          if (title != null)
-            Padding(
+
+          Padding(
               padding: EdgeInsets.only(bottom: Spacing.sm.h),
               child: Text(
-                title ?? config.$2!,
+                effectiveTitle,
                 style:
                     compact
                         ? textTheme.titleMedium?.copyWith(
@@ -85,12 +79,10 @@ class ErrorStateWidget extends StatelessWidget {
               ),
             ),
 
-          // Subtitle
-          if (subtitle != null)
-            Padding(
+          Padding(
               padding: EdgeInsets.only(bottom: compact ? 0 : Spacing.xxl.h),
               child: Text(
-                subtitle ?? config.$3!,
+                effectiveSubtitle,
                 style: textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                   height: 1.5,
@@ -99,21 +91,20 @@ class ErrorStateWidget extends StatelessWidget {
               ),
             ),
 
-          // Error details (expandable)
-          if (errorDetails!.isNotEmpty)
-            if (errorDetails != null && showDetails)
-              _ErrorDetails(
-                details: errorDetails!,
-                colorScheme: colorScheme,
-                compact: compact,
-              ),
+          if (errorDetails != null && errorDetails!.isNotEmpty && showDetails)
+            _ErrorDetails(
+              details: errorDetails!,
+              colorScheme: colorScheme,
+              compact: compact,
+            ),
 
           Gap(compact ? Spacing.sm.h : Spacing.xxl.h),
+
           if (onPrimaryAction != null)
             Center(
               child: AppTextButton(
                 alignment: Alignment.center,
-                text: primaryActionLabel ?? config.$4,
+                text: primaryActionLabel ?? config.$4 ?? 'Retry',
                 onPressed: onPrimaryAction,
               ),
             ),
@@ -122,10 +113,7 @@ class ErrorStateWidget extends StatelessWidget {
     );
   }
 
-  // Returns: (icon, title, subtitle, primaryActionLabel, secondaryActionLabel)
-  (IconData, String, String, String?, String?) _getConfiguration(
-    BuildContext context,
-  ) {
+  (IconData, String, String, String?) _getConfiguration(BuildContext context) {
     final loc = AppLocalizations.of(context);
 
     switch (type) {
@@ -136,7 +124,6 @@ class ErrorStateWidget extends StatelessWidget {
           loc?.errorNetworkSubtitle ??
               'Unable to connect to the server. Check your internet connection.',
           loc?.errorRetry ?? 'Try again',
-          loc?.errorCheckSettings ?? 'Check settings',
         );
       case ErrorStateType.serverError:
         return (
@@ -145,7 +132,6 @@ class ErrorStateWidget extends StatelessWidget {
           loc?.errorServerSubtitle ??
               'Something went wrong on our end. Please try again later.',
           loc?.errorRetry ?? 'Try again',
-          loc?.errorReport ?? 'Report issue',
         );
       case ErrorStateType.clientError:
         return (
@@ -154,7 +140,6 @@ class ErrorStateWidget extends StatelessWidget {
           loc?.errorClientSubtitle ??
               'There was a problem with your request. Please check and try again.',
           loc?.errorRetry ?? 'Try again',
-          loc?.errorGoBack ?? 'Go back',
         );
       case ErrorStateType.parsingError:
         return (
@@ -163,7 +148,6 @@ class ErrorStateWidget extends StatelessWidget {
           loc?.errorParsingSubtitle('data') ??
               'Unable to process the data. This might be a temporary issue.',
           loc?.errorRetry ?? 'Try again',
-          loc?.errorRefresh ?? 'Refresh',
         );
       case ErrorStateType.permissionError:
         return (
@@ -172,7 +156,6 @@ class ErrorStateWidget extends StatelessWidget {
           loc?.errorPermissionSubtitle('data') ??
               'You don\'t have permission to access this content.',
           loc?.errorRequestAccess ?? 'Request access',
-          loc?.errorGoBack ?? 'Go back',
         );
       case ErrorStateType.genericError:
         return (
@@ -181,21 +164,13 @@ class ErrorStateWidget extends StatelessWidget {
           loc?.errorGenericSubtitle('data') ??
               'An unexpected error occurred. Please try again.',
           loc?.errorRetry ?? 'Try again',
-          loc?.errorContactSupport ?? 'Contact support',
         );
       case ErrorStateType.custom:
-        return (
-          Icons.error_outline_outlined,
-          'Error',
-          'An error occurred.',
-          'Retry',
-          null,
-        );
+        return (Icons.error_outline_outlined, 'Error', 'An error occurred.', 'Retry');
     }
   }
 }
 
-/// Expandable error details section
 class _ErrorDetails extends StatefulWidget {
   final String details;
   final ColorScheme colorScheme;
@@ -216,8 +191,6 @@ class _ErrorDetailsState extends State<_ErrorDetails> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-
     return Column(
       children: [
         GestureDetector(
@@ -226,8 +199,7 @@ class _ErrorDetailsState extends State<_ErrorDetails> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                loc?.errorGenericTitle ?? 'Something went wrong',
-
+                _expanded ? 'Hide details' : 'Show details',
                 style: TextStyle(
                   color: widget.colorScheme.primary,
                   fontSize: widget.compact ? 12.sp : 14.sp,
@@ -235,8 +207,8 @@ class _ErrorDetailsState extends State<_ErrorDetails> {
               ),
               Gap(Spacing.xs.w),
               Icon(
-                _expanded ? Icons.expand_more : Icons.expand_more,
-                size: widget.compact ? 16.h : 20.h,
+                _expanded ? Icons.expand_less : Icons.expand_more,
+                size: widget.compact ? 16.r : 20.r,
                 color: widget.colorScheme.primary,
               ),
             ],
@@ -249,7 +221,7 @@ class _ErrorDetailsState extends State<_ErrorDetails> {
             width: double.infinity,
             padding: EdgeInsets.all(Spacing.md.w),
             decoration: BoxDecoration(
-              color: widget.colorScheme.surfaceVariant,
+              color: widget.colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(20.r),
             ),
             child: SelectableText(

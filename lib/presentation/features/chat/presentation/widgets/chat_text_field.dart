@@ -4,8 +4,16 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'package:nano_embryo/core/config/env.dart';
+import 'package:nano_embryo/core/services/location_service.dart';
 import 'package:nano_embryo/core/services/media/image_picker_service.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/presentation/features/chat/config/chat_config.dart';
+import 'package:nano_embryo/presentation/features/chat/presentation/widgets/attachment_menu.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ChatTextField extends ConsumerStatefulWidget {
   final TextEditingController controller;
@@ -25,13 +33,24 @@ class ChatTextField extends ConsumerStatefulWidget {
   final VoidCallback? onTypingStopped;
 
   /// Channel-aware file send — called when a file/image is picked.
-  final Future<void> Function(File file, String fileName, String mimeType)?
+  final Future<void> Function(
+    File file,
+    String fileName,
+    String mimeType, {
+    Map<String, dynamic>? data,
+  })?
   onFilePicked;
+
+  /// Called when the user taps Contact to share their own profile card.
+  final Future<void> Function()? onContactShare;
+
+  final FocusNode? focusNode;
 
   const ChatTextField({
     super.key,
     required this.controller,
     required this.onSend,
+    this.focusNode,
     this.isSending = false,
     this.hintText = 'Type a message...',
     this.onChanged,
@@ -43,6 +62,7 @@ class ChatTextField extends ConsumerStatefulWidget {
     this.onTypingStarted,
     this.onTypingStopped,
     this.onFilePicked,
+    this.onContactShare,
   });
 
   @override
@@ -50,7 +70,8 @@ class ChatTextField extends ConsumerStatefulWidget {
 }
 
 class _ChatTextFieldState extends ConsumerState<ChatTextField> {
-  final FocusNode _focusNode = FocusNode();
+  late final FocusNode _focusNode;
+  bool _ownsNode = false;
   bool _hasText = false;
 
   // Typing indicator debounce
@@ -62,6 +83,12 @@ class _ChatTextFieldState extends ConsumerState<ChatTextField> {
   @override
   void initState() {
     super.initState();
+    if (widget.focusNode != null) {
+      _focusNode = widget.focusNode!;
+    } else {
+      _focusNode = FocusNode();
+      _ownsNode = true;
+    }
     widget.controller.addListener(_handleTextChanged);
   }
 
@@ -69,7 +96,7 @@ class _ChatTextFieldState extends ConsumerState<ChatTextField> {
   void dispose() {
     widget.controller.removeListener(_handleTextChanged);
     _typingTimer?.cancel();
-    _focusNode.dispose();
+    if (_ownsNode) _focusNode.dispose();
     super.dispose();
   }
 
@@ -113,10 +140,56 @@ class _ChatTextFieldState extends ConsumerState<ChatTextField> {
 
   // ─── Attachment handlers ─────────────────────────────────────────────────
 
-  Future<void> _handleCamera(BuildContext context) async {
+  void _showPermissionSnackBar(String label) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$label permission denied. Allow access in Settings.'),
+        action: SnackBarAction(
+          label: 'Open Settings',
+          onPressed: () => openAppSettings(),
+        ),
+        duration: const Duration(seconds: 6),
+      ),
+    );
+  }
+
+  // F2: single source of truth for the size limit (checklist 4.11 / 2.5).
+  int get _maxFileBytes => ref.read(chatConfigProvider).maxFileSizeBytes;
+  int get _maxFileMb => (_maxFileBytes / (1024 * 1024)).round();
+
+  /// Returns true and shows the snackbar when [file] exceeds the limit.
+  Future<bool> _rejectIfTooLarge(File file) async {
+    if (await file.length() > _maxFileBytes) {
+      if (mounted) _showFileTooLargeSnackBar();
+      return true;
+    }
+    return false;
+  }
+
+  void _showFileTooLargeSnackBar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('File is too large. Maximum size is $_maxFileMb MB.'),
+      ),
+    );
+  }
+
+  Future<void> _handleCamera() async {
     Navigator.pop(context);
-    final file = await _imagePicker.pickImage(fromCamera: true);
+    // Wait for the bottom sheet dismiss animation before presenting native camera UI.
+    // iOS silently drops a UIViewController presentation while another is still animating.
+    await Future.delayed(const Duration(milliseconds: 350));
+
+    final file = await _imagePicker.pickImage(
+      fromCamera: true,
+      crop: true,
+      lockAspectRatio: false,
+    );
     if (file == null || !mounted) return;
+
+    // F2: file size guard
+    if (await _rejectIfTooLarge(file)) return;
+
     await widget.onFilePicked?.call(
       file,
       'photo_${DateTime.now().millisecondsSinceEpoch}.jpg',
@@ -124,10 +197,22 @@ class _ChatTextFieldState extends ConsumerState<ChatTextField> {
     );
   }
 
-  Future<void> _handleGallery(BuildContext context) async {
+  Future<void> _handleGallery() async {
     Navigator.pop(context);
-    final file = await _imagePicker.pickImage(fromCamera: false);
+    // Same timing guard — PHPickerViewController must be presented after the sheet
+    // animation completes, otherwise iOS drops the image selection callback.
+    await Future.delayed(const Duration(milliseconds: 350));
+
+    final file = await _imagePicker.pickImage(
+      fromCamera: false,
+      crop: true,
+      lockAspectRatio: false,
+    );
     if (file == null || !mounted) return;
+
+    // F2: file size guard
+    if (await _rejectIfTooLarge(file)) return;
+
     final ext = file.path.split('.').last.toLowerCase();
     final mime = ext == 'png' ? 'image/png' : 'image/jpeg';
     await widget.onFilePicked?.call(
@@ -137,32 +222,117 @@ class _ChatTextFieldState extends ConsumerState<ChatTextField> {
     );
   }
 
-  Future<void> _handleFilePicker(BuildContext context) async {
+  Future<void> _handleFilePicker() async {
     Navigator.pop(context);
+    await Future.delayed(const Duration(milliseconds: 350));
+
     final result = await FilePicker.platform.pickFiles(
       type: FileType.any,
       allowMultiple: false,
     );
     if (result == null || result.files.isEmpty || !mounted) return;
     final picked = result.files.first;
-    if (picked.path == null) return;
 
-    final file = File(picked.path!);
+    // On Android SAF, path may be null — copy bytes to a temp file as fallback.
+    File file;
+    if (picked.path != null) {
+      file = File(picked.path!);
+    } else if (picked.bytes != null) {
+      final tempDir = await getTemporaryDirectory();
+      file = File('${tempDir.path}/${picked.name}');
+      await file.writeAsBytes(picked.bytes!);
+    } else {
+      return;
+    }
+
+    // F2: file size guard
+    if (await _rejectIfTooLarge(file)) return;
+
     final mime = _mimeFromExtension(picked.extension ?? '');
     await widget.onFilePicked?.call(file, picked.name, mime);
   }
 
-  void _handleLocationShare(BuildContext context) {
+  Future<void> _handleLocationShare() async {
     Navigator.pop(context);
-    // Location sharing — future implementation
+    await Future.delayed(const Duration(milliseconds: 350));
+
+    // F3: permission check
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.deniedForever) {
+      if (mounted) _showPermissionSnackBar('Location');
+      return;
+    }
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) _showPermissionSnackBar('Location');
+        return;
+      }
+      if (permission == LocationPermission.denied) return;
+    }
+
+    // F4: fetch position + build Mapbox thumbnail
+    final locationService = LocationService();
+    final parsed = await locationService.getCurrentLocationWithDetails();
+    if (parsed == null || parsed.latitude == null || parsed.longitude == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not get your location. Try again.'),
+          ),
+        );
+      }
+      return;
+    }
+
+    final lat = parsed.latitude!;
+    final lng = parsed.longitude!;
+    final address =
+        parsed.fullAddress.isNotEmpty ? parsed.fullAddress : '$lat, $lng';
+    final token = Environment.mapboxAccessToken;
+    final mapUrl =
+        'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/'
+        '$lng,$lat,15,0/300x200@2x?access_token=$token';
+
+    late http.Response response;
+    try {
+      response = await http.get(Uri.parse(mapUrl));
+      if (response.statusCode != 200) {
+        throw Exception('HTTP ${response.statusCode}');
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not generate map preview. Try again.'),
+          ),
+        );
+      }
+      return;
+    }
+
+    final tempDir = await getTemporaryDirectory();
+    final fileName =
+        'location_${lat.toStringAsFixed(4)}_${lng.toStringAsFixed(4)}.jpg';
+    final tempFile = File('${tempDir.path}/$fileName');
+    await tempFile.writeAsBytes(response.bodyBytes);
+
+    if (!mounted) return;
+
+    await widget.onFilePicked?.call(
+      tempFile,
+      fileName,
+      'image/jpeg',
+      data: {'type': 'location', 'lat': lat, 'lng': lng, 'address': address},
+    );
   }
 
-  void _handleContactShare(BuildContext context) {
+  void _handleContactShare() {
     Navigator.pop(context);
-    // Contact sharing — future implementation
+    widget.onContactShare?.call();
   }
 
-  void _startVoiceRecording(BuildContext context) {
+  void _startVoiceRecording() {
     HapticFeedback.mediumImpact();
     // Voice recording — future implementation
   }
@@ -181,6 +351,9 @@ class _ChatTextFieldState extends ConsumerState<ChatTextField> {
         return 'video/mp4';
       case 'mp3':
         return 'audio/mpeg';
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
       case 'png':
         return 'image/png';
       case 'gif':
@@ -197,9 +370,10 @@ class _ChatTextFieldState extends ConsumerState<ChatTextField> {
       duration: const Duration(milliseconds: 250),
       transitionBuilder: (child, animation) {
         return FadeTransition(
-          opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
-            CurvedAnimation(parent: animation, curve: Curves.easeIn),
-          ),
+          opacity: Tween<double>(
+            begin: 0.0,
+            end: 1.0,
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeIn)),
           child: ScaleTransition(
             scale: Tween<double>(begin: 0.8, end: 1.0).animate(
               CurvedAnimation(parent: animation, curve: Curves.easeInOut),
@@ -235,7 +409,7 @@ class _ChatTextFieldState extends ConsumerState<ChatTextField> {
               : Container(
                 key: const ValueKey('mic_icon'),
                 child: IconButton(
-                  onPressed: () => _startVoiceRecording(context),
+                  onPressed: () => _startVoiceRecording(),
                   icon: Icon(
                     Icons.mic,
                     color: colorScheme.onSurface.withValues(alpha: 0.6),
@@ -253,13 +427,14 @@ class _ChatTextFieldState extends ConsumerState<ChatTextField> {
       onTap: () {
         BottomSheetUtils.showDocumentationBottomSheet(
           padding: 20.h,
+          maxHeight: 200.h,
           context: context,
           widget: AttachmentMenu(
-            onCamera: () => _handleCamera(context),
-            onGallery: () => _handleGallery(context),
-            onFile: () => _handleFilePicker(context),
-            onLocation: () => _handleLocationShare(context),
-            onContact: () => _handleContactShare(context),
+            onCamera: _handleCamera,
+            onGallery: _handleGallery,
+            onFile: _handleFilePicker,
+            onLocation: _handleLocationShare,
+            onContact: _handleContactShare,
           ),
         );
       },
@@ -363,138 +538,4 @@ class ChatTextFieldAction {
     required this.onPressed,
     this.tooltip = '',
   });
-}
-
-class AttachmentMenu extends StatefulWidget {
-  final VoidCallback onGallery;
-  final VoidCallback onFile;
-  final VoidCallback onLocation;
-  final VoidCallback onContact;
-  final VoidCallback onCamera;
-
-  const AttachmentMenu({
-    super.key,
-    required this.onCamera,
-    required this.onGallery,
-    required this.onFile,
-    required this.onLocation,
-    required this.onContact,
-  });
-
-  @override
-  State<AttachmentMenu> createState() => _AttachmentMenuState();
-}
-
-class _AttachmentMenuState extends State<AttachmentMenu>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: _scaleAnimation,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Gap(20.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildItem(0, Icons.camera_alt, 'Camera', widget.onCamera),
-              _buildItem(1, Icons.photo_library, 'Photos', widget.onGallery),
-              _buildItem(
-                2,
-                Icons.insert_drive_file,
-                'File',
-                widget.onFile,
-              ),
-              _buildItem(3, Icons.location_on, 'Location', widget.onLocation),
-              _buildItem(4, Icons.person, 'Contact', widget.onContact),
-            ],
-          ),
-          Gap(20.h),
-          Center(
-            child: AppTextButton(
-              alignment: Alignment.center,
-              onPressed: () => Navigator.pop(context),
-              text: 'Cancel',
-            ),
-          ),
-          Gap(30.h),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildItem(
-    int index,
-    IconData icon,
-    String label,
-    VoidCallback onTap,
-  ) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        final itemScale =
-            Tween<double>(begin: 0.0, end: 1.0)
-                .animate(
-                  CurvedAnimation(
-                    parent: _controller,
-                    curve: Interval(
-                      index * 0.05,
-                      1.0,
-                      curve: Curves.easeOutBack,
-                    ),
-                  ),
-                )
-                .value;
-        final opacity = ((_controller.value - index * 0.05).clamp(0.0, 1.0));
-        return Transform.scale(
-          scale: itemScale,
-          child: Opacity(opacity: opacity, child: child),
-        );
-      },
-      child: GestureDetector(
-        onTap: () {
-          Navigator.pop(context);
-          Future.delayed(const Duration(milliseconds: 150), onTap);
-        },
-        child: Column(
-          children: [
-            CircleAvatar(
-              radius: 28.0,
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              child: Icon(
-                icon,
-                size: 28.0,
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
-            ),
-            const SizedBox(height: 8.0),
-            Text(label, style: Theme.of(context).textTheme.bodySmall),
-          ],
-        ),
-      ),
-    );
-  }
 }

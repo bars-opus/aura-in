@@ -186,6 +186,9 @@ CREATE POLICY freelancer_details_owner_delete
 --   * No actor_id is stored — analytics are aggregate-only.
 --   * Inserts go through log_search_query() which enforces sanitization
 --     and a per-actor rate limit. Direct INSERT is forbidden via RLS.
+--
+-- This block is idempotent: if the table already exists (from a prior
+-- ad-hoc creation), missing columns are added without disturbing data.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.search_analytics (
   query              TEXT        PRIMARY KEY,
@@ -193,9 +196,37 @@ CREATE TABLE IF NOT EXISTS public.search_analytics (
   count              BIGINT      NOT NULL DEFAULT 1,
   result_count       INTEGER,
   first_searched_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  last_searched_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT search_analytics_query_length CHECK (char_length(query) BETWEEN 2 AND 64)
+  last_searched_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Backfill any missing columns on a pre-existing table.
+ALTER TABLE public.search_analytics
+  ADD COLUMN IF NOT EXISTS category          TEXT,
+  ADD COLUMN IF NOT EXISTS result_count      INTEGER,
+  ADD COLUMN IF NOT EXISTS count             BIGINT      NOT NULL DEFAULT 1,
+  ADD COLUMN IF NOT EXISTS first_searched_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  ADD COLUMN IF NOT EXISTS last_searched_at  TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+-- Add the length CHECK only if it isn't already present. Skip silently
+-- if any pre-existing row would violate it (those rows were written
+-- before the constraint existed; we don't want to fail the migration on
+-- legacy data — they'll naturally age out via the 180-day prune).
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE  conname = 'search_analytics_query_length'
+    AND    conrelid = 'public.search_analytics'::regclass
+  ) THEN
+    BEGIN
+      ALTER TABLE public.search_analytics
+        ADD CONSTRAINT search_analytics_query_length
+        CHECK (char_length(query) BETWEEN 2 AND 64);
+    EXCEPTION WHEN check_violation THEN
+      RAISE NOTICE 'search_analytics has rows violating length 2..64; constraint skipped';
+    END;
+  END IF;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_search_analytics_count
   ON public.search_analytics (count DESC);

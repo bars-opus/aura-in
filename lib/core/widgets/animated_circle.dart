@@ -3,12 +3,13 @@ import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 class AnimatedCircle extends StatefulWidget {
   final bool animateSize;
   final bool animateShape;
-  final int size;
-  final int stroke;
+  final double size;
+  final double stroke;
   final Color firstColor;
   final Color secondColor;
 
-  AnimatedCircle({
+  const AnimatedCircle({
+    super.key,
     this.animateSize = false,
     this.animateShape = false,
     this.size = 100,
@@ -18,7 +19,7 @@ class AnimatedCircle extends StatefulWidget {
   });
 
   @override
-  _AnimatedCircleState createState() => _AnimatedCircleState();
+  State<AnimatedCircle> createState() => _AnimatedCircleState();
 }
 
 class _AnimatedCircleState extends State<AnimatedCircle>
@@ -35,24 +36,33 @@ class _AnimatedCircleState extends State<AnimatedCircle>
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
+    _buildAnimations();
+  }
 
+  @override
+  void didUpdateWidget(AnimatedCircle oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.firstColor != oldWidget.firstColor ||
+        widget.secondColor != oldWidget.secondColor ||
+        widget.size != oldWidget.size) {
+      _buildAnimations();
+    }
+  }
+
+  void _buildAnimations() {
     _colorAnimation = ColorTween(
       begin: widget.firstColor,
       end: widget.secondColor,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _shapeAnimation = BorderRadiusTween(
-      begin: BorderRadius.circular(50),
+      begin: BorderRadius.circular((widget.size / 2)),
       end: BorderRadius.circular(0),
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
     _sizeAnimation = Tween<double>(
-      begin: widget.size.toDouble(),
-      end: widget.size - 20,
+      begin: widget.size,
+      end: (widget.size * 0.5),
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
@@ -62,26 +72,23 @@ class _AnimatedCircleState extends State<AnimatedCircle>
     super.dispose();
   }
 
-  _animator(BuildContext context) {
+  Widget _buildCircle() {
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        double size =
-            widget.animateSize
-                ? _sizeAnimation.value
-                : widget.size.h.toDouble();
-        BorderRadius? borderRadius =
+        final size = widget.animateSize ? _sizeAnimation.value : widget.size.r;
+        final borderRadius =
             widget.animateShape
                 ? _shapeAnimation.value
-                : BorderRadius.circular(50);
+                : BorderRadius.circular((widget.size / 2).r);
 
         return Container(
           width: size,
           height: size,
           decoration: BoxDecoration(
             border: Border.all(
-              color: _colorAnimation.value!,
-              width: widget.stroke.toDouble(),
+              color: _colorAnimation.value ?? widget.firstColor,
+              width: widget.stroke,
             ),
             color: Colors.transparent,
             borderRadius: borderRadius,
@@ -92,9 +99,5 @@ class _AnimatedCircleState extends State<AnimatedCircle>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.size != 100
-        ? _animator(context)
-        : Center(child: _animator(context));
-  }
+  Widget build(BuildContext context) => _buildCircle();
 }

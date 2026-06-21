@@ -1,27 +1,31 @@
 // lib/features/shop/creation/presentation/widgets/add_contact_modal.dart
 
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/phone_field_widget.dart';
+import 'package:nano_embryo/presentation/features/auth/providers/phone_verification_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/calendar/utility/calendar_export.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/contact_draft.dart';
 
-class AddContactModal extends StatefulWidget {
-  final Function(ContactDraft) onSave;
+class AddContactModal extends ConsumerStatefulWidget {
+  final Function(ContactDraft)? onSave;
   final ContactDraft? initialContact;
   final String? shopCountryIsoCode; // e.g. 'GH', auto-set from shop location
+  final bool verifyMode;
 
   const AddContactModal({
     super.key,
-    required this.onSave,
+    this.onSave,
     this.initialContact,
     this.shopCountryIsoCode,
+    this.verifyMode = false,
   });
 
   @override
-  State<AddContactModal> createState() => _AddContactModalState();
+  ConsumerState<AddContactModal> createState() => _AddContactModalState();
 }
 
-class _AddContactModalState extends State<AddContactModal> {
+class _AddContactModalState extends ConsumerState<AddContactModal> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _valueController;
   ContactType? _selectedType;
@@ -30,28 +34,39 @@ class _AddContactModalState extends State<AddContactModal> {
   String? _e164Phone; // holds validated E.164 for phone type
   bool _isPrimary = false;
 
+  bool _codeSent = false;
+  bool _busy = false;
+  String? _verifyError;
+  final _codeController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _isPrimary = widget.initialContact?.isPrimary ?? false;
     if (widget.initialContact != null) {
       _selectedType = widget.initialContact!.type;
-      _e164Phone = widget.initialContact!.type == ContactType.phone
-          ? widget.initialContact!.value
-          : null;
+      _e164Phone =
+          widget.initialContact!.type == ContactType.phone
+              ? widget.initialContact!.value
+              : null;
       _valueController = TextEditingController(
-        text: widget.initialContact!.type == ContactType.phone
-            ? '' // PhoneFieldWidget owns its own controller
-            : widget.initialContact!.value,
+        text:
+            widget.initialContact!.type == ContactType.phone
+                ? '' // PhoneFieldWidget owns its own controller
+                : widget.initialContact!.value,
       );
     } else {
       _valueController = TextEditingController();
+    }
+    if (widget.verifyMode) {
+      _selectedType = ContactType.phone;
     }
   }
 
   @override
   void dispose() {
     _valueController.dispose();
+    _codeController.dispose();
     super.dispose();
   }
 
@@ -62,7 +77,7 @@ class _AddContactModalState extends State<AddContactModal> {
         final finalValue = _normaliseValue(value);
         final contact = ContactDraft(type: _selectedType!, value: finalValue);
         if (contact.validate() == null) {
-          widget.onSave(contact);
+          widget.onSave?.call(contact);
         }
       }
     }
@@ -90,20 +105,17 @@ class _AddContactModalState extends State<AddContactModal> {
       case ContactType.email:
         return (value) => ValidationUtils.validateEmail(value).toErrorString();
       case ContactType.website:
-        return (value) => ValidationUtils.validateUrl(
-          _normaliseValue(value ?? ''),
-          requireHttps: false,
-        ).toErrorString();
+        return (value) =>
+            ValidationUtils.validateUrl(
+              _normaliseValue(value ?? ''),
+              requireHttps: false,
+            ).toErrorString();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final header =
-        widget.initialContact == null ? 'Add contact to ' : 'Edit contact of ';
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -115,92 +127,142 @@ class _AddContactModalState extends State<AddContactModal> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          AppTextButton(
-            text: widget.initialContact == null ? 'Add' : 'Save',
-            onPressed: _submit,
-          ),
+          if (!widget.verifyMode)
+            AppTextButton(
+              text: widget.initialContact == null ? 'Add' : 'Save',
+              onPressed: _submit,
+            ),
         ],
       ),
       body: Form(
         key: _formKey,
         child: ListView(
           children: [
-            Gap(Spacing.lg.h),
-            SemanticContainerWidget(
-              content:
-                  '${header}your social profiles to help customers find you',
-              title: '',
-              backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
-              borderColor: colorScheme.primary,
-              iconColor: colorScheme.primary,
-              textTheme: theme.textTheme,
-            ),
-            Gap(Spacing.lg.h),
             Gap(Spacing.md.h),
-
-            Text(
-              'Contact Type',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface,
+            if (widget.verifyMode) ...[
+              SemanticContainerWidget(
+                content:
+                    'You have to enter a verified phone number to continue. This would be used for communication. ',
+                icon: Icons.phone,
+                title: 'Enter phone number',
+                backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                borderColor: theme.colorScheme.primary,
+                iconColor: theme.colorScheme.primary,
+                textTheme: theme.textTheme,
               ),
-            ),
-            Gap(Spacing.sm.h),
-            _buildTypeSelector(),
-
-            if (_typeError != null) ...[
-              Gap(Spacing.xs.h),
-              Text(
-                _typeError!,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.error,
-                ),
-              ),
+              Gap(Spacing.md.h),
             ],
-
-            Gap(Spacing.md.h),
-
-            if (_selectedType == ContactType.phone)
-              PhoneFieldWidget(
-                initialCountryIsoCode: widget.shopCountryIsoCode,
-                initialValue: widget.initialContact?.type == ContactType.phone
-                    ? widget.initialContact!.value
-                    : null,
-                onChanged: (e164) => setState(() => _e164Phone = e164),
-              )
-            else
-              AppTextFormField(
-                debounceDuration: const Duration(milliseconds: 300),
-                onDebouncedChanged: (_) => _autoSave(),
-                controller: _valueController,
-                label: _getLabel(),
-                hintText: _getHint(),
-                prefixIcon: _selectedType?.icon,
-                keyboardType: _getKeyboardType(),
-                inputFormatters: _getInputFormatters(),
-                // Validator is wired to ValidationUtils — Form.validate() triggers it.
-                validator: _getValidator(),
-              ),
-
-            Gap(Spacing.md.h),
-
-            if (widget.initialContact == null)
-              Row(
+            CardInkWell(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Checkbox(
-                    value: _isPrimary,
-                    onChanged: (v) => setState(() => _isPrimary = v ?? false),
-                  ),
-                  Expanded(
-                    child: Text(
-                      'Set as primary contact',
-                      style: theme.textTheme.bodySmall?.copyWith(
+                  if (!widget.verifyMode) ...[
+                    Text(
+                      'Contact Type',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
                         color: theme.colorScheme.onSurface,
                       ),
                     ),
-                  ),
+                    Gap(Spacing.sm.h),
+                    _buildTypeSelector(),
+
+                    if (_typeError != null) ...[
+                      Gap(Spacing.xs.h),
+                      Text(
+                        _typeError!,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.error,
+                        ),
+                      ),
+                    ],
+
+                    Gap(Spacing.md.h),
+                  ],
+
+                  if (widget.verifyMode) Gap(Spacing.md.h),
+
+                  if (_selectedType == ContactType.phone)
+                    PhoneFieldWidget(
+                      initialCountryIsoCode: widget.shopCountryIsoCode,
+                      initialValue:
+                          widget.initialContact?.type == ContactType.phone
+                              ? widget.initialContact!.value
+                              : null,
+                      onChanged: (e164) => setState(() => _e164Phone = e164),
+                    )
+                  else
+                    AppTextFormField(
+                      debounceDuration: const Duration(milliseconds: 300),
+                      onDebouncedChanged: (_) => _autoSave(),
+                      controller: _valueController,
+                      label: _getLabel(),
+                      hintText: _getHint(),
+                      prefixIcon: _selectedType?.icon,
+                      keyboardType: _getKeyboardType(),
+                      inputFormatters: _getInputFormatters(),
+                      // Validator is wired to ValidationUtils — Form.validate() triggers it.
+                      validator: _getValidator(),
+                    ),
+
+                  if (!widget.verifyMode && widget.initialContact == null)
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _isPrimary,
+                          onChanged:
+                              (v) => setState(() => _isPrimary = v ?? false),
+                        ),
+                        Expanded(
+                          child: Text(
+                            'Set as primary contact',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                  if (widget.verifyMode) ...[
+                    Gap(Spacing.md.h),
+                    if (_codeSent) ...[
+                      AppTextFormField(
+                        controller: _codeController,
+                        label: 'Verification code',
+                        hintText: '123456',
+                        keyboardType: TextInputType.number,
+                      ),
+                      Gap(Spacing.sm.h),
+                    ],
+                    if (_verifyError != null) ...[
+                      Text(
+                        _verifyError!,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.error,
+                        ),
+                      ),
+                      Gap(Spacing.sm.h),
+                    ],
+
+                    AppButton(
+                      elevation: 0,
+                      label:
+                          _busy
+                              ? 'Please wait...'
+                              : (_codeSent ? 'Verify' : 'Send code'),
+                      onPressed:
+                          _busy ? null : (_codeSent ? _verifyCode : _sendCode),
+
+                      size: ButtonSize.small,
+                      width: double.infinity,
+                      padding: Spacing.horizontalMd,
+                      height: 40.h,
+                    ),
+                  ],
                 ],
               ),
+            ),
 
             Gap(Spacing.lg.h),
           ],
@@ -215,25 +277,26 @@ class _AddContactModalState extends State<AddContactModal> {
     return Wrap(
       spacing: 8.w,
       runSpacing: 8.h,
-      children: ContactType.values.map((type) {
-        final isSelected = _selectedType == type;
-        return AppFilterChip(
-          avatarIcon: type.icon,
-          label: type.displayName,
-          selected: isSelected,
-          onSelected: (selected) {
-            setState(() {
-              _selectedType = selected ? type : null;
-              _valueController.clear();
-              _typeError = null;
-            });
-          },
-          selectedColor: colorScheme.primary,
-          backgroundColor: colorScheme.surface,
-          labelColor: colorScheme.onSurface.withValues(alpha: 0.3),
-          borderWidth: 0.3,
-        );
-      }).toList(),
+      children:
+          ContactType.values.map((type) {
+            final isSelected = _selectedType == type;
+            return AppFilterChip(
+              avatarIcon: type.icon,
+              label: type.displayName,
+              selected: isSelected,
+              onSelected: (selected) {
+                setState(() {
+                  _selectedType = selected ? type : null;
+                  _valueController.clear();
+                  _typeError = null;
+                });
+              },
+              selectedColor: colorScheme.primary,
+              backgroundColor: colorScheme.surface,
+              labelColor: colorScheme.onSurface.withValues(alpha: 0.7),
+              borderWidth: 0.3,
+            );
+          }).toList(),
     );
   }
 
@@ -308,12 +371,14 @@ class _AddContactModalState extends State<AddContactModal> {
         _formKey.currentState!.validate();
         return;
       }
-      widget.onSave(ContactDraft(
-        id: widget.initialContact?.id,
-        type: ContactType.phone,
-        value: _e164Phone!,
-        isPrimary: _isPrimary,
-      ));
+      widget.onSave?.call(
+        ContactDraft(
+          id: widget.initialContact?.id,
+          type: ContactType.phone,
+          value: _e164Phone!,
+          isPrimary: _isPrimary,
+        ),
+      );
       Navigator.pop(context);
       return;
     }
@@ -322,12 +387,60 @@ class _AddContactModalState extends State<AddContactModal> {
     if (!_formKey.currentState!.validate()) return;
 
     final finalValue = _normaliseValue(_valueController.text.trim());
-    widget.onSave(ContactDraft(
-      id: widget.initialContact?.id,
-      type: _selectedType!,
-      value: finalValue,
-      isPrimary: _isPrimary,
-    ));
+    widget.onSave?.call(
+      ContactDraft(
+        id: widget.initialContact?.id,
+        type: _selectedType!,
+        value: finalValue,
+        isPrimary: _isPrimary,
+      ),
+    );
     Navigator.pop(context);
+  }
+
+  Future<void> _sendCode() async {
+    if (_e164Phone == null) {
+      setState(() => _verifyError = 'Enter a valid phone number');
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _verifyError = null;
+    });
+    try {
+      await ref.read(phoneVerificationControllerProvider).sendCode(_e164Phone!);
+      setState(() => _codeSent = true);
+    } catch (e) {
+      setState(() => _verifyError = 'Could not send code. Please try again.');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _verifyCode() async {
+    final code = _codeController.text.trim();
+    if (code.isEmpty) {
+      setState(() => _verifyError = 'Enter the code');
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _verifyError = null;
+    });
+    try {
+      final ok = await ref
+          .read(phoneVerificationControllerProvider)
+          .verifyCode(_e164Phone!, code);
+      if (!mounted) return;
+      if (ok) {
+        Navigator.pop(context, true);
+      } else {
+        setState(() => _verifyError = 'Incorrect or expired code');
+      }
+    } catch (e) {
+      setState(() => _verifyError = 'Verification failed. Please try again.');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 }

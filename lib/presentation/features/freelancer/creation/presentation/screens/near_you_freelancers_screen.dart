@@ -44,7 +44,7 @@ class _NearYouFreelancersScreenState
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Text(
-          'Freelancers near you',
+          loc.nearYouFreelancersScreenTitle,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface.withOpacity(0.8),
@@ -59,8 +59,8 @@ class _NearYouFreelancersScreenState
 
           if (state.freelancers.isEmpty && !state.isLoading) {
             return EmptyStateWidget(
-              title: 'No freelancers found nearby',
-              subtitle: 'Try expanding your search area or change location',
+              title: loc.nearYouFreelancersEmpty,
+              subtitle: loc.nearYouFreelancersEmptySubtitle,
               onAction:
                   () =>
                       ref
@@ -112,8 +112,8 @@ class _NearYouFreelancersScreenState
         error:
             (error, stack) => Center(
               child: ErrorStateWidget(
-                showDetails: true,
-                errorDetails: 'Failed to load nearby freelancers\n$error',
+                title: loc.commonSomethingWentWrong,
+                subtitle: error.toString(),
                 type: ErrorStateType.genericError,
                 onPrimaryAction:
                     () =>

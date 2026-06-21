@@ -15,49 +15,13 @@
 // (promotionId, amountOff, newTotal) to the parent screen via the
 // [onApplied] callback; the parent re-derives platform fee from the
 // discounted new_total and stores promotionId for processPayment.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/utils/money.dart';
-import 'package:nano_embryo/core/widgets/feedback/snackbar_widget.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/data/models/applied_promo.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/promotion_exceptions.dart';
-import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/promotion_model.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/repositories/promotions_repository.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dashboard_providers.dart';
-
-/// Lightweight result snapshot the parent screen reads from
-/// [onApplied]. Mirrors [PromoValidation] but adds a source-keyed
-/// display label that's already i18n-friendly for the line item.
-class AppliedPromo {
-  final String promotionId;
-  final String code;
-
-  /// Phase 17: int minor units (kobo). Display via `formatMoney(amountOffMinor, currency)`.
-  final int amountOffMinor;
-  final int newTotalMinor;
-  final PromoSource source;
-
-  const AppliedPromo({
-    required this.promotionId,
-    required this.code,
-    required this.amountOffMinor,
-    required this.newTotalMinor,
-    required this.source,
-  });
-
-  /// Source-keyed label shown in the totals line item. Owner-defined
-  /// codes show the code text; silent codes show a friendly name.
-  String get displayLabel {
-    switch (source) {
-      case PromoSource.loyalty:
-        return 'Loyalty reward';
-      case PromoSource.recovery:
-        return 'Welcome back';
-      case PromoSource.ownerDefined:
-        return 'Code: $code';
-    }
-  }
-}
 
 class ClientPromoCodeField extends ConsumerStatefulWidget {
   final String shopId;
@@ -95,9 +59,9 @@ class ClientPromoCodeField extends ConsumerStatefulWidget {
     required this.onApplied,
     this.serviceIds,
   }) : assert(
-          (userId == null) != (guestProfileId == null),
-          'Exactly one of userId / guestProfileId must be non-null',
-        );
+         (userId == null) != (guestProfileId == null),
+         'Exactly one of userId / guestProfileId must be non-null',
+       );
 
   @override
   ConsumerState<ClientPromoCodeField> createState() =>
@@ -161,7 +125,7 @@ class _ClientPromoCodeFieldState extends ConsumerState<ClientPromoCodeField> {
       );
       if (!mounted) return;
       if (result == null) {
-        Snackbar.error(context, "We couldn't find that code.");
+        context.showErrorSnackbar("We couldn't find that code.");
         setState(() => _busy = false);
         return;
       }
@@ -169,11 +133,11 @@ class _ClientPromoCodeFieldState extends ConsumerState<ClientPromoCodeField> {
       setState(() => _busy = false);
     } on PromotionException catch (e) {
       if (!mounted) return;
-      Snackbar.error(context, e.userMessage);
+      context.showErrorSnackbar(e.userMessage);
       setState(() => _busy = false);
     } catch (_) {
       if (!mounted) return;
-      Snackbar.error(context, 'Something went wrong. Please try again.');
+      context.showErrorSnackbar('Something went wrong. Please try again.');
       setState(() => _busy = false);
     }
   }
@@ -200,45 +164,21 @@ class _ClientPromoCodeFieldState extends ConsumerState<ClientPromoCodeField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     // Applied state: show the line item and an X to clear.
     if (_applied != null) {
-      return Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.primaryContainer.withValues(alpha: 0.4),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.local_offer_outlined,
-                size: 18, color: theme.colorScheme.primary),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(_applied!.displayLabel,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      )),
-                  Text(
-                    // Phase 17: format int kobo via the single helper.
-                    '-${formatMoney(_applied!.amountOffMinor, "")}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.close, size: 18),
-              onPressed: _busy ? null : _clear,
-              tooltip: 'Remove code',
-            ),
-          ],
+      return CardInkWell(
+        child: InfoRowWidget(
+          subtitle: '-${formatMoney(_applied!.amountOffMinor, "")}',
+          title: _applied!.displayLabel,
+          icon: Icons.local_offer_outlined,
+          avatarRadius: 25.h,
+          onTap: () {},
+          showAvatar: false,
+          showTrailingArrow: false,
+          trailing: AppIconButton(
+            icon: Icons.close,
+            onPressed: _busy ? null : _clear,
+          ),
         ),
       );
     }
@@ -247,27 +187,26 @@ class _ClientPromoCodeFieldState extends ConsumerState<ClientPromoCodeField> {
     return Row(
       children: [
         Expanded(
-          child: TextField(
+          child: AppTextFormField(
             controller: _controller,
-            textCapitalization: TextCapitalization.characters,
-            decoration: const InputDecoration(
-              labelText: 'Promo code',
-              border: OutlineInputBorder(),
-              isDense: true,
-            ),
-            onSubmitted: (_) => _applyManual(),
+            label: 'Promo code',
+            prefixIcon: Icons.local_offer_outlined,
+            onFieldSubmitted: (_) => _applyManual(),
           ),
         ),
-        const SizedBox(width: 8),
-        FilledButton(
-          onPressed: _busy ? null : _applyManual,
-          child: _busy
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Apply'),
+        Gap(Spacing.md.w),
+        SizedBox(
+          width: 100.w,
+          child: AppButton(
+            elevation: 0,
+            size: ButtonSize.small,
+            variant: ButtonVariant.outline,
+            label: 'Apply',
+            onPressed: _busy ? null : _applyManual,
+            width: double.infinity,
+            padding: Spacing.horizontalMd,
+            height: 40.h,
+          ),
         ),
       ],
     );

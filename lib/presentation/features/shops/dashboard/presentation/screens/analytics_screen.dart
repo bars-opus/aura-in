@@ -33,6 +33,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   }
 
   Widget _buildContent(AnalyticsState state) {
+    final loc = AppLocalizations.of(context)!;
+
     if (state.isLoading) {
       return const AnalyticsLoadingScreen();
     }
@@ -40,7 +42,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
     if (state.hasError) {
       return Center(
         child: ErrorStateWidget(
-          subtitle: 'Failed to load analytics',
+          subtitle: loc.analyticsLoadError,
           title: '',
           onPrimaryAction:
               () =>
@@ -59,8 +61,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
       return Center(
         child: EmptyStateWidget(
           icon: Icons.analytics_outlined,
-          title: 'No data available for analytics.',
-          subtitle: 'Booking and revenue statistics would appear here',
+          title: loc.analyticsEmpty,
+          subtitle: loc.analyticsEmptySubtitle,
         ),
       );
     }
@@ -83,26 +85,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
         padding: EdgeInsets.all(Spacing.md.h),
         children: [
           CustomUniversalTabs(
-            tabs: [
-              TabItem(
-                label: 'Revenue',
-                icon: Icons.attach_money_outlined,
-                selectedIcon: Icons.attach_money,
-                value: AnalyticsTab.revenue,
-              ),
-              TabItem(
-                label: 'Services',
-                icon: Icons.cut_outlined,
-                selectedIcon: Icons.cut,
-                value: AnalyticsTab.services,
-              ),
-              TabItem(
-                label: 'Workers',
-                icon: Icons.person_outline,
-                selectedIcon: Icons.person,
-                value: AnalyticsTab.workers,
-              ),
-            ],
+            tabs: _buildAnalyticsTabs(context),
             selectedIndex: _selectedTab.index,
             onIndexChanged: (index) {
               setState(() {
@@ -222,6 +205,30 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
     if (quarters.isEmpty) return 10000;
     final max = quarters.map((q) => q.amount).reduce((a, b) => a > b ? a : b);
     return max * 1.2;
+  }
+
+  List<TabItem> _buildAnalyticsTabs(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return [
+      TabItem(
+        label: loc.analyticsRevenue,
+        icon: Icons.attach_money_outlined,
+        selectedIcon: Icons.attach_money,
+        value: AnalyticsTab.revenue,
+      ),
+      TabItem(
+        label: loc.analyticsServices,
+        icon: Icons.cut_outlined,
+        selectedIcon: Icons.cut,
+        value: AnalyticsTab.services,
+      ),
+      TabItem(
+        label: loc.analyticsWorkers,
+        icon: Icons.person_outline,
+        selectedIcon: Icons.person,
+        value: AnalyticsTab.workers,
+      ),
+    ];
   }
 }
 

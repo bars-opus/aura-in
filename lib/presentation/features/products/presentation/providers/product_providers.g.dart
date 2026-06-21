@@ -6,7 +6,7 @@ part of 'product_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$productRepositoryHash() => r'9ca314bc5ada76907b1d1cf4c039ae1b08115bc8';
+String _$productRepositoryHash() => r'0d5f796534bcef694840213278163c5a2cf94fa0';
 
 /// See also [productRepository].
 @ProviderFor(productRepository)
@@ -24,7 +24,7 @@ final productRepositoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ProductRepositoryRef = AutoDisposeProviderRef<ProductRepository>;
-String _$shopProductsHash() => r'e493c980fd29e997e6afedce098a7207fbb2c576';
+String _$shopProductsHash() => r'0282e77ada3c70ceddb4b730731697f15d839d15';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -177,7 +177,7 @@ class _ShopProductsProviderElement
   String get shopId => (origin as ShopProductsProvider).shopId;
 }
 
-String _$productHash() => r'ff7c9948d2ce16077c4fcd73d3e942dbbdf63528';
+String _$productHash() => r'5e31eef1271d2b2845dce346d4377667e8209463';
 
 /// See also [product].
 @ProviderFor(product)
@@ -307,7 +307,7 @@ class _ProductProviderElement
 }
 
 String _$productFormNotifierHash() =>
-    r'ab7c78a8293d2de76fbfaf8e536e4badba0bf3d7';
+    r'ca61dec0e956bdbaf8f48a14ab3c48b8810a926a';
 
 /// See also [ProductFormNotifier].
 @ProviderFor(ProductFormNotifier)

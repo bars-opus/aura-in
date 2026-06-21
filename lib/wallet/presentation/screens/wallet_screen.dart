@@ -65,6 +65,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     // Watch wallet data
     final walletAsync = ref.watch(shopWalletProvider(widget.shopId));
@@ -127,8 +128,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           bottom: Spacing.sm,
                         ),
                         child: SemanticContainerWidget(
-                          content:
-                              'Kindly wait for the payment to finish processing and return to your app to generate your appointment',
+                          content: loc.walletPaymentProcessing,
                           icon: Icons.monetization_on,
                           title: '',
                           backgroundColor: colorScheme.primary.withOpacity(0.1),
@@ -205,7 +205,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     );
                     final userMessage = error is WalletException
                         ? error.userMessage
-                        : "We couldn't load your wallet right now.";
+                        : loc.walletLoadError;
                     return Center(
                       child: ErrorStateWidget(
                         compact: true,
@@ -233,7 +233,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     vertical: Spacing.sm.h,
                   ),
                   child: Text(
-                    'Recent Transactions',
+                    loc.walletRecentTransactions,
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: colorScheme.onSurface,
@@ -279,9 +279,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                       'error': error.toString(),
                     },
                   );
-                  return const SliverFillRemaining(
+                  return SliverFillRemaining(
                     child: Center(
-                      child: Text("Couldn't load recent transactions."),
+                      child: Text(loc.walletTransactionLoadError),
                     ),
                   );
                 },

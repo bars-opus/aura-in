@@ -474,7 +474,7 @@ class _SlotWorkerAssignmentsProviderElement
   String get shopId => (origin as SlotWorkerAssignmentsProvider).shopId;
 }
 
-String _$workersForSlotHash() => r'eff7100c489bae80d1366c62db1994b0837ecdd7';
+String _$workersForSlotHash() => r'd8385f002ad025e88d664f9fa2cc48d8744c3d20';
 
 /// Combined provider that returns workers for a specific slot
 ///

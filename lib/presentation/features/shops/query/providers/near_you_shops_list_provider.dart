@@ -1,4 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:nano_embryo/presentation/features/discover/providers/discovery_seed_provider.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 
 part 'near_you_shops_list_provider.g.dart';
@@ -18,6 +20,9 @@ class NearYouShopsListState {
   final bool verifiedOnly;
   final String sortBy; // 'rating' or 'name'
 
+  /// Seed captured at first-page load; held constant so offset pagination stays stable.
+  final int seed;
+
   NearYouShopsListState({
     required this.shops,
     this.nextCursor,
@@ -28,6 +33,7 @@ class NearYouShopsListState {
     this.luxuryLevel,
     this.verifiedOnly = false,
     this.sortBy = 'rating',
+    this.seed = 0,
   });
 
   NearYouShopsListState copyWith({
@@ -40,6 +46,7 @@ class NearYouShopsListState {
     String? luxuryLevel,
     bool? verifiedOnly,
     String? sortBy,
+    int? seed,
   }) {
     return NearYouShopsListState(
       shops: shops ?? this.shops,
@@ -51,6 +58,7 @@ class NearYouShopsListState {
       luxuryLevel: luxuryLevel ?? this.luxuryLevel,
       verifiedOnly: verifiedOnly ?? this.verifiedOnly,
       sortBy: sortBy ?? this.sortBy,
+      seed: seed ?? this.seed,
     );
   }
 
@@ -65,14 +73,28 @@ class NearYouShopsListState {
       luxuryLevel: null,
       verifiedOnly: false,
       sortBy: 'rating',
+      seed: 0,
     );
   }
 }
 
-@riverpod
+/// keepAlive: discover-screen data persists across tab/route switches.
+/// Call refresh() to invalidate stale data. NOTE: if the user's location
+/// changes significantly, call refresh() — `build()` does not re-watch
+/// userLocationNotifierProvider.
+@Riverpod(keepAlive: true)
 class NearYouShopsList extends _$NearYouShopsList {
+  /// Suppresses ref.listen-driven refetches while applyFilters is in flight
+  /// (otherwise committing radius would race with the explicit refetch).
+  bool _isApplyingFilters = false;
+
   @override
   Future<NearYouShopsListState> build() {
+    // React to radius slider changes by refetching the first page.
+    ref.listen<double>(searchRadiusKmProvider, (prev, next) {
+      if (_isApplyingFilters) return;
+      if (prev != null && prev != next) loadFirstPage();
+    });
     return Future.value(NearYouShopsListState.initial());
   }
 
@@ -91,6 +113,7 @@ class NearYouShopsList extends _$NearYouShopsList {
     }
 
     final repository = ref.read(shopRepositoryProvider);
+    final radiusKm = ref.read(searchRadiusKmProvider);
 
     // Capture current filter state BEFORE overwriting it with AsyncLoading.
     final currentState = state.asData?.value;
@@ -99,6 +122,9 @@ class NearYouShopsList extends _$NearYouShopsList {
         verifiedOnly ?? currentState?.verifiedOnly ?? false;
     final effectiveSortBy = sortBy ?? currentState?.sortBy ?? 'rating';
 
+    // Capture a fresh seed for this page-1 load so pagination stays stable.
+    final seed = ref.read(discoverySeedProvider);
+
     state = const AsyncValue.loading();
 
     try {
@@ -106,12 +132,13 @@ class NearYouShopsList extends _$NearYouShopsList {
       final result = await repository.getNearbyShopsPaginated(
         latitude: userLocation.latitude,
         longitude: userLocation.longitude,
-        radiusKm: 10.0,
+        radiusKm: radiusKm,
         cursor: cursor,
         luxuryLevel: effectiveLuxuryLevel,
         verifiedOnly: effectiveVerifiedOnly,
         sortBy: effectiveSortBy,
         limit: AppConstants.shopsPerPage,
+        seed: seed,
       );
 
       final hasReachedMax = result.items.isEmpty || result.nextCursor == null;
@@ -125,6 +152,7 @@ class NearYouShopsList extends _$NearYouShopsList {
           luxuryLevel: effectiveLuxuryLevel,
           verifiedOnly: effectiveVerifiedOnly,
           sortBy: effectiveSortBy,
+          seed: seed,
         ),
       );
     } catch (e, stack) {
@@ -137,24 +165,35 @@ class NearYouShopsList extends _$NearYouShopsList {
     String? luxuryLevel,
     bool? verifiedOnly,
     String? sortBy,
+    double? radiusKm,
   }) async {
-    // Update state with new filters (optimistic update)
-    final currentState = state;
-    if (currentState is AsyncData) {
-      final newState = currentState.value?.copyWith(
-        luxuryLevel: luxuryLevel,
-        verifiedOnly: verifiedOnly ?? currentState.value?.verifiedOnly,
-        sortBy: sortBy ?? currentState.value?.sortBy,
-      );
-      state = AsyncValue.data(newState!);
-    }
+    _isApplyingFilters = true;
+    try {
+      // Commit radius first so other screens see it. The flag prevents the
+      // ref.listen above from also kicking off a refetch.
+      if (radiusKm != null) {
+        ref.read(searchRadiusKmProvider.notifier).state = radiusKm;
+      }
 
-    // Reload first page with new filters
-    await loadFirstPage(
-      luxuryLevel: luxuryLevel,
-      verifiedOnly: verifiedOnly,
-      sortBy: sortBy,
-    );
+      // Update state with new filters (optimistic update)
+      final currentState = state;
+      if (currentState is AsyncData) {
+        final newState = currentState.value?.copyWith(
+          luxuryLevel: luxuryLevel,
+          verifiedOnly: verifiedOnly ?? currentState.value?.verifiedOnly,
+          sortBy: sortBy ?? currentState.value?.sortBy,
+        );
+        state = AsyncValue.data(newState!);
+      }
+
+      await loadFirstPage(
+        luxuryLevel: luxuryLevel,
+        verifiedOnly: verifiedOnly,
+        sortBy: sortBy,
+      );
+    } finally {
+      _isApplyingFilters = false;
+    }
   }
 
   // 👇 Load next page (preserves filters)
@@ -174,16 +213,18 @@ class NearYouShopsList extends _$NearYouShopsList {
       if (userLocation == null) return;
 
       final repository = ref.read(shopRepositoryProvider);
+      final radiusKm = ref.read(searchRadiusKmProvider);
 
       final result = await repository.getNearbyShopsPaginated(
         latitude: userLocation.latitude,
         longitude: userLocation.longitude,
-        radiusKm: 10.0,
+        radiusKm: radiusKm,
         cursor: data.nextCursor,
         luxuryLevel: data.luxuryLevel,
         verifiedOnly: data.verifiedOnly,
         sortBy: data.sortBy,
         limit: AppConstants.shopsPerPage,
+        seed: data.seed,
       );
 
       final seen = <String>{...data.shops.map((s) => s.id)};
@@ -211,6 +252,7 @@ class NearYouShopsList extends _$NearYouShopsList {
   }
 
   Future<void> refresh() async {
+    reshuffleDiscovery(ref);
     await loadFirstPage();
   }
 }

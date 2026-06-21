@@ -68,6 +68,42 @@ class AppointmentSlotDTO {
     );
   }
 
+  AppointmentSlotDTO copyWith({
+    String? id,
+    String? serviceName,
+    String? serviceType,
+    String? description,
+    String? duration,
+    int? price,
+    String? slotType,
+    int? maxClients,
+    List<int>? daysOfWeek,
+    bool? selectPreferredWorker,
+    List<String>? workerIds,
+    int? bufferMinutes,
+    int? bufferBeforeMinutes,
+    bool? isOnlineBookingEnabled,
+    List<ServiceAddonDTO>? pendingAddons,
+  }) {
+    return AppointmentSlotDTO(
+      id: id ?? this.id,
+      serviceName: serviceName ?? this.serviceName,
+      serviceType: serviceType ?? this.serviceType,
+      description: description ?? this.description,
+      duration: duration ?? this.duration,
+      price: price ?? this.price,
+      slotType: slotType ?? this.slotType,
+      maxClients: maxClients ?? this.maxClients,
+      daysOfWeek: daysOfWeek ?? this.daysOfWeek,
+      selectPreferredWorker: selectPreferredWorker ?? this.selectPreferredWorker,
+      workerIds: workerIds ?? this.workerIds,
+      bufferMinutes: bufferMinutes ?? this.bufferMinutes,
+      bufferBeforeMinutes: bufferBeforeMinutes ?? this.bufferBeforeMinutes,
+      isOnlineBookingEnabled: isOnlineBookingEnabled ?? this.isOnlineBookingEnabled,
+      pendingAddons: pendingAddons ?? this.pendingAddons,
+    );
+  }
+
   // Method to convert back to JSON
   Map<String, dynamic> toJson() {
     return {

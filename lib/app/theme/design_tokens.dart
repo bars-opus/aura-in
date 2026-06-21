@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 class Spacing {
   static const double xs = 4.0; // Extra small
   static const double sm = 8.0; // Small
+  static const double smMd = 12.0; // Between sm and md — icon-label gaps, compact card padding
   static const double md = 16.0; // Medium (base unit)
   static const double lg = 24.0; // Large
   static const double xl = 32.0; // Extra large
@@ -35,9 +36,13 @@ class BorderRadiusTokens {
   static const double sm = 8.0; // Small
   static const double md = 12.0; // Medium
   static const double lg = 16.0; // Large
+    static const double floatingNav = 30.0; // Floating navigation containers
+
   static const double xl = 28.0; // Extra large
   static const double full = 9999.0; // Full circle/pill
-
+  static const BorderRadius floatingNavAll = BorderRadius.all(
+    Radius.circular(floatingNav),
+  );
   // Pre-defined BorderRadius objects
   static const BorderRadius xsAll = BorderRadius.all(Radius.circular(xs));
   static const BorderRadius smAll = BorderRadius.all(Radius.circular(sm));
@@ -134,12 +139,11 @@ class OpacityTokens {
   static const double full = 1.0; // Fully opaque
 }
 
-//fontt sizes
 class FontSizeTokens {
   static const double xxs = 10;
   static const double xs = 12;
   static const double sm = 14;
-  static const double md = 16;
+  static const double md = 17; // matches bodyLarge in AppTextTheme
   static const double lg = 18;
   static const double xl = 24;
   static const double xxl = 32;
@@ -155,21 +159,53 @@ class BorderWidthTokens {
 
 // Tab specific tokens
 class TabTokens {
-  // Default tab height
   static const double defaultHeight = 48.0;
-
-  // Default tab padding
   static const double defaultPadding = 16.0;
-
-  // Default indicator height
   static const double defaultIndicatorHeight = 3.0;
-
-  // Border radius for tabs
   static const double defaultBorderRadius = BorderRadiusTokens.md;
-
-  // Animation duration for tab switching
   static const Duration switchDuration = AnimationDurations.fast;
-
-  // Tab animation curve
   static const Curve switchCurve = AnimationCurves.standard;
+}
+
+// Responsive layout utilities — consumes Breakpoints to produce adaptive values
+class AppResponsive {
+  static bool isMobile(BuildContext context) =>
+      MediaQuery.sizeOf(context).width < Breakpoints.mobile;
+
+  static bool isTablet(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
+    return w >= Breakpoints.mobile && w < Breakpoints.desktop;
+  }
+
+  static bool isDesktop(BuildContext context) =>
+      MediaQuery.sizeOf(context).width >= Breakpoints.desktop;
+
+  /// Returns [mobile], [tablet], or [desktop] value based on current screen width.
+  /// Falls back up the chain: desktop → tablet → mobile.
+  static T value<T>(
+    BuildContext context, {
+    required T mobile,
+    T? tablet,
+    T? desktop,
+  }) {
+    if (isDesktop(context)) return desktop ?? tablet ?? mobile;
+    if (isTablet(context)) return tablet ?? mobile;
+    return mobile;
+  }
+
+  /// Horizontal page padding that grows with screen size.
+  static EdgeInsets pagePadding(BuildContext context) => value(
+    context,
+    mobile: const EdgeInsets.symmetric(horizontal: Spacing.lg),
+    tablet: const EdgeInsets.symmetric(horizontal: 40),
+    desktop: const EdgeInsets.symmetric(horizontal: 80),
+  );
+
+  /// Column count for grids — sensible defaults, fully overridable.
+  static int columns(
+    BuildContext context, {
+    int mobile = 1,
+    int tablet = 2,
+    int desktop = 3,
+  }) => value(context, mobile: mobile, tablet: tablet, desktop: desktop);
 }

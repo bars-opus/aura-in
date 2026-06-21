@@ -1,5 +1,4 @@
 // lib/features/booking/data/repositories/supabase/supabase_booking_repository.dart
-import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_retry_policy.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_sanitizer.dart';
@@ -1039,6 +1038,7 @@ class SupabaseBookingRepository implements BookingRepository {
     required Map<String, int> quantities,
     Map<String, List<String>>? selectedWorkerIds,
     int? defaultBufferMinutes,
+    Map<String, int>? extraMinutesBySlot,
   }) async {
     final params = <String, dynamic>{
       'p_shop_id': shopId,
@@ -1047,6 +1047,9 @@ class SupabaseBookingRepository implements BookingRepository {
       'p_quantities': services.map((s) => quantities[s.id] ?? 1).toList(),
       'p_selected_worker_ids': null,
       'p_default_buffer_minutes': defaultBufferMinutes,
+      // Per-service add-on minutes, parallel to p_service_ids.
+      'p_extra_minutes':
+          services.map((s) => extraMinutesBySlot?[s.id] ?? 0).toList(),
     };
 
     if (selectedWorkerIds != null && selectedWorkerIds.isNotEmpty) {
@@ -1097,10 +1100,12 @@ class SupabaseBookingRepository implements BookingRepository {
                   actualEndTime ?? DateTime.parse(json['end_time'] as String),
               slotId: json['slot_id'] as String? ?? '',
               serviceName: json['service_name'] as String? ?? '',
-              // Phase 17: NUMERIC major → int minor at the boundary.
-              priceMinor: json['price'] == null
-                  ? 0
-                  : parseMoneyMinor(json['price'] as num),
+              // appointment_slots.price is stored in MINOR units, and the RPC
+              // returns it (and override-adjusted prices) in minor units too —
+              // so do NOT run it through parseMoneyMinor (which assumes major
+              // and would 100x the value). Just coerce to int.
+              priceMinor:
+                  json['price'] == null ? 0 : (json['price'] as num).round(),
               availableWorkers: availableWorkers,
               remainingSpots: json['remaining_spots'] as int?,
               requiresWorkerSelection:

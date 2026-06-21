@@ -6,7 +6,7 @@ part of 'near_you_shops_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$nearYouShopsHash() => r'29ce5925371a51cea0c5cf98ba47d8217809b787';
+String _$nearYouShopsHash() => r'092c2467a77e6f591ca600e6134bcd7d1dbf409b';
 
 /// See also [nearYouShops].
 @ProviderFor(nearYouShops)

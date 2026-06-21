@@ -69,14 +69,14 @@ class _DocumentPickerSheetState extends ConsumerState<DocumentPickerSheet> {
       body: ListView(
         children: [
           Gap(Spacing.lg.h),
-
           SemanticContainerWidget(
             content:
-                'Upload business documents for verification. Add expiry dates for licenses and permits.',
-            title: '',
-            backgroundColor: colorScheme.primary.withOpacity(0.1),
-            borderColor: colorScheme.primary,
-            iconColor: colorScheme.primary,
+                'Forgery or misleading documents may lead to account deactivation or legal actions.',
+            title: 'Documents added here would be verified.',
+            icon: Icons.warning_amber,
+            backgroundColor: colorScheme.warning.withOpacity(0.1),
+            borderColor: colorScheme.warning,
+            iconColor: colorScheme.warning,
             textTheme: theme.textTheme,
           ),
 
@@ -123,6 +123,7 @@ class _DocumentPickerSheetState extends ConsumerState<DocumentPickerSheet> {
                   onTap: _selectedType == null ? null : _pickDocument,
                   showAvatar: false,
                   showTrailingArrow: false,
+                  showDivider: false,
                 ),
                 if (_isLoading) ...[
                   Gap(Spacing.md.h),
@@ -271,7 +272,9 @@ class _DocumentPickerSheetState extends ConsumerState<DocumentPickerSheet> {
         allowMultiple: false,
       );
 
-      if (result == null || result.files.isEmpty || result.files.first.path == null) {
+      if (result == null ||
+          result.files.isEmpty ||
+          result.files.first.path == null) {
         return;
       }
 
@@ -280,9 +283,10 @@ class _DocumentPickerSheetState extends ConsumerState<DocumentPickerSheet> {
 
       final document = DocumentDraft(
         type: _selectedType!,
-        title: _titleController.text.isNotEmpty
-            ? _titleController.text
-            : _selectedType!.displayName,
+        title:
+            _titleController.text.isNotEmpty
+                ? _titleController.text
+                : _selectedType!.displayName,
         file: file,
         expiryDate: _expiryDate,
         isVerified: false,

@@ -1,0 +1,14 @@
+-- Manual verification guide for moderation engine.
+-- Run after applying 20260613000000_moderation_engine.sql in a staging project.
+--
+-- Expected checks:
+-- 1. block_user rejects self-block.
+-- 2. block_user is idempotent for the same pair.
+-- 3. is_moderation_blocked returns true if either side initiated the block.
+-- 4. submit_moderation_report is idempotent for the same reporter + key.
+-- 5. moderation_audit_log rejects UPDATE/DELETE/TRUNCATE.
+
+-- Example:
+--   select public.block_user('00000000-0000-0000-0000-000000000002'::uuid, 'spam');
+--   select public.block_user('00000000-0000-0000-0000-000000000002'::uuid, 'spam');
+--   select public.is_moderation_blocked('00000000-0000-0000-0000-000000000002'::uuid);

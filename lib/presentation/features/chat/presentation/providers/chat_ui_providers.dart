@@ -11,6 +11,10 @@ final sortCriteriaProvider = StateProvider<SortCriteria>(
   (ref) => SortCriteria.recent,
 );
 
+/// Active filter chips. Each value is a chip label string (e.g. 'Unread').
+/// Multiple chips are applied as AND: Unread + Groups = unread group chats only.
+final activeFiltersProvider = StateProvider<Set<String>>((ref) => {});
+
 enum SortCriteria {
   recent('Most Recent'),
   unread('Unread First'),
@@ -22,29 +26,24 @@ enum SortCriteria {
   const SortCriteria(this.label);
 }
 
-// Enhanced conversations provider with search & sort
+/// Conversations with search text, chip filters, and sort applied.
 final filteredConversationsProvider = Provider<List<Conversation>>((ref) {
   final conversationsAsync = ref.watch(conversationsProvider);
   final searchQuery = ref.watch(searchQueryProvider);
   final sortCriteria = ref.watch(sortCriteriaProvider);
+  final activeFilters = ref.watch(activeFiltersProvider);
 
   return conversationsAsync.when(
     data: (conversations) {
-      // Early return if no conversations
       if (conversations.isEmpty) return [];
 
-      // 1. Apply search filter (optimized)
-      List<Conversation> filtered = _applySearchFilter(
-        conversations,
-        searchQuery,
-      );
-
-      // Early return if search yields no results
+      List<Conversation> filtered = _applySearchFilter(conversations, searchQuery);
       if (filtered.isEmpty) return [];
 
-      // 2. Apply sorting (optimized with caching considerations)
-      filtered = _applySorting(filtered, sortCriteria);
+      filtered = _applyChipFilters(filtered, activeFilters);
+      if (filtered.isEmpty) return [];
 
+      filtered = _applySorting(filtered, sortCriteria);
       return filtered;
     },
     loading: () => [],
@@ -54,7 +53,6 @@ final filteredConversationsProvider = Provider<List<Conversation>>((ref) {
 
 // ========== HELPER FUNCTIONS ==========
 
-// Extract search logic for readability and potential reuse
 List<Conversation> _applySearchFilter(
   List<Conversation> conversations,
   String searchQuery,
@@ -63,25 +61,41 @@ List<Conversation> _applySearchFilter(
 
   final query = searchQuery.toLowerCase();
 
-  return conversations.where((conversation) {
-    // Check name
-    if (conversation.name.toLowerCase().contains(query)) {
-      return true;
-    }
-
-    // Check last message content (with null safety)
-    final lastMessage = conversation.lastMessage;
-    if (lastMessage != null &&
-        lastMessage.content.toLowerCase().contains(query)) {
-      return true;
-    }
-
-    // Check ID
-    if (conversation.id.toLowerCase().contains(query)) {
-      return true;
-    }
-
+  return conversations.where((c) {
+    if (c.name.toLowerCase().contains(query)) return true;
+    final msg = c.lastMessage;
+    if (msg != null && msg.content.toLowerCase().contains(query)) return true;
     return false;
+  }).toList();
+}
+
+/// Applies active chip filters with mixed AND/OR logic:
+///
+/// • 'Unread' — AND dimension: conversation must have unread messages.
+/// • 'Groups' / 'Individuals' — OR dimension: conversation must match at least
+///   one of the selected type chips. Selecting both means "show either type"
+///   (i.e. the same as no type filter). This prevents the counter-intuitive
+///   result where selecting both chips produces an empty list.
+List<Conversation> _applyChipFilters(
+  List<Conversation> conversations,
+  Set<String> activeFilters,
+) {
+  if (activeFilters.isEmpty) return conversations;
+
+  return conversations.where((c) {
+    // AND: unread filter always narrows the result independently.
+    if (activeFilters.contains('Unread') && c.unreadCount == 0) return false;
+
+    // OR: type filters — pass if the conversation matches any selected type.
+    final wantsGroups = activeFilters.contains('Groups');
+    final wantsIndividuals = activeFilters.contains('Individuals');
+    if (wantsGroups || wantsIndividuals) {
+      final matchesGroup = wantsGroups && c.isGroup;
+      final matchesIndividual = wantsIndividuals && !c.isGroup;
+      if (!matchesGroup && !matchesIndividual) return false;
+    }
+
+    return true;
   }).toList();
 }
 

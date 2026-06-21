@@ -24,21 +24,22 @@ import 'package:flutter/material.dart';
 // =============================================================================
 class LightColors {
   // ================= PRIMARY COLOR PALETTE =================
-  static const Color primary = Color(0xFF6C63FF);
-  static const Color appColor = Color(0xFF013e9d);
+  static const Color primary = Color(0xFF0066cc); // Apple Store blue
+  static const Color appColor = Color(0xFF0066cc); // alias for primary
 
-  static const Color primaryDark = Color(0xFF534BC2);
-  static const Color primaryLight = Color(0xFF9A94FF);
+  static const Color primaryDark = Color(0xFF004fa3);
+  static const Color primaryLight = Color(0xFF338fd9);
 
   // ================= NEUTRAL COLOR PALETTE =================
-  static const Color black = Color(0xFF1A1A2E);
-  static const Color darkGrey = Color(0xFF393E46);
-  static const Color grey = Color(0xFF6D6D7A);
-  static const Color lightGrey = Color(0xFFE5E5E5);
+  static const Color black = Color(0xFF1d1d1f); // Apple near-black ink
+  static const Color darkGrey = Color(0xFF3a3a3c);
+  static const Color grey = Color(0xFF6e6e73); // Apple secondary text
+  static const Color lightGrey = Color(0xFFd2d2d7); // Apple hairline
   static const Color white = Color(0xFFFFFFFF);
 
   // ================= FOREGROUND COLOR PALETTE =================
-  static const Color foreground = Color(0xFFe0e0e0);
+  // Used as primaryContainer in ColorScheme — light tint of primary
+  static const Color foreground = Color(0xFFcce0ff);
   static const Color foregroundDark = Color(0xFFBDBDBD);
   static const Color foregroundLight = Color(0xFFF5F5F5);
 
@@ -50,21 +51,22 @@ class LightColors {
   static const Color neutral = const Color(0xFFF5F5F5); // Added neutral color
 
   // ================= BACKGROUND COLOR PALETTE =================
-  static const Color background = Color(0xFFF8F9FA);
+  static const Color background = Color(0xFFF5F5F7); // Apple parchment canvas
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color card = Color(0xFFf2f1f6);
+  static const Color card = Color(0xFFFFFFFF); // white cards separated by hairline borders
+  static const Color canvasParchment = Color(0xFFF5F5F7);
 
   // ================= TEXT COLOR PALETTE =================
-  static const Color textPrimary = Color(0xFF1A1A2E);
-  static const Color textSecondary = Color(0xFF6D6D7A);
-  static const Color textDisabled = Color(0xFFBDBDBD);
+  static const Color textPrimary = Color(0xFF1d1d1f); // Apple near-black
+  static const Color textSecondary = Color(0xFF6e6e73); // Apple secondary
+  static const Color textDisabled = Color(0xFFc7c7cc); // Apple disabled
 
   // ================= UTILITY COLOR PALETTE =================
-  static const Color divider = Color(0xFFE0E0E0);
-  static const Color shadow = Color(0x1A000000);
+  static const Color divider = Color(0xFFd2d2d7); // Apple hairline
+  static const Color shadow = Color(0x0D000000); // Apple near-zero shadow — elevation via color, not shadow
 
   // ================= LUXURY COLOR PALETTE =================
-  static const Color moderate = Color(0xFF4CAF50); // Green
+  static const Color moderate = Color(0xFF00897B); // Teal — distinct from success green
   static const Color luxury = Color(0xFF9C27B0); // Purple
   static const Color ultraLuxury = Color(0xFFFFB74D); // Amber
 }
@@ -74,12 +76,14 @@ class LightColors {
 // =============================================================================
 class DarkColors {
   // ================= PRIMARY COLOR PALETTE =================
-  static const Color primary = Color(0xFF7C73FF);
-  static const Color primaryDark = Color(0xFF635BC2);
-  static const Color primaryLight = Color(0xFFAAA4FF);
-  static const Color appColor = Color(0xFF013e9d);
+  static const Color primary = Color(0xFF2997ff); // Apple on-dark link blue
+  static const Color primaryDark = Color(0xFF0071e3);
+  static const Color primaryLight = Color(0xFF5aadff);
+  static const Color appColor = Color(0xFF0066cc); // fixed brand hex
 
   // ================= NEUTRAL COLOR PALETTE =================
+  // Note: black/white are semantically inverted in dark mode by design —
+  // black = near-white text, white = near-black base. Use textPrimary/background for clarity.
   static const Color black = Color(0xFFF5F5F5);
   static const Color darkGrey = Color(0xFFB0B0B0);
   static const Color grey = Color(0xFF8D8D9A);
@@ -87,23 +91,22 @@ class DarkColors {
   static const Color white = Color(0xFF121212);
 
   // ================= FOREGROUND COLOR PALETTE =================
-  static const Color foreground = Color(0xFF424242);
-  static const Color foregroundDark = Color(0xFF616161);
-  static const Color foregroundLight = Color(0xFF212121);
+  // Used as primaryContainer in ColorScheme — dark tint of #0066cc
+  static const Color foreground = Color(0xFF003d7a);
+  static const Color foregroundDark = Color(0xFF212121); // darkest surface gray
+  static const Color foregroundLight = Color(0xFF606060); // lighter surface gray
 
   // ================= SEMANTIC COLOR PALETTE =================
   static const Color success = Color(0xFF66BB6A);
   static const Color warning = Color(0xFFFFB74D);
   static const Color error = Color(0xFFEF5350);
   static const Color info = Color(0xFF42A5F5);
-  static const Color neutral = Color(
-    0xFF121212,
-  ); // Added neutral color for dark mode
+  static const Color neutral = Color(0xFF121212);
 
   // ================= BACKGROUND COLOR PALETTE =================
   static const Color background = Color(0xFF121212);
   static const Color surface = Color(0xFF1E1E1E);
-  static const Color card = Color(0xFF121212);
+  static const Color card = Color(0xFF252525); // distinct from background to keep cards visible
 
   // ================= TEXT COLOR PALETTE =================
   static const Color textPrimary = Color(0xFFF5F5F5);
@@ -115,13 +118,9 @@ class DarkColors {
   static const Color shadow = Color(0x33000000);
 
   // ================= LUXURY COLOR PALETTE =================
-  static const Color moderate = Color(
-    0xFF81C784,
-  ); // Lighter green for dark mode
+  static const Color moderate = Color(0xFF4DB6AC); // Teal for dark mode
   static const Color luxury = Color(0xFFBA68C8); // Lighter purple for dark mode
-  static const Color ultraLuxury = Color(
-    0xFFFFD54F,
-  ); // Lighter amber for dark mode
+  static const Color ultraLuxury = Color(0xFFFFD54F); // Lighter amber for dark mode
 }
 
 // =============================================================================
@@ -170,6 +169,8 @@ class AppColors {
       isDarkMode ? DarkColors.background : LightColors.background;
   Color get surface => isDarkMode ? DarkColors.surface : LightColors.surface;
   Color get card => isDarkMode ? DarkColors.card : LightColors.card;
+  Color get canvasParchment =>
+      isDarkMode ? DarkColors.surface : LightColors.canvasParchment;
 
   // Text colors
   Color get textPrimary =>

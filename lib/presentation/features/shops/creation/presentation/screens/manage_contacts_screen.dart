@@ -1,11 +1,9 @@
 // lib/features/shop/creation/presentation/screens/manage_contacts_screen.dart
-
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/add_contact_modal.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/contact_tile.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/contacts_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_creation_provider.dart';
-import 'package:nano_embryo/presentation/home/widgets/semantic_container_widget.dart';
 
 class ManageContactsScreen extends ConsumerStatefulWidget {
   const ManageContactsScreen({super.key});
@@ -123,8 +121,12 @@ class _ManageContactsScreenState extends ConsumerState<ManageContactsScreen> {
 
   String? _isoCodeFromCurrencyCode(String? code) {
     const m = {
-      'GHS': 'GH', 'NGN': 'NG', 'GBP': 'GB',
-      'USD': 'US', 'ZAR': 'ZA', 'KES': 'KE',
+      'GHS': 'GH',
+      'NGN': 'NG',
+      'GBP': 'GB',
+      'USD': 'US',
+      'ZAR': 'ZA',
+      'KES': 'KE',
     };
     return code == null ? null : m[code];
   }

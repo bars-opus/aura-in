@@ -25,11 +25,13 @@ class BookingPriceBreakdown extends StatelessWidget {
     required this.shopCurrency,
   });
 
+  String _fmt(double amount) => amount.toStringAsFixed(2);
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    var remainingAmount = totalAmount - depositAmount;
+    final remainingAmount = totalAmount - depositAmount;
     return Column(
       children: [
         SizedBox(height: Spacing.xl.h),
@@ -47,30 +49,29 @@ class BookingPriceBreakdown extends StatelessWidget {
           context,
           'Reference',
           reference.isEmpty ? '' : reference.substring(0, 5),
-
           valueColor: Colors.grey,
         ),
         AppDivider(),
-        _buildPriceRow(context, 'Total Amount', totalAmount.toString()),
+        _buildPriceRow(context, 'Total Amount', _fmt(totalAmount)),
         AppDivider(),
         _buildPriceRow(
           context,
           'Deposit Paid (30%)',
-          depositAmount.toString(),
+          _fmt(depositAmount),
           valueColor: Colors.green,
         ),
         AppDivider(),
         _buildPriceRow(
           context,
           'Platform Fee',
-          platformFee.toString() ?? '',
+          _fmt(platformFee),
           valueColor: Colors.green,
         ),
         AppDivider(),
         _buildPriceRow(
           context,
           'Remaining to Pay',
-          remainingAmount.toString(),
+          _fmt(remainingAmount),
           isBold: true,
           valueColor: colorScheme.primary,
         ),

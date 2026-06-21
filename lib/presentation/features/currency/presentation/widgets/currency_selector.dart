@@ -29,6 +29,7 @@ class CurrencySelector extends StatelessWidget {
     final theme = Theme.of(context);
     final currencies = availableCurrencies ?? Currencies.all;
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     // Display the selected currency or placeholder with flag
     return HighlightContainer(
@@ -37,8 +38,8 @@ class CurrencySelector extends StatelessWidget {
         title:
             selectedCurrency != null
                 ? '${selectedCurrency!.flag} ${selectedCurrency!.code} (${selectedCurrency!.symbol})'
-                : 'Select currency',
-        subtitle: selectedCurrency?.name ?? 'No currency selected',
+                : loc.currencySelectorPlaceholder,
+        subtitle: selectedCurrency?.name ?? loc.currencySelectorNoSelected,
         icon: Icons.currency_exchange_outlined,
         avatarRadius: 25.h,
         backgroundColor: colorScheme.primary,
@@ -131,6 +132,7 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     return Container(
       height: 700.h,
@@ -164,7 +166,7 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Select Currency',
+                  loc.currencySelectorTitle,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: colorScheme.onBackground,
@@ -175,11 +177,11 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
             ),
           ),
           SearchFormField(
-          
+
             controller: _searchController,
             // focusNode: _searchFocusNode,
             autofocus: false,
-            hintText: 'Search by currency, code, or flag...',
+            hintText: loc.currencySelectorSearchHint,
             showClearButton: true,
 
             //  _searchController.text.isNotEmpty
@@ -208,7 +210,7 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
                     ? Center(
                       child: EmptyStateWidget(
                         icon: Icons.money_off_outlined,
-                        subtitle: 'No currencies found',
+                        subtitle: loc.currencySelectorNoResults,
                       ),
                     )
                     : ListView.builder(

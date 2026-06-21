@@ -34,7 +34,7 @@ class ShopCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return CardInkWell(
-      elevation: 0,
+      // elevation: 0,
       padding: const EdgeInsets.all(0),
       onTap: () {
         if (shouldPop) {

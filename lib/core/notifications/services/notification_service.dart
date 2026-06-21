@@ -4,15 +4,22 @@ import 'package:nano_embryo/core/notifications/data/repositories/notification_re
 import 'package:nano_embryo/core/notifications/domain/entities/notification_params.dart';
 import 'package:nano_embryo/core/notifications/domain/entities/scheduled_notification.dart';
 
-/// Generic notification service - works with any app
-class NotificationService {
+/// Generic, app-agnostic notification service (repository + template based).
+///
+/// Renamed from `NotificationService` to disambiguate it from the actively-used
+/// [NotificationService] in
+/// `presentation/features/shops/dashboard/services/notification_service.dart`,
+/// which is the one wired into `notificationServiceProvider` and used by chat,
+/// booking and the dashboard. This class is currently unreferenced and kept as
+/// a generic building block; do not confuse the two.
+class CoreNotificationService {
   final NotificationRepositoryInterface _repository;
 
   // Optional callbacks for app-specific behavior
   void Function(String type, Map<String, dynamic> data)? onNotificationTap;
   String Function(String template, Map<String, dynamic> data)? templateRenderer;
 
-  NotificationService({
+  CoreNotificationService({
     required NotificationRepositoryInterface repository,
     this.onNotificationTap,
     this.templateRenderer,

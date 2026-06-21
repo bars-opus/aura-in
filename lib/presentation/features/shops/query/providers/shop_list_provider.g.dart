@@ -6,7 +6,7 @@ part of 'shop_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$shopListHash() => r'c1fc007f8d51a35b82b68931b5c24f36c2a2bbca';
+String _$shopListHash() => r'0b045f9bb645fa430376c9d46c1a86a02fbd85e8';
 
 /// Paginated main shop list for the Discover screen.
 ///

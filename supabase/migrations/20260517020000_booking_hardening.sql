@@ -187,8 +187,8 @@ BEGIN
       JOIN   bookings b ON b.id = bs.booking_id
       WHERE  bs.worker_id = v_worker_id
         AND  b.status NOT IN ('cancelled','no_show')
-        AND  tsrange(bs.start_time, COALESCE(bs.end_time, bs.start_time + (bs.duration_minutes||' minutes')::INTERVAL), '[)')
-             && tsrange(v_start, v_end, '[)')
+        AND  tstzrange(bs.start_time, COALESCE(bs.end_time, bs.start_time + (bs.duration_minutes||' minutes')::INTERVAL), '[)')
+             && tstzrange(v_start, v_end, '[)')
       FOR UPDATE OF bs;
 
       IF FOUND THEN
@@ -325,7 +325,7 @@ BEGIN
   FROM   bookings b
   WHERE  b.shop_id = p_shop_id
     AND  b.status NOT IN ('cancelled','no_show')
-    AND  tsrange(b.start_time, b.end_time, '[)') && tsrange(p_start_time, p_end_time, '[)')
+    AND  tstzrange(b.start_time, b.end_time, '[)') && tstzrange(p_start_time, p_end_time, '[)')
   FOR UPDATE OF b;
 
   IF FOUND THEN

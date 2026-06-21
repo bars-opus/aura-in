@@ -21,6 +21,7 @@ class WalletBalanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     if (isLoading) {
       return ShopSchimmerSkeleton(height: 180.h);
@@ -95,7 +96,7 @@ class WalletBalanceCard extends StatelessWidget {
 
                       Gap(Spacing.sm.w),
                       Text(
-                        'Wallet',
+                        loc.walletLabel,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -113,7 +114,7 @@ class WalletBalanceCard extends StatelessWidget {
                         ),
                         children: [
                           TextSpan(
-                            text: 'Available Balance\n',
+                            text: '${loc.walletAvailableBalance}\n',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: Colors.white.withOpacity(0.7),
                             ),
@@ -141,7 +142,7 @@ class WalletBalanceCard extends StatelessWidget {
               Gap(Spacing.md.h),
               AppButton(
                 height: 35.h,
-                label: 'Withdraw Funds',
+                label: loc.walletWithdrawFunds,
                 onPressed: onWithdraw,
                 padding: Spacing.horizontalMd,
                 variant: ButtonVariant.outline,
@@ -161,7 +162,7 @@ class WalletBalanceCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'TOTAL EARNED',
+                          loc.walletTotalEarned.toUpperCase(),
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: Colors.white.withOpacity(0.6),
                             letterSpacing: 0.5,
@@ -182,7 +183,7 @@ class WalletBalanceCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          'TOTAL WITHDRAWN',
+                          loc.walletTotalWithdrawn.toUpperCase(),
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: Colors.white.withOpacity(0.6),
                             letterSpacing: 0.5,

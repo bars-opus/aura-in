@@ -7,7 +7,6 @@ import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.d
 import 'package:nano_embryo/core/providers/profile_providers/profile_provider.dart';
 import 'package:nano_embryo/core/providers/shared_prefs_provider.dart';
 import 'package:nano_embryo/core/widgets/app_initialization_widget.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_icon_button.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   // Change this

@@ -1,5 +1,4 @@
 // lib/features/auth/screens/login_screen.dart
-import 'package:nano_embryo/presentation/features/auth/log_in/presentation/screens/forgot_password_screen.dart';
 import 'package:nano_embryo/presentation/features/auth/utility/auth_exports.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -26,11 +25,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   bool _obscurePassword = true;
   bool _isEmailValid = false;
 
-
   String? _emailError;
   String? _passwordError;
   String? _confirmPasswordError;
-    bool _isPasswordValid = false;
+  bool _isPasswordValid = false;
   bool _isConfirmPasswordValid = false;
 
   TabController? _tabController;
@@ -111,13 +109,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final loc = AppLocalizations.of(context);
 
     if (value == null || value.isEmpty) {
-      error =
-          //  loc?.confirmPasswordRequired ??
-          'Please confirm your password';
+      error = loc?.commonPasswordConfirmRequired;
     } else if (value != _passwordController.text) {
-      error =
-          // loc?.passwordsDoNotMatch ??
-          'Passwords do not match';
+      error = loc?.commonPasswordsDoNotMatch;
     }
 
     if (mounted) {
@@ -166,6 +160,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     // Don't proceed if widget is disposed
     if (!mounted) return;
 
+    final loc = AppLocalizations.of(context)!;
+
     // Validate all fields
     final emailError = _validateEmail(_emailController.text);
     final passwordError = _validatePassword(_passwordController.text);
@@ -188,9 +184,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
     if (isLoading) {
       if (mounted) {
-        context.showErrorSnackbar(
-          'Please wait for current operation to complete',
-        );
+        context.showErrorSnackbar(loc.commonPleaseWait);
       }
       return;
     }
@@ -207,19 +201,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         if (mounted) {
           if (result.isSuccess) {
             if (result.requiresEmailVerification) {
-              await Future.delayed(const Duration(milliseconds: 500));
-              context.showSuccessSnackbar(
-                'Verification email sent! Please check your inbox.',
-                // loc.verifyEmailSentMessage
-              );
-              await Future.delayed(const Duration(milliseconds: 1000));
-              if (context.mounted) {
-                // Navigate to verification screen with email
-                context.go('/verifyEmail', extra: _emailController.text.trim());
-              }
+              // Snackbar persists across GoRouter navigations (same root
+              // ScaffoldMessenger), so no need for artificial delays between
+              // showing it and navigating to /verifyEmail.
+              context.showSuccessSnackbar(loc.authSignUpVerificationSent);
+              context.go('/verifyEmail', extra: _emailController.text.trim());
             }
           } else {
-            context.showErrorSnackbar('Signup failed: ${result.errorMessage}');
+            context.showErrorSnackbar(
+              loc.authSignUpFailed(result.errorMessage ?? 'Unknown error'),
+            );
           }
         }
       } else {
@@ -228,29 +219,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           email: _emailController.text,
           password: _passwordController.text,
         );
-        if (mounted) {
-          if (result.isSuccess) {
-            context.showSuccessSnackbar('Login successful');
-            // Dismiss if shown as a modal bottom sheet.
-            // When LoginScreen is a full GoRouter page the router redirect
-            // handles navigation and popping is not needed.
-            if (mounted && ModalRoute.of(context) is PopupRoute) {
-              Navigator.pop(context);
-            }
+        if (mounted && result.isSuccess) {
+          if (ModalRoute.of(context) is PopupRoute) {
+            // Shown inside a bottom sheet — pop so the caller navigates.
+            Navigator.pop(context);
           } else {
-            // Show error if AuthUIService didn't (e.g., non-AuthException)
-            if (result.errorMessage != null) {
-              context.showErrorSnackbar(result.errorMessage!);
-            }
+            // Full-page route — navigate immediately rather than waiting
+            // for the router redirect (which holds until profile loads).
+            context.go(RouteNames.home);
           }
         }
+        // On failure, AuthUIService already showed the error + retry action.
+        // No additional snackbar here to avoid stacking messages.
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       // Catch any unexpected errors
       if (mounted) {
-        context.showErrorSnackbar(
-          'An unexpected error occurred. Please try again.',
-        );
+        context.showErrorSnackbar(loc.commonUnexpectedError);
       }
     }
   }
@@ -263,18 +248,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final loc = AppLocalizations.of(context);
 
     if (error != null) {
-      final message =
-          //  loc != null
-          //     ? '${loc.fieldValidationError(field)}: $error'
-          //     :
-          '$field: $error';
+      final message = '$field: $error';
       context.showErrorSnackbar(message);
     } else {
-      final message =
-          //  loc != null
-          //     ? '${loc.fieldValidationSuccess(field)}'
-          //     :
-          ' $field is valid';
+      final message = loc?.commonFieldIsValid(field) ?? '$field is valid';
       context.showSuccessSnackbar(backgroundColor: Colors.green, message);
     }
   }
@@ -284,74 +261,65 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
-    // Watch auth state for automatic navigation
-    // final user = ref.watch(authStateProvider);
-    final error = ref.watch(authErrorProvider);
     final isLoading = ref.watch(isLoadingProvider);
 
-    // Show error if any
-    if (error != null && context.mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.showErrorSnackbar(error);
-        ref.read(authErrorProvider.notifier).state = null;
-      });
-    }
-
-    return Form(
-      key: _formKey, // Add Form widget with key
-      child: TabsWithContent(
-        showCloseIcon: true,
-        appBartext: loc.commonContinue,
-        appBarOnPressed: isLoading ? null : _moveToNextTab,
-        onControllerCreated: (controller) => _tabController = controller,
-        useNestedScrollMode: true,
-        enableSwipe: false,
-        scrollable: false,
-        onTabChangeRequest: (fromIndex, toIndex) {
-          // If moving from email tab (0) to password tab (1)
-          if (fromIndex == 0 && toIndex == 1) {
-            // Validate email first
-            final emailError = _validateEmail(_emailController.text);
-            if (emailError != null) {
-              // Show error and prevent tab change
-              if (mounted) {
-                context.showErrorSnackbar(emailError);
-                // Optional: Focus back on email field
-                _emailFocusNode.requestFocus();
+    return SafeArea(
+      child: Form(
+        key: _formKey, // Add Form widget with key
+        child: TabsWithContent(
+          showCloseIcon: true,
+          appBartext: loc.commonContinue,
+          appBarOnPressed: isLoading ? null : _moveToNextTab,
+          onControllerCreated: (controller) => _tabController = controller,
+          useNestedScrollMode: true,
+          enableSwipe: false,
+          scrollable: false,
+          onTabChangeRequest: (fromIndex, toIndex) {
+            // If moving from email tab (0) to password tab (1)
+            if (fromIndex == 0 && toIndex == 1) {
+              // Validate email first
+              final emailError = _validateEmail(_emailController.text);
+              if (emailError != null) {
+                // Show error and prevent tab change
+                if (mounted) {
+                  context.showErrorSnackbar(emailError);
+                  // Optional: Focus back on email field
+                  _emailFocusNode.requestFocus();
+                }
+                return false; // ❌ Prevent tab change
               }
-              return false; // ❌ Prevent tab change
+              return true; // ✅ Allow tab change
             }
-            return true; // ✅ Allow tab change
-          }
-          // If moving from password tab (1) to email tab (0) - always allow
-          if (fromIndex == 1 && toIndex == 0) {
-            return true; // ✅ Allow going back
-          }
-          // For any other tab changes (shouldn't happen with 2 tabs)
-          return true;
-        },
+            // If moving from password tab (1) to email tab (0) - always allow
+            if (fromIndex == 1 && toIndex == 0) {
+              return true; // ✅ Allow going back
+            }
+            // For any other tab changes (shouldn't happen with 2 tabs)
+            return true;
+          },
 
-        onTabChanged: (index) {
-          if (mounted) {
-            setState(() => _currentTabIndex = index);
-          }
-          // return true;
-        },
-        tabs: [
-          AppTabItem(
-            label: loc.emailTitle,
-            icon: _currentTabIndex == 0 ? Icons.email : Icons.email_outlined,
-            content: _buildEmailContent(),
-          ),
-          AppTabItem(
-            label: loc.passwordTitle,
-            icon: _currentTabIndex == 1 ? Icons.lock : Icons.lock_outline,
-            content: _buildPasswordContent(),
-          ),
-        ],
-        initialIndex: 0,
-        // onTabChanged: (index) => true,
-        showContent: true,
+          onTabChanged: (index) {
+            if (mounted) {
+              setState(() => _currentTabIndex = index);
+            }
+            // return true;
+          },
+          tabs: [
+            AppTabItem(
+              label: loc.emailTitle,
+              icon: _currentTabIndex == 0 ? Icons.email : Icons.email_outlined,
+              content: _buildEmailContent(),
+            ),
+            AppTabItem(
+              label: loc.passwordTitle,
+              icon: _currentTabIndex == 1 ? Icons.lock : Icons.lock_outline,
+              content: _buildPasswordContent(),
+            ),
+          ],
+          initialIndex: 0,
+          // onTabChanged: (index) => true,
+          showContent: true,
+        ),
       ),
     );
   }
@@ -449,7 +417,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               ],
             ),
             validator: _validatePassword,
-            errorText: _passwordError,
             onChanged: (value) {
               _validatePassword(value);
               // Also re-validate confirm password if in signup mode
@@ -468,11 +435,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             // SizedBox(height: 16.h),
             AppTextFormField(
               controller: _confirmPasswordController,
-              label: 'Confirm Password',
-
-              // loc.confirmPasswordLabel,
-              hintText: 'Please confirm your password',
-              // loc.confirmPasswordHint,
+              label: loc.commonConfirmPasswordLabel,
+              hintText: loc.commonConfirmPasswordHint,
               prefixIcon: Icons.lock_outline,
               obscureText: _obscurePassword,
 
@@ -512,7 +476,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   ),
                 ],
               ),
-              errorText: _confirmPasswordError,
               validator: (value) => _validateConfirmPassword(value),
               onChanged: (value) {
                 _validateConfirmPassword(value);
@@ -538,14 +501,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 HighlightedPart(
                   text: loc.loginForgotPasswordPart2,
                   onTap: () {
-                    Navigator.pop(context);
                     if (isLoading) return;
-                    BottomSheetUtils.showDocumentationBottomSheet(
-                      // maxHeight: 320.h,
-                      context: context,
-                      widget: ForgotPasswordScreen(),
+                    // Capture router before popping — context may leave the
+                    // tree if LoginScreen was shown inside a bottom sheet.
+                    final router = GoRouter.of(context);
+                    if (ModalRoute.of(context) is PopupRoute) {
+                      Navigator.pop(context);
+                    }
+                    router.push(
+                      RouteNames.forgotPassword,
+                      extra: _emailController.text.trim(),
                     );
-                    // context.go(RouteNames.forgotPassword);
                   },
                 ),
               ],

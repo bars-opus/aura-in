@@ -31,6 +31,7 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
   Future<void> _handleUpdatePassword() async {
     if (!_formKey.currentState!.validate() || _isLoading) return;
 
+    final loc = AppLocalizations.of(context)!;
     final newPassword = _passwordController.text;
     setState(() => _isLoading = true);
 
@@ -38,37 +39,30 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
       await ref.read(authOperationsProvider).updatePassword(newPassword);
       _passwordController.clear();
       _confirmPasswordController.clear();
-      // Clear recovery mode BEFORE signOut so GoRouter doesn't redirect back
-      // to this screen when the auth state change fires during signOut.
-      ref.read(routingNotifierProvider).setRecoveryMode(false);
+
+      final notifier = ref.read(routingNotifierProvider);
+      // Clear recovery mode first so the router won't redirect back here
+      // when signOut triggers an auth state change.
+      notifier.setRecoveryMode(false);
       await ref.read(authOperationsProvider).signOut();
+      // Bypass the 100ms debounce so the router sees null user immediately
+      // and redirects to /login rather than /home.
+      notifier.clearUser();
     } on AuthException catch (e) {
       if (mounted) context.showErrorSnackbar(e.message);
       return;
     } catch (_) {
-      if (mounted)
-        context.showErrorSnackbar('Something went wrong. Please try again.');
+      if (mounted) {
+        context.showErrorSnackbar(loc.commonSomethingWentWrong);
+      }
       return;
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
 
     if (!mounted) return;
-    context.showSuccessSnackbar('Password updated. Please sign in.');
-    Navigator.pop(context);
-
-    // Show LoginScreen sheet after this sheet closes
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final navKey =
-          ref.read(appRouterProvider).routerDelegate.navigatorKey;
-      final navContext = navKey.currentContext;
-      if (navContext != null && navContext.mounted) {
-        BottomSheetUtils.showDocumentationBottomSheet(
-          context: navContext,
-          widget: LoginScreen(isCreateAccount: false),
-        );
-      }
-    });
+    context.showSuccessSnackbar(loc.authUpdatePasswordSuccess);
+    context.go(RouteNames.login);
   }
 
   String? _validatePassword(String? value) {
@@ -89,11 +83,13 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
 
   String? _validateConfirmPassword(String? value) {
     if (!mounted) return null;
+    final loc = AppLocalizations.of(context)!;
+
     String? error;
     if (value == null || value.isEmpty) {
-      error = 'Please confirm your password';
+      error = loc.commonPasswordConfirmRequired;
     } else if (value != _passwordController.text) {
-      error = 'Passwords do not match';
+      error = loc.commonPasswordsDoNotMatch;
     }
     if (mounted) {
       setState(() {
@@ -106,10 +102,13 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
 
   void _showFieldFeedback(String field, String? error) {
     if (!mounted) return;
+    final loc = AppLocalizations.of(context)!;
+
     if (error != null) {
       context.showErrorSnackbar('$field: $error');
     } else {
-      context.showSuccessSnackbar(backgroundColor: Colors.green, '$field is valid');
+      final message = loc.commonFieldIsValid(field);
+      context.showSuccessSnackbar(backgroundColor: Colors.green, message);
     }
   }
 
@@ -119,16 +118,27 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
     final loc = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
 
-    return Form(
-      key: _formKey,
-      child: ListView(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: Spacing.md),
-        children: [
+    return Scaffold(
+      backgroundColor: colorScheme.neutral,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        centerTitle: false,
+        title: AppIconButton(
+          icon: Icons.close,
+          onPressed: () => context.go(RouteNames.home),
+        ),
+      ),
+      body: Form(
+        
+        key: _formKey,
+        child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: Spacing.md),
+          children: [
           const Gap(Spacing.sm),
           Text(
-            'Create new password',
+            loc.authUpdatePasswordTitle,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w600,
               color: colorScheme.onSurface.withValues(alpha: 0.8),
@@ -189,8 +199,8 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
           ),
           AppTextFormField(
             controller: _confirmPasswordController,
-            label: 'Confirm Password',
-            hintText: 'Please confirm your password',
+            label: loc.commonConfirmPasswordLabel,
+            hintText: loc.commonConfirmPasswordHint,
             prefixIcon: Icons.lock_outline,
             obscureText: _obscurePassword,
             enabled: !_isLoading,
@@ -200,7 +210,7 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
                 if (_confirmPasswordController.text.isNotEmpty)
                   GestureDetector(
                     onTap: () => _showFieldFeedback(
-                        'Confirm Password', _confirmPasswordError),
+                        loc.commonConfirmPasswordLabel, _confirmPasswordError),
                     child: Icon(
                       _isConfirmPasswordValid
                           ? Icons.check_circle
@@ -232,7 +242,7 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
           ),
           const Gap(Spacing.md),
           AppButton(
-            label: 'Update password',
+            label: loc.authUpdatePasswordButton,
             onPressed: _isLoading ? null : _handleUpdatePassword,
             isLoading: _isLoading,
             elevation: 1,
@@ -243,6 +253,7 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
           ),
           const Gap(Spacing.md),
         ],
+      ),
       ),
     );
   }

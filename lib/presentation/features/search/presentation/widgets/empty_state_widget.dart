@@ -1,6 +1,5 @@
 // lib/features/search/presentation/widgets/empty_state_widget.dart
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
 class SearchEmptyStateWidget extends StatelessWidget {
   final String query;
@@ -16,6 +15,7 @@ class SearchEmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: EdgeInsets.all(24.r),
@@ -29,7 +29,7 @@ class SearchEmptyStateWidget extends StatelessWidget {
             ),
             SizedBox(height: 16.h),
             Text(
-              'No results found',
+              loc.searchEmptyStateNoResults,
               style: TextStyle(
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w600,
@@ -37,7 +37,7 @@ class SearchEmptyStateWidget extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
             Text(
-              'We couldn\'t find anything for "$query"',
+              loc.searchEmptyStateCouldNotFind(query),
               style: TextStyle(
                 fontSize: 14.sp,
                 color: Colors.grey.shade600,
@@ -47,7 +47,7 @@ class SearchEmptyStateWidget extends StatelessWidget {
             if (suggestions.isNotEmpty) ...[
               SizedBox(height: 24.h),
               Text(
-                'Try these instead:',
+                loc.searchEmptyStateTryThese,
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,

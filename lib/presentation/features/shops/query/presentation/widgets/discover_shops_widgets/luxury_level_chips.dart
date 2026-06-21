@@ -19,16 +19,18 @@ class LuxuryLevelChips extends ConsumerWidget {
       luxuryLevelListProvider(shopType: selectedCategory),
     );
     final colorScheme = Theme.of(context).colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     return luxuryAsync.when(
       data:
           (luxuryLevels) =>
-              _buildChips(context, luxuryLevels, colorScheme, isLoading: false),
+              _buildChips(context, luxuryLevels, colorScheme, loc, isLoading: false),
       loading:
           () => _buildChips(
             context,
             [], // Empty list during loading
             colorScheme,
+            loc,
             isLoading: true,
           ),
       error: (error, stack) => const SizedBox.shrink(),
@@ -38,7 +40,8 @@ class LuxuryLevelChips extends ConsumerWidget {
   Widget _buildChips(
     BuildContext context,
     List<LuxuryLevelInfo> luxuryLevels,
-    ColorScheme colorScheme, {
+    ColorScheme colorScheme,
+    AppLocalizations loc, {
     required bool isLoading,
   }) {
     // Define all possible luxury levels in order
@@ -55,19 +58,14 @@ class LuxuryLevelChips extends ConsumerWidget {
           Padding(
             padding: EdgeInsets.only(right: Spacing.sm.w),
             child: AppFilterChip(
-              label: 'All',
+              label: loc.luxuryLevelChipsAll,
               selected: !isLoading && selectedLuxuryLevel == null,
               onSelected:
                   isLoading
                       ? (_) {} // Disabled during loading
                       : (_) => onLuxurySelected(null),
-              selectedColor: colorScheme.primary,
-              backgroundColor:
-                  isLoading
-                      ? colorScheme.background.withOpacity(0.3)
-                      : Colors.transparent,
-              labelColor:
-                  isLoading ? colorScheme.onSurface.withOpacity(0.3) : null,
+              backgroundColor: colorScheme.background,
+              labelColor: colorScheme.onBackground,
               borderWidth: 0.1,
 
               // fontSize: ,
@@ -93,28 +91,19 @@ class LuxuryLevelChips extends ConsumerWidget {
                         0)
                     : true; // Assume true during loading
             final isSelected = !isLoading && selectedLuxuryLevel == level;
+            final displayName = _getLocalizedLuxuryLevel(level, loc);
             return Padding(
               padding: EdgeInsets.only(right: Spacing.sm.w),
               child: AppFilterChip(
-                label: level,
+                label: displayName,
                 selected: isSelected,
                 onSelected:
                     !isLoading && hasShops
                         ? (_) => onLuxurySelected(level)
                         : (_) {}, // Empty function when disabled or loading
                 selectedColor: colorScheme.primary,
-                backgroundColor:
-                    isLoading
-                        ? colorScheme.background.withOpacity(0.3)
-                        : (hasShops
-                            ? colorScheme.background
-                            : colorScheme.background.withOpacity(0.3)),
-                labelColor:
-                    isLoading
-                        ? colorScheme.onSurface.withOpacity(0.3)
-                        : (hasShops
-                            ? null
-                            : colorScheme.onSurface.withOpacity(0.3)),
+                backgroundColor: colorScheme.background,
+                labelColor: colorScheme.onBackground,
                 borderWidth: 0.3,
               ),
             );
@@ -122,5 +111,18 @@ class LuxuryLevelChips extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  String _getLocalizedLuxuryLevel(String level, AppLocalizations loc) {
+    switch (level) {
+      case 'Moderate':
+        return loc.luxuryLevelModerate;
+      case 'Luxury':
+        return loc.luxuryLevelLuxury;
+      case 'UltraLuxury':
+        return loc.luxuryLevelUltraLuxury;
+      default:
+        return level;
+    }
   }
 }

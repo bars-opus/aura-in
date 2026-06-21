@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 import 'package:nano_embryo/payment/presentation/screens/payment_settings_screen.dart';
 import 'package:nano_embryo/presentation/home/widgets/semantic_container_widget.dart';
 
@@ -36,14 +37,14 @@ class PaymentSetupBanner extends ConsumerWidget {
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     return GestureDetector(
       onTap: () => _navigateToPaymentSettings(context),
       child: SemanticContainerWidget(
-        content:
-            'Connect your payout account to start withdrawing money from your wallet. This could be your mobile money number or your bank account.',
+        content: loc.paymentSetupContent,
         icon: Icons.warning,
-        title: 'Complete payout setup',
+        title: loc.paymentSetupTitle,
         backgroundColor: colorScheme.error.withOpacity(0.1),
         borderColor: colorScheme.error,
         iconColor: colorScheme.error,

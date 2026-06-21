@@ -16,8 +16,8 @@ class LocationDisplayWidget extends ConsumerWidget {
           widget: LocationPickerBottomSheet(),
         );
       },
-      child: SizedBox(
-        width: 200.w,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 200.w),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -26,7 +26,7 @@ class LocationDisplayWidget extends ConsumerWidget {
               child: Text(
                 userLocation?.displayName ?? 'Set location',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onBackground,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -36,7 +36,7 @@ class LocationDisplayWidget extends ConsumerWidget {
             Icon(
               Icons.keyboard_arrow_down_sharp,
               size: 16.h,
-              color: colorScheme.onBackground,
+              color: colorScheme.onSurface,
             ),
           ],
         ),

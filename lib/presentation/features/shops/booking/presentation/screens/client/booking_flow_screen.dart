@@ -43,7 +43,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
   bool _shouldForceTabChange = false;
   Key _tabsKey = UniqueKey();
   bool _isProcessing = false;
- 
+
   @override
   void initState() {
     super.initState();
@@ -183,9 +183,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
         // Signal BookingConfirmationScreen to open the payment dialog.
         // _processBooking() calls the old payment-free flow and must not be
         // used for regular shops, which require Paystack/Stripe payment.
-        ref
-            .read(bookingPaymentTriggerProvider.notifier)
-            .update((v) => v + 1);
+        ref.read(bookingPaymentTriggerProvider.notifier).update((v) => v + 1);
       }
     }
   }
@@ -239,28 +237,30 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
         return;
       }
 
-      final bookingController =
-          ref.read(bookingCreationControllerProvider.notifier);
+      final bookingController = ref.read(
+        bookingCreationControllerProvider.notifier,
+      );
 
-      final booking = widget.isFreelancer
-          ? await bookingController.createFreelancerBooking(
-              userId: userId,
-              freelancerId: widget.shopId,
-              freelancerName: widget.shopName,
-              freelancerLat: widget.latitude,
-              freelancerLng: widget.longitude,
-              travelRadiusKm: widget.travelRadiusKm ?? 10,
-              clientName: clientName,
-            )
-          : await bookingController.createBooking(
-              userId: userId,
-              shopId: widget.shopId,
-              latitude: widget.latitude,
-              longitude: widget.longitude,
-              shopAddress: widget.shopAddress,
-              clientName: clientName,
-              shopName: widget.shopName,
-            );
+      final booking =
+          widget.isFreelancer
+              ? await bookingController.createFreelancerBooking(
+                userId: userId,
+                freelancerId: widget.shopId,
+                freelancerName: widget.shopName,
+                freelancerLat: widget.latitude,
+                freelancerLng: widget.longitude,
+                travelRadiusKm: widget.travelRadiusKm ?? 10,
+                clientName: clientName,
+              )
+              : await bookingController.createBooking(
+                userId: userId,
+                shopId: widget.shopId,
+                latitude: widget.latitude,
+                longitude: widget.longitude,
+                shopAddress: widget.shopAddress,
+                clientName: clientName,
+                shopName: widget.shopName,
+              );
 
       if (!mounted) return;
       if (booking != null) {

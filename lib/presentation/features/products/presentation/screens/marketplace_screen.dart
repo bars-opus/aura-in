@@ -247,7 +247,7 @@ class FilterBottomSheet extends StatefulWidget {
 class _FilterBottomSheetState extends State<FilterBottomSheet> {
   double? _minPrice;
   double? _maxPrice;
-  SortOption _sortBy = SortOption.recent;
+  SortOption _sortBy = SortOption.discover;
   bool _showVerifiedOnly = false;
 
   @override
@@ -348,7 +348,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     setState(() {
                       _minPrice = null;
                       _maxPrice = null;
-                      _sortBy = SortOption.recent;
+                      _sortBy = SortOption.discover;
                       _showVerifiedOnly = false;
                     });
                   },

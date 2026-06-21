@@ -1,6 +1,7 @@
 // lib/features/shop/creation/presentation/screens/edit_basics_screen.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/constants/shop_types.dart';
 import 'package:nano_embryo/core/providers/profile_image_provider.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/profile/widgets/editable_profile_avatar.dart';
@@ -21,7 +22,7 @@ class _EditBasicsScreenState extends ConsumerState<EditBasicsScreen> {
   String? _selectedType;
   // String? _selectedLuxuryLevel;
 
-  final List<String> _shopTypes = ['Salon', 'Barbershop', 'Spa', 'Nail Salon'];
+  final List<String> _shopTypes = ShopTypes.all;
 
   // final List<String> _luxuryLevels = [
   //   'Standard',
@@ -235,31 +236,12 @@ class _EditBasicsScreenState extends ConsumerState<EditBasicsScreen> {
               },
               selectedColor: colorScheme.primary,
               backgroundColor: colorScheme.background,
-              labelColor: colorScheme.onSurface.withOpacity(0.3),
+              labelColor: colorScheme.onSurface.withOpacity(0.7),
               borderWidth: 0.3,
             );
           }).toList(),
     );
   }
-
-  // void _saveAndExit() {
-  //   if (_formKey.currentState?.validate() ?? false) {
-  //     ref
-  //         .read(shopCreationProvider.notifier)
-  //         .updateBasics(
-  //           shopName: _nameController.text,
-  //           shopType: _selectedType,
-  //           luxuryLevel: _selectedLuxuryLevel,
-  //           overview:
-  //               _overviewController.text.isNotEmpty
-  //                   ? _overviewController.text
-  //                   : null,
-  //           terms:
-  //               _termsController.text.isNotEmpty ? _termsController.text : null,
-  //         );
-  //     Navigator.pop(context);
-  //   }
-  // }
 
   void _saveAndContinue() {
     Navigator.pop(context);

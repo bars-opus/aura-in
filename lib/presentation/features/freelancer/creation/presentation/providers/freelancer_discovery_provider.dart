@@ -1,10 +1,12 @@
 // lib/features/freelancer/presentation/providers/freelancer_discovery_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/providers/location_provider.dart';
+import 'package:nano_embryo/presentation/features/discover/providers/discovery_seed_provider.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/models/nearby_freelancer_dto.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/repositories/supabase_freelancer_repository.dart';
 import 'package:nano_embryo/presentation/features/freelancer/enums/freelancer_category_mapper.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/paginated_result.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/service_category_provider.dart';
 
 /// Filter state for freelancer discovery
@@ -49,6 +51,7 @@ final freelancerDiscoveryProvider = FutureProvider<List<NearbyFreelancerDTO>>((
   final selectedCategory = ref.watch(selectedServiceCategoryProvider);
   final filter = ref.watch(freelancerFilterProvider);
   final repository = ref.watch(freelancerRepositoryProvider);
+  final seed = ref.watch(discoverySeedProvider);
 
   if (userLocation == null) {
     throw Exception('Location not available. Please set your location.');
@@ -65,6 +68,7 @@ final freelancerDiscoveryProvider = FutureProvider<List<NearbyFreelancerDTO>>((
     freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
     minRating: filter.minRating,
     sortBy: filter.sortBy,
+    seed: seed,
   );
 });
 
@@ -75,6 +79,7 @@ final topRatedFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((
   final userLocation = ref.watch(userLocationNotifierProvider);
   final selectedCategory = ref.watch(selectedServiceCategoryProvider);
   final repository = ref.watch(freelancerRepositoryProvider);
+  final seed = ref.watch(discoverySeedProvider);
 
   if (userLocation == null) return [];
   final freelancerTypes =
@@ -88,16 +93,20 @@ final topRatedFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((
     freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
     minRating: 4.5,
     sortBy: 'rating',
+    seed: seed,
   );
 });
 
-/// Provider for nearby freelancers (horizontal section)
+/// Provider for nearby freelancers (horizontal section).
+/// Watches the discover-screen radius slider so changes refetch automatically.
 final nearYouFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((
   ref,
 ) async {
   final userLocation = ref.watch(userLocationNotifierProvider);
   final selectedCategory = ref.watch(selectedServiceCategoryProvider);
   final repository = ref.watch(freelancerRepositoryProvider);
+  final radiusKm = ref.watch(searchRadiusKmProvider);
+  final seed = ref.watch(discoverySeedProvider);
 
   if (userLocation == null) return [];
   final freelancerTypes =
@@ -106,36 +115,40 @@ final nearYouFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((
   return repository.getNearbyFreelancers(
     latitude: userLocation.latitude,
     longitude: userLocation.longitude,
-    radiusKm: 5,
+    radiusKm: radiusKm,
     freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
     limit: 10,
     sortBy: 'distance',
+    seed: seed,
   );
 });
 
 /// ✅ Provider for main freelancer grid with pagination support
 // In freelancer_discovery_provider.dart
 
-/// Provider for all freelancers (handles both location and no location)
+/// Provider for all freelancers (handles both location and no location).
+/// Watches the discover-screen radius slider so changes refetch automatically.
 final allFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((ref) async {
   final userLocation = ref.watch(userLocationNotifierProvider);
   final selectedCategory = ref.watch(selectedServiceCategoryProvider);
   final repository = ref.watch(freelancerRepositoryProvider);
-  
+  final radiusKm = ref.watch(searchRadiusKmProvider);
+
   final freelancerTypes = FreelancerCategoryMapper.getFreelancerTypesForCategory(selectedCategory);
-  
+
   // If location is available, get nearby
   if (userLocation != null) {
     return repository.getNearbyFreelancers(
       latitude: userLocation.latitude,
       longitude: userLocation.longitude,
-      radiusKm: 10,
+      radiusKm: radiusKm,
       limit: 50,
       freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
       sortBy: 'distance',
+      seed: ref.watch(discoverySeedProvider),
     );
   }
-  
+
   // No location: fetch random freelancers from database
   final result = await repository.getAllFreelancers(
     latitude: 0,
@@ -144,6 +157,7 @@ final allFreelancersProvider = FutureProvider<List<NearbyFreelancerDTO>>((ref) a
     limit: 50,
     offset: 0,
     freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
+    seed: ref.watch(discoverySeedProvider),
   );
   
   return result.items;

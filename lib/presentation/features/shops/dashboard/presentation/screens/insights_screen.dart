@@ -65,6 +65,7 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
   Widget _buildAlertsSection(AlertsState state) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -72,7 +73,7 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Reports',
+              loc.insightsReports,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: colorScheme.onSurface,
@@ -86,7 +87,7 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
                       builder: (_) => AlertsScreen(shopId: widget.shopId),
                     ),
                   ),
-              child: const Text('See All'),
+              child: Text(loc.insightsSeeAll),
             ),
           ],
         ),
@@ -103,14 +104,14 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
             ),
           )
         else if (state.hasError)
-          Center(child: ErrorStateWidget(subtitle: "Couldn't load reports. Pull to refresh."))
+          Center(child: ErrorStateWidget(subtitle: loc.insightsLoadError))
         else if (state.alerts.isEmpty)
           CardInkWell(
             elevation: 0,
             onTap: () {},
             child: Center(
               child: EmptyStateWidget(
-                subtitle: 'All good! No alerts',
+                subtitle: loc.insightsNoAlerts,
                 icon: Icons.check_circle_outline,
               ),
             ),
@@ -128,6 +129,7 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
   }
 
   Widget _buildHeatmapSection(HeatmapState state) {
+    final loc = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -141,7 +143,7 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
         else if (state.hasError)
           CardInkWell(
             onTap: () {},
-            child: ErrorStateWidget(subtitle: "Couldn't load the booking heatmap right now."),
+            child: ErrorStateWidget(subtitle: loc.insightsHeatmapError),
           )
         else if (state.heatmapData == null ||
             state.heatmapData!.dataPoints.isEmpty)
@@ -153,7 +155,7 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
               height: 400.h,
               child: Center(
                 child: EmptyStateWidget(
-                  subtitle: 'No heatmap data available',
+                  subtitle: loc.insightsNoHeatmapData,
                   icon: Icons.show_chart_outlined,
                 ),
               ),

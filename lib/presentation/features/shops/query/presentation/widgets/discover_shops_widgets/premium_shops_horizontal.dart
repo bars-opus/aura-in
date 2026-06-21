@@ -7,7 +7,8 @@ class PremiumShopsHorizontal extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedLuxury = ref.watch(selectedLuxuryLevelProvider);
     final premiumAsync = ref.watch(premiumShopsProvider);
-    String title = 'Premium shops\nfor premium looks';
+    final loc = AppLocalizations.of(context)!;
+    String title = loc.premiumShopsHorizontalTitle;
 
     return premiumAsync.when(
       data: (shops) {
@@ -29,8 +30,7 @@ class PremiumShopsHorizontal extends ConsumerWidget {
           titleIconColor: Colors.purple,
           shops: filteredShops,
           isLoading: false,
-          body:
-              'Handpicked high‑end salons and spas offering luxury experiences. These shops are classified as Luxury or Ultra‑Luxury based on their services, pricing, and customer reviews. Perfect when you\'re looking for that extra touch of elegance.',
+          body: loc.premiumShopsHorizontalBody,
           onSeeAllPressed: () {
             context.push('/premiumShopsScreen');
           },
@@ -54,6 +54,7 @@ class PremiumShopsHorizontal extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, String? selectedLuxury) {
+    final loc = AppLocalizations.of(context)!;
     return CardInkWell(
       margin: EdgeInsets.only(bottom: Spacing.sm.h),
       onTap: () {},
@@ -62,9 +63,9 @@ class PremiumShopsHorizontal extends ConsumerWidget {
         compact: true,
         title:
             selectedLuxury == null
-                ? 'No premium shops available'
-                : 'No $selectedLuxury premium shops available',
-        subtitle: 'Shops would be shown here once they become available',
+                ? loc.premiumShopsHorizontalEmptyNoFilter
+                : loc.premiumShopsHorizontalEmptyWithFilter(selectedLuxury),
+        subtitle: loc.premiumShopsHorizontalEmptySubtitle,
       ),
     );
   }

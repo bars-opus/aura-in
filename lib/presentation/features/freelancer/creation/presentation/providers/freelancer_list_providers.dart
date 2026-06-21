@@ -1,7 +1,9 @@
 // lib/features/freelancer/presentation/providers/freelancer_list_providers.dart
 
+import 'package:nano_embryo/presentation/features/discover/providers/discovery_seed_provider.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/repositories/supabase_freelancer_repository.dart';
 import 'package:nano_embryo/presentation/features/freelancer/enums/freelancer_category_mapper.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/service_category_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:nano_embryo/core/providers/location_provider.dart';
@@ -18,6 +20,9 @@ class FreelancerListState {
   final String? errorMessage;
   final bool hasReachedMax;
 
+  /// Seed captured at first-page load; held constant so offset pagination stays stable.
+  final int seed;
+
   FreelancerListState({
     required this.freelancers,
     this.nextOffset,
@@ -25,6 +30,7 @@ class FreelancerListState {
     this.hasError = false,
     this.errorMessage,
     this.hasReachedMax = false,
+    this.seed = 0,
   });
 
   FreelancerListState copyWith({
@@ -34,6 +40,7 @@ class FreelancerListState {
     bool? hasError,
     String? errorMessage,
     bool? hasReachedMax,
+    int? seed,
   }) {
     return FreelancerListState(
       freelancers: freelancers ?? this.freelancers,
@@ -42,6 +49,7 @@ class FreelancerListState {
       hasError: hasError ?? this.hasError,
       errorMessage: errorMessage ?? this.errorMessage,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      seed: seed ?? this.seed,
     );
   }
 
@@ -53,12 +61,15 @@ class FreelancerListState {
       hasError: false,
       errorMessage: null,
       hasReachedMax: false,
+      seed: 0,
     );
   }
 }
 
-/// Provider for top rated freelancers list (paginated)
-@riverpod
+/// Provider for top rated freelancers list (paginated).
+/// keepAlive: discover-screen data persists across tab/route switches.
+/// Call refresh() to invalidate stale data.
+@Riverpod(keepAlive: true)
 class TopRatedFreelancersList extends _$TopRatedFreelancersList {
   @override
   Future<FreelancerListState> build() {
@@ -80,6 +91,9 @@ class TopRatedFreelancersList extends _$TopRatedFreelancersList {
           selectedCategory,
         );
 
+    // Capture a fresh seed for this page-1 load so pagination stays stable.
+    final seed = ref.read(discoverySeedProvider);
+
     state = const AsyncValue.loading();
 
     try {
@@ -89,6 +103,7 @@ class TopRatedFreelancersList extends _$TopRatedFreelancersList {
         offset: 0,
         limit: 20,
         freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
+        seed: seed,
       );
 
       state = AsyncValue.data(
@@ -97,6 +112,7 @@ class TopRatedFreelancersList extends _$TopRatedFreelancersList {
           nextOffset: result.nextOffset,
           isLoading: false,
           hasReachedMax: result.nextOffset == null,
+          seed: seed,
         ),
       );
     } catch (e, stack) {
@@ -136,6 +152,7 @@ class TopRatedFreelancersList extends _$TopRatedFreelancersList {
         offset: data.nextOffset ?? 0,
         limit: 20,
         freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
+        seed: data.seed,
       );
 
       final seen = <String>{...data.freelancers.map((f) => f.id)};
@@ -165,11 +182,17 @@ class TopRatedFreelancersList extends _$TopRatedFreelancersList {
   }
 }
 
-/// Provider for nearby freelancers list (paginated)
-@riverpod
+/// Provider for nearby freelancers list (paginated).
+/// keepAlive: discover-screen data persists across tab/route switches.
+/// Call refresh() to invalidate stale data when location changes significantly.
+@Riverpod(keepAlive: true)
 class NearbyFreelancersList extends _$NearbyFreelancersList {
   @override
   Future<FreelancerListState> build() {
+    // React to radius slider changes by refetching the first page.
+    ref.listen<double>(searchRadiusKmProvider, (prev, next) {
+      if (prev != null && prev != next) loadFirstPage();
+    });
     return Future.value(FreelancerListState.initial());
   }
 
@@ -183,10 +206,14 @@ class NearbyFreelancersList extends _$NearbyFreelancersList {
     }
 
     final repository = ref.read(freelancerRepositoryProvider);
+    final radiusKm = ref.read(searchRadiusKmProvider);
     final freelancerTypes =
         FreelancerCategoryMapper.getFreelancerTypesForCategory(
           selectedCategory,
         );
+
+    // Capture a fresh seed for this page-1 load so pagination stays stable.
+    final seed = ref.read(discoverySeedProvider);
 
     state = const AsyncValue.loading();
 
@@ -194,9 +221,11 @@ class NearbyFreelancersList extends _$NearbyFreelancersList {
       final result = await repository.getNearbyFreelancersPaginated(
         latitude: userLocation.latitude,
         longitude: userLocation.longitude,
+        radiusKm: radiusKm,
         offset: 0,
         limit: 20,
         freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
+        seed: seed,
       );
 
       state = AsyncValue.data(
@@ -205,6 +234,7 @@ class NearbyFreelancersList extends _$NearbyFreelancersList {
           nextOffset: result.nextOffset,
           isLoading: false,
           hasReachedMax: result.nextOffset == null,
+          seed: seed,
         ),
       );
     } catch (e, stack) {
@@ -234,15 +264,18 @@ class NearbyFreelancersList extends _$NearbyFreelancersList {
         );
 
     final repository = ref.read(freelancerRepositoryProvider);
+    final radiusKm = ref.read(searchRadiusKmProvider);
     state = AsyncValue.data(data.copyWith(isLoading: true));
 
     try {
       final result = await repository.getNearbyFreelancersPaginated(
         latitude: userLocation.latitude,
         longitude: userLocation.longitude,
+        radiusKm: radiusKm,
         offset: data.nextOffset ?? 0,
         limit: 20,
         freelancerTypes: freelancerTypes.isEmpty ? null : freelancerTypes,
+        seed: data.seed,
       );
 
       final seen = <String>{...data.freelancers.map((f) => f.id)};

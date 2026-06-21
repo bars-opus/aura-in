@@ -1,3 +1,4 @@
+import 'package:nano_embryo/core/providers/routing_providers.dart';
 import 'package:nano_embryo/presentation/features/auth/utility/auth_exports.dart';
 
 class UsernameCreationScreen extends ConsumerStatefulWidget {
@@ -33,9 +34,11 @@ class _UsernameCreationScreenState
   }
 
   Future<void> _checkAvailability(String value) async {
+    final loc = AppLocalizations.of(context)!;
+
     if (value.length < 3) {
       setState(() {
-        _usernameError = 'Username must be at least 3 characters';
+        _usernameError = loc.authUsernameMinLength(3);
         _isAvailable = false;
         _isChecking = false;
       });
@@ -43,7 +46,7 @@ class _UsernameCreationScreenState
     }
     if (value.length > 30) {
       setState(() {
-        _usernameError = 'Username must be at most 30 characters';
+        _usernameError = loc.authUsernameMaxLength(30);
         _isAvailable = false;
         _isChecking = false;
       });
@@ -51,7 +54,7 @@ class _UsernameCreationScreenState
     }
     if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
       setState(() {
-        _usernameError = 'Only letters, numbers, and underscores';
+        _usernameError = loc.authUsernameFormatError;
         _isAvailable = false;
         _isChecking = false;
       });
@@ -74,19 +77,17 @@ class _UsernameCreationScreenState
         setState(() {
           _isChecking = false;
           _isAvailable = isAvailable;
-          _usernameError = isAvailable ? null : 'Username already taken';
+          _usernameError = isAvailable ? null : loc.authUsernameTaken;
         });
       }
     } catch (e) {
       if (mounted) {
-        context.showErrorSnackbar(
-          'Error checking availability. Please try again.',
-        );
+        context.showErrorSnackbar(loc.authUsernameCheckError);
 
         setState(() {
           _isChecking = false;
           _isAvailable = false;
-          _usernameError = 'Error checking availability. Please try again.';
+          _usernameError = loc.authUsernameCheckError;
         });
       }
     }
@@ -96,6 +97,8 @@ class _UsernameCreationScreenState
     final username = _controller.text.trim();
     if (username.isEmpty || !_isAvailable) return;
 
+    final loc = AppLocalizations.of(context)!;
+
     setState(() => _isSubmitting = true);
 
     try {
@@ -103,32 +106,32 @@ class _UsernameCreationScreenState
       if (user == null) throw Exception('No user logged in');
 
       final repo = ref.read(profileRepositoryProvider);
-      // On cold-start the auth→null→user transition may not fire, so
-      // _handleNewUser in app.dart might not have created the profile row.
-      // Ensure it exists before updating.
-      final existing = await repo.fetchProfile(user.id);
-      if (existing == null) {
-        await repo.createProfile(user.id);
-      }
-      await repo.updateUsername(user.id, username);
+      // createProfile is now an idempotent UPSERT — safe to call even if
+      // _handleNewUser in app.dart already inserted the row on warm sign-in.
+      await repo.createProfile(user.id);
+      final updatedProfile = await repo.updateUsername(user.id, username);
 
-      // Invalidate profile provider to refresh data
+      // Push the new profile directly into RoutingNotifier so the GoRouter
+      // redirect sees hasUsername=true on the same frame and routes to /home
+      // instead of bouncing back to /createUsername. Without this, the redirect
+      // would re-fire before currentUserProfileProvider refreshes via invalidate.
+      ref.read(routingNotifierProvider).updateProfile(updatedProfile);
       ref.invalidate(currentUserProfileProvider);
 
       if (mounted) {
-        context.showSuccessSnackbar('Username saved successfully!');
-
-        // Small delay for provider to update
-        await Future.delayed(const Duration(milliseconds: 300));
-
-        if (mounted) {
-          // go() resets the GoRouter stack so the user can't back into createUsername
-          context.go('/home');
-        }
+        context.showSuccessSnackbar(loc.authUsernameSavedSuccess);
+        // go() resets the GoRouter stack so the user can't back into createUsername
+        context.go('/home');
       }
     } catch (e) {
       if (mounted) {
-        context.showErrorSnackbar('Failed to save username: $e');
+        // The repository converts a unique-violation into a friendly Exception
+        // message; show that directly. Other errors get a generic message so
+        // we never leak DB internals or stack details to the user.
+        final friendly = e is Exception
+            ? e.toString().replaceFirst('Exception: ', '')
+            : loc.authUsernameSaveError;
+        context.showErrorSnackbar(friendly);
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -147,7 +150,7 @@ class _UsernameCreationScreenState
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
         title: Text(
-          'Choose username',
+          loc.authUsernameScreenTitle,
           style: textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface.withOpacity(0.8),
@@ -161,7 +164,7 @@ class _UsernameCreationScreenState
           children: [
             Gap(Spacing.lg.h),
             Text(
-              'This is how others will see you.\nYou can change it later.',
+              loc.authUsernameScreenSubtitle,
               style: textTheme.bodyMedium!.copyWith(
                 color: colorScheme.onBackground,
               ),
@@ -170,8 +173,8 @@ class _UsernameCreationScreenState
             AppTextFormField(
               controller: _controller,
               focusNode: _userNameFocusNode,
-              label: 'Username',
-              hintText: 'Enter a username',
+              label: loc.authUsernameLabel,
+              hintText: loc.authUsernameHint,
               keyboardType: TextInputType.text,
               onChanged: _checkAvailability,
               onFieldSubmitted: (_) {

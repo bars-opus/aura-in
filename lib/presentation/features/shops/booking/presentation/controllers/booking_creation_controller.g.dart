@@ -7,25 +7,15 @@ part of 'booking_creation_controller.dart';
 // **************************************************************************
 
 String _$bookingCreationControllerHash() =>
-    r'92fe63c46dd0166da8d72954aca8c6676f464feb';
+    r'746e1578d06419ac0990025b84354ff2dabfca15';
 
 /// Controller responsible for creating bookings after payment.
 ///
-/// Handles the final booking submission with proper error handling,
-/// idempotency, and race condition management.
-///
-/// ## Features
-/// - Idempotency key generation to prevent duplicate bookings
-/// - Comprehensive error handling for all booking exceptions
-/// - Multi-service booking support
-/// - Post-submission state management
-///
-/// ## Usage
-/// ```dart
-/// // After successful payment
-/// ref.read(bookingCreationControllerProvider.notifier)
-///    .createBooking(userId, shopId);
-/// ```
+/// Pre-validates the draft client-side (services selected, time slots
+/// assigned, group quantities within max_clients), then posts to the
+/// server through a single idempotency key. The key is generated once
+/// in `build()` and reused across retries; the underlying RPC dedupes
+/// on it.
 ///
 /// Copied from [BookingCreationController].
 @ProviderFor(BookingCreationController)

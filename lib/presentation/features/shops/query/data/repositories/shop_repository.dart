@@ -54,8 +54,9 @@ abstract class ShopRepository {
   Future<List<ShopListItemDTO>> getPremiumShops({
     required String shopType,
     String? luxuryLevel,
-    UserLocation? userLocation, // 👈 Add this parameter
+    UserLocation? userLocation,
     int limit = 10,
+    int seed = 0,
   });
 
   /// Get paginated premium shops for "See all"
@@ -63,9 +64,10 @@ abstract class ShopRepository {
     required String shopType,
     String? luxuryLevel,
     String? cursor,
-    bool? verifiedOnly, // 👈 Add this
+    bool? verifiedOnly,
     String? sortBy,
     int limit = AppConstants.shopsPerPage,
+    int seed = 0,
   });
 
   /// Get top rated shops (rating >= 4.5) for a specific shop type (limited)
@@ -74,6 +76,7 @@ abstract class ShopRepository {
     double minRating = 4.5,
     int minReviews = 5,
     int limit = AppConstants.shopsPerPage,
+    int seed = 0,
   });
 
   /// Get paginated top rated shops for "See all"
@@ -84,8 +87,9 @@ abstract class ShopRepository {
     String? cursor,
     String? luxuryLevel,
     int limit = AppConstants.shopsPerPage,
-    bool? verifiedOnly, // 👈 Add this
+    bool? verifiedOnly,
     String? sortBy,
+    int seed = 0,
   });
 
   /// Get shops near a location (within 2km)
@@ -94,6 +98,7 @@ abstract class ShopRepository {
     required double longitude,
     double radiusKm = 2.0,
     int limit = 10,
+    int seed = 0,
   });
 
   /// Get paginated nearby shops for "See all"
@@ -104,8 +109,9 @@ abstract class ShopRepository {
     String? cursor,
     String? luxuryLevel,
     int limit = 20,
-    bool? verifiedOnly, // 👈 Add this
+    bool? verifiedOnly,
     String? sortBy,
+    int seed = 0,
   });
 
   //Get map shops

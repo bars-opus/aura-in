@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 import 'package:nano_embryo/wallet/data/models/wallet_transaction_model.dart';
 
@@ -16,6 +17,7 @@ class TransactionListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     final isCredit = transaction.isCredit;
     final icon = isCredit ? Icons.arrow_downward : Icons.arrow_upward;
@@ -58,14 +60,14 @@ class TransactionListItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _getTransactionTitle(),
+                        _getTransactionTitle(loc),
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       Gap(Spacing.xs.h),
                       Text(
-                        _formatDate(transaction.createdAt),
+                        _formatDate(transaction.createdAt, loc),
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: colorScheme.onSurface.withOpacity(0.6),
                         ),
@@ -88,32 +90,32 @@ class TransactionListItem extends StatelessWidget {
     );
   }
 
-  String _getTransactionTitle() {
+  String _getTransactionTitle(AppLocalizations loc) {
     switch (transaction.type) {
       case TransactionType.deposit:
-        return 'Deposit Received';
+        return loc.transactionDepositReceived;
       case TransactionType.servicePayment:
-        return 'Service Payment';
+        return loc.transactionServicePayment;
       case TransactionType.withdrawal:
-        return 'Withdrawal';
+        return loc.transactionWithdrawal;
       case TransactionType.refund:
-        return 'Refund';
+        return loc.transactionRefund;
       case TransactionType.platformFee:
-        return 'Platform Fee';
+        return loc.transactionPlatformFee;
       case TransactionType.adjustment:
-        return 'Adjustment';
+        return loc.transactionAdjustment;
     }
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, AppLocalizations loc) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final dateDay = DateTime(date.year, date.month, date.day);
 
     if (dateDay == today) {
-      return 'Today, ${_formatTime(date)}';
+      return '${loc.transactionToday}, ${_formatTime(date)}';
     } else if (dateDay == today.subtract(const Duration(days: 1))) {
-      return 'Yesterday, ${_formatTime(date)}';
+      return '${loc.transactionYesterday}, ${_formatTime(date)}';
     } else {
       return '${date.day}/${date.month}/${date.year}, ${_formatTime(date)}';
     }

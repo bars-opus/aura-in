@@ -2,8 +2,6 @@
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
 /// Universal search field with FormField benefits (validation, form integration)
-///
-
 class SearchFormField extends FormField<String> {
   SearchFormField({
     super.key,
@@ -15,7 +13,7 @@ class SearchFormField extends FormField<String> {
     bool isLoading = false,
     EdgeInsetsGeometry padding = const EdgeInsets.symmetric(
       horizontal: Spacing.md,
-      vertical: Spacing.xs,
+      vertical: Spacing.smMd,
     ),
     double borderRadius = BorderRadiusTokens.full,
     Color? backgroundColor,
@@ -32,38 +30,26 @@ class SearchFormField extends FormField<String> {
     List<String>? autofillHints,
     TextInputAction textInputAction = TextInputAction.search,
     int? maxLines = 1,
-    int? minLines = 1,
+    // Localise via callsite: pass AppLocalizations.of(context).cancel
+    String cancelLabel = 'Cancel',
 
     // FORM FIELD SPECIFIC PARAMETERS
-    FormFieldSetter<String>? onSaved,
-    FormFieldValidator<String>? validator,
+    super.onSaved,
+    super.validator,
     String? initialValue,
-    bool enabled = true,
-    AutovalidateMode? autovalidateMode,
+    super.enabled,
+    super.autovalidateMode,
     InputDecoration? decoration,
   }) : super(
          initialValue: controller?.text ?? initialValue ?? '',
-         onSaved: onSaved,
-         validator: validator,
-         enabled: enabled,
-         autovalidateMode: autovalidateMode,
          builder: (FormFieldState<String> field) {
-           final effectiveController =
-               controller ?? TextEditingController(text: field.value);
-
-           // Connect controller to form field
-           if (controller == null) {
-             effectiveController.addListener(() {
-               field.didChange(effectiveController.text);
-             });
-           }
-
-           // Determine error state
-           final hasError = field.hasError;
-           final errorText = field.errorText;
-
+           // Do NOT create a TextEditingController here — builder runs on every
+           // rebuild and would leak a new controller each time. Controller
+           // lifecycle is managed entirely inside _SearchFormFieldContentState.
            return _SearchFormFieldContent(
-             controller: effectiveController,
+             externalController: controller,
+             initialValue: field.value ?? '',
+             onFormFieldChanged: field.didChange,
              hintText: hintText,
              autofocus: autofocus,
              showClearButton: showClearButton,
@@ -77,33 +63,27 @@ class SearchFormField extends FormField<String> {
              hintColor: hintColor,
              textStyle: textStyle,
              hintStyle: hintStyle,
-             onChanged: (value) {
-               field.didChange(value);
-               onChanged?.call(value);
-             },
+             onChanged: onChanged,
              onSubmitted: onFieldSubmitted,
              onCancelPressed: onCancelPressed,
-             onClearPressed: () {
-               effectiveController.clear();
-               field.didChange('');
-               onClearPressed?.call();
-             },
+             onClearPressed: onClearPressed,
              focusNode: focusNode,
              autofillHints: autofillHints,
              textInputAction: textInputAction,
              maxLines: maxLines,
-             minLines: minLines,
-             hasError: hasError,
-             errorText: errorText,
+             hasError: field.hasError,
+             errorText: field.errorText,
              decoration: decoration,
+             cancelLabel: cancelLabel,
            );
          },
        );
 }
 
-// Content widget (reusable)
 class _SearchFormFieldContent extends StatefulWidget {
-  final TextEditingController controller;
+  final TextEditingController? externalController;
+  final String initialValue;
+  final ValueChanged<String>? onFormFieldChanged;
   final String hintText;
   final bool autofocus;
   final bool showClearButton;
@@ -125,13 +105,15 @@ class _SearchFormFieldContent extends StatefulWidget {
   final List<String>? autofillHints;
   final TextInputAction? textInputAction;
   final int? maxLines;
-  final int? minLines;
   final bool hasError;
   final String? errorText;
   final InputDecoration? decoration;
+  final String cancelLabel;
 
   const _SearchFormFieldContent({
-    required this.controller,
+    this.externalController,
+    required this.initialValue,
+    this.onFormFieldChanged,
     required this.hintText,
     required this.autofocus,
     required this.showClearButton,
@@ -153,10 +135,10 @@ class _SearchFormFieldContent extends StatefulWidget {
     this.autofillHints,
     this.textInputAction,
     this.maxLines,
-    this.minLines,
     this.hasError = false,
     this.errorText,
     this.decoration,
+    this.cancelLabel = 'Cancel',
   });
 
   @override
@@ -165,36 +147,71 @@ class _SearchFormFieldContent extends StatefulWidget {
 }
 
 class __SearchFormFieldContentState extends State<_SearchFormFieldContent> {
+  late TextEditingController _controller;
+  bool _ownsController = false;
   late FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
+    _ownsController = widget.externalController == null;
+    _controller =
+        widget.externalController ??
+        TextEditingController(text: widget.initialValue);
+    _controller.addListener(_onControllerChanged);
     _focusNode = widget.focusNode ?? FocusNode();
-    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void didUpdateWidget(_SearchFormFieldContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.externalController != oldWidget.externalController) {
+      _controller.removeListener(_onControllerChanged);
+      if (_ownsController) _controller.dispose();
+      _ownsController = widget.externalController == null;
+      _controller =
+          widget.externalController ??
+          TextEditingController(text: widget.initialValue);
+      _controller.addListener(_onControllerChanged);
+    } else if (_ownsController &&
+        widget.initialValue != oldWidget.initialValue) {
+      // Handles FormField.reset() — sync the internal controller to the reset value.
+      _controller.text = widget.initialValue;
+    }
+
+    if (widget.focusNode != oldWidget.focusNode) {
+      if (oldWidget.focusNode == null) _focusNode.dispose();
+      _focusNode = widget.focusNode ?? FocusNode();
+    }
   }
 
   @override
   void dispose() {
-    widget.controller.removeListener(_onControllerChanged);
-    if (widget.focusNode == null) {
-      _focusNode.dispose();
-    }
+    _controller.removeListener(_onControllerChanged);
+    if (_ownsController) _controller.dispose();
+    if (widget.focusNode == null) _focusNode.dispose();
     super.dispose();
   }
 
+  // Single listener covers both user typing and programmatic changes
+  // (e.g. controller.clear(), controller.text = '...'). Calling setState
+  // here keeps the clear button visibility in sync without a separate flag.
   void _onControllerChanged() {
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {});
+      widget.onFormFieldChanged?.call(_controller.text);
+    }
   }
 
   void _clearSearch() {
-    widget.controller.clear();
+    _controller.clear(); // triggers _onControllerChanged → field.didChange('')
     widget.onClearPressed?.call();
     _focusNode.requestFocus();
   }
 
   void _cancelSearch() {
-    widget.controller.clear();
+    _controller.clear();
     widget.onCancelPressed?.call();
     _focusNode.unfocus();
   }
@@ -204,22 +221,19 @@ class __SearchFormFieldContentState extends State<_SearchFormFieldContent> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // Build error-aware styling
     final errorColor = colorScheme.error;
     final effectiveBackgroundColor =
         widget.hasError
-            ? errorColor.withOpacity(0.1)
-            : widget.backgroundColor ?? colorScheme.surfaceVariant;
-
+            ? errorColor.withValues(alpha: 0.1)
+            : widget.backgroundColor ?? colorScheme.surfaceContainerHighest;
     final effectiveIconColor =
         widget.hasError
             ? errorColor
-            : widget.iconColor ?? colorScheme.onSurface.withOpacity(0.5);
-
+            : widget.iconColor ?? colorScheme.onSurface.withValues(alpha: 0.5);
     final effectiveHintColor =
         widget.hasError
-            ? errorColor.withOpacity(0.7)
-            : widget.hintColor ?? colorScheme.onSurface.withOpacity(0.5);
+            ? errorColor.withValues(alpha: 0.7)
+            : widget.hintColor ?? colorScheme.onSurface.withValues(alpha: 0.5);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,38 +246,30 @@ class __SearchFormFieldContentState extends State<_SearchFormFieldContent> {
                   color: effectiveBackgroundColor,
                   borderRadius: BorderRadius.circular(widget.borderRadius.r),
                   border: Border.all(
-                    color: widget.hasError ? errorColor : Colors.grey,
+                    color: widget.hasError ? errorColor : colorScheme.outline,
                     width: .3,
                   ),
                 ),
-                padding: EdgeInsets.symmetric(
-                  horizontal: Spacing.sm.w,
-                  vertical: Spacing.sm.h,
-                ),
+                padding: widget.padding,
                 child: Row(
                   children: [
-                    // Search Icon
                     if (widget.showSearchIcon) ...[
                       widget.isLoading
-                          ? CircularLoadingIndicator(
-                           
-                          )
+                          ? const CircularLoadingIndicator()
                           : Icon(
                             Icons.search,
-                            size: 20.h,
+                            size: IconSizes.sm.r,
                             color: effectiveIconColor,
                           ),
                       SizedBox(width: Spacing.sm.w),
                     ],
 
-                    // TextFormField
                     Expanded(
                       child: TextFormField(
-                        controller: widget.controller,
+                        controller: _controller,
                         focusNode: _focusNode,
                         autofocus: widget.autofocus,
                         maxLines: widget.maxLines,
-                        minLines: widget.minLines,
                         textInputAction: widget.textInputAction,
                         autofillHints: widget.autofillHints,
                         decoration: (widget.decoration ??
@@ -283,9 +289,7 @@ class __SearchFormFieldContentState extends State<_SearchFormFieldContent> {
                                   disabledBorder: InputBorder.none,
                                   focusedErrorBorder: InputBorder.none,
                                 ))
-                            .copyWith(
-                              errorText: null, // Handle error outside
-                            ),
+                            .copyWith(errorText: null),
                         style:
                             widget.textStyle ??
                             theme.textTheme.bodyMedium?.copyWith(
@@ -296,25 +300,28 @@ class __SearchFormFieldContentState extends State<_SearchFormFieldContent> {
                       ),
                     ),
 
-                    // Clear Button
                     if (widget.showClearButton &&
-                        widget.controller.text.isNotEmpty &&
-                        !widget.isLoading) ...[
-                      GestureDetector(
-                        onTap: _clearSearch,
-                        child: Icon(
+                        _controller.text.isNotEmpty &&
+                        !widget.isLoading)
+                      IconButton(
+                        onPressed: _clearSearch,
+                        icon: Icon(
                           Icons.clear,
-                          size: 20.h,
+                          size: IconSizes.sm.r,
                           color: effectiveIconColor,
                         ),
+                        constraints: const BoxConstraints(),
+                        padding: EdgeInsets.zero,
+                        style: IconButton.styleFrom(
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
                       ),
-                    ],
                   ],
                 ),
               ),
             ),
 
-            // Cancel Button
             if (widget.onCancelPressed != null) ...[
               SizedBox(width: Spacing.xs.w),
               TextButton(
@@ -328,19 +335,16 @@ class __SearchFormFieldContentState extends State<_SearchFormFieldContent> {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 child: Text(
-                  'Cancel',
-                  style:
-                      widget.textStyle ??
-                      theme.textTheme.bodyMedium?.copyWith(
-                        color: widget.textColor ?? colorScheme.primary,
-                      ),
+                  widget.cancelLabel,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.primary,
+                  ),
                 ),
               ),
             ],
           ],
         ),
 
-        // Error message
         if (widget.hasError && widget.errorText != null)
           Padding(
             padding: EdgeInsets.only(left: Spacing.md.w, top: Spacing.xs.h),
@@ -356,8 +360,6 @@ class __SearchFormFieldContentState extends State<_SearchFormFieldContent> {
 
 // ========== ENHANCED FILTERABLE VERSION ==========
 
-// lib/core/widgets/filterable_search_form_field.dart
-
 class FilterableSearchFormField extends StatelessWidget {
   final TextEditingController? controller;
   final String hintText;
@@ -366,11 +368,7 @@ class FilterableSearchFormField extends StatelessWidget {
   final ValueChanged<List<String>> onFiltersChanged;
   final ValueChanged<String>? onSearchChanged;
   final ValueChanged<String>? onSearchSubmitted;
-
-  // Add this parameter for custom icons
   final Map<String, IconData>? filterIcons;
-
-  // Form field properties
   final FormFieldSetter<String>? onSaved;
   final FormFieldValidator<String>? validator;
   final String? initialValue;
@@ -379,6 +377,8 @@ class FilterableSearchFormField extends StatelessWidget {
   final VoidCallback? onCancelPressed;
   final bool autofocus;
   final FocusNode? focusNode;
+  final bool isLoading;
+  final String cancelLabel;
 
   const FilterableSearchFormField({
     super.key,
@@ -397,7 +397,9 @@ class FilterableSearchFormField extends StatelessWidget {
     this.autovalidateMode,
     this.focusNode,
     this.autofocus = false,
-    this.filterIcons, // New parameter
+    this.filterIcons,
+    this.isLoading = false,
+    this.cancelLabel = 'Cancel',
   });
 
   @override
@@ -405,7 +407,6 @@ class FilterableSearchFormField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Search Form Field
         SearchFormField(
           controller: controller,
           onCancelPressed: onCancelPressed,
@@ -419,9 +420,10 @@ class FilterableSearchFormField extends StatelessWidget {
           autovalidateMode: autovalidateMode,
           autofocus: autofocus,
           focusNode: focusNode,
+          isLoading: isLoading,
+          cancelLabel: cancelLabel,
         ),
 
-        // Filter Chips
         if (filterChips.isNotEmpty) ...[
           SizedBox(height: Spacing.sm.h),
           SingleChildScrollView(
@@ -431,7 +433,6 @@ class FilterableSearchFormField extends StatelessWidget {
                   filterChips.map((filter) {
                     final isSelected = selectedFilters.contains(filter);
                     final icon = filterIcons?[filter];
-
                     return Padding(
                       padding: EdgeInsets.only(right: Spacing.xs.w),
                       child: AppFilterChip(

@@ -11,6 +11,7 @@ class ShopQueryParams extends Equatable {
   final double? minRating;
   final UserLocation? userLocation;
   final String? searchQuery;
+  final int? seed;
 
   const ShopQueryParams({
     this.shopType,
@@ -22,6 +23,7 @@ class ShopQueryParams extends Equatable {
     this.minRating,
     this.userLocation,
     this.searchQuery,
+    this.seed,
   });
 
   /// Copy with method for updating parameters
@@ -35,6 +37,7 @@ class ShopQueryParams extends Equatable {
     double? minRating,
     UserLocation? userLocation,
     String? searchQuery,
+    int? seed,
   }) {
     return ShopQueryParams(
       shopType: shopType ?? this.shopType,
@@ -46,6 +49,7 @@ class ShopQueryParams extends Equatable {
       minRating: minRating ?? this.minRating,
       userLocation: userLocation ?? this.userLocation,
       searchQuery: searchQuery ?? this.searchQuery,
+      seed: seed ?? this.seed,
     );
   }
 
@@ -76,6 +80,7 @@ class ShopQueryParams extends Equatable {
     minRating,
     userLocation,
     searchQuery,
+    seed,
   ];
 
   @override

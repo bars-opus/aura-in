@@ -6,7 +6,7 @@ part of 'booking_flow_state_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$bookingFlowStateHash() => r'639f7e2ad6481f54b4ed9283aa3286b012c5d2f5';
+String _$bookingFlowStateHash() => r'3719cace7f15a217e6577bb93565c05bf87d21ea';
 
 /// Provider that combines all booking flow states into a single cohesive state.
 ///

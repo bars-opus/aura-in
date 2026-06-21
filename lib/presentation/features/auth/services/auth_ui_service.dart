@@ -36,12 +36,10 @@ class AuthUIService {
 
   String? validateConfirmPassword(String? password, String? confirm) {
     if (confirm == null || confirm.isEmpty) {
-      return 'Please confirm your password';
-      // loc.confirmPasswordRequired;
+      return loc.commonPasswordConfirmRequired;
     }
     if (password != confirm) {
-      return 'Passwords do not match';
-      //  loc.passwordsDoNotMatch;
+      return loc.commonPasswordsDoNotMatch;
     }
     return null;
   }
@@ -64,9 +62,8 @@ class AuthUIService {
     }
 
     if (password.isEmpty) {
-      const msg = 'Please enter your password.';
-      context.showErrorSnackbar(msg);
-      return AuthResult.failure(msg);
+      context.showErrorSnackbar(loc.authPasswordRequired);
+      return AuthResult.failure(loc.authPasswordRequired);
     }
 
     _showLoading(loadingMessage ?? loc.loggingInIndicatorText);
@@ -129,8 +126,7 @@ class AuthUIService {
 
       return AuthResult.failure(errors.first!);
     }
-    _showLoading('Creating account...');
-    // _showLoading(loc.creatingAccount);
+    _showLoading(loc.authCreatingAccount);
     try {
       final authOps = ref.read(authOperationsProvider);
 
@@ -145,7 +141,7 @@ class AuthUIService {
         debugPrint('👤 User ID: ${response.user!.id}');
         debugPrint('🔐 Session: ${response.session != null}');
 
-        _showSuccess('Account created successfully!');
+        _showSuccess(loc.authAccountCreatedSuccess);
 
         if (context.mounted) {
           _safeNavigate('/createUsername');
@@ -154,7 +150,7 @@ class AuthUIService {
       }
       // ✅ Email confirmation ON
       else {
-        _showSuccess('Please check your email to confirm your account');
+        _showSuccess(loc.authCheckEmailToConfirm);
 
         if (context.mounted) {
           _safeNavigate('/verifyEmail', extra: email.trim());
@@ -178,9 +174,7 @@ class AuthUIService {
       _hideLoading();
       _logError('Signup failed', error, stackTrace);
       _showErrorWithRetry(
-        // 'Sign up failed';
-        message: '${'Sign up failed'}: ${_getUserFriendlyError(error)}',
-        // message: '${loc.signupFailed}: ${_getUserFriendlyError(error)}',
+        message: loc.authSignUpFailed(_getUserFriendlyError(error)),
         retryAction:
             () => signUpWithEmail(
               email: email,
@@ -198,7 +192,7 @@ class AuthUIService {
     // Native iOS: blocking call — show loading like Apple Sign-In.
     // Android/Web: opens browser and returns immediately — no spinner.
     final isNative = !kIsWeb && (Platform.isIOS || Platform.isMacOS);
-    if (isNative) _showLoading('Signing in with Google...');
+    if (isNative) _showLoading(loc.authSigningInWithGoogle);
 
     try {
       final authOps = ref.read(authOperationsProvider);
@@ -223,7 +217,7 @@ class AuthUIService {
       }
       _logError('Google sign-in failed', error, stackTrace);
       _showErrorWithRetry(
-        message: 'Google sign-in failed: ${_getUserFriendlyError(error)}',
+        message: loc.authGoogleSignInFailed(_getUserFriendlyError(error)),
         retryAction: signInWithGoogle,
       );
       return AuthResult.failure(_getUserFriendlyError(error));
@@ -231,7 +225,7 @@ class AuthUIService {
   }
 
   Future<AuthResult> signInWithApple() async {
-    _showLoading('Authenticating with Apple...');
+    _showLoading(loc.authAuthenticatingWithApple);
 
     try {
       final authOps = ref.read(authOperationsProvider);
@@ -253,7 +247,7 @@ class AuthUIService {
         return AuthResult.failure('cancelled');
       }
       _showErrorWithRetry(
-        message: 'Apple sign-in failed: ${_getUserFriendlyError(error)}',
+        message: loc.authAppleSignInFailed(_getUserFriendlyError(error)),
         retryAction: signInWithApple,
       );
       return AuthResult.failure(_getUserFriendlyError(error));
@@ -268,16 +262,14 @@ class AuthUIService {
       return AuthResult.failure(emailError);
     }
 
-    _showLoading('Sending reset email...');
-    // _showLoading(loc.sendingResetEmail);
+    _showLoading(loc.authSendingResetEmail);
 
     try {
       final authService = ref.read(authServiceProvider);
       await authService.resetPassword(email.trim());
 
       _hideLoading();
-      _showSuccess('Reset email sent. Check your inbox.');
-      // _showSuccess(loc.resetEmailSent);
+      _showSuccess(loc.authResetEmailSent);
       return AuthResult.success();
     } on AuthException catch (error) {
       _hideLoading();
@@ -290,8 +282,7 @@ class AuthUIService {
       _hideLoading();
       _logError('Password reset failed', error, stackTrace);
       _showErrorWithRetry(
-        message: '${'Password reset failed'}: ${_getUserFriendlyError(error)}',
-        // message: '${loc.resetPasswordFailed}: ${_getUserFriendlyError(error)}',
+        message: loc.authPasswordResetFailed(_getUserFriendlyError(error)),
         retryAction: () => resetPassword(email),
       );
       return AuthResult.failure(_getUserFriendlyError(error));
@@ -302,7 +293,7 @@ class AuthUIService {
 
   void _showLoading(String message) {
     if (context.mounted) {
-      context.showLoadingSnackbar(backgroundColor: Colors.green, message);
+      context.showLoadingSnackbar( message);
       
     }
   }

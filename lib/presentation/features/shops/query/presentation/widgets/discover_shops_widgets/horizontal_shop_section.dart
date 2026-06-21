@@ -1,3 +1,5 @@
+import 'package:nano_embryo/presentation/features/search/presentation/widgets/category_header.dart';
+import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/discover_shops_widgets/default_horizontal_shop_loading_shimmer.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 
 /// A reusable horizontal scrollable section for displaying shops
@@ -41,7 +43,11 @@ class HorizontalShopSection extends StatelessWidget {
 
           // Horizontal list or loading shimmer
           if (isLoading)
-            (loadingShimmer ?? _buildDefaultLoadingShimmer(context))
+            (loadingShimmer ??
+                DefaultHorizontalShopLoadingShimmer(
+                  header: _header(context, false),
+                  isSearchScreen: false,
+                ))
           else if (shops.isEmpty)
             _buildEmptyState()
           else
@@ -79,102 +85,11 @@ class HorizontalShopSection extends StatelessWidget {
   }
 
   _header(BuildContext context, bool isLoading) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: Spacing.horizontalLG,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                BottomSheetUtils.showDocumentationBottomSheet(
-                  maxHeight: 320.h,
-                  context: context,
-                  widget: Column(
-                    children: [
-                      Gap(Spacing.md),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            title,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.headlineSmall?.copyWith(
-                              color: colorScheme.onBackground,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-
-                          AppTextButton(),
-                        ],
-                      ),
-                      Gap(Spacing.md),
-                      Text(
-                        body,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onBackground,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-              child: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: title,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.headlineSmall?.copyWith(
-                        color: colorScheme.onBackground,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextSpan(
-                      text: isLoading ? '\nLoading...' : '\nLearn more',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary,
-                        fontSize: 12.sp,
-                      ),
-                    ),
-                  ],
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 3,
-              ),
-            ),
-          ),
-          if (onSeeAllPressed != null)
-            AppTextButton(text: 'See all', onPressed: onSeeAllPressed),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDefaultLoadingShimmer(BuildContext context) {
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Gap(Spacing.lg.h),
-        _header(context, true),
-        Gap(Spacing.md.h),
-        SizedBox(
-          height: 400.h,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: Spacing.md.w),
-            itemCount: 3,
-            separatorBuilder: (_, __) => Gap(Spacing.md.w),
-            itemBuilder: (_, __) => ShopSchimmerSkeleton(width: 250.w),
-          ),
-        ),
-      ],
+    return CategoryHeader(
+      title: title,
+      body: body,
+      showSeeAll: shops.length > 4,
+      onPressed: onSeeAllPressed ?? () {},
     );
   }
 

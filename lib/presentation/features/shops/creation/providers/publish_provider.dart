@@ -2,8 +2,10 @@
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/providers/auth_providers.dart';
+import 'package:nano_embryo/presentation/features/admin/providers/admin_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/usecases/publish_shop_usecase.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/edit_shop_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_creation_provider.dart';
@@ -114,6 +116,18 @@ class PublishNotifier extends StateNotifier<PublishState> {
 
       // Step 4: Finalizing (90%)
       state = state.copyWith(progress: 0.9, currentStep: 'Finalizing...');
+
+      // Best-effort verification submit. Failure is non-fatal: the shop exists
+      // and already defaults to 'pending'; this just stamps submitted_at so the
+      // admin queue orders correctly.
+      try {
+        await _ref.read(verificationActionsProvider).submit(
+          entityType: 'shop',
+          entityId: shopId,
+        );
+      } catch (e) {
+        debugPrint('⚠️ Verification submit failed (non-fatal): $e');
+      }
 
       // Clear the draft after successful publish
       await _ref.read(shopCreationProvider.notifier).clearDraft();

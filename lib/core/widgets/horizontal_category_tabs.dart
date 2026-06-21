@@ -43,6 +43,7 @@ class _HorizontalCategoryTabsState extends State<HorizontalCategoryTabs> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final loc = AppLocalizations.of(context)!;
 
     final effectiveContainerHeight = widget.containerHeight ?? 44.h;
     final effectiveTabWidth = widget.tabWidth ?? 90.w;
@@ -77,7 +78,7 @@ class _HorizontalCategoryTabsState extends State<HorizontalCategoryTabs> {
           final displayName =
               widget.categoryFormatter != null
                   ? widget.categoryFormatter!(category)
-                  : _defaultFormatCategoryName(category);
+                  : _defaultFormatCategoryName(category, loc);
 
           final double indicatorWidth =
               (isSelected && hasShops) ? effectiveTabWidth * 0.6 : 0.0;
@@ -148,27 +149,27 @@ class _HorizontalCategoryTabsState extends State<HorizontalCategoryTabs> {
     );
   }
 
-  String _defaultFormatCategoryName(String category) {
-    if (category == 'all') return 'All';
+  String _defaultFormatCategoryName(String category, AppLocalizations loc) {
+    if (category == 'all') return loc.categoriesAll;
     switch (category) {
       case 'salon':
-        return 'Salons';
+        return loc.categoriesSalon;
       case 'barbershop':
-        return 'Barbershops';
+        return loc.categoriesBarbershop;
       case 'spa':
-        return 'Spas';
+        return loc.categoriesSpa;
       case 'nail_salon':
-        return 'Nail Salons';
+        return loc.categoriesNailSalon;
       case 'lash_studio':
-        return 'Lash Studios';
+        return loc.categoriesLashStudio;
       case 'waxing':
-        return 'Waxing';
+        return loc.categoriesWaxing;
       case 'massage':
-        return 'Massage';
+        return loc.categoriesMassage;
       case 'makeup':
-        return 'Makeup';
+        return loc.categoriesMakeup;
       case 'skincare':
-        return 'Skincare';
+        return loc.categoriesSkincare;
       default:
         return category
             .split('_')

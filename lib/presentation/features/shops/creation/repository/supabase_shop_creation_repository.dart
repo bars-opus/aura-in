@@ -115,6 +115,8 @@ class SupabaseShopCreationRepository {
           'id': slotId,
           'shop_id': shopId,
           'service_name': service.serviceName,
+          'service_type': service.serviceType,
+          'description': service.description,
           'duration': service.duration,
           'price': service.price,
           'slot_type': service.slotType,
@@ -387,15 +389,53 @@ class SupabaseShopCreationRepository {
         });
       }
 
-      // 5. Update appointment slots
-      await _client.from('appointment_slots').delete().eq('shop_id', shopId);
+      // 5. Update appointment slots — upsert existing, insert new, soft-delete removed.
+      // Never hard-delete a slot that booking_services references; set
+      // is_online_booking_enabled = false instead so it disappears from client view.
       final addonsRepoUpdate = ServiceAddonsRepository(_client);
+
+      // Fetch the slot ids currently in DB for this shop.
+      final existingSlotRows = await _client
+          .from('appointment_slots')
+          .select('id')
+          .eq('shop_id', shopId);
+      final existingSlotIds =
+          existingSlotRows.map((r) => r['id'] as String).toSet();
+
+      // Draft slot ids — those stamped by addService (all non-empty).
+      final draftSlotIds = draft.services
+          .where((s) => s.id.isNotEmpty)
+          .map((s) => s.id)
+          .toSet();
+
+      // Slots removed by the owner: try hard-delete; fall back to soft-disable
+      // if a foreign-key violation occurs (slot has bookings).
+      final removedIds = existingSlotIds.difference(draftSlotIds);
+      for (final removedId in removedIds) {
+        try {
+          await _client
+              .from('appointment_slots')
+              .delete()
+              .eq('id', removedId);
+        } catch (_) {
+          // Slot is referenced by booking_services — hide it instead.
+          await _client
+              .from('appointment_slots')
+              .update({'is_online_booking_enabled': false})
+              .eq('id', removedId);
+        }
+      }
+
       for (final service in draft.services) {
-        final slotId = Uuid().v4();
-        await _client.from('appointment_slots').insert({
+        final isExisting = existingSlotIds.contains(service.id);
+        final slotId = isExisting ? service.id : Uuid().v4();
+
+        final row = {
           'id': slotId,
           'shop_id': shopId,
           'service_name': service.serviceName,
+          'service_type': service.serviceType,
+          'description': service.description,
           'duration': service.duration,
           'price': service.price,
           'slot_type': service.slotType,
@@ -405,11 +445,21 @@ class SupabaseShopCreationRepository {
           'buffer_before_minutes': service.bufferBeforeMinutes,
           'buffer_minutes': service.bufferMinutes,
           'is_online_booking_enabled': service.isOnlineBookingEnabled,
-        });
-        if (service.pendingAddons.isNotEmpty) {
-          await addonsRepoUpdate.replaceAddons(slotId, service.pendingAddons
-              .map((a) => a.copyWith(slotId: slotId)).toList());
+        };
+
+        if (isExisting) {
+          await _client
+              .from('appointment_slots')
+              .update(row..remove('id'))
+              .eq('id', slotId);
+        } else {
+          await _client.from('appointment_slots').insert(row);
         }
+
+        await addonsRepoUpdate.replaceAddons(
+          slotId,
+          service.pendingAddons.map((a) => a.copyWith(slotId: slotId)).toList(),
+        );
       }
 
       // 6. Update opening hours

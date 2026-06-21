@@ -12,11 +12,15 @@ import 'package:path/path.dart' as path;
 class ImagePickerService {
   final ImagePicker _picker = ImagePicker();
 
-  /// Pick an image from gallery or camera
+  /// Pick an image from gallery or camera.
+  /// [crop] — show the crop UI after picking.
+  /// [lockAspectRatio] — when true the crop tool locks to [cropRatio] (default
+  ///   1:1 square). Pass false for freeform crop (e.g. chat images).
   Future<File?> pickImage({
     required bool fromCamera,
     bool crop = false,
     CropAspectRatio? cropRatio,
+    bool lockAspectRatio = true,
   }) async {
     try {
       // On web, we can't crop or compress the same way
@@ -47,15 +51,25 @@ class ImagePickerService {
         File(pickedFile.path),
       );
 
-      // Crop if requested
+      // Crop if requested. _cropImage returns null ONLY when the user cancels
+      // the crop UI (a crop *failure* falls back to the original). On cancel we
+      // abort the whole pick so a cancelled crop doesn't silently add/upload
+      // the uncropped original.
       if (crop) {
-        final cropped = await _cropImage(permanentFile, cropRatio: cropRatio);
-        if (cropped != null) {
-          return await _compressImage(cropped);
+        final cropped = await _cropImage(
+          permanentFile,
+          cropRatio: cropRatio,
+          lockAspectRatio: lockAspectRatio,
+        );
+        if (cropped == null) {
+          // User cancelled the cropper — clean up the copied source and bail.
+          await deleteFile(permanentFile);
+          return null;
         }
+        return await _compressImage(cropped);
       }
 
-      // Always compress
+      // No crop requested: compress and return.
       return await _compressImage(permanentFile);
     } catch (e) {
       debugPrint('Failed to pick image: $e');
@@ -105,24 +119,34 @@ class ImagePickerService {
     }
   }
 
-  /// Crop image (Mobile only)
-  Future<File?> _cropImage(File imageFile, {CropAspectRatio? cropRatio}) async {
+  /// Crop image (Mobile only).
+  /// [lockAspectRatio] false → freeform; true → locked to [cropRatio] (default 1:1).
+  Future<File?> _cropImage(
+    File imageFile, {
+    CropAspectRatio? cropRatio,
+    bool lockAspectRatio = true,
+  }) async {
     // Don't crop on web
     if (kIsWeb) return imageFile;
 
     try {
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: imageFile.path,
-        aspectRatio: cropRatio ?? const CropAspectRatio(ratioX: 1, ratioY: 1),
+        aspectRatio: lockAspectRatio
+            ? (cropRatio ?? const CropAspectRatio(ratioX: 1, ratioY: 1))
+            : null,
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: 'Crop Image',
             toolbarColor: Colors.deepOrange,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.square,
-            lockAspectRatio: true,
+            lockAspectRatio: lockAspectRatio,
           ),
-          IOSUiSettings(title: 'Crop Image', aspectRatioLockEnabled: true),
+          IOSUiSettings(
+            title: 'Crop Image',
+            aspectRatioLockEnabled: lockAspectRatio,
+          ),
         ],
       );
 

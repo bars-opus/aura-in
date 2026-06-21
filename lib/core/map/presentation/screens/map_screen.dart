@@ -153,46 +153,47 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
       if (previous?.pins != next.pins) _updateMarkers(next.pins);
     });
 
-    ref.listen<String?>(
-      mapControllerProvider.select((s) => s.selectedPinId),
-      (prev, next) {
-        _markerManager?.selectPin(next);
-      },
-    );
+    ref.listen<String?>(mapControllerProvider.select((s) => s.selectedPinId), (
+      prev,
+      next,
+    ) {
+      _markerManager?.selectPin(next);
+    });
 
-    ref.listen<String?>(
-      mapControllerProvider.select((s) => s.selectedPinId),
-      (prev, next) async {
-        if (next == null) return;
-        final pins = ref.read(mapControllerProvider).pins;
-        MapPin? pin;
-        for (final p in pins) {
-          if (p.id == next) {
-            pin = p;
-            break;
-          }
+    ref.listen<String?>(mapControllerProvider.select((s) => s.selectedPinId), (
+      prev,
+      next,
+    ) async {
+      if (next == null) return;
+      final pins = ref.read(mapControllerProvider).pins;
+      MapPin? pin;
+      for (final p in pins) {
+        if (p.id == next) {
+          pin = p;
+          break;
         }
-        if (pin == null) return;
-        final mapbox = _mapboxMap;
-        if (mapbox == null) return;
-        final mapConfig = ref.read(mapConfigProvider);
-        // Determine target zoom: if current zoom is below where clusters
-        // stop forming, bump to clusterMaxZoom + 1 so the cluster definitely
-        // splits and the pin shows individually. Otherwise keep current zoom.
-        final cameraState = await mapbox.getCameraState();
-        final currentZoom = cameraState.zoom;
-        final targetZoom = currentZoom < mapConfig.clusterMaxZoom + 1
-            ? mapConfig.clusterMaxZoom + 1
-            : currentZoom;
-        await mapbox.flyTo(
-          CameraOptions(
-            center: Point(coordinates: Position(pin.longitude, pin.latitude)),
-            zoom: targetZoom,
-          ),
-          MapAnimationOptions(duration: 400),
-        );
-      },
-    );
+      }
+      if (pin == null) return;
+      final mapbox = _mapboxMap;
+      if (mapbox == null) return;
+      final mapConfig = ref.read(mapConfigProvider);
+      // Determine target zoom: if current zoom is below where clusters
+      // stop forming, bump to clusterMaxZoom + 1 so the cluster definitely
+      // splits and the pin shows individually. Otherwise keep current zoom.
+      final cameraState = await mapbox.getCameraState();
+      final currentZoom = cameraState.zoom;
+      final targetZoom =
+          currentZoom < mapConfig.clusterMaxZoom + 1
+              ? mapConfig.clusterMaxZoom + 1
+              : currentZoom;
+      await mapbox.flyTo(
+        CameraOptions(
+          center: Point(coordinates: Position(pin.longitude, pin.latitude)),
+          zoom: targetZoom,
+        ),
+        MapAnimationOptions(duration: 400),
+      );
+    });
 
     // Opens the modal from the screen's own context (Flutter state-update
     // cycle), not from inside the Mapbox tap callback. On real iOS device
@@ -220,56 +221,61 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
     return Scaffold(
       extendBody: true,
       backgroundColor: colorScheme.surface,
-      body: Padding(
-        padding: EdgeInsets.only(bottom: Spacing.xxl + Spacing.xl),
-        child: Stack(
-          children: [
-            if (_showMap)
-              MapWidget(
-                key: _mapKey,
-                onMapCreated:
-                    (mapboxMap) => _onMapCreated(mapboxMap, controller),
-                onStyleLoadedListener: (_) => _onStyleLoaded(controller),
-                // Belt-and-suspenders: scroll listener fires on touch drag;
-                // camera-change fires on ANY camera state update (including
-                // programmatic zoom, momentum, smaller pans the scroll listener
-                // may miss on real iOS device).
-                onCameraChangeListener: (CameraChangedEventData data) {
-                  _onCameraChanged(controller);
-                },
-                cameraOptions: CameraOptions(
-                  center: Point(coordinates: Position(20.0, 5.0)),
-                  zoom: 3.0,
-                ),
-                styleUri: mapStyleUri,
+      body: Stack(
+        children: [
+          if (_showMap)
+            MapWidget(
+              key: _mapKey,
+              onMapCreated: (mapboxMap) => _onMapCreated(mapboxMap, controller),
+              onStyleLoadedListener: (_) => _onStyleLoaded(controller),
+              // Belt-and-suspenders: scroll listener fires on touch drag;
+              // camera-change fires on ANY camera state update (including
+              // programmatic zoom, momentum, smaller pans the scroll listener
+              // may miss on real iOS device).
+              onCameraChangeListener: (CameraChangedEventData data) {
+                _onCameraChanged(controller);
+              },
+              cameraOptions: CameraOptions(
+                center: Point(coordinates: Position(20.0, 5.0)),
+                zoom: 3.0,
               ),
-
-            Positioned(
-              top: MediaQuery.of(context).padding.top + Spacing.lg.h,
-              left: 0,
-              right: 0,
-              child: const Center(child: SearchThisAreaPill()),
+              styleUri: mapStyleUri,
             ),
 
-            MapFabColumn(
-              fetchMode: mapState.fetchMode,
-              isFetchingGps: _isFetchingGps,
-              isFetchingAppLocation: _isFetchingAppLocation,
-              showAppLocationFab: config.appLocationProvider != null,
-              onGpsPressed: () => _useDeviceLocation(controller),
-              onAppLocationPressed: () => _useAppLocation(controller),
-            ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top + Spacing.lg.h,
+            left: 0,
+            right: 0,
+            child: const Center(child: SearchThisAreaPill()),
+          ),
 
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: const MapPinCarousel(),
-            ),
-          ],
-        ),
+          MapFabColumn(
+            fetchMode: mapState.fetchMode,
+            isFetchingGps: _isFetchingGps,
+            isFetchingAppLocation: _isFetchingAppLocation,
+            showAppLocationFab: config.appLocationProvider != null,
+            onGpsPressed: () => _useDeviceLocation(controller),
+            onAppLocationPressed: () => _useAppLocation(controller),
+          ),
+
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: const MapPinCarousel(),
+          ),
+
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom:
+                MediaQuery.of(context).padding.bottom +
+                Spacing.lg.h +
+                Spacing.xxl.h,
+            child: const MapFilterBar(),
+          ),
+        ],
       ),
-      bottomNavigationBar: const MapFilterBar(),
     );
   }
 
@@ -580,23 +586,24 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
     final copy = ref.read(mapConfigProvider).copy;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(copy.locationPermissionTitle),
-        content: Text(copy.locationPermissionBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(copy.locationPermissionCancelLabel),
+      builder:
+          (context) => AlertDialog(
+            title: Text(copy.locationPermissionTitle),
+            content: Text(copy.locationPermissionBody),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(copy.locationPermissionCancelLabel),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  geo.Geolocator.openAppSettings();
+                },
+                child: Text(copy.locationPermissionOpenSettingsLabel),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              geo.Geolocator.openAppSettings();
-            },
-            child: Text(copy.locationPermissionOpenSettingsLabel),
-          ),
-        ],
-      ),
     );
   }
 

@@ -1,9 +1,7 @@
 // lib/core/widgets/app_text_form_field.dart
+import 'dart:async';
 import 'package:debounce_throttle/debounce_throttle.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
 /// A comprehensive, production-ready text input field component with extensive customization.
@@ -280,9 +278,9 @@ class AppTextFormField extends StatefulWidget {
     this.borderRadius,
     this.height,
     this.isSmall = false,
-    this.errorText = '',
-    this.onDebouncedChanged, // New parameter
-    this.debounceDuration = const Duration(milliseconds: 500), // New parameter
+    this.errorText,
+    this.onDebouncedChanged,
+    this.debounceDuration = const Duration(milliseconds: 500),
   });
 
   @override
@@ -291,59 +289,71 @@ class AppTextFormField extends StatefulWidget {
 
 class _AppTextFormFieldState extends State<AppTextFormField> {
   late TextEditingController _controller;
-  Debouncer<String>? _debouncer; // Using Debounce from package
-  final _focusNode = FocusNode();
+  bool _ownsController = false;
+
+  // Internal node created only when no external focusNode is provided.
+  FocusNode? _ownedFocusNode;
+  FocusNode get _effectiveFocusNode =>
+      widget.focusNode ?? (_ownedFocusNode ??= FocusNode());
+
+  Debouncer<String>? _debouncer;
+  StreamSubscription<String>? _debouncerSub;
   bool _hasChanged = false;
 
   @override
   void initState() {
     super.initState();
+    _ownsController = widget.controller == null;
     _controller = widget.controller ?? TextEditingController();
 
-    // Initialize debouncer if needed
     if (widget.debounceDuration != null && widget.onDebouncedChanged != null) {
       _debouncer = Debouncer<String>(
         widget.debounceDuration!,
         initialValue: _controller.text,
       );
-
-      // Listen to debouncer values
-      _debouncer!.values.listen((value) {
-        if (mounted && widget.onDebouncedChanged != null) {
-          widget.onDebouncedChanged!(value);
-          _hasChanged = false;
-        }
+      _debouncerSub = _debouncer!.values.listen((value) {
+        if (mounted) widget.onDebouncedChanged?.call(value);
+        _hasChanged = false;
       });
     }
 
-    _focusNode.addListener(_onFocusChange);
+    _effectiveFocusNode.addListener(_onFocusChange);
   }
 
   @override
   void didUpdateWidget(AppTextFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Update controller if widget controller changes
+
     if (widget.controller != oldWidget.controller) {
+      if (_ownsController) _controller.dispose();
+      _ownsController = widget.controller == null;
       _controller = widget.controller ?? TextEditingController();
+      _hasChanged = false;
+    }
+
+    // Re-wire the focus listener if the effective node changed.
+    final oldNode = oldWidget.focusNode ?? _ownedFocusNode;
+    final newNode = _effectiveFocusNode;
+    if (oldNode != newNode) {
+      oldNode?.removeListener(_onFocusChange);
+      newNode.addListener(_onFocusChange);
     }
   }
 
   @override
   void dispose() {
-    _debouncer?.cancel(); // Cancel any pending debounce
-    _focusNode.dispose();
-    // Only dispose if we created the controller
-    if (widget.controller == null) {
-      _controller.dispose();
-    }
+    _effectiveFocusNode.removeListener(_onFocusChange);
+    _ownedFocusNode?.dispose();
+    _debouncerSub?.cancel();
+    _debouncer?.cancel();
+    if (_ownsController) _controller.dispose();
     super.dispose();
   }
 
   void _onFocusChange() {
-    if (!_focusNode.hasFocus &&
+    if (!_effectiveFocusNode.hasFocus &&
         _hasChanged &&
         widget.onDebouncedChanged != null) {
-      // Save immediately when focus is lost
       widget.onDebouncedChanged!(_controller.text);
       _hasChanged = false;
     }
@@ -351,14 +361,8 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
 
   void _handleChanged(String value) {
     _hasChanged = true;
-
-    // Call immediate onChanged if provided
     widget.onChanged?.call(value);
-
-    // Handle debounced callback using the package
-    if (_debouncer != null) {
-      _debouncer!.value = value; // This triggers the debounce
-    }
+    _debouncer?.value = value;
   }
 
   @override
@@ -366,7 +370,8 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    String _errorText = widget.errorText ?? '';
+    final errorText =
+        widget.errorText?.isNotEmpty == true ? widget.errorText : null;
 
     return Padding(
       padding: EdgeInsets.only(top: Spacing.sm.h),
@@ -374,23 +379,21 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          // Label
           Text(
             widget.label,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w500,
-              color: colorScheme.onBackground,
+              color: colorScheme.onSurface,
               fontSize: widget.isSmall ? 12.sp : 14.sp,
             ),
           ),
           Gap(Spacing.xs.h),
 
-          // Text Field Container
           SizedBox(
             height: _calculateHeight(),
             child: TextFormField(
               controller: _controller,
-              focusNode: _focusNode,
+              focusNode: _effectiveFocusNode,
               keyboardType: widget.keyboardType,
               textInputAction: widget.textInputAction,
               obscureText: widget.obscureText,
@@ -408,14 +411,14 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
               inputFormatters: widget.inputFormatters,
               autofillHints: widget.autofillHints,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onBackground,
+                color: colorScheme.onSurface,
                 fontSize: 14.sp,
               ),
               decoration: InputDecoration(
                 hintText: widget.hintText,
                 alignLabelWithHint: true,
                 hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onBackground.withOpacity(0.4),
+                  color: colorScheme.onSurface.withValues(alpha: 0.4),
                   fontSize: 12.sp,
                 ),
                 prefixIcon:
@@ -423,10 +426,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
                         ? Icon(
                           widget.prefixIcon,
                           size: IconSizes.sm.h + 5,
-                          // widget.isSmall
-                          //     ? IconSizes.sm.h + 5
-                          //     : IconSizes.md.h,
-                          color: colorScheme.onBackground.withOpacity(0.5),
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
                         )
                         : null,
                 suffixIcon: widget.suffixIcon,
@@ -434,35 +434,33 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
                 fillColor:
                     widget.fillColor ??
                     (isDark
-                        ? colorScheme.surface.withOpacity(0.5)
+                        ? colorScheme.surface.withValues(alpha: 0.5)
                         : colorScheme.surface),
                 contentPadding:
                     widget.contentPadding ??
                     EdgeInsets.symmetric(
                       horizontal: Spacing.md.w,
                       vertical: Spacing.sm.h,
-                    ).add(
-                      EdgeInsets.only(top: Spacing.sm.h, bottom: Spacing.sm.h),
                     ),
                 border: _buildBorder(colorScheme),
-                errorText: _errorText.isEmpty ? null : _errorText,
+                errorText: errorText,
                 enabledBorder: _buildBorder(colorScheme),
                 focusedBorder: _buildBorder(colorScheme, isFocused: true),
                 errorBorder: _buildBorder(
                   colorScheme,
-                  isError: _errorText.isNotEmpty,
+                  isError: errorText != null,
                 ),
                 focusedErrorBorder: _buildBorder(
                   colorScheme,
-                  isError: _errorText.isNotEmpty,
+                  isError: errorText != null,
                   isFocused: true,
                 ),
                 disabledBorder: _buildBorder(colorScheme, isDisabled: true),
                 errorStyle:
-                    _errorText.isEmpty
+                    errorText == null
                         ? null
                         : theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.red,
+                          color: colorScheme.error,
                           fontSize: 12.sp,
                         ),
                 errorMaxLines: 2,
@@ -473,19 +471,6 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
               ),
             ),
           ),
-
-          // Error text below field (if any)
-          if (_errorText.isNotEmpty)
-            Padding(
-              padding: EdgeInsets.only(top: Spacing.xs.h),
-              child: Text(
-                _errorText,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.red,
-                  fontSize: 12.sp,
-                ),
-              ),
-            ),
         ],
       ),
     );
@@ -493,12 +478,9 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
 
   double? _calculateHeight() {
     if (widget.height != null) return widget.height;
-    if (widget.errorText?.isNotEmpty == true)
-      return null; // Let it expand for error
-    if (widget.maxLines == 1) {
-      return widget.isSmall ? 45.h : 70.h;
-    }
-    return null; // Multi-line expands naturally
+    if (widget.errorText?.isNotEmpty == true) return null;
+    if (widget.maxLines == 1) return widget.isSmall ? 45.h : 70.h;
+    return null;
   }
 
   InputBorder _buildBorder(
@@ -511,63 +493,22 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
 
     final borderColor =
         isError
-            ? Colors.red
+            ? colorScheme.error
             : isFocused
             ? colorScheme.primary
-            : colorScheme.outline.withOpacity(0.3);
+            : colorScheme.outline.withValues(alpha: 0.3);
 
     final borderWidth = isFocused ? 2.0 : 0.5;
 
     return OutlineInputBorder(
       borderRadius: widget.borderRadius ?? BorderRadius.circular(20.r),
       borderSide: BorderSide(
-        color: isDisabled ? colorScheme.outline.withOpacity(0.1) : borderColor,
-        width: borderWidth.h,
+        color:
+            isDisabled
+                ? colorScheme.outline.withValues(alpha: 0.1)
+                : borderColor,
+        width: borderWidth,
       ),
     );
   }
 }
-
-//   /// Builds the appropriate input border based on the field's current state.
-//   ///
-//   /// This method centralizes border creation logic, ensuring consistent
-//   /// appearance across all interactive states (normal, focused, error, disabled).
-//   ///
-//   /// Parameters control the visual appearance:
-//   /// - `isFocused`: Whether the field has input focus
-//   /// - `isError`: Whether validation has failed
-//   /// - `isDisabled`: Whether the field is non-interactive
-//   ///
-//   /// Returns `InputBorder.none` when `showBorder` is `false`.
-//   InputBorder _buildBorder(
-//     ColorScheme colorScheme, {
-//     bool isFocused = false,
-//     bool isError = false,
-//     bool isDisabled = false,
-//   }) {
-//     // Borderless design option
-//     if (!widget.showBorder) return InputBorder.none;
-
-//     // Color logic hierarchy: Error > Focused > Normal
-//     final borderColor =
-//         isError
-//             ? Colors.red
-//             : isFocused
-//             ? colorScheme.primary
-//             : colorScheme.outline.withOpacity(0.3);
-
-//     // Thicker border when focused or in error for visual emphasis
-//     final borderWidth = isFocused ? 2.0 : .5;
-
-//     return OutlineInputBorder(
-//       // Custom or default border radius (pill-shaped by default)
-//       borderRadius: widget.borderRadius ?? BorderRadius.circular(20.r),
-//       borderSide: BorderSide(
-//         // Disabled borders have reduced opacity
-//         color: isDisabled ? colorScheme.outline.withOpacity(0.1) : borderColor,
-//         // Responsive border width using ScreenUtil
-//         width: borderWidth.h,
-//       ),
-//     );
-//   }
-// }

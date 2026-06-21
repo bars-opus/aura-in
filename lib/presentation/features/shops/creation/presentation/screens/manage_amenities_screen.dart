@@ -14,8 +14,6 @@ class ManageAmenitiesScreen extends ConsumerStatefulWidget {
 }
 
 class _ManageAmenitiesScreenState extends ConsumerState<ManageAmenitiesScreen> {
-
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -36,7 +34,7 @@ class _ManageAmenitiesScreenState extends ConsumerState<ManageAmenitiesScreen> {
           children: [
             SemanticContainerWidget(
               content:
-                  'This helps customers find you. You can use your current location or search for an address.',
+                  'This helps customers have an expectation of the comfort and ease available at your shop.',
               icon: Icons.hotel_outlined,
               title: 'Select the amenities and features your shop provides',
               backgroundColor: colorScheme.primary.withOpacity(0.1),

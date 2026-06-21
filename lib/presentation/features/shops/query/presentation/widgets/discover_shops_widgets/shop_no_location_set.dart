@@ -6,30 +6,28 @@ class ShopNoLocationSet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
 
-    return CardInkWell(
-      onTap: () {},
-      margin: EdgeInsets.only(bottom: 0),
-      // padding: const EdgeInsets.all(0),
-      child: GestureDetector(
-        onTap: () {
-          BottomSheetUtils.showDocumentationBottomSheet(
-            maxHeight: 500.h,
-            context: context,
-            widget: LocationPickerBottomSheet(),
-          );
-        },
-        child: SemanticContainerWidget(
-          content:
-              'Set your location to discover premium and top rated shops near you.',
-          icon: Icons.location_on,
-          title: 'Set your location to discover',
-          backgroundColor: Colors.green.withOpacity(0.1),
-          borderColor: Colors.green,
-          iconColor: Colors.green,
-          textTheme: textTheme,
-        ),
+    final textTheme = theme.textTheme;
+    final colorScheme = theme.colorScheme;
+
+    return GestureDetector(
+      onTap: () {
+        BottomSheetUtils.showDocumentationBottomSheet(
+          maxHeight: 250.h,
+          context: context,
+          widget: LocationPickerBottomSheet(),
+        );
+      },
+      child: SemanticContainerWidget(
+        content: loc.shopNoLocationSetContent,
+        icon: Icons.location_on,
+        title: loc.shopNoLocationSetTitle,
+        backgroundColor: colorScheme.success.withOpacity(0.1),
+        borderColor: colorScheme.success,
+        iconColor: colorScheme.success,
+        textTheme: textTheme,
       ),
     );
   }

@@ -71,8 +71,7 @@ class LoginProfile extends ConsumerWidget {
       );
     }
 
-    String _overview =
-        'You are browing ${AppConstants.appName} as a guess, kindly login or create and account to start managint your shop. It takes less than 5 seconds. We have a variety of tools to help you improve your business all at your disposal free of charge';
+    String _overview = loc.authGuestOverview(AppConstants.appName);
 
     return CustomScrollView(
       slivers: [
@@ -94,7 +93,7 @@ class LoginProfile extends ConsumerWidget {
                   Gap(Spacing.lg.h),
                   Center(
                     child: Text(
-                      'Hello!!',
+                      loc.authGuestHello,
                       style: textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: colorScheme.onSurface,
@@ -123,7 +122,7 @@ class LoginProfile extends ConsumerWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          'Lean more',
+                          loc.commonLearnMore,
                           style: textTheme.bodyMedium?.copyWith(
                             color: colorScheme.primary,
                             fontWeight: FontWeight.bold,
@@ -171,10 +170,11 @@ class LoginProfile extends ConsumerWidget {
         SliverFillRemaining(
           child: TabsWithContent(
             useNestedScrollMode: false,
-            tabs: buildProfileTabs('', false).toList(),
+            tabs: buildProfileTabs('', false, true,).toList(),
             initialIndex: 0,
             scrollable: false,
             showContent: true,
+            
           ),
         ),
       ],

@@ -9,6 +9,14 @@ import 'package:nano_embryo/app/routing/routing_notifier.dart';
 import 'package:nano_embryo/core/account_lifecycle/config/account_lifecycle_config.dart';
 import 'package:nano_embryo/core/account_lifecycle/config/feature/account_lifecycle_config.dart';
 import 'package:nano_embryo/core/config/env.dart';
+import 'package:nano_embryo/core/config/survey/config/feature/survey_config.dart'
+    show buildNanoEmbryoSurveyConfig;
+import 'package:nano_embryo/core/config/survey/config/survey_config.dart'
+    show surveyConfigProvider;
+import 'package:nano_embryo/core/feedback/config/feature/feedback_config.dart'
+    show buildNanoEmbryoFeedbackConfig;
+import 'package:nano_embryo/core/feedback/config/feedback_config.dart'
+    show feedbackConfigProvider;
 import 'package:nano_embryo/core/link/config/aurain_link_config.dart';
 import 'package:nano_embryo/core/link/providers/link_providers.dart';
 import 'package:nano_embryo/core/map/config/feature/map_config.dart'
@@ -157,6 +165,14 @@ Future<void> main() async {
               paymentErrorBuilder:
                   (context, info) => PaymentFailureScreen(info: info),
             ),
+          ),
+
+          // Survey engine config — feature list + per-app copy
+          surveyConfigProvider.overrideWithValue(buildNanoEmbryoSurveyConfig()),
+
+          // Feedback engine config — categories + screenshot settings
+          feedbackConfigProvider.overrideWithValue(
+            buildNanoEmbryoFeedbackConfig(),
           ),
 
           // Encrypted chat cache — initialized before runApp

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/core/utils/location/models/user_location.dart';
+import 'package:nano_embryo/presentation/features/currency/domain/entities/parsed_address.dart';
 import 'package:nano_embryo/presentation/features/currency/domain/entities/currency.dart';
 import 'package:nano_embryo/presentation/features/currency/domain/mappers/country_currency_mapper.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -141,6 +142,36 @@ class UserLocationNotifier extends _$UserLocationNotifier {
       print('Error setting searched location: $e');
       return false;
     }
+  }
+
+  /// Set location directly from an already-resolved [ParsedAddress].
+  /// Avoids re-geocoding when the caller already has coordinates (e.g. from
+  /// Google Places Details or GPS).
+  Future<bool> setFromParsedAddress(ParsedAddress parsedAddress) async {
+    if (parsedAddress.latitude == null || parsedAddress.longitude == null) {
+      return false;
+    }
+
+    Currency? detectedCurrency;
+    if (parsedAddress.countryCode != null) {
+      detectedCurrency = CountryCurrencyMapper.getPrimaryCurrency(
+        parsedAddress.countryCode,
+      );
+    }
+
+    final location = UserLocation(
+      displayName: parsedAddress.city ?? parsedAddress.fullAddress,
+      latitude: parsedAddress.latitude!,
+      longitude: parsedAddress.longitude!,
+      source: LocationSource.search,
+      timestamp: DateTime.now(),
+      currencyCode: detectedCurrency?.code,
+      currencySymbol: detectedCurrency?.symbol,
+    );
+
+    await _saveLocation(location);
+    state = location;
+    return true;
   }
 
   /// Update currency for the current location

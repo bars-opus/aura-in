@@ -104,18 +104,6 @@ class _AddAwardModalState extends State<AddAwardModal> {
       ),
       body: ListView(
         children: [
-          Gap(Spacing.lg.h),
-          SemanticContainerWidget(
-            content:
-                '${hearder}your social profiles to help customers find you',
-            title: '',
-            backgroundColor: colorScheme.primary.withOpacity(0.1),
-            borderColor: colorScheme.primary,
-            iconColor: colorScheme.primary,
-            textTheme: theme.textTheme,
-          ),
-
-          Gap(Spacing.lg.h),
           Form(
             key: _formKey,
             child: Column(

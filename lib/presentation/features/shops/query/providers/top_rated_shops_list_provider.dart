@@ -1,7 +1,11 @@
+import 'package:nano_embryo/presentation/features/discover/providers/discovery_seed_provider.dart';
+import 'package:nano_embryo/presentation/features/search/models/search_paginated_result.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'top_rated_shops_list_provider.g.dart';
+
 
 class TopRatedShopsListState {
   final List<ShopListItemDTO> shops;
@@ -10,7 +14,6 @@ class TopRatedShopsListState {
   final bool hasError;
   final String? errorMessage;
   final bool hasReachedMax;
-  // 👇 New filter fields
   final String? luxuryLevel;
   final bool verifiedOnly;
   final String sortBy;
@@ -66,11 +69,44 @@ class TopRatedShopsListState {
   }
 }
 
-@riverpod
+/// keepAlive: discover-screen data persists across tab/route switches.
+/// Call refresh() to invalidate stale data.
+@Riverpod(keepAlive: true)
 class TopRatedShopsList extends _$TopRatedShopsList {
+  /// Suppresses ref.listen-driven refetches while applyFilters is in flight.
+  bool _isApplyingFilters = false;
+
   @override
   Future<TopRatedShopsListState> build() {
+    // Refetch when radius changes from elsewhere (e.g. Discover screen slider).
+    ref.listen<double>(searchRadiusKmProvider, (prev, next) {
+      if (_isApplyingFilters) return;
+      if (prev != null && prev != next) loadFirstPage();
+    });
     return Future.value(TopRatedShopsListState.initial());
+  }
+
+  /// Fetches a page of top-rated shops. The default-order path uses the seeded
+  /// discover_top_rated_shops RPC; explicit sortBy='name'/'rating' falls back
+  /// to the view query so user-chosen sorts are still honoured.
+  Future<SearchPaginatedResult<ShopListItemDTO>> _fetchPage({
+    required String shopType,
+    String? cursor,
+    String? luxuryLevel,
+    bool? verifiedOnly,
+    String? sortBy,
+  }) async {
+    final repository = ref.read(shopRepositoryProvider);
+    final seed = ref.read(discoverySeedProvider);
+    return repository.getTopRatedShopsPaginated(
+      shopType: shopType,
+      luxuryLevel: luxuryLevel,
+      verifiedOnly: verifiedOnly,
+      sortBy: sortBy,
+      cursor: cursor,
+      limit: AppConstants.shopsPerPage,
+      seed: seed,
+    );
   }
 
   Future<void> loadFirstPage({
@@ -80,8 +116,6 @@ class TopRatedShopsList extends _$TopRatedShopsList {
     String? sortBy,
   }) async {
     final shopType = ref.read(selectedServiceCategoryProvider);
-    final repository = ref.read(shopRepositoryProvider);
-    // final selectedLuxury = ref.read(selectedLuxuryLevelProvider);
 
     final currentState = state.asData?.value;
     final effectiveLuxuryLevel = luxuryLevel ?? currentState?.luxuryLevel;
@@ -92,12 +126,9 @@ class TopRatedShopsList extends _$TopRatedShopsList {
     state = const AsyncValue.loading();
 
     try {
-      final result = await repository.getTopRatedShopsPaginated(
+      final result = await _fetchPage(
         shopType: shopType,
         cursor: cursor,
-        // luxuryLevel: selectedLuxury ?? '',
-        limit: AppConstants.shopsPerPage,
-
         luxuryLevel: effectiveLuxuryLevel,
         verifiedOnly: effectiveVerifiedOnly,
         sortBy: effectiveSortBy,
@@ -108,6 +139,9 @@ class TopRatedShopsList extends _$TopRatedShopsList {
           shops: result.items,
           nextCursor: result.nextCursor,
           hasReachedMax: result.nextCursor == null,
+          luxuryLevel: effectiveLuxuryLevel,
+          verifiedOnly: effectiveVerifiedOnly,
+          sortBy: effectiveSortBy,
         ),
       );
     } catch (e, stack) {
@@ -115,37 +149,46 @@ class TopRatedShopsList extends _$TopRatedShopsList {
     }
   }
 
-  // 👇 New method to apply filters
   Future<void> applyFilters({
     String? luxuryLevel,
     bool? verifiedOnly,
     String? sortBy,
+    double? radiusKm,
   }) async {
-    // Update state with new filters (optimistic update)
-    final currentState = state;
-    if (currentState is AsyncData) {
-      final newState = currentState.value?.copyWith(
-        luxuryLevel: luxuryLevel,
-        verifiedOnly: verifiedOnly ?? currentState.value?.verifiedOnly,
-        sortBy: sortBy ?? currentState.value?.sortBy,
-      );
-      state = AsyncValue.data(newState!);
-    }
+    _isApplyingFilters = true;
+    try {
+      if (radiusKm != null) {
+        ref.read(searchRadiusKmProvider.notifier).state = radiusKm;
+      }
 
-    // Reload first page with new filters
-    await loadFirstPage(
-      luxuryLevel: luxuryLevel,
-      verifiedOnly: verifiedOnly,
-      sortBy: sortBy,
-    );
+      final currentState = state;
+      if (currentState is AsyncData) {
+        final newState = currentState.value?.copyWith(
+          luxuryLevel: luxuryLevel,
+          verifiedOnly: verifiedOnly ?? currentState.value?.verifiedOnly,
+          sortBy: sortBy ?? currentState.value?.sortBy,
+        );
+        state = AsyncValue.data(newState!);
+      }
+
+      await loadFirstPage(
+        luxuryLevel: luxuryLevel,
+        verifiedOnly: verifiedOnly,
+        sortBy: sortBy,
+      );
+    } finally {
+      _isApplyingFilters = false;
+    }
   }
 
   Future<void> loadNextPage() async {
     final currentState = state;
     if (currentState is! AsyncData) return;
     final data = currentState.value;
-    // 👈 Don't load if already loading, reached max, or no next cursor
-    if (data == null || data.isLoading || data.hasReachedMax || data.nextCursor == null) {
+    if (data == null ||
+        data.isLoading ||
+        data.hasReachedMax ||
+        data.nextCursor == null) {
       return;
     }
 
@@ -153,11 +196,13 @@ class TopRatedShopsList extends _$TopRatedShopsList {
 
     try {
       final shopType = ref.read(selectedServiceCategoryProvider);
-      final repository = ref.read(shopRepositoryProvider);
-      final result = await repository.getTopRatedShopsPaginated(
+
+      final result = await _fetchPage(
         shopType: shopType,
         cursor: data.nextCursor,
-        limit: AppConstants.shopsPerPage,
+        luxuryLevel: data.luxuryLevel,
+        verifiedOnly: data.verifiedOnly,
+        sortBy: data.sortBy,
       );
 
       final seen = <String>{...data.shops.map((s) => s.id)};
@@ -186,6 +231,7 @@ class TopRatedShopsList extends _$TopRatedShopsList {
   }
 
   Future<void> refresh() async {
+    reshuffleDiscovery(ref);
     await loadFirstPage();
   }
 }

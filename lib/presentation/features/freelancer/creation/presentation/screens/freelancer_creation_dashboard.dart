@@ -12,6 +12,7 @@ import 'package:gap/gap.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/data/create_freelancer_data.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/domain/models/freelancer_draft.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/providers/edit_freelancer_provider.dart';
+import 'package:nano_embryo/presentation/features/freelancer/data/repositories/supabase_freelancer_repository.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/providers/freelancer_creation_provider.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/models/freelancer_details_dto.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/models/freelancer_edit_data.dart';
@@ -27,11 +28,13 @@ enum FreelancerMode { create, edit }
 /// Main dashboard for freelancer creation
 class FreelancerCreationDashboard extends ConsumerStatefulWidget {
   final String? freelancerId;
+  final String? userId;
   final FreelancerMode mode;
   final FreelancerEditData? existingFreelancer;
   const FreelancerCreationDashboard({
     super.key,
     this.freelancerId,
+    this.userId,
     this.mode = FreelancerMode.create,
     this.existingFreelancer,
   });
@@ -47,6 +50,10 @@ class _FreelancerCreationDashboardState
   bool _hasUnsavedChanges = false;
   late ProviderContainer _container;
 
+  // Tracks the resolved freelancer ID after auto-detect; null until resolved.
+  String? _resolvedFreelancerId;
+  FreelancerMode _resolvedMode = FreelancerMode.create;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -56,21 +63,37 @@ class _FreelancerCreationDashboardState
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        // Load edit data BEFORE switching context so sub-providers that watch
-        // draftContextProvider (e.g. hoursProvider) re-create with the real
-        // data already present in freelancerCreationProvider.
-        if (widget.mode == FreelancerMode.edit &&
-            widget.existingFreelancer != null) {
-          _loadEditDataIntoDraft(widget.existingFreelancer!);
-        } else if (widget.mode == FreelancerMode.edit &&
-            widget.freelancerId != null) {
-          ref.read(editFreelancerProvider(widget.freelancerId!).notifier);
-        }
+    _resolvedFreelancerId = widget.freelancerId;
+    _resolvedMode = widget.mode;
 
-        ref.read(draftContextProvider.notifier).state = DraftContext.freelancer;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+
+      // Auto-detect existing freelancer when navigating from profile screen
+      // (userId passed, mode == create, no freelancerId yet).
+      if (widget.mode == FreelancerMode.create &&
+          widget.freelancerId == null &&
+          widget.userId != null) {
+        final repository = ref.read(freelancerRepositoryProvider);
+        final existing = await repository.getFreelancerByUserId(widget.userId!);
+        if (!mounted) return;
+        if (existing != null) {
+          setState(() {
+            _resolvedFreelancerId = existing.id;
+            _resolvedMode = FreelancerMode.edit;
+          });
+          // Trigger the edit provider to load full data.
+          ref.read(editFreelancerProvider(existing.id).notifier);
+        }
+      } else if (widget.mode == FreelancerMode.edit &&
+          widget.existingFreelancer != null) {
+        _loadEditDataIntoDraft(widget.existingFreelancer!);
+      } else if (widget.mode == FreelancerMode.edit &&
+          widget.freelancerId != null) {
+        ref.read(editFreelancerProvider(widget.freelancerId!).notifier);
       }
+
+      ref.read(draftContextProvider.notifier).state = DraftContext.freelancer;
     });
   }
 
@@ -110,10 +133,19 @@ class _FreelancerCreationDashboardState
 
   @override
   Widget build(BuildContext context) {
+    // Re-assert freelancer context every time this dashboard is shown. initState
+    // runs only once, so after a detour into shop creation (whose dispose resets
+    // the flag to shop) the context would otherwise stay wrong when we pop back.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (ref.read(draftContextProvider) != DraftContext.freelancer) {
+        ref.read(draftContextProvider.notifier).state = DraftContext.freelancer;
+      }
+    });
     final draft = ref.watch(freelancerCreationProvider);
     final editState =
-        widget.mode == FreelancerMode.edit && widget.freelancerId != null
-            ? ref.watch(editFreelancerProvider(widget.freelancerId!))
+        _resolvedMode == FreelancerMode.edit && _resolvedFreelancerId != null
+            ? ref.watch(editFreelancerProvider(_resolvedFreelancerId!))
             : null;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -141,11 +173,12 @@ class _FreelancerCreationDashboardState
       return Scaffold(
         body: Center(
           child: ErrorStateWidget(
-            subtitle: 'Error loading freelancer: ${editState!.error}',
+            subtitle:
+                editState!.error ?? 'Something went wrong. Please try again.',
             title: '',
             onPrimaryAction: () {
-              if (widget.freelancerId != null) {
-                ref.invalidate(editFreelancerProvider(widget.freelancerId!));
+              if (_resolvedFreelancerId != null) {
+                ref.invalidate(editFreelancerProvider(_resolvedFreelancerId!));
               }
             },
           ),
@@ -169,7 +202,7 @@ class _FreelancerCreationDashboardState
               title: Text(
                 editState?.isLoading == true && editState?.draft == null
                     ? 'Initializing freelancer profile...'
-                    : widget.mode == FreelancerMode.edit
+                    : _resolvedMode == FreelancerMode.edit
                     ? 'Edit Freelancer Profile'
                     : 'Become a Freelancer',
                 style: theme.textTheme.titleLarge?.copyWith(
@@ -232,45 +265,41 @@ class _FreelancerCreationDashboardState
                 Gap(Spacing.md.h),
                 AppDivider(),
                 Gap(Spacing.xl.h),
-                _isPublishing
-                    ? CircularLoadingIndicator()
-                    : AppButton(
-                      elevation: 0,
-                      label:
-                          widget.mode == FreelancerMode.edit
-                              ? 'Save Changes'
-                              : 'Preview Profile',
-                      onPressed:
-                          widget.mode == FreelancerMode.edit
-                              ? (_isPublishing
-                                  ? null
-                                  : () => _saveChanges(context, draft))
-                              : (_isPublishing
-                                  ? null
-                                  : (draft.isMinimumViable
-                                      ? () {
-                                        final currentDraft = ref.read(
-                                          freelancerCreationProvider,
-                                        );
-                                        context.push(
-                                          '/freelancerPreviewScreen',
-                                          extra: {
-                                            'mode': FreelancerMode.create,
-                                            'draft': currentDraft,
-                                          },
-                                        );
-                                      }
-                                      : () {
-                                        context.showErrorSnackbar(
-                                          'Complete your profile info',
-                                        );
-                                      })),
+                AppButton(
+                  elevation: 0,
+                  label:
+                      _resolvedMode == FreelancerMode.edit
+                          ? 'Save Changes'
+                          : 'Preview Profile',
+                  onPressed:
+                      _resolvedMode == FreelancerMode.edit
+                          ? (_isPublishing ? null : () => _saveChanges(draft))
+                          : (_isPublishing
+                              ? null
+                              : (draft.isMinimumViable
+                                  ? () {
+                                    final currentDraft = ref.read(
+                                      freelancerCreationProvider,
+                                    );
+                                    context.push(
+                                      '/freelancerPreviewScreen',
+                                      extra: {
+                                        'mode': FreelancerMode.create,
+                                        'draft': currentDraft,
+                                      },
+                                    );
+                                  }
+                                  : () {
+                                    context.showErrorSnackbar(
+                                      'Complete your profile info',
+                                    );
+                                  })),
 
-                      size: ButtonSize.small,
-                      width: double.infinity,
-                      padding: Spacing.horizontalMd,
-                      height: 40.h,
-                    ),
+                  size: ButtonSize.small,
+                  width: double.infinity,
+                  padding: Spacing.horizontalMd,
+                  height: 40.h,
+                ),
                 Gap(Spacing.xl.h),
                 SemanticContainerWidget(
                   content:
@@ -280,6 +309,17 @@ class _FreelancerCreationDashboardState
                   backgroundColor: colorScheme.success.withOpacity(0.1),
                   borderColor: colorScheme.success,
                   iconColor: colorScheme.success,
+                  textTheme: theme.textTheme,
+                ),
+                Gap(Spacing.md.h),
+                SemanticContainerWidget(
+                  content:
+                      'Your dashboard and daily appointment schedules would show after your profile is published',
+                  icon: Icons.dashboard_outlined,
+                  title: '',
+                  backgroundColor: colorScheme.primary.withOpacity(0.1),
+                  borderColor: colorScheme.primary,
+                  iconColor: colorScheme.primary,
                   textTheme: theme.textTheme,
                 ),
                 Gap(Spacing.md.h),
@@ -328,7 +368,7 @@ class _FreelancerCreationDashboardState
         cancelText: 'Leave and discard',
         message: '',
         onConfirm: () async {
-          final success = await _saveChanges(context, draft);
+          final success = await _saveChanges(draft);
           if (context.mounted) Navigator.pop(context);
           completer.complete(success);
         },
@@ -342,44 +382,13 @@ class _FreelancerCreationDashboardState
     return completer.future;
   }
 
-  // Future<bool> _showUnsavedChangesDialog(
-  //   BuildContext context,
-  //   FreelancerDraft draft,
-  // ) async {
-  //   final shouldSave = await showDialog<bool>(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder:
-  //         (ctx) => AlertDialog(
-  //           title: const Text('Unsaved Changes'),
-  //           content: const Text(
-  //             'You have unsaved changes. Would you like to save them before leaving?',
-  //           ),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () => Navigator.pop(ctx, false),
-  //               child: const Text('Discard'),
-  //             ),
-  //             TextButton(
-  //               onPressed: () => Navigator.pop(ctx, true),
-  //               child: const Text('Save'),
-  //             ),
-  //           ],
-  //         ),
-  //   );
-
-  //   if (shouldSave == true) {
-  //     final success = await _saveChanges(context, draft);
-  //     return success;
-  //   }
-  //   return true; // Discard changes and pop
-  // }
-
   /// Save changes for edit mode
 
-  /// Save changes for edit mode (adopting shop pattern)
-  Future<bool> _saveChanges(BuildContext context, FreelancerDraft draft) async {
-    if (widget.freelancerId == null) return false;
+  /// Save changes for edit mode
+  Future<bool> _saveChanges(FreelancerDraft draft) async {
+    if (_resolvedFreelancerId == null) return false;
+    // Guard against concurrent taps (edit path shares _isPublishing with create).
+    if (_isPublishing) return false;
 
     if (!draft.isMinimumViable) {
       context.showErrorSnackbar(
@@ -388,11 +397,13 @@ class _FreelancerCreationDashboardState
       return false;
     }
 
-    // Show loading indicator
-    context.showLoadingSnackbar('Saving changes...',);
+    setState(() => _isPublishing = true);
+    context.showLoadingSnackbar('Saving changes...');
 
     try {
-      final editState = ref.read(editFreelancerProvider(widget.freelancerId!));
+      final editState = ref.read(
+        editFreelancerProvider(_resolvedFreelancerId!),
+      );
       final pathToUrl = editState.localPathToOriginalUrl;
       final docPathToUrl = editState.localDocPathToOriginalUrl;
       final imageUrlToId = editState.imageUrlToId;
@@ -448,7 +459,7 @@ class _FreelancerCreationDashboardState
               .toList();
 
       final notifier = ref.read(
-        editFreelancerProvider(widget.freelancerId!).notifier,
+        editFreelancerProvider(_resolvedFreelancerId!).notifier,
       );
       final success = await notifier.saveChanges(
         newImages: newImageFiles,
@@ -459,32 +470,40 @@ class _FreelancerCreationDashboardState
         documentUrlsToDelete: removedDocUrls,
       );
 
+      // Guard all context access after the async gap.
+      if (!mounted) return false;
       ScaffoldMessenger.of(context).clearSnackBars();
 
-      if (success && mounted) {
+      if (success) {
         _hasUnsavedChanges = false;
         context.showSuccessSnackbar('Profile updated successfully');
-        Navigator.pop(context); // Return to profile screen
+        Navigator.pop(context);
         return true;
-      } else if (mounted) {
-        final error =
-            ref.read(editFreelancerProvider(widget.freelancerId!)).error;
-        context.showErrorSnackbar(error ?? 'Failed to update profile');
+      } else {
+        context.showErrorSnackbar(
+          'Failed to update profile. Please try again.',
+        );
         return false;
       }
-
-      // ✅ Added: Return false for any other case
-      return false;
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).clearSnackBars();
-      context.showErrorSnackbar('Error: $e');
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).clearSnackBars();
+      context.showErrorSnackbar('Something went wrong. Please try again.');
       return false;
+    } finally {
+      if (mounted) setState(() => _isPublishing = false);
     }
   }
 
   @override
   void dispose() {
-    _container.read(draftContextProvider.notifier).state = DraftContext.shop;
+    // Defer the reset: dispose can run during tree finalization (e.g. when the
+    // publish flow replaces this route), and Riverpod forbids mutating a
+    // provider mid-build. Capture the container first since `ref` is gone after.
+    final container = _container;
+    Future.microtask(() {
+      container.read(draftContextProvider.notifier).state = DraftContext.shop;
+    });
     super.dispose();
   }
 }

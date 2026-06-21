@@ -29,7 +29,7 @@ class ManageMediaScreen extends ConsumerWidget {
         children: [
           SemanticContainerWidget(
             content:
-                'Add at least 3 photos of your shop. You can drag to reorder - the first photo will be your cover image.',
+                'Add at least 3 good looking professional photos of your shop. You can drag to reorder - the first photo will be your cover image.',
             icon: Icons.add_photo_alternate,
             title: 'Shop Photos',
             backgroundColor: colorScheme.primary.withOpacity(0.1),
@@ -65,20 +65,7 @@ class ManageMediaScreen extends ConsumerWidget {
   }
 
   void _saveAndContinue(BuildContext context) {
-    // if (_formKey.currentState?.validate() ?? false) {
-    //   ref
-    //       .read(shopCreationProvider.notifier)
-    //       .updateBasics(
-    //         shopName: _nameController.text,
-    //         shopType: _selectedType,
-    //         luxuryLevel: _selectedLuxuryLevel,
-    //         overview:
-    //             _overviewController.text.isNotEmpty
-    //                 ? _overviewController.text
-    //                 : null,
-    //         terms:
-    //             _termsController.text.isNotEmpty ? _termsController.text : null,
-    //       );
+   
     Navigator.pop(context);
     // context.push('/location'); // Use your navigation method
   }

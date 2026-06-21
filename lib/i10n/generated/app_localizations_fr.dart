@@ -487,6 +487,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get editProfileScreenEditShopSubtitle => 'Modifiez les informations de votre boutique';
 
   @override
+  String get editProfileScreenCreateFreelancerTitle => 'Create freelancer profile';
+
+  @override
+  String get editProfileScreenCreateFreelancerSubtitle => 'Set up your work profile so clients can find and book you.';
+
+  @override
+  String get editProfileScreenCreateShopTitle => 'Create shop';
+
+  @override
+  String get editProfileScreenCreateShopSubtitle => 'Set up your shop so clients can find and book your services.';
+
+  @override
+  String get editProfileScreenSellProductTitle => 'Sell a product';
+
+  @override
+  String get editProfileScreenSellProductSubtitle => 'Sell your beauty products like pomades, shampoos, hairbrushes and more.';
+
+  @override
   String get languageScreenSubtitle => 'Choisissez votre langue préférée pour l\'interface de l\'application. Cela n\'affectera pas les paramètres de votre appareil.';
 
   @override

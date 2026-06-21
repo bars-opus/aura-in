@@ -1,3 +1,4 @@
+import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 
 class PremiumShopsScreen extends ConsumerStatefulWidget {
@@ -9,12 +10,6 @@ class PremiumShopsScreen extends ConsumerStatefulWidget {
 
 class _PremiumShopsScreenState extends ConsumerState<PremiumShopsScreen> {
   final ScrollController _scrollController = ScrollController();
-
-  // Local state for filter bottom sheet (temporary until applied)
-  String? _tempLuxuryLevel;
-  bool _tempVerifiedOnly = false;
-  String _tempSortBy = 'rating';
-  bool _tempSortByRating = false;
 
   @override
   void initState() {
@@ -44,12 +39,13 @@ class _PremiumShopsScreenState extends ConsumerState<PremiumShopsScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final stateAsync = ref.watch(premiumShopsListProvider);
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Text(
-          'Premium Shops',
+          loc.premiumShopsScreenTitle,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface.withOpacity(0.8),
@@ -68,25 +64,23 @@ class _PremiumShopsScreenState extends ConsumerState<PremiumShopsScreen> {
 
               BottomSheetUtils.showDocumentationBottomSheet(
                 context: context,
-                maxHeight: 550.h,
+                maxHeight: 680.h,
+                padding: Spacing.md,
                 widget: ShopFilterBottomSheet(
                   selectedCategory: ref.read(selectedServiceCategoryProvider),
-                  // 👇 Use discover luxury level as initial
                   initialLuxuryLevel: discoverLuxuryLevel,
-                  // 👇 Other filters reset to defaults
-                  initialVerifiedOnly: false, // Always start with verified off
-                  initialSortByRating: true, // Always start with rating sort
-                  onReset: () {
-                    // Optional: Handle any additional reset logic
-                  },
-                  onApply: (luxuryLevel, verifiedOnly, sortByRating) {
-                    // Apply filters and reload
+                  initialVerifiedOnly: false,
+                  initialSortByRating: true,
+                  initialRadiusKm: ref.read(searchRadiusKmProvider),
+                  onReset: () {},
+                  onApply: (luxuryLevel, verifiedOnly, sortByRating, radiusKm) {
                     ref
                         .read(premiumShopsListProvider.notifier)
                         .applyFilters(
                           luxuryLevel: luxuryLevel,
                           verifiedOnly: verifiedOnly,
                           sortBy: sortByRating ? 'rating' : 'name',
+                          radiusKm: radiusKm,
                         );
                   },
                 ),
@@ -107,7 +101,7 @@ class _PremiumShopsScreenState extends ConsumerState<PremiumShopsScreen> {
             return EmptyStateWidget(
               type: EmptyStateType.noShops,
               compact: true,
-              subtitle: 'No premium shops found',
+              subtitle: loc.premiumShopsEmpty,
               onAction:
                   () => ref.read(premiumShopsListProvider.notifier).refresh(),
             );
@@ -153,11 +147,8 @@ class _PremiumShopsScreenState extends ConsumerState<PremiumShopsScreen> {
         error:
             (error, stack) => Center(
               child: ErrorStateWidget(
-                showDetails: true,
-                title: '',
-                subtitle: 'Failed to load premium shops\n${error.toString()}',
-                errorDetails: '',
-
+                title: loc.commonSomethingWentWrong,
+                subtitle: error.toString(),
                 type: ErrorStateType.genericError,
                 onPrimaryAction:
                     () => ref.read(premiumShopsListProvider.notifier).refresh(),

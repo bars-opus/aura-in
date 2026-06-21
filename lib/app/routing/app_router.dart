@@ -5,6 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/app/routing/routing_notifier.dart';
 import 'package:nano_embryo/app/splash_screen.dart';
 import 'package:nano_embryo/core/account_lifecycle/utils/account_lifecycle_router_guard.dart';
+import 'package:nano_embryo/core/config/survey/presentation/screens/feature_survey_screen.dart';
+import 'package:nano_embryo/core/feedback/presentation/screens/feedback_history_screen.dart';
+import 'package:nano_embryo/core/feedback/presentation/screens/feedback_screen.dart';
+import 'package:nano_embryo/core/moderation/data/moderation_models.dart';
+import 'package:nano_embryo/core/moderation/presentation/screens/block_account_screen.dart';
+import 'package:nano_embryo/core/moderation/presentation/screens/blocked_accounts_screen.dart';
+import 'package:nano_embryo/core/moderation/presentation/screens/report_target_screen.dart';
 import 'package:nano_embryo/core/link/models/link_models.dart';
 import 'package:nano_embryo/core/link/providers/link_providers.dart';
 import 'package:nano_embryo/core/utils/location/location_search_mode.dart';
@@ -74,7 +81,9 @@ import 'package:nano_embryo/presentation/features/products/presentation/screens/
 import 'package:nano_embryo/presentation/features/products/presentation/screens/order_detail_screen.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/screens/shop_products_screen.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/screens/product_form_screen.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/seller_onboarding_screen.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
+import 'package:nano_embryo/presentation/features/admin/presentation/screens/verification_review_screen.dart';
 
 /// Route names for type-safe navigation
 class RouteNames {
@@ -142,6 +151,9 @@ class RouteNames {
   static const String deactivateAccount = '/deactivateAccount';
   static const String deleteAccount = '/deleteAccount';
   static const String restoreAccount = '/restoreAccount';
+  static const String blockedAccounts = '/blocked';
+  static const String blockAccount = '/blockAccount';
+  static const String reportTarget = '/reportTarget';
 
   static const String passwordResetSentScreen = '/passwordResetSentScreen';
 
@@ -157,6 +169,13 @@ class RouteNames {
   static const String shopOrderDetail = '/shopOrderDetail';
   static const String shopProducts = '/shopProducts';
   static const String productForm = '/productForm';
+  static const String sellerOnboarding = '/sellerOnboarding';
+  static const String featureSurvey = '/featureSurvey';
+  static const String feedback = '/feedback';
+  static const String feedbackHistory = '/feedback/history';
+  static const String adminVerificationQueue = '/adminVerificationQueue';
+
+
 
   // static const String bookingDetailScreen = '/bookingDetailScreen';
 }
@@ -476,13 +495,7 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         name: 'more',
         builder:
             (context, state) => const MoreScreen(
-              shopId: '',
-              accountType: '',
-              shopName: '',
-              shopOwnerId: '',
-              shopCurrencyCode: '',
-              shopCountry: '',
-              isFreelancer: false,
+             
             ),
       ),
 
@@ -571,6 +584,37 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
               key: state.pageKey,
               child: const RestoreAccountScreen(),
             ),
+      ),
+      GoRoute(
+        path: RouteNames.blockedAccounts,
+        name: 'blockedAccounts',
+        pageBuilder:
+            (context, state) => MaterialPage(
+              key: state.pageKey,
+              child: const BlockedAccountsScreen(),
+            ),
+      ),
+      GoRoute(
+        path: RouteNames.blockAccount,
+        name: 'blockAccount',
+        pageBuilder: (context, state) {
+          final target = state.extra as ModerationTarget;
+          return MaterialPage(
+            key: state.pageKey,
+            child: BlockAccountScreen(target: target),
+          );
+        },
+      ),
+      GoRoute(
+        path: RouteNames.reportTarget,
+        name: 'reportTarget',
+        pageBuilder: (context, state) {
+          final target = state.extra as ModerationTarget;
+          return MaterialPage(
+            key: state.pageKey,
+            child: ReportTargetScreen(target: target),
+          );
+        },
       ),
       GoRoute(
         path: RouteNames.licenses,
@@ -662,7 +706,11 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
       GoRoute(
         path: RouteNames.manageServices,
         name: 'manageServices',
-        builder: (context, state) => const ManageServicesScreen(shopId: ''),
+        builder: (context, state) => ManageServicesScreen(
+          shopId: '',
+          freelancerMode:
+              state.uri.queryParameters['freelancerMode'] == 'true',
+        ),
       ),
       GoRoute(
         path: RouteNames.setHours,
@@ -795,9 +843,10 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         name: 'dailyReportScreen',
         builder: (context, state) {
           final params = state.extra as Map<String, dynamic>;
-          final reportDate = params['reportDate'] is DateTime
-              ? params['reportDate'] as DateTime
-              : DateTime.parse(params['reportDate'] as String);
+          final reportDate =
+              params['reportDate'] is DateTime
+                  ? params['reportDate'] as DateTime
+                  : DateTime.parse(params['reportDate'] as String);
           return DailyReportScreen(
             shopId: params['shopId'] as String? ?? '',
             reportDate: reportDate,
@@ -865,7 +914,8 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         builder: (context, state) {
           final params = state.extra as Map<String, dynamic>? ?? {};
           return FreelancerCreationDashboard(
-            freelancerId: params['shopId'] as String?,
+            freelancerId: params['freelancerId'] as String?,
+            userId: params['userId'] as String?,
             mode: params['mode'] as FreelancerMode? ?? FreelancerMode.create,
             existingFreelancer:
                 params['existingFreelancer'] as FreelancerEditData?,
@@ -1037,6 +1087,32 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
             product: params['product'] as ProductModel?,
           );
         },
+      ),
+      GoRoute(
+        path: RouteNames.sellerOnboarding,
+        name: 'sellerOnboarding',
+        builder: (context, state) => const SellerOnboardingScreen(),
+      ),
+
+      GoRoute(
+  path:  RouteNames.featureSurvey,
+  name: 'featureSurvey',
+  builder: (context, state) => const FeatureSurveyScreen(),
+),
+      GoRoute(
+        path: RouteNames.feedback,
+        name: 'feedback',
+        builder: (context, state) => const FeedbackScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.feedbackHistory,
+        name: 'feedbackHistory',
+        builder: (context, state) => const FeedbackHistoryScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.adminVerificationQueue,
+        name: 'adminVerificationQueue',
+        builder: (context, state) => const VerificationReviewScreen(),
       ),
     ],
   );

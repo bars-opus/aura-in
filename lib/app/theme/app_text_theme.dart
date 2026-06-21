@@ -36,86 +36,26 @@ class AppTextTheme {
   // - Automatic adaptation by Flutter widgets
   // - Built-in accessibility support
   // ===========================================================================
-  static TextTheme lightTextTheme = TextTheme(
-    // ================= DISPLAY STYLES (Headlines) =================
-    // Largest text in the app - used sparingly for major emphasis
-    // Typically used for: Hero sections, main page titles, major announcements
-    displayLarge: TextStyle(
-      fontSize: 32, // Largest font size
-      fontWeight: FontWeight.w700, // Heavy/bold weight for maximum impact
-      height: 1.2, // Line height: 1.2 × 32px = 38.4px
-      letterSpacing: -0.5, // Negative spacing for tighter headlines
-    ),
-    displayMedium: TextStyle(
-      fontSize: 24, // Large but smaller than displayLarge
-      fontWeight: FontWeight.w600, // Semi-bold for strong emphasis
-      height: 1.3, // 1.3 × 24px = 31.2px line height
-    ),
-    displaySmall: TextStyle(
-      fontSize: 20, // Medium-large for sub-headlines
-      fontWeight: FontWeight.w600, // Semi-bold
-      height: 1.4, // 1.4 × 20px = 28px line height
-    ),
+  static const TextTheme lightTextTheme = TextTheme(
+    // Display — hero headlines, major sections
+    displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w700, height: 1.2, letterSpacing: -0.5),
+    displayMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, height: 1.3, letterSpacing: -0.3),
+    displaySmall: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, height: 1.4, letterSpacing: -0.2),
 
-    // ================= TITLE STYLES (Headings) =================
-    // Used for section headings, card titles, dialog titles
-    // Smaller than display styles but still prominent
-    titleLarge: TextStyle(
-      fontSize: 18, // Large section headings
-      fontWeight: FontWeight.w600, // Semi-bold for prominence
-      height: 1.4, // 1.4 × 18px = 25.2px
-    ),
-    titleMedium: TextStyle(
-      fontSize: 16, // Standard heading size
-      fontWeight: FontWeight.w600, // Semi-bold
-      height: 1.5, // 1.5 × 16px = 24px
-    ),
-    titleSmall: TextStyle(
-      fontSize: 14, // Smaller headings/sub-headings
-      fontWeight: FontWeight.w500, // Medium weight for subtle emphasis
-      height: 1.5, // 1.5 × 14px = 21px
-    ),
+    // Title — section headings, card titles
+    titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, height: 1.4, letterSpacing: -0.1),
+    titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, height: 1.5),
+    titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, height: 1.5),
 
-    // ================= BODY STYLES (Content) =================
-    // Used for paragraphs, lists, and general content
-    // Designed for optimal readability at typical reading distances
-    bodyLarge: TextStyle(
-      fontSize: 16, // Large body text (lead paragraphs)
-      fontWeight: FontWeight.w400, // Regular weight for readability
-      height: 1.5, // 1.5 × 16px = 24px (standard reading line height)
-    ),
-    bodyMedium: TextStyle(
-      fontSize: 14, // Standard body text size
-      fontWeight: FontWeight.w400, // Regular weight
-      height: 1.5, // 1.5 × 14px = 21px
-    ),
-    bodySmall: TextStyle(
-      fontSize: 12, // Small body text (captions, footnotes)
-      fontWeight: FontWeight.w400, // Regular weight
-      height: 1.5, // 1.5 × 12px = 18px
-    ),
+    // Body — paragraphs, lists, general content
+    bodyLarge: TextStyle(fontSize: 17, fontWeight: FontWeight.w400, height: 1.5),
+    bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, height: 1.5),
+    bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, height: 1.5),
 
-    // ================= LABEL STYLES (UI Elements) =================
-    // Used for buttons, form labels, tabs, and interactive elements
-    // Typically includes letter spacing for better legibility at small sizes
-    labelLarge: TextStyle(
-      fontSize: 14, // Large labels (button text)
-      fontWeight: FontWeight.w600, // Semi-bold for emphasis
-      height: 1.5, // 1.5 × 14px = 21px
-      letterSpacing: 0.5, // Increased spacing for uppercase/all-caps
-    ),
-    labelMedium: TextStyle(
-      fontSize: 12, // Medium labels (form labels, tabs)
-      fontWeight: FontWeight.w600, // Semi-bold
-      height: 1.5, // 1.5 × 12px = 18px
-      letterSpacing: 0.5, // Increased spacing for readability
-    ),
-    labelSmall: TextStyle(
-      fontSize: 10, // Small labels (captions, badges)
-      fontWeight: FontWeight.w600, // Semi-bold for visibility
-      height: 1.5, // 1.5 × 10px = 15px
-      letterSpacing: 0.5, // Maximum spacing for small text
-    ),
+    // Label — buttons, form labels, tabs, badges
+    labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, height: 1.5, letterSpacing: 0.1),
+    labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, height: 1.5, letterSpacing: 0.1),
+    labelSmall: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, height: 1.5, letterSpacing: 0.1),
   );
 
   // ===========================================================================
@@ -138,26 +78,8 @@ class AppTextTheme {
   // - Allows future customization for dark mode if needed
   // - Maintains type safety with null assertion (!) operator
   // ===========================================================================
-  static TextTheme darkTextTheme = TextTheme(
-    // Copy all styles from lightTextTheme
-    // This ensures identical typography between light and dark modes
-    // Color adaptation happens automatically via Flutter's theme system
-    displayLarge: lightTextTheme.displayLarge!.copyWith(),
-    displayMedium: lightTextTheme.displayMedium!.copyWith(),
-    displaySmall: lightTextTheme.displaySmall!.copyWith(),
-
-    titleLarge: lightTextTheme.titleLarge!.copyWith(),
-    titleMedium: lightTextTheme.titleMedium!.copyWith(),
-    titleSmall: lightTextTheme.titleSmall!.copyWith(),
-
-    bodyLarge: lightTextTheme.bodyLarge!.copyWith(),
-    bodyMedium: lightTextTheme.bodyMedium!.copyWith(),
-    bodySmall: lightTextTheme.bodySmall!.copyWith(),
-
-    labelLarge: lightTextTheme.labelLarge!.copyWith(),
-    labelMedium: lightTextTheme.labelMedium!.copyWith(),
-    labelSmall: lightTextTheme.labelSmall!.copyWith(),
-  );
+  // Dark text theme uses identical scale — Flutter adapts text colors automatically via ColorScheme
+  static const TextTheme darkTextTheme = lightTextTheme;
   // ===========================================================================
   // STATIC METHOD: of
   // ===========================================================================

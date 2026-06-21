@@ -12,9 +12,7 @@ class ChatSortDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentSort = ref.watch(sortCriteriaProvider);
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    IconData _getSortIcon(SortCriteria criteria) {
+    IconData sortIcon(SortCriteria criteria) {
       switch (criteria) {
         case SortCriteria.recent:
           return Icons.access_time;
@@ -57,7 +55,7 @@ class ChatSortDialog extends ConsumerWidget {
               title: criteria.label,
               // showDivider: false,
               showAvatar: false,
-              icon: _getSortIcon(criteria),
+              icon: sortIcon(criteria),
               trailing:
                   currentSort == criteria
                       ? Icon(
@@ -73,7 +71,7 @@ class ChatSortDialog extends ConsumerWidget {
               showTrailingArrow: false,
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }

@@ -1,17 +1,15 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
-/// Predefined empty state types for common scenarios
 enum EmptyStateType {
-  noData, // No data available
-  noResults, // Search returned no results
-  noInternet, // No internet connection
-  noFavorites, // No favorites saved
-  noMessages, // No messages/conversations
+  noData,
+  noResults,
+  noInternet,
+  noFavorites,
+  noMessages,
   noShops,
   noWorker,
-
-  custom, // Custom configuration
+  custom,
 }
 
 class EmptyStateWidget extends StatelessWidget {
@@ -21,7 +19,6 @@ class EmptyStateWidget extends StatelessWidget {
   final String? actionLabel;
   final VoidCallback? onAction;
   final IconData? icon;
-
   final Widget? customIllustration;
   final bool compact;
 
@@ -44,55 +41,51 @@ class EmptyStateWidget extends StatelessWidget {
 
     final config = _getConfiguration(context);
 
-    return Container(
-      color: Colors.transparent,
+    final effectiveTitle =
+        (title != null && title!.isNotEmpty) ? title : config.$2;
+
+    return Padding(
       padding:
           compact
-              ? EdgeInsets.all(Spacing.xl.h)
+              ? EdgeInsets.all(Spacing.xl.r)
               : EdgeInsets.symmetric(
                 vertical: Spacing.xxl.h,
                 horizontal: Spacing.xl.w,
               ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Illustration
           if (customIllustration != null) ...[
             customIllustration!,
             Gap(compact ? Spacing.lg.h : Spacing.xxl.h),
           ] else if (config.$1 != null) ...[
             Icon(
               icon ?? config.$1,
-              size: compact ? 50.h : 70.h,
-              color: colorScheme.onSurfaceVariant.withOpacity(0.5),
+              size: compact ? 50.r : 70.r,
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             Gap(compact ? Spacing.md.h : Spacing.lg.h),
           ],
 
-          // Title
-          if (config.$2 != null || title != null)
-            if (title != null)
-              if (title!.isNotEmpty)
-                Padding(
-                  padding: EdgeInsets.only(bottom: Spacing.sm.h),
-                  child: Text(
-                    title ?? config.$2!,
-                    style:
-                        compact
-                            ? textTheme.titleMedium?.copyWith(
-                              color: colorScheme.onSurface,
-                              fontWeight: FontWeight.w600,
-                            )
-                            : textTheme.titleLarge?.copyWith(
-                              color: colorScheme.onSurface,
-                              fontWeight: FontWeight.w600,
-                            ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+          if (effectiveTitle != null)
+            Padding(
+              padding: EdgeInsets.only(bottom: Spacing.sm.h),
+              child: Text(
+                effectiveTitle,
+                style:
+                    compact
+                        ? textTheme.titleMedium?.copyWith(
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
+                        )
+                        : textTheme.titleLarge?.copyWith(
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
+                textAlign: TextAlign.center,
+              ),
+            ),
 
-          // Subtitle
           if (config.$3 != null || subtitle != null)
             Padding(
               padding: EdgeInsets.only(
@@ -110,7 +103,6 @@ class EmptyStateWidget extends StatelessWidget {
               ),
             ),
 
-          // Action Button (if provided)
           if (onAction != null)
             AppButton(
               height: 40.h,
@@ -127,7 +119,6 @@ class EmptyStateWidget extends StatelessWidget {
     );
   }
 
-  // Returns: (icon, title, subtitle, actionLabel)
   (IconData?, String?, String?, String?) _getConfiguration(
     BuildContext context,
   ) {
@@ -176,23 +167,17 @@ class EmptyStateWidget extends StatelessWidget {
       case EmptyStateType.noShops:
         return (
           Icons.storefront_rounded,
-          // loc?.emptyStateNoShopsTitle ??
           'No shops found',
-          // loc?.emptyStateNoShopsSubtitle ??
           'Try expanding your search or change location.',
-          loc?.emptyStateStartChat ?? 'Start chat',
+          null,
         );
-
       case EmptyStateType.noWorker:
         return (
           FontAwesomeIcons.hands,
-          // loc?.emptyStateNoShopsTitle ??
           'No worker selection needed',
-          // loc?.emptyStateNoShopsSubtitle ??
           'Continue to Time Selection.',
-          loc?.emptyStateStartChat ?? 'Continue',
+          null,
         );
-
       case EmptyStateType.custom:
         return (null, null, null, null);
     }

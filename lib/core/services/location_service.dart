@@ -265,7 +265,7 @@ class LocationService {
             final lat = (coordinates[1] as num).toDouble();
 
             final context = feature['context'] as List? ?? [];
-            String? city, state, country, street, postalCode;
+            String? city, state, country, countryCode, street, postalCode;
 
             for (final component in context) {
               final id = component['id'] as String? ?? '';
@@ -273,7 +273,14 @@ class LocationService {
 
               if (id.contains('place')) city = text;
               if (id.contains('region')) state = text;
-              if (id.contains('country')) country = text;
+              if (id.contains('country')) {
+                country = text;
+                // Mapbox provides ISO 3166-1 alpha-2 code directly in short_code
+                // (e.g., "ng" for Nigeria). Use it directly rather than the
+                // manual name→code lookup which only covers ~20 countries.
+                final raw = component['short_code'] as String?;
+                countryCode = raw != null ? raw.toUpperCase() : _mapCountryToCode(text);
+              }
               if (id.contains('postcode')) postalCode = text;
             }
 
@@ -287,7 +294,7 @@ class LocationService {
               state: state,
               postalCode: postalCode,
               country: country,
-              countryCode: _mapCountryToCode(country),
+              countryCode: countryCode,
               latitude: lat,
               longitude: lng,
             );
@@ -380,7 +387,9 @@ class LocationService {
     return _getParsedAddressFromCoordinates(latitude, longitude);
   }
 
-  /// Internal method to get parsed address from coordinates
+  /// Internal method to get parsed address from coordinates.
+  /// Always returns a [ParsedAddress] with valid coordinates — even if reverse
+  /// geocoding fails — so GPS lat/lng are never silently lost.
   Future<ParsedAddress?> _getParsedAddressFromCoordinates(
     double latitude,
     double longitude,
@@ -394,17 +403,14 @@ class LocationService {
       if (placemarks.isNotEmpty) {
         final place = placemarks.first;
 
-        // Build full address
         final addressParts = <String>[];
         if (place.street != null) addressParts.add(place.street!);
         if (place.locality != null) addressParts.add(place.locality!);
         if (place.administrativeArea != null)
           addressParts.add(place.administrativeArea!);
         if (place.country != null) addressParts.add(place.country!);
-        final fullAddress = addressParts.join(', ');
-
-        // Map country name to country code (simplified mapping)
-        final countryCode = _mapCountryToCode(place.country);
+        final fullAddress =
+            addressParts.isNotEmpty ? addressParts.join(', ') : _coordFallbackName(latitude, longitude);
 
         return ParsedAddress(
           fullAddress: fullAddress,
@@ -413,16 +419,32 @@ class LocationService {
           state: place.administrativeArea,
           postalCode: place.postalCode,
           country: place.country,
-          countryCode: countryCode,
+          // isoCountryCode is provided directly by the platform geocoder (CLGeocoder
+          // on iOS, Android Geocoder on Android) — far more reliable than the manual
+          // country-name → ISO-code lookup table which only covers ~20 countries.
+          countryCode: place.isoCountryCode ?? _mapCountryToCode(place.country),
           latitude: latitude,
           longitude: longitude,
         );
       }
-      return null;
+      // Geocoding returned no placemarks — still keep the coordinates.
+      return ParsedAddress(
+        fullAddress: _coordFallbackName(latitude, longitude),
+        latitude: latitude,
+        longitude: longitude,
+      );
     } catch (e) {
-      return null;
+      // Geocoding threw (network error, quota, etc.) — still keep coordinates.
+      return ParsedAddress(
+        fullAddress: _coordFallbackName(latitude, longitude),
+        latitude: latitude,
+        longitude: longitude,
+      );
     }
   }
+
+  String _coordFallbackName(double lat, double lng) =>
+      '${lat.toStringAsFixed(4)}, ${lng.toStringAsFixed(4)}';
 
   /// Get address from coordinates (legacy method - returns String only)
   Future<String?> getAddressFromCoordinates(
@@ -522,42 +544,176 @@ class LocationService {
     return '${minutes ~/ 60} hr ${minutes % 60} min';
   }
 
-  /// Map country name to ISO country code (simplified)
+  /// Last-resort fallback: map country name → ISO 3166-1 alpha-2 code.
+  /// Prefer platform-native isoCountryCode (geocoding) or Mapbox short_code —
+  /// this is only reached when neither is available.
   String? _mapCountryToCode(String? countryName) {
     if (countryName == null) return null;
 
     const Map<String, String> countryCodeMap = {
+      // North America
       'United States': 'US',
       'USA': 'US',
       'United States of America': 'US',
       'Canada': 'CA',
+      'Mexico': 'MX',
+
+      // Europe
       'United Kingdom': 'GB',
       'UK': 'GB',
+      'Great Britain': 'GB',
       'France': 'FR',
       'Germany': 'DE',
       'Italy': 'IT',
       'Spain': 'ES',
-      'Australia': 'AU',
-      'Japan': 'JP',
-      'China': 'CN',
-      'India': 'IN',
-      'Brazil': 'BR',
-      'Mexico': 'MX',
-      'South Korea': 'KR',
       'Netherlands': 'NL',
+      'Belgium': 'BE',
       'Sweden': 'SE',
       'Switzerland': 'CH',
-      // Add more as needed
+      'Poland': 'PL',
+      'Portugal': 'PT',
+      'Russia': 'RU',
+      'Ukraine': 'UA',
+      'Norway': 'NO',
+      'Denmark': 'DK',
+      'Finland': 'FI',
+      'Austria': 'AT',
+      'Greece': 'GR',
+      'Czech Republic': 'CZ',
+      'Romania': 'RO',
+      'Hungary': 'HU',
+      'Ireland': 'IE',
+
+      // Oceania
+      'Australia': 'AU',
+      'New Zealand': 'NZ',
+
+      // East Asia
+      'Japan': 'JP',
+      'China': 'CN',
+      'South Korea': 'KR',
+      'Taiwan': 'TW',
+      'Hong Kong': 'HK',
+
+      // South Asia
+      'India': 'IN',
+      'Pakistan': 'PK',
+      'Bangladesh': 'BD',
+      'Sri Lanka': 'LK',
+      'Nepal': 'NP',
+
+      // Southeast Asia
+      'Indonesia': 'ID',
+      'Philippines': 'PH',
+      'Vietnam': 'VN',
+      'Thailand': 'TH',
+      'Malaysia': 'MY',
+      'Singapore': 'SG',
+      'Myanmar': 'MM',
+
+      // Middle East
+      'United Arab Emirates': 'AE',
+      'UAE': 'AE',
+      'Saudi Arabia': 'SA',
+      'Qatar': 'QA',
+      'Kuwait': 'KW',
+      'Bahrain': 'BH',
+      'Oman': 'OM',
+      'Jordan': 'JO',
+      'Lebanon': 'LB',
+      'Israel': 'IL',
+      'Turkey': 'TR',
+      'Iran': 'IR',
+      'Iraq': 'IQ',
+
+      // North Africa
+      'Egypt': 'EG',
+      'Morocco': 'MA',
+      'Tunisia': 'TN',
+      'Algeria': 'DZ',
+      'Libya': 'LY',
+
+      // West Africa
+      'Nigeria': 'NG',
+      'Ghana': 'GH',
+      'Senegal': 'SN',
+      'Ivory Coast': 'CI',
+      "Côte d'Ivoire": 'CI',
+      'Cameroon': 'CM',
+      'Mali': 'ML',
+      'Burkina Faso': 'BF',
+      'Benin': 'BJ',
+      'Togo': 'TG',
+      'Sierra Leone': 'SL',
+      'Liberia': 'LR',
+      'Guinea': 'GN',
+      'Guinea-Bissau': 'GW',
+      'Gambia': 'GM',
+      'Mauritania': 'MR',
+      'Niger': 'NE',
+
+      // East Africa
+      'Kenya': 'KE',
+      'Ethiopia': 'ET',
+      'Tanzania': 'TZ',
+      'Uganda': 'UG',
+      'Rwanda': 'RW',
+      'Burundi': 'BI',
+      'Somalia': 'SO',
+      'Eritrea': 'ER',
+      'Djibouti': 'DJ',
+      'South Sudan': 'SS',
+      'Sudan': 'SD',
+
+      // Central Africa
+      'Democratic Republic of the Congo': 'CD',
+      'DRC': 'CD',
+      'Congo': 'CG',
+      'Republic of the Congo': 'CG',
+      'Central African Republic': 'CF',
+      'Chad': 'TD',
+      'Gabon': 'GA',
+      'Equatorial Guinea': 'GQ',
+      'São Tomé and Príncipe': 'ST',
+
+      // Southern Africa
+      'South Africa': 'ZA',
+      'Zimbabwe': 'ZW',
+      'Zambia': 'ZM',
+      'Mozambique': 'MZ',
+      'Angola': 'AO',
+      'Namibia': 'NA',
+      'Botswana': 'BW',
+      'Madagascar': 'MG',
+      'Malawi': 'MW',
+      'Lesotho': 'LS',
+      'Eswatini': 'SZ',
+      'Swaziland': 'SZ',
+      'Comoros': 'KM',
+      'Mauritius': 'MU',
+      'Seychelles': 'SC',
+
+      // South America
+      'Brazil': 'BR',
+      'Argentina': 'AR',
+      'Chile': 'CL',
+      'Colombia': 'CO',
+      'Peru': 'PE',
+      'Venezuela': 'VE',
+      'Ecuador': 'EC',
+      'Bolivia': 'BO',
+      'Paraguay': 'PY',
+      'Uruguay': 'UY',
     };
 
-    // Try exact match
+    // Exact match first
     if (countryCodeMap.containsKey(countryName)) {
       return countryCodeMap[countryName];
     }
 
-    // Try case-insensitive match
+    // Case-insensitive fallback
     final lowerName = countryName.toLowerCase();
-    for (var entry in countryCodeMap.entries) {
+    for (final entry in countryCodeMap.entries) {
       if (entry.key.toLowerCase() == lowerName) {
         return entry.value;
       }

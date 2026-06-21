@@ -1,4 +1,3 @@
-// lib/core/widgets/app_icon_button.dart (Enhanced)
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
 class AppIconButton extends StatelessWidget {
@@ -33,43 +32,49 @@ class AppIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
+    final hasSolidBackground =
+        backgroundColor != null && backgroundColor!.a > 0;
 
-    final button = GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: size.w,
-        height: size.h,
-        decoration: BoxDecoration(
-          color: backgroundColor ?? Colors.transparent,
-          shape: BoxShape.circle,
-          border:
-              showBorder
+    final button = Opacity(
+      opacity: onPressed != null ? 1.0 : 0.38,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          customBorder: const CircleBorder(),
+          child: Container(
+            width: size.r,
+            height: size.r,
+            decoration: BoxDecoration(
+              color: backgroundColor ?? Colors.transparent,
+              shape: BoxShape.circle,
+              border: showBorder
                   ? Border.all(
-                    color: borderColor ?? colorScheme.outline.withOpacity(0.3),
-                    width: borderWidth,
-                  )
+                      color: borderColor ??
+                          colorScheme.outline.withValues(alpha: 0.3),
+                      width: borderWidth,
+                    )
                   : null,
-          boxShadow: [
-            if (backgroundColor != Colors.transparent &&
-                backgroundColor != null)
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 4.0,
-                offset: const Offset(0, 2),
-              ),
-          ],
-        ),
-        child: Center(
-          child:
-              isLoading
+              boxShadow: [
+                if (hasSolidBackground)
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 4.0,
+                    offset: const Offset(0, 2),
+                  ),
+              ],
+            ),
+            child: Center(
+              child: isLoading
                   ? CircularLoadingIndicator()
                   : Icon(
-                    icon,
-                    size: iconSize.w,
-                    color: iconColor ?? colorScheme.onSurfaceVariant,
-                  ),
+                      icon,
+                      size: iconSize.r,
+                      color: iconColor ?? colorScheme.onSurfaceVariant,
+                    ),
+            ),
+          ),
         ),
       ),
     );

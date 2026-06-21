@@ -1,6 +1,7 @@
 // lib/features/booking/presentation/controllers/slot_generation_controller.dart
 
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/providers/service_addons_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'slot_generation_controller.g.dart';
@@ -91,6 +92,11 @@ class SlotGenerationController extends _$SlotGenerationController {
     ref.listen(serviceQuantityProvider, (_, next) {
       _debouncedGenerate(shopId, services, workerIdsOnly, date, next);
     });
+    // Re-generate when add-on selection changes — add-on minutes affect the
+    // reserved slot length, so available times must be recomputed.
+    ref.listen(selectedAddonsProvider, (_, __) {
+      _debouncedGenerate(shopId, services, workerIdsOnly, date, quantities);
+    });
 
     if (services.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -144,6 +150,16 @@ class SlotGenerationController extends _$SlotGenerationController {
         }
       });
 
+      // Per-service add-on minutes so the engine reserves the real appointment
+      // length (e.g. a "+30 min" add-on must extend the slot end time).
+      final addonsNotifier = ref.read(selectedAddonsProvider.notifier);
+      final extraMinutesBySlot = <String, int>{
+        for (final s in services)
+          s.id: addonsNotifier
+              .forSlot(s.id)
+              .fold<int>(0, (sum, a) => sum + (a.durationMinutes ?? 0)),
+      };
+
       // Call repository (we'll update it to accept quantities and selectedWorkerIds)
       final slots = await repository.generateTimeSlots(
         shopId: shopId,
@@ -151,37 +167,26 @@ class SlotGenerationController extends _$SlotGenerationController {
         services: services,
         quantities: quantities,
         selectedWorkerIds: selectedWorkerIds,
+        extraMinutesBySlot: extraMinutesBySlot,
       );
 
-      // Filter slots based on quantities and worker selections
+      // Filter slots based on group capacity only.
+      // Worker availability is checked server-side in generate_available_slots
+      // and enforced at booking creation time. Filtering slots here by
+      // selected-worker membership was causing all slots to disappear when
+      // available_workers is empty (slots with no assigned workers).
       final filteredSlots =
           slots.where((slot) {
-            // Find the corresponding service
-            final service = services.firstWhere((s) => s.id == slot.slotId);
+            final service = services.firstWhere(
+              (s) => s.id == slot.slotId,
+              orElse: () => services.first,
+            );
             final quantity = quantities[service.id] ?? 1;
 
-            // 1. Capacity check: remaining spots must be enough
+            // Group capacity: remaining spots must cover the requested quantity.
             if (slot.remainingSpots != null &&
                 slot.remainingSpots! < quantity) {
               return false;
-            }
-
-            // 2. If workers are selected for this service, they must all be available
-            final selectedForService = selectedWorkerIds[service.id] ?? [];
-            if (selectedForService.isNotEmpty) {
-              final availableWorkerIds =
-                  slot.availableWorkers.map((w) => w.id).toSet();
-              if (!selectedForService.every(
-                (id) => availableWorkerIds.contains(id),
-              )) {
-                return false;
-              }
-            }
-
-            // 3. If no workers selected but service requires worker selection,
-            //    we still show the slot if there are enough available workers
-            if (service.selectPreferredWorker && selectedForService.isEmpty) {
-              // Optionally require at least one worker? For now, allow.
             }
 
             return true;
@@ -192,11 +197,10 @@ class SlotGenerationController extends _$SlotGenerationController {
         isLoading: false,
         lastGeneratedDate: date,
       );
-    } catch (e, stack) {
+    } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error:
-            'Unable to load available times. Please try again.${e.toString()}',
+        error: 'Unable to load available times. Please try again.',
       );
     }
   }

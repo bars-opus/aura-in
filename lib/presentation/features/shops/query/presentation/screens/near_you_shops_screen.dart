@@ -1,3 +1,4 @@
+import 'package:nano_embryo/presentation/features/shops/query/providers/search_radius_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 
 class NearYouShopsScreen extends ConsumerStatefulWidget {
@@ -64,26 +65,23 @@ class _NearYouShopsScreenState extends ConsumerState<NearYouShopsScreen> {
               final discoverLuxuryLevel = ref.read(selectedLuxuryLevelProvider);
 
               BottomSheetUtils.showDocumentationBottomSheet(
-               maxHeight: 550.h,
+                maxHeight: 650.h,
                 context: context,
                 widget: ShopFilterBottomSheet(
                   selectedCategory: ref.read(selectedServiceCategoryProvider),
-                  // 👇 Use discover luxury level as initial
                   initialLuxuryLevel: discoverLuxuryLevel,
-                  // 👇 Other filters reset to defaults
-                  initialVerifiedOnly: false, // Always start with verified off
-                  initialSortByRating: true, // Always start with rating sort
-                  onReset: () {
-                    // Optional: Handle any additional reset logic
-                  },
-                  onApply: (luxuryLevel, verifiedOnly, sortByRating) {
-                    // Apply filters and reload
+                  initialVerifiedOnly: false,
+                  initialSortByRating: true,
+                  initialRadiusKm: ref.read(searchRadiusKmProvider),
+                  onReset: () {},
+                  onApply: (luxuryLevel, verifiedOnly, sortByRating, radiusKm) {
                     ref
                         .read(nearYouShopsListProvider.notifier)
                         .applyFilters(
                           luxuryLevel: luxuryLevel,
                           verifiedOnly: verifiedOnly,
                           sortBy: sortByRating ? 'rating' : 'name',
+                          radiusKm: radiusKm,
                         );
                   },
                 ),
@@ -149,11 +147,9 @@ class _NearYouShopsScreenState extends ConsumerState<NearYouShopsScreen> {
         error:
             (error, stack) => Center(
               child: ErrorStateWidget(
-                showDetails: true,
+                title: 'Something went wrong',
                 compact: true,
-                title: '',
-                subtitle: 'Failed to load nearby shops ${error.toString()}',
-                errorDetails: '',
+                subtitle: error.toString(),
                 type: ErrorStateType.genericError,
                 onPrimaryAction:
                     () => ref.read(nearYouShopsListProvider.notifier).refresh(),

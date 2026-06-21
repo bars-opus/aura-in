@@ -15,7 +15,6 @@ class ProfileSearchRepository {
   ProfileSearchRepository(this._client);
 
   /// Search profiles by query string
-  @override
   Future<SearchPaginatedResult<ProfileSearchResult>> search({
     required String query,
     int limit = 20,
@@ -34,6 +33,15 @@ class ProfileSearchRepository {
     final offset = int.tryParse(cursor ?? '') ?? 0;
 
     try {
+      final hiddenResponse = await _client.rpc(
+        'get_moderation_hidden_user_ids',
+      );
+      final hiddenIds =
+          (hiddenResponse as List<dynamic>)
+              .map((value) => value.toString())
+              .where((value) => value.isNotEmpty)
+              .toList();
+
       PostgrestFilterBuilder queryBuilder = _client
           .from('profiles')
           .select()
@@ -42,6 +50,11 @@ class ProfileSearchRepository {
             'display_name.ilike.%$escapedQuery%,'
             'bio.ilike.%$escapedQuery%',
           );
+
+      if (hiddenIds.isNotEmpty) {
+        final inList = hiddenIds.map((id) => '"$id"').join(',');
+        queryBuilder = queryBuilder.not('id', 'in', '($inList)');
+      }
 
       final response = await queryBuilder
           .order('created_at', ascending: false)

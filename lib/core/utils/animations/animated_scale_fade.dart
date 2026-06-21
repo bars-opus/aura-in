@@ -1,49 +1,17 @@
-import 'package:flutter/material.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
-/// A universal animation widget that provides scale and fade-in effects
-/// with optional stagger delays for multiple widgets.
-///
-/// Features:
-/// - Scale animation from 0 to target scale
-/// - Fade-in animation
-/// - Staggered delays for multiple items
-/// - Customizable curves and durations
-/// - Can be used with any child widget
 class AnimatedScaleFade extends StatefulWidget {
-  /// The child widget to animate
   final Widget child;
-
-  /// Animation duration (default: 600ms)
   final Duration duration;
-
-  /// Animation curve (default: easeOutBack)
   final Curve curve;
-
-  /// Starting scale value (default: 0.0)
   final double beginScale;
-
-  /// Ending scale value (default: 1.0)
   final double endScale;
-
-  /// Whether to start animation automatically (default: true)
   final bool autoStart;
-
-  /// Stagger delay index (for multiple items)
   final int? staggerIndex;
-
-  /// Delay between each staggered item (default: 0.05 seconds)
   final double staggerDelay;
-
-  /// Callback when animation completes
   final VoidCallback? onAnimationComplete;
-
-  /// Whether to apply opacity fade (default: true)
   final bool fadeIn;
-
-  /// Minimum opacity for fade (default: 0.0)
   final double beginOpacity;
-
-  /// Maximum opacity for fade (default: 1.0)
   final double endOpacity;
 
   const AnimatedScaleFade({
@@ -69,6 +37,8 @@ class AnimatedScaleFade extends StatefulWidget {
 class _AnimatedScaleFadeState extends State<AnimatedScaleFade>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _opacityAnimation;
 
   @override
   void initState() {
@@ -77,27 +47,63 @@ class _AnimatedScaleFadeState extends State<AnimatedScaleFade>
       duration: widget.duration,
       vsync: this,
     );
+    _buildAnimations();
+    _controller.addStatusListener(_onStatus);
+    if (widget.autoStart) _controller.forward();
+  }
 
-    if (widget.autoStart) {
-      _controller.forward();
+  @override
+  void didUpdateWidget(AnimatedScaleFade oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.duration != oldWidget.duration) {
+      _controller.duration = widget.duration;
+    }
+
+    if (widget.beginScale != oldWidget.beginScale ||
+        widget.endScale != oldWidget.endScale ||
+        widget.curve != oldWidget.curve ||
+        widget.beginOpacity != oldWidget.beginOpacity ||
+        widget.endOpacity != oldWidget.endOpacity ||
+        widget.fadeIn != oldWidget.fadeIn ||
+        widget.staggerIndex != oldWidget.staggerIndex ||
+        widget.staggerDelay != oldWidget.staggerDelay) {
+      _buildAnimations();
     }
   }
 
-  /// Start the animation manually
-  void startAnimation() {
-    if (!_controller.isAnimating && !_controller.isCompleted) {
-      _controller.forward();
-    }
+  void _buildAnimations() {
+    final delay =
+        ((widget.staggerIndex ?? 0) * widget.staggerDelay).clamp(0.0, 1.0);
+
+    _scaleAnimation = Tween<double>(
+      begin: widget.beginScale,
+      end: widget.endScale,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Interval(delay, 1.0, curve: widget.curve),
+    ));
+
+    _opacityAnimation = widget.fadeIn
+        ? Tween<double>(
+            begin: widget.beginOpacity,
+            end: widget.endOpacity,
+          ).animate(CurvedAnimation(
+            parent: _controller,
+            curve: Interval(delay, 1.0, curve: Curves.easeOut),
+          ))
+        : AlwaysStoppedAnimation(widget.endOpacity);
   }
 
-  /// Reset and start animation
-  void resetAndStart() {
-    _controller.reset();
-    _controller.forward();
+  void _onStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      widget.onAnimationComplete?.call();
+    }
   }
 
   @override
   void dispose() {
+    _controller.removeStatusListener(_onStatus);
     _controller.dispose();
     super.dispose();
   }
@@ -107,39 +113,10 @@ class _AnimatedScaleFadeState extends State<AnimatedScaleFade>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        // Calculate delay for stagger effect
-        final delay = (widget.staggerIndex ?? 0) * widget.staggerDelay;
-        final progress = (_controller.value - delay).clamp(0.0, 1.0);
-
-        // Scale animation
-        final scale = Tween<double>(
-          begin: widget.beginScale,
-          end: widget.endScale,
-        ).animate(
-          CurvedAnimation(
-            parent: _controller,
-            curve: Interval(delay, 1.0, curve: widget.curve),
-          ),
-        ).value;
-
-        // Opacity animation
-        double opacity = widget.endOpacity;
-        if (widget.fadeIn) {
-          opacity = Tween<double>(
-            begin: widget.beginOpacity,
-            end: widget.endOpacity,
-          ).animate(
-            CurvedAnimation(
-              parent: _controller,
-              curve: Interval(delay, 1.0, curve: Curves.easeOut),
-            ),
-          ).value;
-        }
-
         return Transform.scale(
-          scale: scale,
+          scale: _scaleAnimation.value,
           child: Opacity(
-            opacity: opacity,
+            opacity: _opacityAnimation.value,
             child: child,
           ),
         );
@@ -149,9 +126,7 @@ class _AnimatedScaleFadeState extends State<AnimatedScaleFade>
   }
 }
 
-/// Helper extension for easy use
 extension AnimatedWidgetExtension on Widget {
-  /// Apply scale and fade animation to any widget
   Widget animated({
     Duration duration = const Duration(milliseconds: 600),
     Curve curve = Curves.easeOutBack,
@@ -166,7 +141,6 @@ extension AnimatedWidgetExtension on Widget {
     double endOpacity = 1.0,
   }) {
     return AnimatedScaleFade(
-      child: this,
       duration: duration,
       curve: curve,
       beginScale: beginScale,
@@ -178,6 +152,7 @@ extension AnimatedWidgetExtension on Widget {
       fadeIn: fadeIn,
       beginOpacity: beginOpacity,
       endOpacity: endOpacity,
+      child: this,
     );
   }
 }

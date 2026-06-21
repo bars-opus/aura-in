@@ -3,14 +3,18 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:nano_embryo/core/constants/shop_types.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/utils/image_cropper_platform.dart';
 import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/input_sanitizer.dart';
+import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/widgets/no_image_added.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/image_source_dialog.dart';
+import 'package:nano_embryo/core/repositories/models/media_upload.dart';
 
 import '../../../../../core/providers/media_ service_providers.dart';
 
@@ -41,6 +45,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
   String? _selectedCategory;
   bool _isActive = true;
+  List<String> _selectedShopTypes = [];
+  String? _shopCurrencySymbol;
 
   // Image handling
   final List<String> _existingImageUrls = [];
@@ -61,7 +67,19 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       _selectedCategory = widget.product!.category;
       _isActive = widget.product!.isActive;
       _existingImageUrls.addAll(widget.product!.images);
+      _selectedShopTypes = List.of(widget.product!.shopTypes);
     }
+    _loadShopCurrency();
+  }
+
+  Future<void> _loadShopCurrency() async {
+    final row = await ref
+        .read(supabaseClientProvider)
+        .from('shops')
+        .select('currency_symbol')
+        .eq('id', widget.shopId)
+        .maybeSingle();
+    if (mounted) setState(() => _shopCurrencySymbol = row?['currency_symbol'] as String?);
   }
 
   @override
@@ -73,25 +91,37 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     super.dispose();
   }
 
-  // Pick image using your existing image picker service
-  Future<void> _pickImage() async {
-    final imagePickerService = ref.read(imagePickerServiceProvider);
-
-    // Show source dialog (camera/gallery)
-    final source = await showDialog<ImageSource>(
+  void _showImageSourceDialog() {
+    BottomSheetUtils.showDocumentationBottomSheet(
       context: context,
-      builder: (context) => _buildImageSourceDialog(),
+      maxHeight: 300.h,
+      widget: ImageSourceDialog(
+        currentCount: _existingImageUrls.length + _newImageFiles.length,
+        onCameraSelected: () {
+          Navigator.pop(context);
+          _addImage(fromCamera: true);
+        },
+        onGallerySelected: () {
+          Navigator.pop(context);
+          _addImage(fromCamera: false);
+        },
+      ),
     );
+  }
 
-    if (source == null) return;
+  // Pick an image into local state. Upload happens on save via
+  // MediaUploadService (see _uploadImageFile). We pick the File here rather
+  // than pickAndUpload so images aren't uploaded until the product is saved.
+  Future<void> _addImage({required bool fromCamera}) async {
+    final pickedFile = await ref
+        .read(imagePickerServiceProvider)
+        .pickImage(
+          fromCamera: fromCamera,
+          crop: true,
+          cropRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        );
 
-    final pickedFile = await imagePickerService.pickImage(
-      fromCamera: source == ImageSource.camera,
-      crop: true,
-      cropRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-    );
-
-    if (pickedFile != null) {
+    if (pickedFile != null && mounted) {
       setState(() {
         _newImageFiles.add(pickedFile);
       });
@@ -109,34 +139,39 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     });
   }
 
-  // Upload all new images and return URLs
-  Future<List<String>> _uploadNewImages() async {
+  /// Uploads one image via the shared MediaUploadService to the same
+  /// `product-images` bucket/path the app already uses. Returns the public URL,
+  /// or null on failure (the service catches its own errors).
+  Future<String?> _uploadImageFile(File imageFile, String productId) async {
+    final ext = imageFile.path.split('.').last.toLowerCase();
+    final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
+    final result = await ref
+        .read(mediaUploadServiceProvider)
+        .uploadFile(
+          request: MediaUploadRequest(
+            file: imageFile,
+            mediaType: MediaType.image,
+            bucket: 'product-images',
+            customPath: 'products/${widget.shopId}/$productId/$fileName',
+          ),
+          userId: widget.shopId,
+        );
+    return result?.publicUrl;
+  }
+
+  // Upload all new images and return URLs. Throws on any failed upload so the
+  // caller can abort the save instead of persisting a product with missing images.
+  Future<List<String>> _uploadNewImages(String productId) async {
     if (_newImageFiles.isEmpty) return [];
 
     setState(() => _isUploadingImages = true);
-
-    final repository = ref.read(productRepositoryProvider);
     final List<String> uploadedUrls = [];
-
     try {
       for (final imageFile in _newImageFiles) {
-        // For new products, we'll use a temporary ID or create product first
-        // Option 1: Create product first without images, then update
-        // Option 2: Use shopId only and associate later
-        // We'll do Option 2: Use shopId and a placeholder, then update after product creation
-
-        // For now, if we have a product ID (edit mode), use it
-        // For create mode, we'll handle differently in _saveProduct
-        final productId =
-            widget.mode == FormMode.edit && widget.product != null
-                ? widget.product!.id
-                : 'temp'; // Temporary - will be updated after product creation
-
-        final url = await repository.uploadProductImage(
-          shopId: widget.shopId,
-          productId: productId,
-          imageFile: imageFile,
-        );
+        final url = await _uploadImageFile(imageFile, productId);
+        if (url == null) {
+          throw ProductImageUploadException('Failed to upload image.');
+        }
         uploadedUrls.add(url);
       }
       return uploadedUrls;
@@ -156,6 +191,12 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       ).showSnackBar(const SnackBar(content: Text('Please select a category')));
       return;
     }
+    if (_selectedShopTypes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select at least one category type')),
+      );
+      return;
+    }
 
     final price = double.tryParse(_priceController.text);
     if (price == null) return;
@@ -170,67 +211,61 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     try {
       if (widget.mode == FormMode.create) {
         if (_newImageFiles.isNotEmpty) {
-          setState(() => _isUploadingImages = true);
           try {
-            final repository = ref.read(productRepositoryProvider);
-            for (final imageFile in _newImageFiles) {
-              final url = await repository.uploadProductImage(
-                shopId: widget.shopId,
-                productId: 'temp_${DateTime.now().millisecondsSinceEpoch}',
-                imageFile: imageFile,
-              );
-              allImageUrls.add(url);
-            }
+            final newUrls = await _uploadNewImages(
+              'temp_${DateTime.now().millisecondsSinceEpoch}',
+            );
+            allImageUrls.addAll(newUrls);
           } on ProductImageUploadException catch (e) {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(e.message)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(e.message)));
             }
             return;
-          } finally {
-            if (mounted) setState(() => _isUploadingImages = false);
           }
         }
 
-        final cleanedDescription =
-            InputSanitizer.clean(_descriptionController.text);
+        final cleanedDescription = InputSanitizer.clean(
+          _descriptionController.text,
+        );
         await notifier.createProduct(
           shopId: widget.shopId,
           name: InputSanitizer.clean(_nameController.text),
-          description:
-              cleanedDescription.isEmpty ? null : cleanedDescription,
+          description: cleanedDescription.isEmpty ? null : cleanedDescription,
           price: price,
           images: allImageUrls,
           category: _selectedCategory!,
+          shopTypes: _selectedShopTypes,
           stockQuantity: stock,
         );
       } else {
         if (_newImageFiles.isNotEmpty) {
           try {
-            final newUrls = await _uploadNewImages();
+            final newUrls = await _uploadNewImages(widget.product!.id);
             allImageUrls.addAll(newUrls);
           } on ProductImageUploadException catch (e) {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(e.message)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(e.message)));
             }
             return;
           }
         }
 
-        final cleanedDescription =
-            InputSanitizer.clean(_descriptionController.text);
+        final cleanedDescription = InputSanitizer.clean(
+          _descriptionController.text,
+        );
         await notifier.updateProduct(
           productId: widget.product!.id,
           name: InputSanitizer.clean(_nameController.text),
-          description:
-              cleanedDescription.isEmpty ? null : cleanedDescription,
+          description: cleanedDescription.isEmpty ? null : cleanedDescription,
           price: price,
           images: allImageUrls,
           category: _selectedCategory,
           isActive: _isActive,
+          shopTypes: _selectedShopTypes,
           stockQuantity: stock,
         );
       }
@@ -240,9 +275,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       if (result.success) {
         Navigator.pop(context, true);
       } else if (result.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result.error!)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(result.error!)));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -253,26 +288,21 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(productFormNotifierProvider);
     final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
+      backgroundColor: colorScheme.neutral,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Text(
           widget.mode == FormMode.create ? 'Add Product' : 'Edit Product',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface.withValues(alpha: 0.8),
+          ),
         ),
-        actions:
-            widget.mode == FormMode.edit
-                ? [
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed:
-                        state.isLoading
-                            ? null
-                            : () => _showDeleteConfirmation(context),
-                  ),
-                ]
-                : null,
       ),
+
       body:
           state.isLoading || _isUploadingImages
               ? Center(child: const CircularLoadingIndicator())
@@ -284,141 +314,183 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Product Images Section
-                      Text(
-                        'Product Images',
-                        style: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
+                      CardInkWell(
+                        child: Column(
+                          children: [
+                            // Image Grid
+                            _buildImageGrid(), Gap(Spacing.lg.h),
+
+                            // Add Image Button
+                            if (_existingImageUrls.length +
+                                    _newImageFiles.length <
+                                5)
+                              AppButton(
+                                height: 40.h,
+                                iconData: Icons.add_a_photo,
+                                label: 'Add Image',
+                                onPressed: _showImageSourceDialog,
+                                padding: Spacing.horizontalMd,
+                                variant: ButtonVariant.outline,
+                                size: ButtonSize.small,
+                                width: double.infinity,
+                              ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 8.h),
-
-                      // Image Grid
-                      _buildImageGrid(),
-
-                      // Add Image Button
-                      if (_existingImageUrls.length + _newImageFiles.length < 5)
-                        Padding(
-                          padding: EdgeInsets.only(top: 8.h),
-                          child: OutlinedButton.icon(
-                            onPressed: _pickImage,
-                            icon: const Icon(
-                              Icons.add_photo_alternate_outlined,
-                            ),
-                            label: Text('Add Image'),
-                            style: OutlinedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16.w,
-                                vertical: 12.h,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                      SizedBox(height: 24.h),
 
                       // Product Name
-                      AppTextFormField(
-                        controller: _nameController,
-                        label: 'Product Name',
-                        hintText: 'e.g., Premium Hair Pomade',
-                        maxLength: InputSanitizer.maxName,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter product name';
-                          }
-                          if (value.trim().length < 3) {
-                            return 'Name must be at least 3 characters';
-                          }
-                          if (value.length > InputSanitizer.maxName) {
-                            return 'Name cannot exceed ${InputSanitizer.maxName} characters';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 16.h),
+                      CardInkWell(
+                        child: Column(
+                          children: [
+                            AppTextFormField(
+                              controller: _nameController,
+                              label: 'Product Name',
+                              hintText: 'e.g., Premium Hair Pomade',
+                              maxLength: InputSanitizer.maxName,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Please enter product name';
+                                }
+                                if (value.trim().length < 3) {
+                                  return 'Name must be at least 3 characters';
+                                }
+                                if (value.length > InputSanitizer.maxName) {
+                                  return 'Name cannot exceed ${InputSanitizer.maxName} characters';
+                                }
+                                return null;
+                              },
+                            ),
+                            // Description
+                            AppTextFormField(
+                              controller: _descriptionController,
+                              label: 'Description',
+                              hintText: 'Describe your product...',
+                              maxLines: 4,
+                              maxLength: InputSanitizer.maxDescription,
+                              validator: InputSanitizer.optionalLength(
+                                InputSanitizer.maxDescription,
+                                fieldName: 'Description',
+                              ),
+                            ),
 
-                      // Description
-                      AppTextFormField(
-                        controller: _descriptionController,
-                        label: 'Description',
-                        hintText: 'Describe your product...',
-                        maxLines: 4,
-                        maxLength: InputSanitizer.maxDescription,
-                        validator: InputSanitizer.optionalLength(
-                          InputSanitizer.maxDescription,
-                          fieldName: 'Description',
+                            // Shop-type chips
+                            Gap(Spacing.sm.h),
+                            Text(
+                              'Shop Type',
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                            ),
+                            Gap(Spacing.xs.h),
+                            Wrap(
+                              spacing: 8.w,
+                              runSpacing: 8.h,
+                              children: ShopTypes.all.map((type) {
+                                final selected = _selectedShopTypes.contains(type);
+                                return AppFilterChip(
+                                  label: type,
+                                  selected: selected,
+                                  onSelected: (sel) => setState(() {
+                                    if (sel) {
+                                      _selectedShopTypes.add(type);
+                                    } else {
+                                      _selectedShopTypes.remove(type);
+                                    }
+                                  }),
+                                );
+                              }).toList(),
+                            ),
+                            Gap(Spacing.sm.h),
+
+                            // Category Dropdown
+                            DropdownButtonFormField<String>(
+                              value: _selectedCategory,
+                              decoration: InputDecoration(
+                                labelText: 'Category',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                              ),
+                              items:
+                                  ProductCategory.values.map((category) {
+                                    return DropdownMenuItem(
+                                      value: category.name,
+                                      child: Text(
+                                        category.displayName,
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              color: colorScheme.onSurface
+                                                  .withValues(alpha: 0.8),
+                                            ),
+                                      ),
+                                    );
+                                  }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedCategory = value;
+                                });
+                              },
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'Please select a category';
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 16.h),
 
                       // Price
-                      AppTextFormField(
-                        controller: _priceController,
-                        label: 'Price (${Currency.symbol})',
-                        hintText: '0.00',
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter price';
-                          }
-                          final price = double.tryParse(value);
-                          if (price == null || price <= 0) {
-                            return 'Please enter a valid price';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 16.h),
-
-                      // Stock Quantity — REQUIRED for checkout to succeed.
-                      // The DB sets stock_quantity NOT NULL DEFAULT 0, so a
-                      // product saved with 0 here will reject every order
-                      // attempt with "insufficient stock".
-                      AppTextFormField(
-                        controller: _stockController,
-                        label: 'Stock quantity',
-                        hintText: '0',
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter stock quantity';
-                          }
-                          final n = int.tryParse(value.trim());
-                          if (n == null || n < 0) {
-                            return 'Stock must be 0 or more';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 16.h),
-
-                      // Category Dropdown
-                      DropdownButtonFormField<String>(
-                        value: _selectedCategory,
-                        decoration: InputDecoration(
-                          labelText: 'Category',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
+                      CardInkWell(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: AppTextFormField(
+                                controller: _priceController,
+                                label: 'Price (${_shopCurrencySymbol ?? Currency.symbol})',
+                                hintText: '0.00',
+                                keyboardType: TextInputType.number,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter price';
+                                  }
+                                  final price = double.tryParse(value);
+                                  if (price == null || price <= 0) {
+                                    return 'Please enter a valid price';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            Gap(Spacing.sm.w),
+                            // Stock Quantity — REQUIRED for checkout to succeed.
+                            // The DB sets stock_quantity NOT NULL DEFAULT 0, so a
+                            // product saved with 0 here will reject every order
+                            // attempt with "insufficient stock".
+                            Expanded(
+                              flex: 1,
+                              child: AppTextFormField(
+                                controller: _stockController,
+                                label: 'Stock quantity',
+                                hintText: '0',
+                                keyboardType: TextInputType.number,
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Please enter stock quantity';
+                                  }
+                                  final n = int.tryParse(value.trim());
+                                  if (n == null || n < 0) {
+                                    return 'Stock must be 0 or more';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                        items:
-                            ProductCategory.values.map((category) {
-                              return DropdownMenuItem(
-                                value: category.name,
-                                child: Text(category.displayName),
-                              );
-                            }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedCategory = value;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null) return 'Please select a category';
-                          return null;
-                        },
                       ),
-                      SizedBox(height: 16.h),
 
                       // Active Status (Edit mode only)
                       if (widget.mode == FormMode.edit)
@@ -428,8 +500,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                             'Inactive products won\'t appear in marketplace',
                             style: TextStyle(
                               fontSize: 12.sp,
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.6),
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
                             ),
                           ),
                           value: _isActive,
@@ -440,18 +513,24 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                           },
                         ),
 
-                      SizedBox(height: 24.h),
-
                       // Save Button
+                      Gap(Spacing.xl),
                       AppButton(
-                        label: _isSaving
-                            ? 'Saving...'
-                            : (widget.mode == FormMode.create
-                                ? 'Create Product'
-                                : 'Save Changes'),
+                        elevation: 0,
+                        label:
+                            _isSaving
+                                ? 'Saving...'
+                                : (widget.mode == FormMode.create
+                                    ? 'Create Product'
+                                    : 'Save Changes'),
                         onPressed: _isSaving ? null : _saveProduct,
+
+                        size: ButtonSize.small,
                         width: double.infinity,
+                        padding: Spacing.horizontalMd,
+                        height: 40.h,
                       ),
+                      Gap(Spacing.xl),
                     ],
                   ),
                 ),
@@ -463,34 +542,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final totalImages = _existingImageUrls.length + _newImageFiles.length;
 
     if (totalImages == 0) {
-      return Container(
-        height: 120.h,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300, width: 1),
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.image_outlined,
-                size: 48.w,
-                color: Colors.grey.shade400,
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                'No images added',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 14.sp),
-              ),
-              Text(
-                'Tap "Add Image" to upload',
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 12.sp),
-              ),
-            ],
-          ),
-        ),
-      );
+      return NoImageAdded();
     }
 
     return GridView.builder(
@@ -547,25 +599,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildImageSourceDialog() {
-    return SafeArea(
-      child: Wrap(
-        children: [
-          ListTile(
-            leading: const Icon(Icons.camera_alt),
-            title: const Text('Take a photo'),
-            onTap: () => Navigator.pop(context, ImageSource.camera),
-          ),
-          ListTile(
-            leading: const Icon(Icons.photo_library),
-            title: const Text('Choose from gallery'),
-            onTap: () => Navigator.pop(context, ImageSource.gallery),
-          ),
-        ],
-      ),
     );
   }
 

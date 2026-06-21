@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/opening_hours_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/hours_provider.dart';
+import 'package:nano_embryo/presentation/features/shops/creation/providers/draft_context_provider.dart';
 
 class SetHoursScreen extends ConsumerStatefulWidget {
   const SetHoursScreen({super.key});
@@ -676,7 +677,13 @@ class _SetHoursScreenState extends ConsumerState<SetHoursScreen> {
   }
 
   void _saveAndContinue() {
+    // Carry the current draft context forward explicitly so ManageServices
+    // doesn't depend on the global flag still being correct after detours.
+    final isFreelancer =
+        ref.read(draftContextProvider) == DraftContext.freelancer;
     Navigator.pop(context);
-    context.push('/manageServices');
+    context.push(
+      isFreelancer ? '/manageServices?freelancerMode=true' : '/manageServices',
+    );
   }
 }

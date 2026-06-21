@@ -1,45 +1,57 @@
 // lib/features/settings/data/settings_data.dart
+import 'package:nano_embryo/core/moderation/data/moderation_models.dart';
 import 'package:nano_embryo/presentation/features/settings/models/settings_config.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
 class ProfileMoreData {
-  static List<SettingsSection> getSettingsSections(BuildContext context) {
+  static List<SettingsSection> getSettingsSections(
+    BuildContext context, {
+    ModerationTarget? moderationTarget,
+  }) {
     // Access localization for language prefence
     final loc = AppLocalizations.of(context)!;
 
     final theme = Theme.of(context);
     return [
-      SettingsSection(
-        id: 'app_actions',
-        title: 'App Action',
-        items: [
-          SettingsConfig(
-            id: 'block',
-            title: loc.actionsBlock,
-            subtitle: '',
-            icon: Icons.block,
-            type: SettingsItemType.destructive,
-            routeName: '/block',
-            iconColor: Colors.red,
-            order: 1,
-          ),
-          SettingsConfig(
-            id: 'report',
-            title: loc.actionsReport,
-            subtitle: '',
-            icon: Icons.flag_outlined,
-            type: SettingsItemType.destructive,
-            url: 'https://yourapp.com/privacy',
-            onTap: () {},
-            iconColor: Colors.red,
-            order: 3,
-          ),
-        ],
-      ),
+      if (moderationTarget != null)
+        SettingsSection(
+          id: 'app_actions',
+          title: '',
+          items: [
+            SettingsConfig(
+              id: 'block',
+              title: loc.actionsBlock,
+              subtitle: '',
+              icon: Icons.block,
+              type: SettingsItemType.destructive,
+              onTap:
+                  () => context.push(
+                    RouteNames.blockAccount,
+                    extra: moderationTarget,
+                  ),
+              iconColor: Colors.red,
+              order: 1,
+            ),
+            SettingsConfig(
+              id: 'report',
+              title: loc.actionsReport,
+              subtitle: '',
+              icon: Icons.flag_outlined,
+              type: SettingsItemType.destructive,
+              onTap:
+                  () => context.push(
+                    RouteNames.reportTarget,
+                    extra: moderationTarget,
+                  ),
+              iconColor: Colors.red,
+              order: 3,
+            ),
+          ],
+        ),
 
       SettingsSection(
         id: 'profile_actions',
-        title: 'Profile Action',
+        title: '',
         items: [
           SettingsConfig(
             id: 'send',
@@ -48,7 +60,7 @@ class ProfileMoreData {
             icon: Icons.send_outlined,
             type: SettingsItemType.navigation,
             onTap: () {},
-            iconColor: theme.colorScheme.onBackground.withOpacity(.6),
+            iconColor: theme.colorScheme.onSurface.withValues(alpha: .6),
             order: 1,
           ),
 
@@ -60,7 +72,7 @@ class ProfileMoreData {
             type: SettingsItemType.link,
             url: 'https://yourapp.com/privacy',
             routeName: '/share',
-            iconColor: theme.colorScheme.onBackground.withOpacity(.6),
+            iconColor: theme.colorScheme.onSurface.withValues(alpha: .6),
             order: 2,
           ),
           SettingsConfig(
@@ -71,7 +83,7 @@ class ProfileMoreData {
             type: SettingsItemType.link,
             url: 'https://yourapp.com/privacy',
             routeName: '/copy',
-            iconColor: theme.colorScheme.onBackground.withOpacity(.6),
+            iconColor: theme.colorScheme.onSurface.withValues(alpha: .6),
             order: 3,
           ),
         ],
@@ -79,7 +91,7 @@ class ProfileMoreData {
 
       SettingsSection(
         id: 'app_actions',
-        title: 'App Action',
+        title: '',
         items: [
           SettingsConfig(
             id: 'feedback',

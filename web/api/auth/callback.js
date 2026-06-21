@@ -1,11 +1,26 @@
+// Strict allowlist: Supabase PKCE codes and recovery token_hashes are
+// alphanumeric + `-` + `_`, never contain quotes or angle brackets. Reject
+// anything else to keep untrusted input out of the HTML/JS we emit below.
+const TOKEN_PATTERN = /^[A-Za-z0-9_-]{1,256}$/;
+const TYPE_PATTERN = /^[a-z_]{1,32}$/;
+
 export default function handler(req, res) {
   const params = new URLSearchParams(req.url.split('?')[1] || '');
-  const code = params.get('code');
-  const type = params.get('type');
+  const rawCode = params.get('code');
+  const rawType = params.get('type');
 
-  // Try to hand off to the native app via custom scheme (works in Safari, not WebViews)
+  const code = rawCode && TOKEN_PATTERN.test(rawCode) ? rawCode : null;
+  const type = rawType && TYPE_PATTERN.test(rawType) ? rawType : null;
+
+  if ((rawCode && !code) || (rawType && !type)) {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    return res.status(400).send('Invalid callback parameters');
+  }
+
+  // Both `code` and `type` are now safe to interpolate into a URL.
+  // We still URL-encode defensively for the path portion.
   const appUrl = code
-    ? `aurain://login-callback/?code=${encodeURIComponent(code)}${type ? `&type=${type}` : ''}`
+    ? `aurain://login-callback/?code=${encodeURIComponent(code)}${type ? `&type=${encodeURIComponent(type)}` : ''}`
     : 'aurain://login-callback/';
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');

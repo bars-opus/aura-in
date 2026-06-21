@@ -2,6 +2,15 @@
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { retryFetch } from "../_shared/retry.ts";
+import {
+  isDebugLogging,
+  redactForLog,
+  sanitizeCurrency,
+  sanitizeIdentifier,
+  sanitizeText,
+} from "../_shared/sanitize.ts";
+import { audit } from "../_shared/audit.ts";
 
 const PAYSTACK_SECRET_KEY = Deno.env.get('PAYSTACK_SECRET_KEY')!;
 const PAYSTACK_BASE_URL = 'https://api.paystack.co';
@@ -20,14 +29,24 @@ const corsHeaders = {
 const PLATFORM_PERCENTAGE_CHARGE = '2.9';
 
 // ============================================================================
-// Ghana mobile money provider codes as returned by Paystack's /bank API.
-// These are NOT valid settlement_bank values for /subaccount.
+// Mobile money provider codes — NOT valid settlement_bank values for /subaccount.
 // ============================================================================
-const GHANA_MOBILE_MONEY_CODES = new Set(['MTN', 'VOD', 'ATL', 'TGO']);
+const MOBILE_MONEY_CODES = new Set(['MTN', 'VOD', 'ATL', 'TGO']);
 
 function isMobileMoney(bankCode: string): boolean {
-  // Normalize to uppercase for comparison
-  return GHANA_MOBILE_MONEY_CODES.has(bankCode.toUpperCase());
+  return MOBILE_MONEY_CODES.has(bankCode.toUpperCase());
+}
+
+// Maps Paystack currency codes to the correct transfer recipient type.
+// https://paystack.com/docs/transfers/single-transfers/#create-a-transfer-recipient
+function recipientTypeForCurrency(currencyCode: string): string {
+  switch (currencyCode.toUpperCase()) {
+    case 'GHS': return 'ghipss';   // Ghana Interbank Payment System
+    case 'NGN': return 'nuban';    // Nigeria Uniform Bank Account Number
+    case 'ZAR': return 'basa';     // South Africa
+    case 'USD': return 'ach';      // USD ACH (Paystack USD accounts)
+    default:    return 'nuban';    // Fallback — Paystack's most common type
+  }
 }
 
 serve(async (req) => {
@@ -69,13 +88,61 @@ serve(async (req) => {
     }
 
     if (action === 'create-subaccount') {
-      const { shopId, businessName, bankCode, accountNumber, currencyCode } = body;
+      // Sanitize all user-supplied inputs before they reach Paystack or the DB.
+      let shopId: string;
+      let bankCode: string;
+      let accountNumber: string;
+      let currencyCode: string;
+      let businessName: string;
+      try {
+        shopId = sanitizeIdentifier(body.shopId, 64);
+        // bank/MoMo codes are 3–10 alphanumeric chars (e.g. "MTN", "058", "GH050100").
+        bankCode = sanitizeIdentifier(body.bankCode, 16);
+        // Account numbers / MoMo phone numbers — digits only, cap at 20.
+        accountNumber = sanitizeIdentifier(body.accountNumber, 20);
+        currencyCode = sanitizeCurrency(body.currencyCode || 'GHS');
+        businessName = body.businessName
+          ? sanitizeText(body.businessName, { maxLength: 200, rejectHtml: true })
+          : '';
+      } catch (sanErr) {
+        return new Response(
+          JSON.stringify({ error: (sanErr as Error).message }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
 
       if (!shopId || !bankCode || !accountNumber) {
         return new Response(JSON.stringify({ error: 'shopId, bankCode, and accountNumber required' }), {
           status: 400,
           headers: corsHeaders,
         });
+      }
+
+      // Rate limit: max 5 subaccount connections per user per hour to prevent abuse
+      const rlWindowStart = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const { data: userShops } = await supabase
+        .from('shops')
+        .select('id')
+        .eq('user_id', user.id);
+      const userShopIds = (userShops ?? []).map((s: { id: string }) => s.id);
+
+      if (userShopIds.length > 0) {
+        const { count: recentConnections } = await supabase
+          .from('payment_settings')
+          .select('shop_id', { count: 'exact', head: true })
+          .in('shop_id', userShopIds)
+          .gte('connected_at', rlWindowStart);
+
+        if ((recentConnections ?? 0) >= 5) {
+          console.warn('🚫 Paystack subaccount rate limit exceeded for user:', user.id);
+          return new Response(
+            JSON.stringify({ error: 'Too many connection attempts. Please wait an hour before trying again.' }),
+            {
+              status: 429,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': '3600' },
+            }
+          );
+        }
       }
 
       const { data: shop, error: shopError } = await supabase
@@ -103,7 +170,8 @@ serve(async (req) => {
         businessName || shop.shop_name,
         bankCode,
         accountNumber,
-        currencyCode || 'GHS'
+        currencyCode,
+        user.id,
       );
     }
 
@@ -112,6 +180,19 @@ serve(async (req) => {
       if (!shopId) {
         return new Response(JSON.stringify({ error: 'shopId required' }), {
           status: 400,
+          headers: corsHeaders,
+        });
+      }
+      // Verify the caller owns this shop
+      const { data: ownedShop } = await supabase
+        .from('shops')
+        .select('id')
+        .eq('id', shopId)
+        .eq('user_id', user.id)
+        .single();
+      if (!ownedShop) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 403,
           headers: corsHeaders,
         });
       }
@@ -126,7 +207,20 @@ serve(async (req) => {
           headers: corsHeaders,
         });
       }
-      return await disconnectSubaccount(shopId);
+      // Verify the caller owns this shop
+      const { data: ownedShop } = await supabase
+        .from('shops')
+        .select('id')
+        .eq('id', shopId)
+        .eq('user_id', user.id)
+        .single();
+      if (!ownedShop) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 403,
+          headers: corsHeaders,
+        });
+      }
+      return await disconnectSubaccount(shopId, user.id);
     }
 
     return new Response(JSON.stringify({ error: 'Invalid action' }), {
@@ -134,8 +228,11 @@ serve(async (req) => {
       headers: corsHeaders,
     });
   } catch (error) {
-    console.error('Error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error('paystack-subaccount error:', (error as Error).message);
+    if (isDebugLogging()) {
+      console.error('full error:', redactForLog(error));
+    }
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,
       headers: corsHeaders,
     });
@@ -147,9 +244,14 @@ serve(async (req) => {
 // ============================================================================
 async function fetchBanks(currencyCode: string) {
   try {
-    const response = await fetch(`${PAYSTACK_BASE_URL}/bank?currency=${currencyCode}`, {
-      headers: { 'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}` },
-    });
+    // Validate currency before sending — defends against Paystack 400s.
+    const safeCurrency = sanitizeCurrency(currencyCode);
+
+    const response = await retryFetch(
+      `${PAYSTACK_BASE_URL}/bank?currency=${safeCurrency}`,
+      { headers: { 'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}` } },
+      { attempts: 3, baseDelayMs: 500, label: 'paystack.banks' },
+    );
 
     const data = await response.json();
 
@@ -161,7 +263,7 @@ async function fetchBanks(currencyCode: string) {
     }
 
     const banks = data.data
-      .filter((bank: any) => bank.currency === currencyCode)
+      .filter((bank: any) => bank.currency === safeCurrency)
       .map((bank: any) => ({
         code: bank.code,
         name: bank.name,
@@ -172,7 +274,7 @@ async function fetchBanks(currencyCode: string) {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (err) {
-    console.error('fetchBanks error:', err);
+    console.error('fetchBanks error:', (err as Error).message);
     return new Response(
       JSON.stringify({ error: 'Failed to fetch banks' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -200,12 +302,8 @@ async function createSubaccount(
   bankCode: string,
   accountNumber: string,
   currencyCode: string,
+  actorUserId: string,
 ) {
-
-  // ADD THIS LINE:
-  console.log('🔍 RAW bankCode received:', JSON.stringify(bankCode));
-  console.log(`💳 isMobileMoney check:`, isMobileMoney(bankCode));
-
   // Guard: don't create duplicates
   const { data: existing } = await supabase
     .from('payment_settings')
@@ -221,7 +319,6 @@ async function createSubaccount(
   }
 
   const mobileMoneyFlow = isMobileMoney(bankCode);
-  console.log(`💳 Payment type: ${mobileMoneyFlow ? 'Mobile Money' : 'Bank Account'} (code: ${bankCode})`);
 
   try {
     let subaccountCode: string | null = null;
@@ -250,16 +347,23 @@ async function createSubaccount(
         percentage_charge: PLATFORM_PERCENTAGE_CHARGE,
       };
 
-      console.log('📦 Creating subaccount:', JSON.stringify(subaccountBody));
+      console.log('📦 Creating subaccount for shop:', shopId);
+      if (isDebugLogging()) {
+        console.log('subaccount body:', redactForLog(subaccountBody));
+      }
 
-      const subRes = await fetch(`${PAYSTACK_BASE_URL}/subaccount`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-          'Content-Type': 'application/json',
+      const subRes = await retryFetch(
+        `${PAYSTACK_BASE_URL}/subaccount`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(subaccountBody),
         },
-        body: JSON.stringify(subaccountBody),
-      });
+        { attempts: 3, baseDelayMs: 500, label: 'paystack.subaccount' },
+      );
 
       const subData = await subRes.json();
 
@@ -279,12 +383,22 @@ async function createSubaccount(
           currencyCode,
         });
       } catch (recipientErr) {
-        // Compensate: remove the subaccount we just created so state stays clean
-        console.error('❌ Transfer recipient failed, rolling back subaccount...');
-        await fetch(`${PAYSTACK_BASE_URL}/subaccount/${subaccountCode}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}` },
-        });
+        // Paystack has no DELETE for subaccounts — deactivate it so it can't receive funds.
+        console.error('❌ Transfer recipient failed, deactivating orphaned subaccount:', subaccountCode);
+        await retryFetch(
+          `${PAYSTACK_BASE_URL}/subaccount/${subaccountCode}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ active: false }),
+          },
+          { attempts: 2, baseDelayMs: 500, label: 'paystack.deactivate' },
+        ).catch(err =>
+          console.error('⚠️ Subaccount deactivation failed (manual cleanup needed):', subaccountCode, (err as Error).message),
+        );
         throw recipientErr;
       }
     }
@@ -307,6 +421,19 @@ async function createSubaccount(
 
     console.log('✅ Saved to payment_settings');
 
+    await audit(supabase, {
+      action: 'subaccount.create',
+      actorUserId,
+      shopId,
+      targetId: recipientCode ?? subaccountCode,
+      outcome: 'success',
+      context: {
+        provider: 'paystack',
+        currency: currencyCode,
+        flow: mobileMoneyFlow ? 'mobile_money' : 'bank',
+      },
+    });
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -317,9 +444,21 @@ async function createSubaccount(
     );
 
   } catch (error) {
-    console.error('❌ Error in createSubaccount:', error);
+    console.error('❌ Error in createSubaccount:', (error as Error).message);
+    await audit(supabase, {
+      action: 'subaccount.create',
+      actorUserId,
+      shopId,
+      outcome: 'failure',
+      context: {
+        provider: 'paystack',
+        currency: currencyCode,
+        flow: mobileMoneyFlow ? 'mobile_money' : 'bank',
+        error: (error as Error).message,
+      },
+    });
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: (error as Error).message }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
@@ -334,24 +473,28 @@ async function createBankRecipient(params: {
   accountNumber: string;
   currencyCode: string;
 }): Promise<string> {
+  const recipientType = recipientTypeForCurrency(params.currencyCode);
+
   const body = {
-    type: 'ghipss',
+    type: recipientType,
     name: params.businessName,
     account_number: params.accountNumber,
     bank_code: params.bankCode,
     currency: params.currencyCode,
   };
 
-  console.log('📦 Creating bank transfer recipient:', JSON.stringify(body));
-
-  const res = await fetch(`${PAYSTACK_BASE_URL}/transferrecipient`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-      'Content-Type': 'application/json',
+  const res = await retryFetch(
+    `${PAYSTACK_BASE_URL}/transferrecipient`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
     },
-    body: JSON.stringify(body),
-  });
+    { attempts: 3, baseDelayMs: 500, label: 'paystack.bankRecipient' },
+  );
 
   const data = await res.json();
 
@@ -359,7 +502,7 @@ async function createBankRecipient(params: {
     throw new Error(data.message || 'Bank transfer recipient creation failed');
   }
 
-  console.log('✅ Bank transfer recipient created:', data.data.recipient_code);
+  console.log('✅ Bank transfer recipient created (type:', recipientType, ')');
   return data.data.recipient_code;
 }
 
@@ -386,16 +529,20 @@ async function createMobileMoneyRecipient(params: {
     currency: params.currencyCode,
   };
 
-  console.log('📦 Creating mobile money transfer recipient:', JSON.stringify(body));
+  console.log('💳 Creating mobile money recipient for provider:', params.bankCode);
 
-  const res = await fetch(`${PAYSTACK_BASE_URL}/transferrecipient`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-      'Content-Type': 'application/json',
+  const res = await retryFetch(
+    `${PAYSTACK_BASE_URL}/transferrecipient`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
     },
-    body: JSON.stringify(body),
-  });
+    { attempts: 3, baseDelayMs: 500, label: 'paystack.momoRecipient' },
+  );
 
   const data = await res.json();
 
@@ -403,7 +550,7 @@ async function createMobileMoneyRecipient(params: {
     throw new Error(data.message || 'Mobile money recipient creation failed');
   }
 
-  console.log('✅ Mobile money recipient created:', data.data.recipient_code);
+  console.log('✅ Mobile money recipient created');
   return data.data.recipient_code;
 }
 
@@ -432,8 +579,8 @@ async function getSubaccountStatus(shopId: string) {
 // ============================================================================
 // Disconnect Subaccount
 // ============================================================================
-async function disconnectSubaccount(shopId: string) {
-  await supabase
+async function disconnectSubaccount(shopId: string, actorUserId: string) {
+  const { error } = await supabase
     .from('payment_settings')
     .update({
       payment_provider: null,
@@ -447,6 +594,14 @@ async function disconnectSubaccount(shopId: string) {
       connected_at: null,
     })
     .eq('shop_id', shopId);
+
+  await audit(supabase, {
+    action: 'subaccount.disconnect',
+    actorUserId,
+    shopId,
+    outcome: error ? 'failure' : 'success',
+    context: error ? { error: error.message } : { provider: 'paystack' },
+  });
 
   return new Response(
     JSON.stringify({ success: true }),

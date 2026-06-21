@@ -46,10 +46,11 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     final List<AppTabItem> tabs = [
       AppTabItem(
-        label: 'Revenue',
+        label: loc.dashboardTabRevenue,
         content: WalletScreen(
           shopId: widget.shopId,
           shopOwnerId: widget.shopOwnerId,
@@ -59,16 +60,16 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
         ),
       ),
       AppTabItem(
-        label: 'Analytics',
+        label: loc.dashboardTabAnalytics,
         content: AnalyticsScreen(shopId: widget.shopId),
       ),
       AppTabItem(
-        label: 'Insights',
+        label: loc.dashboardTabInsights,
         content: InsightsScreen(shopId: widget.shopId),
       ),
-      AppTabItem(label: 'Tools', content: ToolsScreen(shopId: widget.shopId)),
+      AppTabItem(label: loc.dashboardTabTools, content: ToolsScreen(shopId: widget.shopId)),
       AppTabItem(
-        label: 'Clients',
+        label: loc.dashboardTabClients,
         content: ClientsScreen(shopId: widget.shopId),
       ),
     ];
@@ -77,7 +78,7 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
     if (!widget.isFreelancer) {
       tabs.add(
         AppTabItem(
-          label: 'Staff',
+          label: loc.dashboardTabStaff,
           content: DashboardWorkersScreen(shopId: widget.shopId),
         ),
       );
@@ -89,7 +90,7 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
         automaticallyImplyLeading: false,
         centerTitle: false,
         title: Text(
-          'Dashboard',
+          loc.dashboardTitle,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: colorScheme.onBackground,

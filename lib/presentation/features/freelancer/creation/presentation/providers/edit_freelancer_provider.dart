@@ -1,4 +1,5 @@
 // lib/features/freelancer/creation/presentation/providers/edit_freelancer_provider.dart
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +9,6 @@ import 'package:nano_embryo/presentation/features/freelancer/creation/domain/mod
 import 'package:nano_embryo/presentation/features/freelancer/data/models/freelancer_details_dto.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/repositories/supabase_freelancer_repository.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/data/upload_shop_media.dart';
-import 'package:nano_embryo/presentation/features/shops/creation/domain/models/award_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/contact_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/document_draft.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/opening_hours_draft.dart';
@@ -17,6 +17,9 @@ import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/a
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/award_dto.dart';
 import 'package:path_provider/path_provider.dart';
 import 'freelancer_creation_provider.dart';
+
+const _kDownloadTimeout = Duration(seconds: 15);
+const _kMaxDownloadRetries = 2;
 
 /// State for edit freelancer operation
 class EditFreelancerState {
@@ -82,136 +85,167 @@ class EditFreelancerNotifier extends StateNotifier<EditFreelancerState> {
     _loadFreelancerData();
   }
 
-  
   Future<void> _loadFreelancerData() async {
-  state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, error: null);
 
-  try {
-    final repository = _ref.read(freelancerRepositoryProvider);
-    final freelancer = await repository.getFreelancerById(freelancerId);
+    try {
+      final repository = _ref.read(freelancerRepositoryProvider);
 
-    if (freelancer == null) {
-      throw Exception('Freelancer not found');
+      // Start all futures before awaiting any — they run concurrently.
+      final freelancerF       = repository.getFreelancerById(freelancerId);
+      final portfolioF        = repository.getFreelancerPortfolio(freelancerId);
+      final documentUrlsF     = repository.getFreelancerDocumentUrls(freelancerId);
+      final servicesF         = repository.getFreelancerServices(freelancerId);
+      final hoursF            = repository.getFreelancerHoursDraft(freelancerId);
+      final contactsF         = repository.getFreelancerContacts(freelancerId);
+      final socialLinksF      = repository.getFreelancerSocialLinks(freelancerId);
+      final awardsF           = repository.getFreelancerAwards(freelancerId);
+      final imageMediasF      = repository.getFreelancerImageMedias(freelancerId);
+      final documentMediasF   = repository.getFreelancerDocumentMedias(freelancerId);
+
+      final freelancer      = await freelancerF;
+      final portfolioImages = await portfolioF;
+      final documentUrls    = await documentUrlsF;
+      final services        = await servicesF;
+      final openingHours    = await hoursF;
+      final contacts        = await contactsF;
+      final socialLinks     = await socialLinksF;
+      final awards          = await awardsF;
+      final imageMedias     = await imageMediasF;
+      final documentMedias  = await documentMediasF;
+
+      if (freelancer == null) {
+        throw Exception('Freelancer not found');
+      }
+
+      // Start both downloads before awaiting either — they run concurrently.
+      final imageDownloadF = _downloadFiles(portfolioImages);
+      final docDownloadF   = _downloadDocuments(documentUrls);
+      final localImagePaths     = await imageDownloadF;
+      final localDocumentDrafts = await docDownloadF;
+
+      // Build temp-path → original-URL maps
+      final Map<String, String> localPathToOriginalUrl = {};
+      for (int i = 0; i < portfolioImages.length && i < localImagePaths.length; i++) {
+        localPathToOriginalUrl[localImagePaths[i]] = portfolioImages[i];
+      }
+
+      final Map<String, String> localDocPathToOriginalUrl = {};
+      for (int i = 0; i < documentUrls.length && i < localDocumentDrafts.length; i++) {
+        localDocPathToOriginalUrl[localDocumentDrafts[i].file.path] = documentUrls[i];
+      }
+
+      // Build URL → shop_media.id maps for reliable PK-based deletion.
+      final Map<String, String> imageUrlToId = {
+        for (final media in imageMedias) media.url: media.id,
+      };
+      final Map<String, String> docUrlToId = {
+        for (final media in documentMedias) media.url: media.id,
+      };
+
+      final draft = _convertToDraft(
+        freelancer: freelancer,
+        services: services,
+        openingHours: openingHours,
+        contacts: contacts,
+        socialLinks: socialLinks,
+        awards: awards,
+      );
+
+      final updatedDraft = draft.copyWith(
+        localImagePaths: localImagePaths,
+        documents: localDocumentDrafts,
+      );
+
+      // Load into creation provider
+      final creationNotifier = _ref.read(freelancerCreationProvider.notifier);
+      creationNotifier.loadExistingFreelancer(updatedDraft);
+
+      state = state.copyWith(
+        isLoading: false,
+        draft: updatedDraft,
+        existingImageUrls: portfolioImages,
+        existingDocumentUrls: documentUrls,
+        localPathToOriginalUrl: localPathToOriginalUrl,
+        localDocPathToOriginalUrl: localDocPathToOriginalUrl,
+        imageUrlToId: imageUrlToId,
+        docUrlToId: docUrlToId,
+      );
+    } catch (e, stack) {
+      debugPrint('EditFreelancerNotifier._loadFreelancerData: $e\n$stack');
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Failed to load your profile. Please try again.',
+      );
     }
-
-    // Fetch data using the correct methods
-    final portfolioImages = await repository.getFreelancerPortfolio(freelancerId);
-    final documentUrls = await repository.getFreelancerDocumentUrls(freelancerId);
-    final services = await repository.getFreelancerServices(freelancerId);
-    final openingHours = await repository.getFreelancerHoursDraft(freelancerId);
-    final contacts = await repository.getFreelancerContacts(freelancerId);
-    final socialLinks = await repository.getFreelancerSocialLinks(freelancerId);
-    final awards = await repository.getFreelancerAwards(freelancerId);
-    
-    // ✅ Use SimpleMedia for image and document medias
-    final imageMedias = await repository.getFreelancerImageMedias(freelancerId);
-    final documentMedias = await repository.getFreelancerDocumentMedias(freelancerId);
-
-    // Download images to local files
-    final localImagePaths = await _downloadFiles(portfolioImages);
-    final localDocumentDrafts = await _downloadDocuments(documentUrls);
-
-    // Build temp-path → original-URL maps
-    final Map<String, String> localPathToOriginalUrl = {};
-    for (int i = 0; i < portfolioImages.length && i < localImagePaths.length; i++) {
-      localPathToOriginalUrl[localImagePaths[i]] = portfolioImages[i];
-    }
-
-    final Map<String, String> localDocPathToOriginalUrl = {};
-    for (int i = 0; i < documentUrls.length && i < localDocumentDrafts.length; i++) {
-      localDocPathToOriginalUrl[localDocumentDrafts[i].file.path] = documentUrls[i];
-    }
-
-    // Build URL → shop_media.id maps for reliable PK-based deletion using SimpleMedia
-    final Map<String, String> imageUrlToId = {
-      for (final media in imageMedias) media.url: media.id,
-    };
-    final Map<String, String> docUrlToId = {
-      for (final media in documentMedias) media.url: media.id,
-    };
-
-    // Convert to draft
-    final draft = _convertToDraft(
-      freelancer: freelancer,
-      services: services,
-      openingHours: openingHours,
-      contacts: contacts,
-      socialLinks: socialLinks,
-      awards: awards,
-    );
-
-    final updatedDraft = draft.copyWith(
-      localImagePaths: localImagePaths,
-      documents: localDocumentDrafts,
-    );
-
-    // Load into creation provider
-    final creationNotifier = _ref.read(freelancerCreationProvider.notifier);
-    creationNotifier.loadExistingFreelancer(updatedDraft);
-
-    state = state.copyWith(
-      isLoading: false,
-      draft: updatedDraft,
-      existingImageUrls: portfolioImages,
-      existingDocumentUrls: documentUrls,
-      localPathToOriginalUrl: localPathToOriginalUrl,
-      localDocPathToOriginalUrl: localDocPathToOriginalUrl,
-      imageUrlToId: imageUrlToId,
-      docUrlToId: docUrlToId,
-    );
-  } catch (e) {
-    state = state.copyWith(
-      isLoading: false,
-      error: 'Failed to load freelancer: $e',
-    );
   }
-}
 
-  Future<List<String>> _downloadFiles(List<String> urls) async {
-    final dir = await getTemporaryDirectory();
-    final List<String> paths = [];
-    for (int i = 0; i < urls.length; i++) {
+  // Fetches a URL with a timeout and one retry on transient failure.
+  Future<http.Response?> _fetchWithRetry(String url) async {
+    for (int attempt = 1; attempt <= _kMaxDownloadRetries; attempt++) {
       try {
-        final response = await http.get(Uri.parse(urls[i]));
-        if (response.statusCode == 200) {
-          final file = File(
-            '${dir.path}/freelancer_edit_img_${DateTime.now().millisecondsSinceEpoch}_$i.jpg',
-          );
-          await file.writeAsBytes(response.bodyBytes);
-          paths.add(file.path);
-        }
+        final response = await http
+            .get(Uri.parse(url))
+            .timeout(_kDownloadTimeout);
+        if (response.statusCode == 200) return response;
+        return null; // non-200 is not retryable
+      } on TimeoutException {
+        if (attempt == _kMaxDownloadRetries) return null;
+        await Future.delayed(Duration(milliseconds: 300 * attempt));
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  // Downloads all URLs concurrently.
+  Future<List<String>> _downloadFiles(List<String> urls) async {
+    if (urls.isEmpty) return [];
+    final dir = await getTemporaryDirectory();
+    final futures = List.generate(urls.length, (i) async {
+      try {
+        final response = await _fetchWithRetry(urls[i]);
+        if (response == null) return null;
+        final file = File(
+          '${dir.path}/freelancer_edit_img_${DateTime.now().millisecondsSinceEpoch}_$i.jpg',
+        );
+        await file.writeAsBytes(response.bodyBytes);
+        return file.path;
       } catch (e) {
         debugPrint('Failed to download image $i: $e');
+        return null;
       }
-    }
-    return paths;
+    });
+    final results = await Future.wait(futures);
+    return results.whereType<String>().toList();
   }
 
+  // Downloads all document URLs concurrently.
   Future<List<DocumentDraft>> _downloadDocuments(List<String> urls) async {
+    if (urls.isEmpty) return [];
     final dir = await getTemporaryDirectory();
-    final List<DocumentDraft> docs = [];
-    for (int i = 0; i < urls.length; i++) {
+    final futures = List.generate(urls.length, (i) async {
       try {
-        final response = await http.get(Uri.parse(urls[i]));
-        if (response.statusCode == 200) {
-          final file = File(
-            '${dir.path}/freelancer_edit_doc_${DateTime.now().millisecondsSinceEpoch}_$i.jpg',
-          );
-          await file.writeAsBytes(response.bodyBytes);
-          docs.add(
-            DocumentDraft(
-              type: DocumentType.other,
-              file: file,
-              title: 'Document ${i + 1}',
-              isVerified: false,
-            ),
-          );
-        }
+        final response = await _fetchWithRetry(urls[i]);
+        if (response == null) return null;
+        final file = File(
+          '${dir.path}/freelancer_edit_doc_${DateTime.now().millisecondsSinceEpoch}_$i.jpg',
+        );
+        await file.writeAsBytes(response.bodyBytes);
+        return DocumentDraft(
+          type: DocumentType.other,
+          file: file,
+          title: 'Document ${i + 1}',
+          isVerified: false,
+        );
       } catch (e) {
         debugPrint('Failed to download document $i: $e');
+        return null;
       }
-    }
-    return docs;
+    });
+    final results = await Future.wait(futures);
+    return results.whereType<DocumentDraft>().toList();
   }
 
   FreelancerDraft _convertToDraft({
@@ -252,14 +286,27 @@ class EditFreelancerNotifier extends StateNotifier<EditFreelancerState> {
     );
   }
 
+  // Deletes temp files that were downloaded during this edit session.
+  Future<void> _cleanupTempFiles() async {
+    final allPaths = [
+      ...state.localPathToOriginalUrl.keys,
+      ...state.localDocPathToOriginalUrl.keys,
+    ];
+    for (final path in allPaths) {
+      try {
+        final file = File(path);
+        if (await file.exists()) await file.delete();
+      } catch (_) {}
+    }
+  }
+
   Future<bool> saveChanges({
     required List<File> newImages,
     required List<String> imageIdsToDelete,
-    required List<String> imagesToDelete, // URLs kept for storage deletion
+    required List<String> imagesToDelete,
     required List<DocumentDraft> newDocuments,
     required List<String> docIdsToDelete,
-    required List<String>
-    documentUrlsToDelete, // URLs kept for storage deletion
+    required List<String> documentUrlsToDelete,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -269,28 +316,29 @@ class EditFreelancerNotifier extends StateNotifier<EditFreelancerState> {
       final uploadMedia = _ref.read(uploadShopMediaProvider);
       final profileId = _ref.read(currentProfileIdProvider)!;
 
-      // Upload new images
-      List<String> newImageUrls = [];
-      if (newImages.isNotEmpty) {
-        newImageUrls = await uploadMedia.execute(
-          images: newImages,
-          profileId: profileId,
-          shopId: freelancerId,
-        );
-      }
+      // Start both uploads before awaiting either — they run concurrently.
+      final imageUploadF = newImages.isNotEmpty
+          ? uploadMedia.execute(
+              images: newImages,
+              profileId: profileId,
+              shopId: freelancerId,
+            )
+          : Future.value(<String>[]);
+      final docUploadF = () async {
+        final urls = <String>[];
+        for (final doc in newDocuments) {
+          final url = await uploadMedia.uploadSingleDocument(
+            document: doc,
+            profileId: profileId,
+            shopId: freelancerId,
+          );
+          if (url != null) urls.add(url);
+        }
+        return urls;
+      }();
+      final newImageUrls    = await imageUploadF;
+      final newDocumentUrls = await docUploadF;
 
-      // Upload new documents
-      List<String> newDocumentUrls = [];
-      for (final doc in newDocuments) {
-        final url = await uploadMedia.uploadSingleDocument(
-          document: doc,
-          profileId: profileId,
-          shopId: freelancerId,
-        );
-        if (url != null) newDocumentUrls.add(url);
-      }
-
-      // Update freelancer in database (handles storage + DB deletion internally)
       await repository.updateFreelancer(
         workerId: freelancerId,
         draft: draft,
@@ -302,10 +350,17 @@ class EditFreelancerNotifier extends StateNotifier<EditFreelancerState> {
         documentUrlsToDelete: documentUrlsToDelete,
       );
 
+      // Clean up temp files now that the save succeeded.
+      await _cleanupTempFiles();
+
       state = state.copyWith(isLoading: false);
       return true;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (e, stack) {
+      debugPrint('EditFreelancerNotifier.saveChanges: $e\n$stack');
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Failed to save changes. Please try again.',
+      );
       return false;
     }
   }

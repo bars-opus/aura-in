@@ -45,6 +45,7 @@ class FreelancerTypeSelector extends StatelessWidget {
 
                   label: type.displayName,
                   selected: isSelected,
+                  labelColor: colorScheme.onSurface.withOpacity(0.7),
                   onSelected: (selected) {
                     if (allowMultiple) {
                       final newTypes = List<String>.from(selectedTypes);

@@ -96,6 +96,18 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_column THEN NULL;
 END $$;
 
+-- ── 1b. Backfill missing columns on pre-existing tables ──────────
+-- These columns were added to the canonical schema above but the
+-- remote tables may predate them.
+DO $$ BEGIN ALTER TABLE bookings ADD COLUMN address   TEXT;             EXCEPTION WHEN duplicate_column THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE bookings ADD COLUMN latitude  DOUBLE PRECISION; EXCEPTION WHEN duplicate_column THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE bookings ADD COLUMN longitude DOUBLE PRECISION; EXCEPTION WHEN duplicate_column THEN NULL; END $$;
+
+DO $$ BEGIN ALTER TABLE booking_services ADD COLUMN worker_name          TEXT;             EXCEPTION WHEN duplicate_column THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE booking_services ADD COLUMN start_time           TIMESTAMPTZ;      EXCEPTION WHEN duplicate_column THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE booking_services ADD COLUMN end_time             TIMESTAMPTZ;      EXCEPTION WHEN duplicate_column THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE booking_services ADD COLUMN special_requirements TEXT;             EXCEPTION WHEN duplicate_column THEN NULL; END $$;
+
 -- ── 2. Data integrity CHECK constraints ───────────────────────
 
 DO $$ BEGIN
@@ -245,6 +257,7 @@ CREATE POLICY booking_services_client_update_notes ON booking_services
 -- a single row per (booking, service) so pagination + filtering
 -- stays in the database.
 
+DROP VIEW IF EXISTS booking_simple;
 CREATE OR REPLACE VIEW booking_simple AS
 SELECT
   bs.id                              AS service_id,
@@ -389,8 +402,8 @@ BEGIN
       JOIN   bookings b ON b.id = bs.booking_id
       WHERE  bs.worker_id = v_worker_id
         AND  b.status NOT IN ('cancelled','no_show')
-        AND  tsrange(bs.start_time, COALESCE(bs.end_time, bs.start_time + (bs.duration_minutes||' minutes')::INTERVAL), '[)')
-             && tsrange(v_start, v_end, '[)')
+        AND  tstzrange(bs.start_time, COALESCE(bs.end_time, bs.start_time + (bs.duration_minutes||' minutes')::INTERVAL), '[)')
+             && tstzrange(v_start, v_end, '[)')
       FOR UPDATE OF bs;
 
       IF FOUND THEN
@@ -516,7 +529,7 @@ BEGIN
   FROM   bookings b
   WHERE  b.shop_id = p_shop_id
     AND  b.status NOT IN ('cancelled','no_show')
-    AND  tsrange(b.start_time, b.end_time, '[)') && tsrange(p_start_time, p_end_time, '[)')
+    AND  tstzrange(b.start_time, b.end_time, '[)') && tstzrange(p_start_time, p_end_time, '[)')
   FOR UPDATE OF b;
 
   IF FOUND THEN
@@ -604,8 +617,8 @@ BEGIN
     JOIN   bookings b ON b.id = bs.booking_id
     WHERE  bs.worker_id = p_worker_id
       AND  b.status NOT IN ('cancelled','no_show')
-      AND  tsrange(bs.start_time, COALESCE(bs.end_time, bs.start_time + (bs.duration_minutes||' minutes')::INTERVAL), '[)')
-           && tsrange(p_start_time, p_end_time, '[)');
+      AND  tstzrange(bs.start_time, COALESCE(bs.end_time, bs.start_time + (bs.duration_minutes||' minutes')::INTERVAL), '[)')
+           && tstzrange(p_start_time, p_end_time, '[)');
 
     IF v_count > 0 THEN
       RETURN jsonb_build_object('available', false, 'reason', 'worker_busy');
@@ -642,6 +655,7 @@ GRANT EXECUTE ON FUNCTION check_slot_availability(UUID, UUID, UUID, TIMESTAMPTZ,
 -- Given a candidate worker_id list and a target window, returns
 -- the workers that are *not* booked anywhere in that window.
 
+DROP FUNCTION IF EXISTS get_available_workers(UUID[], TIMESTAMPTZ, TIMESTAMPTZ);
 CREATE OR REPLACE FUNCTION get_available_workers(
   p_worker_ids UUID[],
   p_start_time TIMESTAMPTZ,
@@ -672,14 +686,14 @@ AS $$
       JOIN   bookings b ON b.id = bs.booking_id
       WHERE  bs.worker_id = w.id
         AND  b.status NOT IN ('cancelled','no_show')
-        AND  tsrange(bs.start_time, COALESCE(bs.end_time, bs.start_time + (bs.duration_minutes||' minutes')::INTERVAL), '[)')
-             && tsrange(p_start_time, p_end_time, '[)')
+        AND  tstzrange(bs.start_time, COALESCE(bs.end_time, bs.start_time + (bs.duration_minutes||' minutes')::INTERVAL), '[)')
+             && tstzrange(p_start_time, p_end_time, '[)')
     )
     AND  NOT EXISTS (
       SELECT 1
       FROM   worker_unavailability wu
       WHERE  wu.worker_id = w.id
-        AND  tsrange(wu.start_time, wu.end_time, '[)') && tsrange(p_start_time, p_end_time, '[)')
+        AND  tstzrange(wu.start_time, wu.end_time, '[)') && tstzrange(p_start_time, p_end_time, '[)')
     );
 $$;
 
@@ -791,6 +805,7 @@ GRANT EXECUTE ON FUNCTION extract_duration_minutes(TEXT) TO authenticated;
 -- can swap a more sophisticated allocator without changing the
 -- signature.
 
+DROP FUNCTION IF EXISTS generate_available_slots(UUID, DATE, UUID[], INT[], UUID[], INT);
 CREATE OR REPLACE FUNCTION generate_available_slots(
   p_shop_id                 UUID,
   p_date                    DATE,

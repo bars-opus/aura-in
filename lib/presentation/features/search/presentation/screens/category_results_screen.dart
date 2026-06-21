@@ -1,13 +1,6 @@
 // lib/features/search/presentation/screens/category_results_screen.dart
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
-import 'package:nano_embryo/core/widgets/app_divider.dart';
-import 'package:nano_embryo/core/widgets/card_inkwell.dart';
-import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
-import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
-import 'package:nano_embryo/core/widgets/feedback/error_state.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/search/models/search_category.dart';
 import 'package:nano_embryo/presentation/features/search/models/search_filters.dart';
 import 'package:nano_embryo/presentation/features/search/models/unified_search_result.dart';
@@ -90,6 +83,7 @@ class _CategoryResultsScreenState extends ConsumerState<CategoryResultsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
     final resultsState = ref.watch(
       categorySearchResultsProvider(widget.category),
     );
@@ -104,14 +98,14 @@ class _CategoryResultsScreenState extends ConsumerState<CategoryResultsScreen> {
             ),
             children: [
               TextSpan(
-                text: '${widget.category.displayName} Results\n',
+                text: '${loc.searchResultsTitle(widget.category.displayName)}\n',
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: colorScheme.onSurface.withOpacity(0.8),
                 ),
               ),
               TextSpan(
-                text: 'Searching for "${widget.query}"',
+                text: loc.searchResultsSearchingFor(widget.query),
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: colorScheme.onSurface.withOpacity(0.5),
@@ -127,7 +121,7 @@ class _CategoryResultsScreenState extends ConsumerState<CategoryResultsScreen> {
       body: resultsState.when(
         data: (result) {
           if (result.items.isEmpty) {
-            return _buildEmptyState();
+            return _buildEmptyState(loc);
           }
           return CardInkWell(
             elevation: 0,
@@ -157,17 +151,17 @@ class _CategoryResultsScreenState extends ConsumerState<CategoryResultsScreen> {
           );
         },
         loading: () => const Center(child: CircularLoadingIndicator()),
-        error: (error, stack) => _buildErrorState(error.toString()),
+        error: (error, stack) => _buildErrorState(error.toString(), loc),
       ),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(AppLocalizations loc) {
     return Center(
       child: EmptyStateWidget(
         icon: Icons.search_off,
-        title: 'No ${widget.category.displayName.toLowerCase()} found',
-        subtitle: 'Try different keywords or remove filters',
+        title: loc.searchScreenNoResultsCategory(widget.category.displayName.toLowerCase()),
+        subtitle: loc.searchResultsTryDifferent,
       ),
     );
   }
@@ -181,10 +175,10 @@ class _CategoryResultsScreenState extends ConsumerState<CategoryResultsScreen> {
     );
   }
 
-  Widget _buildErrorState(String error) {
+  Widget _buildErrorState(String error, AppLocalizations loc) {
     return Center(
       child: ErrorStateWidget(
-        title: 'Something went wrong',
+        title: loc.searchResultsSomethingWentWrong,
         subtitle: error,
         onPrimaryAction: () {
           ref

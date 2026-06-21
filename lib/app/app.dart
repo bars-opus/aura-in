@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/feedback/review/app_lifecycle_launch_counter.dart';
+import 'package:nano_embryo/core/feedback/review/review_providers.dart';
 import 'package:nano_embryo/core/localization/app_language.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/core/providers/locale_provider.dart';
@@ -8,9 +10,7 @@ import 'package:nano_embryo/core/providers/shared_prefs_provider.dart';
 import 'package:nano_embryo/core/providers/theme_provider.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:nano_embryo/core/utils/bottom_sheet_utils.dart';
 import 'package:nano_embryo/core/widgets/app_initialization_widget.dart';
-import 'package:nano_embryo/presentation/features/auth/log_in/presentation/screens/update_password_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Main Application Widget
@@ -28,7 +28,6 @@ class App extends ConsumerStatefulWidget {
 class _AppState extends ConsumerState<App> {
   bool _isInitializing = true;
   AppLanguage? _initialLanguage;
-  bool _updatePasswordSheetShown = false;
 
   @override
   void initState() {
@@ -48,41 +47,26 @@ class _AppState extends ConsumerState<App> {
     });
 
     // When a password-reset deep link is opened while the app is running,
-    // show the UpdatePasswordScreen as a bottom sheet.
+    // set recovery mode — the router redirect handles navigation to UpdatePasswordScreen.
     ref.listenManual(authEventProvider, (_, next) {
       if (next.valueOrNull?.event == AuthChangeEvent.passwordRecovery) {
         ref.read(routingNotifierProvider).setRecoveryMode(true);
-        _showUpdatePasswordSheet();
       }
-    });
-  }
-
-  void _showUpdatePasswordSheet() {
-    if (_updatePasswordSheetShown) return;
-    _updatePasswordSheetShown = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final navKey =
-          ref.read(appRouterProvider).routerDelegate.navigatorKey;
-      final navContext = navKey.currentContext;
-      if (navContext == null || !navContext.mounted) return;
-      BottomSheetUtils.showDocumentationBottomSheet(
-        context: navContext,
-        widget: const UpdatePasswordScreen(),
-      ).then((_) => _updatePasswordSheetShown = false);
     });
   }
 
   Future<void> _handleNewUser(User user) async {
+    // Best-effort warm-up: create the profile row so the user lands on the
+    // username screen with a row already present. createProfile is an
+    // idempotent UPSERT so racing with UsernameCreationScreen is safe.
+    //
+    // Failure here is non-fatal — UsernameCreationScreen retries the same
+    // call and surfaces a friendly error to the user if it persists.
     try {
       final profileRepo = ref.read(profileRepositoryProvider);
-      final existing = await profileRepo.fetchProfile(user.id);
-
-      if (existing == null) {
-        await profileRepo.createProfile(user.id);
-      }
+      await profileRepo.createProfile(user.id);
     } catch (e) {
-      debugPrint('Error creating profile: $e');
+      debugPrint('⚠️ _handleNewUser: profile warm-up failed (${e.runtimeType}) — UsernameCreationScreen will retry');
     }
   }
 
@@ -98,11 +82,8 @@ class _AppState extends ConsumerState<App> {
         setState(() => _isInitializing = false);
         // Cold-start: recovery mode may have been set in main() before runApp.
         // Check after the first real frame so the navigator key is valid.
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && ref.read(routingNotifierProvider).isRecoveryMode) {
-            _showUpdatePasswordSheet();
-          }
-        });
+        // Cold-start recovery mode is already set — the router redirect
+        // will navigate to UpdatePasswordScreen on the next frame.
       }
     }
   }
@@ -115,7 +96,12 @@ class _AppState extends ConsumerState<App> {
 
     // Keep routingNotifier in sync with auth/profile/first-launch state.
     ref.listen(authStateProvider, (_, next) {
-      routingNotifier.update(user: next.valueOrNull);
+      final user = next.valueOrNull;
+      if (user != null) {
+        routingNotifier.setUser(user);
+      } else {
+        routingNotifier.clearUser();
+      }
     });
     ref.listen(currentUserProfileProvider, (_, next) {
       routingNotifier.update(profile: next.valueOrNull);
@@ -169,11 +155,14 @@ class _AppState extends ConsumerState<App> {
           return currentLocale;
         },
         builder: (context, child) {
-          return GestureDetector(
-            onTap: () {
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
-            child: child,
+          return AppLifecycleLaunchCounter(
+            storeProvider: reviewStatsStoreProvider,
+            child: GestureDetector(
+              onTap: () {
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
+              child: child,
+            ),
           );
         },
       ),

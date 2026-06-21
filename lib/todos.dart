@@ -3,9 +3,36 @@
 
 
 
-// supabase secrets set SENDBIRD_API_TOKEN=0912d2d00ea0ee6f01af90248c38bb9f7a6cd375
-// supabase secrets set SENDBIRD_APP_ID=B53BDAEC-AD2C-4BBB-A103-2A4ADD8A63F2
+// Give me a deatils transcript or note on this video so i can fully understand what was being said without missing any revelant detail.
 
+
+
+// insert into app_admins (user_id) values ('<your-auth-user-id>');
+
+
+
+
+// supabase secrets set WHATSAPP_VERIFY_TOKEN=3765b6803b1f283313ae9d7e6708b4fe1cd83103
+
+// remove authIntroSubtitle from localixation
+
+
+// Two manual follow-ups still on the user side
+
+// Submit 3 Meta WhatsApp templates for guest delivery. Worker auto-retries via existing 6h fallback — non-blocking.
+// Manual UAT once you create real test bookings on the dev DB. The trigger fires when a booking goes to confirmed, so the easiest test is: book through the app → wait → check scheduled_notifications for 2 pending rows (24h + 2h).
+
+
+
+
+
+// What's left before launch
+// You (user-action steps):
+
+// Vercel deploy — npx vercel deploy --prod from aura-in-web/, with env vars set in Vercel dashboard (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_MAPBOX_TOKEN)
+// Set a real booking_slug on a shop in the Supabase dashboard SQL editor so you can hit /book/<slug> with a 200
+// Lighthouse Mobile Slow 4G check (target: Performance ≥ 90, FCP <2s, LCP <3s)
+// End-to-end smoke: open the link, pick a service, pay GH₵ X via Paystack test mode, confirm success page shows ≤ 10s
 
 // supabase functions deploy sendbird-auth
 
@@ -17,6 +44,13 @@
 // Website URLs
 // kbmjwicdffpuowymkobo.supabase.co
 // https://kbmjwicdffpuowymkobo.supabase.co/auth/v1/callback
+
+
+
+
+
+
+
 
 
 

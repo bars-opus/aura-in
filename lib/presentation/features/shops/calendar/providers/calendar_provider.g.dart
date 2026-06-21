@@ -26,7 +26,7 @@ final calendarRepositoryProvider =
 // ignore: unused_element
 typedef CalendarRepositoryRef = AutoDisposeProviderRef<CalendarRepository>;
 String _$calendarControllerHash() =>
-    r'8403f1dfdae902223deccfc7ae5a024c92750e83';
+    r'2124be481d324478ac724f3b9b3aef38ab436afa';
 
 /// Copied from Dart SDK
 class _SystemHash {

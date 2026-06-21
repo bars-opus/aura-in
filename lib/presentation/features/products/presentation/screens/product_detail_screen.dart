@@ -305,7 +305,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
                       // Price
                       Text(
-                        Currency.format(product.price),
+                        product.formattedPrice,
                         style: theme.textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: theme.colorScheme.primary,
