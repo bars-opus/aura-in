@@ -176,7 +176,11 @@ final topRatedProductsProvider = FutureProvider<List<ProductModel>>((ref) async 
   final repo = ref.watch(productRepositoryProvider);
   final seed = ref.watch(discoverySeedProvider);
   final selectedCategory = ref.watch(selectedServiceCategoryProvider);
+  // Respect the Buy-tab FilterChipRow category (Hair/Skin/Tools/…). null = All
+  // → no category filter, every category shows in Top Sellers.
+  final category = ref.watch(marketplaceFilterProvider).category;
   return repo.getMarketplaceProducts(
+    category: category,
     sortBy: SortOption.popular,
     limit: 10,
     page: 0,
@@ -192,8 +196,11 @@ final nearYouProductsProvider = FutureProvider<List<ProductModel>>((ref) async {
   final userLocation = ref.watch(userLocationNotifierProvider);
   final radiusKm = ref.watch(searchRadiusKmProvider);
   final selectedCategory = ref.watch(selectedServiceCategoryProvider);
+  // Respect the Buy-tab FilterChipRow category. null = All → no filter.
+  final category = ref.watch(marketplaceFilterProvider).category;
   if (userLocation == null) return const [];
   return repo.getMarketplaceProducts(
+    category: category,
     sortBy: SortOption.discover,
     limit: 10,
     page: 0,
