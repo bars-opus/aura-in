@@ -6262,4 +6262,664 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get docsGroupBookingsFaq14A => 'You have full flexibility! You can pay the remaining 70% in cash (to the shop/worker), via the app individually, or any combination. Some people can pay cash while others use the app for their portion.';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentOverview_title => 'How Payment Works';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentOverview_subtitle => 'Simple, transparent, secure';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentSummary_title => 'Payment at a Glance';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentSummary_content => 'Our payment system is designed to be fair for both clients and shop owners. Here\'s the simple breakdown:';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentSummary_bullet1 => '**30% Deposit:** Paid at booking to secure your appointment';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentSummary_bullet2 => '**Platform Fee:** Small fixed fee (e.g., GHS 2) charged by the app';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentSummary_bullet3 => '**Remaining 70%:** Paid after your service is complete';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentSummary_bullet4 => '**Two Ways to Pay Remaining:** Cash or via app';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentExampleQuick_title => 'Quick Example';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentExampleQuick_content => '**Service cost: GHS 100**\n• At booking: Pay GHS 30 (deposit) + GHS 2 (fee) = GHS 32\n• After service: Pay GHS 70 (cash or app)\n• Total to shop: GHS 100\n• Platform fee: GHS 2';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentImportant_content => 'The platform fee is charged by the app, not the shop. It helps us maintain the platform and provide you with a great booking experience.';
+
+  @override
+  String get docsPaymentFeesExplainedGuestBookingNote_title => 'Guest Booking (No App Download)';
+
+  @override
+  String get docsPaymentFeesExplainedGuestBookingNote_content => 'Don\'t have the app? No problem! You can still book through your provider\'s booking link without creating an account. You pay the same 30% deposit + platform fee, and your receipt is sent to WhatsApp.';
+
+  @override
+  String get docsPaymentFeesExplainedDepositExplained_title => 'The 30% Deposit';
+
+  @override
+  String get docsPaymentFeesExplainedDepositExplained_subtitle => 'Why it\'s needed and how it works';
+
+  @override
+  String get docsPaymentFeesExplainedDepositWhy_title => 'Why Do We Require a Deposit?';
+
+  @override
+  String get docsPaymentFeesExplainedDepositWhy_content => 'The 30% deposit protects both you and the shop:';
+
+  @override
+  String get docsPaymentFeesExplainedDepositWhy_bullet1 => '**For you:** Your slot is guaranteed – no one else can book it';
+
+  @override
+  String get docsPaymentFeesExplainedDepositWhy_bullet2 => '**For the shop:** Workers are compensated if you cancel last minute';
+
+  @override
+  String get docsPaymentFeesExplainedDepositWhy_bullet3 => '**For everyone:** Reduces no-shows, keeping prices fair';
+
+  @override
+  String get docsPaymentFeesExplainedDepositCalculation_title => 'How the Deposit is Calculated';
+
+  @override
+  String get docsPaymentFeesExplainedDepositCalculation_content => 'The deposit is always **30% of the total service cost**. This includes:';
+
+  @override
+  String get docsPaymentFeesExplainedDepositCalculation_bullet1 => '**Single service:** 30% of that service price';
+
+  @override
+  String get docsPaymentFeesExplainedDepositCalculation_bullet2 => '**Multiple services:** 30% of all services combined';
+
+  @override
+  String get docsPaymentFeesExplainedDepositCalculation_bullet3 => '**Group bookings:** 30% of total for all people';
+
+  @override
+  String get docsPaymentFeesExplainedDepositExamples_title => 'Deposit Examples';
+
+  @override
+  String get docsPaymentFeesExplainedDepositExamples_content => '**Single Service:**\n• Haircut (GHS 45) → Deposit GHS 13.50\n\n**Multiple Services:**\n• Haircut (GHS 45) + Beard Trim (GHS 25) = GHS 70 total\n• Deposit: GHS 21\n\n**Group Booking (3 people):**\n• 3 × Haircut (GHS 45 each) = GHS 135 total\n• Deposit: GHS 40.50';
+
+  @override
+  String get docsPaymentFeesExplainedDepositNonRefundable_title => 'Deposit Refund Policy';
+
+  @override
+  String get docsPaymentFeesExplainedDepositNonRefundable_content => 'The 30% deposit is **non-refundable**. This means:';
+
+  @override
+  String get docsPaymentFeesExplainedDepositNonRefundable_bullet1 => '**If you cancel:** Deposit is not returned';
+
+  @override
+  String get docsPaymentFeesExplainedDepositNonRefundable_bullet2 => '**If you don\'t show up:** Deposit is not returned';
+
+  @override
+  String get docsPaymentFeesExplainedDepositNonRefundable_bullet3 => '**If you reschedule:** Deposit transfers to new time';
+
+  @override
+  String get docsPaymentFeesExplainedDepositNonRefundable_bullet4 => '**If shop cancels:** Full deposit refunded';
+
+  @override
+  String get docsPaymentFeesExplainedDepositWarning_content => 'Please be sure about your booking before paying the deposit. While you can reschedule, the deposit cannot be refunded if you cancel.';
+
+  @override
+  String get docsPaymentFeesExplainedPlatformFee_title => 'Platform Fee';
+
+  @override
+  String get docsPaymentFeesExplainedPlatformFee_subtitle => 'The small fee that keeps the app running';
+
+  @override
+  String get docsPaymentFeesExplainedFeeWhat_title => 'What is the Platform Fee?';
+
+  @override
+  String get docsPaymentFeesExplainedFeeWhat_content => 'The platform fee is a small fixed charge (e.g., GHS 2) that goes to the app, not the shop. It covers:';
+
+  @override
+  String get docsPaymentFeesExplainedFeeWhat_bullet1 => '**App development** and maintenance';
+
+  @override
+  String get docsPaymentFeesExplainedFeeWhat_bullet2 => '**Customer support** and dispute resolution';
+
+  @override
+  String get docsPaymentFeesExplainedFeeWhat_bullet3 => '**Payment processing** costs';
+
+  @override
+  String get docsPaymentFeesExplainedFeeWhat_bullet4 => '**New features** and improvements';
+
+  @override
+  String get docsPaymentFeesExplainedFeeHow_title => 'How the Fee is Charged';
+
+  @override
+  String get docsPaymentFeesExplainedFeeHow_content => 'Important things to know about the platform fee:';
+
+  @override
+  String get docsPaymentFeesExplainedFeeHow_bullet1 => '**Fixed amount** (not a percentage) – e.g., GHS 2 per booking';
+
+  @override
+  String get docsPaymentFeesExplainedFeeHow_bullet2 => '**Charged once per booking** – not per service or per person';
+
+  @override
+  String get docsPaymentFeesExplainedFeeHow_bullet3 => '**Non-refundable** – even if you cancel';
+
+  @override
+  String get docsPaymentFeesExplainedFeeHow_bullet4 => '**Clearly shown** before you confirm payment';
+
+  @override
+  String get docsPaymentFeesExplainedFeeExamples_title => 'Platform Fee Examples';
+
+  @override
+  String get docsPaymentFeesExplainedFeeExamples_content => '**Single person, one service:** GHS 2 fee\n**Single person, multiple services:** GHS 2 fee (still one booking!)\n**Family of 4 booking together:** GHS 2 fee (entire group)\n\n**Compare to booking separately:**\n• 4 separate bookings = 4 × GHS 2 = GHS 8 in fees\n• 1 group booking = GHS 2 fee – **you save GHS 6!**';
+
+  @override
+  String get docsPaymentFeesExplainedFeeTip_content => 'Booking as a group saves you money on fees! Instead of paying the platform fee for each person, you pay just one fee for the entire group booking.';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingPayment_title => 'Paying the Remaining 70%';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingPayment_subtitle => 'Two convenient options';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingOverview_title => 'After Your Service';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingOverview_content => 'Once your service is complete, you have two ways to pay the remaining 70%:';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingOverview_bullet1 => '**Option 1: Cash** – Pay the worker or shop directly';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingOverview_bullet2 => '**Option 2: Via App** – Pay through the app using your preferred method';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingCash_title => 'Paying with Cash';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingCash_content => 'If you choose to pay the remaining balance in cash:';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingCash_bullet1 => 'Simply hand the cash to your worker or at the counter';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingCash_bullet2 => 'You\'ll still receive a receipt through the app';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingCash_bullet3 => 'The shop will mark the payment as received';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingCash_bullet4 => 'No additional fees';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingApp_title => 'Paying Through the App';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingApp_content => 'If you prefer to pay via the app:';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingApp_bullet1 => 'Open your booking in \"My Bookings\"';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingApp_bullet2 => 'Tap \"Pay Remaining Balance\"';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingApp_bullet3 => 'Choose your payment method (card, mobile money, etc.)';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingApp_bullet4 => 'Complete payment – instant confirmation';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingApp_bullet5 => 'Receipt saved in the app';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingChoice_title => 'Which Option Should You Choose?';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingChoice_content => '**Choose cash if:** You prefer physical payment, have cash on hand, or want to tip in cash\n\n**Choose app if:** You want a digital record, don\'t carry cash, or prefer using mobile money/cards';
+
+  @override
+  String get docsPaymentFeesExplainedRemainingImportant_content => 'The remaining 70% is paid to the shop, not the platform. No additional platform fee is charged at this stage.';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentTiming_title => 'When Payments Happen';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentTiming_subtitle => 'A timeline of when you pay';
+
+  @override
+  String get docsPaymentFeesExplainedTimelineAtBooking_title => 'At Booking Time';
+
+  @override
+  String get docsPaymentFeesExplainedTimelineAtBooking_content => '**What you pay:**\n• 30% deposit\n• Platform fee (e.g., GHS 2)\n\n**What happens:** Your slot is secured immediately';
+
+  @override
+  String get docsPaymentFeesExplainedTimelineBefore_title => 'Before Appointment';
+
+  @override
+  String get docsPaymentFeesExplainedTimelineBefore_content => '**Nothing to pay** – just show up at your scheduled time!\n\nYou\'ll receive reminders 24 hours and 1 hour before.';
+
+  @override
+  String get docsPaymentFeesExplainedTimelineAfter_title => 'After Service';
+
+  @override
+  String get docsPaymentFeesExplainedTimelineAfter_content => '**What you pay:**\n• Remaining 70% of total cost\n\n**How to pay:**\n• Cash (to worker or shop)\n• Via app (digital payment)';
+
+  @override
+  String get docsPaymentFeesExplainedTimelineSummary_title => 'Payment Summary Example';
+
+  @override
+  String get docsPaymentFeesExplainedTimelineSummary_content => '**Total bill: GHS 200**\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n**At booking:** GHS 60 (deposit) + GHS 2 (fee) = GHS 62\n**After service:** GHS 140 (remaining)\n**Total to shop:** GHS 200\n**Platform fee:** GHS 2';
+
+  @override
+  String get docsPaymentFeesExplainedCancellationRefunds_title => 'Cancellation & Refunds';
+
+  @override
+  String get docsPaymentFeesExplainedCancellationRefunds_subtitle => 'What happens when plans change';
+
+  @override
+  String get docsPaymentFeesExplainedCancelClient_title => 'If You Cancel';
+
+  @override
+  String get docsPaymentFeesExplainedCancelClient_content => '**You cancel more than 24 hours before:**\n• Deposit: ❌ Non-refundable\n• Platform fee: ❌ Non-refundable\n• Remaining 70%: Not charged\n\n**You cancel within 24 hours:**\n• Deposit: ❌ Non-refundable\n• Platform fee: ❌ Non-refundable\n• Remaining 70%: Not charged\n• Note: Last-minute cancellations may affect your account standing';
+
+  @override
+  String get docsPaymentFeesExplainedCancelNoShow_title => 'If You Don\'t Show Up';
+
+  @override
+  String get docsPaymentFeesExplainedCancelNoShow_content => '**No-show policy:**\n• Deposit: ❌ Forfeited\n• Platform fee: ❌ Forfeited\n• Remaining 70%: Not charged\n• Account: Marked as no-show\n• Repeated no-shows may result in account restrictions';
+
+  @override
+  String get docsPaymentFeesExplainedCancelShop_title => 'If the Shop Cancels';
+
+  @override
+  String get docsPaymentFeesExplainedCancelShop_content => '**Shop cancels for any reason:**\n• Deposit: ✅ Full refund\n• Platform fee: ✅ Full refund\n• Remaining 70%: Not applicable\n• You\'ll receive notification and refund automatically';
+
+  @override
+  String get docsPaymentFeesExplainedCancelReschedule_title => 'Rescheduling vs Cancelling';
+
+  @override
+  String get docsPaymentFeesExplainedCancelReschedule_content => '**Rescheduling** (changing time/date):\n• Deposit transfers to new booking\n• Platform fee transfers (no additional fee)\n• Available up to 24 hours before\n\n**Cancelling** (completely):\n• Deposit and fee are forfeited\n• Must rebook and pay deposit again';
+
+  @override
+  String get docsPaymentFeesExplainedCancelTip_content => 'If you can\'t make it, try to reschedule instead of cancelling. Your deposit transfers and you won\'t lose your money!';
+
+  @override
+  String get docsPaymentFeesExplainedGroupPayment_title => 'Payment for Group Bookings';
+
+  @override
+  String get docsPaymentFeesExplainedGroupPayment_subtitle => 'How it works when booking for multiple people';
+
+  @override
+  String get docsPaymentFeesExplainedGroupDeposit_title => 'Deposit for Groups';
+
+  @override
+  String get docsPaymentFeesExplainedGroupDeposit_content => 'For group bookings, the 30% deposit is calculated on the **total cost for everyone**.';
+
+  @override
+  String get docsPaymentFeesExplainedGroupDeposit_bullet1 => '**Example:** 4 people × GHS 50 each = GHS 200 total';
+
+  @override
+  String get docsPaymentFeesExplainedGroupDeposit_bullet2 => '**Deposit:** 30% of GHS 200 = GHS 60';
+
+  @override
+  String get docsPaymentFeesExplainedGroupDeposit_bullet3 => '**Paid by:** One person (the booker)';
+
+  @override
+  String get docsPaymentFeesExplainedGroupFee_title => 'Platform Fee for Groups';
+
+  @override
+  String get docsPaymentFeesExplainedGroupFee_content => '**Great news!** The platform fee is charged **once per booking**, not per person.';
+
+  @override
+  String get docsPaymentFeesExplainedGroupFee_bullet1 => '**Example:** Family of 4 booking together';
+
+  @override
+  String get docsPaymentFeesExplainedGroupFee_bullet2 => '**Fee:** GHS 2 total (not GHS 8)';
+
+  @override
+  String get docsPaymentFeesExplainedGroupFee_bullet3 => '**Savings:** GHS 6 compared to booking separately';
+
+  @override
+  String get docsPaymentFeesExplainedGroupRemaining_title => 'Paying the Remaining 70% for Groups';
+
+  @override
+  String get docsPaymentFeesExplainedGroupRemaining_content => 'After the service, you have flexibility:';
+
+  @override
+  String get docsPaymentFeesExplainedGroupRemaining_bullet1 => '**One person pays all:** Pay total remaining in cash or app';
+
+  @override
+  String get docsPaymentFeesExplainedGroupRemaining_bullet2 => '**Split the bill:** Each person pays their share (cash to shop or individual app payments)';
+
+  @override
+  String get docsPaymentFeesExplainedGroupRemaining_bullet3 => '**Mix and match:** Some pay cash, others use app';
+
+  @override
+  String get docsPaymentFeesExplainedGroupCancellation_title => 'Group Cancellations';
+
+  @override
+  String get docsPaymentFeesExplainedGroupCancellation_content => '**If one person cancels:**\n• Their portion of the deposit is forfeited\n• The rest of the group can proceed\n• Contact shop to adjust\n\n**If entire group cancels:**\n• Full deposit and fee forfeited (standard policy)';
+
+  @override
+  String get docsPaymentFeesExplainedGroupSaving_title => 'Group Savings Example';
+
+  @override
+  String get docsPaymentFeesExplainedGroupSaving_content => '**Family of 4 booking separately vs together:**\n\n**Separate bookings:**\n• 4 × GHS 2 platform fee = GHS 8 in fees\n\n**Group booking:**\n• 1 × GHS 2 platform fee = GHS 2\n• **You save GHS 6!**';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentMethods_title => 'Accepted Payment Methods';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentMethods_subtitle => 'How you can pay';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsDeposit_title => 'For Deposits (at booking)';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsDeposit_content => 'You can pay your deposit using:';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsDeposit_bullet1 => '**Credit/Debit Cards** (Visa, Mastercard, etc.)';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsDeposit_bullet2 => '**Mobile Money** (MTN, Vodafone, AirtelTigo)';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsDeposit_bullet3 => '**Bank Transfers** (instant payment)';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsDeposit_bullet4 => '**Apple Pay / Google Pay** (where available)';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsRemaining_title => 'For Remaining Balance (after service)';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsRemaining_content => 'After your service, you can pay the remaining 70% via:';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsRemaining_bullet1 => '**Cash** (pay directly to worker or shop)';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsRemaining_bullet2 => '**Mobile Money** (send to shop number)';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsRemaining_bullet3 => '**Card** (if shop has card reader)';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsRemaining_bullet4 => '**App Payment** (through the app)';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsSecurity_title => 'Payment Security';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsSecurity_content => 'All payments through the app are:';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsSecurity_bullet1 => '**Encrypted** – your information is safe';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsSecurity_bullet2 => '**PCI compliant** – meets security standards';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsSecurity_bullet3 => '**Protected** – fraud monitoring in place';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsSecurity_bullet4 => '**Receipt provided** – digital record of every payment';
+
+  @override
+  String get docsPaymentFeesExplainedMethodsTip_content => 'Save your payment details in the app for faster checkout next time!';
+
+  @override
+  String get docsPaymentFeesExplainedGuestBookings_title => 'Guest Bookings (No App Download)';
+
+  @override
+  String get docsPaymentFeesExplainedGuestBookings_subtitle => 'Book without creating an account';
+
+  @override
+  String get docsPaymentFeesExplainedGuestWhat_title => 'What is a Guest Booking?';
+
+  @override
+  String get docsPaymentFeesExplainedGuestWhat_content => 'A guest booking lets you reserve an appointment without downloading the app or creating an account. Your provider shares a link – you click it and book directly.';
+
+  @override
+  String get docsPaymentFeesExplainedGuestPayment_title => 'How Guest Booking Payment Works';
+
+  @override
+  String get docsPaymentFeesExplainedGuestPayment_content => 'Guest bookings follow the same payment model as app bookings:';
+
+  @override
+  String get docsPaymentFeesExplainedGuestPayment_bullet1 => '**30% Deposit** – Pay upfront to secure your slot';
+
+  @override
+  String get docsPaymentFeesExplainedGuestPayment_bullet2 => '**Platform Fee** – Small fixed fee added to deposit';
+
+  @override
+  String get docsPaymentFeesExplainedGuestPayment_bullet3 => '**70% Balance** – Pay cash or online after service';
+
+  @override
+  String get docsPaymentFeesExplainedGuestWhatsapp_title => 'Booking Details via WhatsApp';
+
+  @override
+  String get docsPaymentFeesExplainedGuestWhatsapp_content => 'Once you complete your guest booking, your appointment details and payment receipt are sent to your WhatsApp. This way you can track everything without the app.';
+
+  @override
+  String get docsPaymentFeesExplainedGuestBenefits_title => 'Why Book as a Guest?';
+
+  @override
+  String get docsPaymentFeesExplainedGuestBenefits_content => 'Guest bookings are perfect if:';
+
+  @override
+  String get docsPaymentFeesExplainedGuestBenefits_bullet1 => 'You don\'t want to download another app';
+
+  @override
+  String get docsPaymentFeesExplainedGuestBenefits_bullet2 => 'You\'re booking for a one-time appointment';
+
+  @override
+  String get docsPaymentFeesExplainedGuestBenefits_bullet3 => 'You prefer simple, hassle-free booking';
+
+  @override
+  String get docsPaymentFeesExplainedGuestBenefits_bullet4 => 'Your provider shared a direct link with you';
+
+  @override
+  String get docsPaymentFeesExplainedGuestConvert_title => 'Convert Guest to Account';
+
+  @override
+  String get docsPaymentFeesExplainedGuestConvert_content => 'If you make multiple bookings, you can create a full account anytime to access your booking history, saved payments, and loyalty benefits.';
+
+  @override
+  String get docsPaymentFeesExplainedReceipts_title => 'Receipts & Records';
+
+  @override
+  String get docsPaymentFeesExplainedReceipts_subtitle => 'Keeping track of your payments';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptWhat_title => 'What You\'ll Receive';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptWhat_content => 'For every payment, you\'ll get:';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptWhat_bullet1 => '**Booking confirmation receipt** (at booking)';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptWhat_bullet2 => '**Deposit payment receipt** (immediate)';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptWhat_bullet3 => '**Final payment receipt** (after service)';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptWhat_bullet4 => '**Email copy** sent to your registered email';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptWhat_bullet5 => '**In-app record** in \"My Bookings\"';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptInfo_title => 'What\'s on Your Receipt';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptInfo_content => 'Each receipt shows:';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptInfo_bullet1 => '**Shop name** and location';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptInfo_bullet2 => '**Services booked** with quantities';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptInfo_bullet3 => '**Workers assigned**';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptInfo_bullet4 => '**Date and time** of appointment';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptInfo_bullet5 => '**Amount paid** (deposit/fee/remaining)';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptInfo_bullet6 => '**Payment method** used';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptInfo_bullet7 => '**Transaction reference** number';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptAccess_title => 'How to Access Receipts';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptAccess_content => 'To view your payment history:';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptAccess_bullet1 => 'Go to **Profile** tab';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptAccess_bullet2 => 'Tap **Payment History**';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptAccess_bullet3 => 'See all transactions';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptAccess_bullet4 => 'Tap any receipt to view details';
+
+  @override
+  String get docsPaymentFeesExplainedReceiptAccess_bullet5 => 'Share or download as PDF';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentFAQ_title => 'Common Payment Questions';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentFAQ_subtitle => 'Quick answers';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentFAQ1_title => 'Is the deposit really non-refundable?';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentFAQ1_content => 'Yes, the 30% deposit is non-refundable by policy. This protects workers\' time and discourages last-minute cancellations. The only exception is if the shop cancels on you.';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentFAQ2_title => 'Why a deposit instead of full payment?';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentFAQ2_content => 'The deposit system is designed to be fair to everyone:\n• **You:** Only pay 30% upfront, not the full amount\n• **Shop:** Gets some compensation if you cancel\n• **Workers:** Time is valued and protected';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentFAQ3_title => 'Can I pay the full amount upfront?';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentFAQ3_content => 'Currently, we only collect the 30% deposit at booking. The remaining 70% is paid after service to ensure you\'re happy with the result before paying in full.';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentFAQ4_title => 'What if I want to add a tip?';
+
+  @override
+  String get docsPaymentFeesExplainedPaymentFAQ4_content => 'Great question! Tips can be added when paying the remaining 70% via the app, or you can tip in cash directly to your worker. 100% of tips go to the worker.';
+
+  @override
+  String get docsPaymentFeesExplainedFaq1Q => 'Why is the deposit non-refundable?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq1A => 'The deposit compensates workers for holding time exclusively for you. When you book a slot, that time can\'t be sold to someone else. The deposit policy discourages last-minute cancellations and no-shows, which helps keep prices fair for everyone.';
+
+  @override
+  String get docsPaymentFeesExplainedFaq2Q => 'What exactly is the platform fee for?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq2A => 'The platform fee (e.g., GHS 2) helps us maintain the app, provide customer support, process payments securely, and develop new features. It\'s a small fixed fee that keeps the platform running smoothly for both clients and shops.';
+
+  @override
+  String get docsPaymentFeesExplainedFaq3Q => 'Can I really pay the remaining amount in cash?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq3A => 'Yes! Many shops accept cash for the remaining 70%. You can also choose to pay through the app if you prefer digital payments. The choice is yours at the time of service.';
+
+  @override
+  String get docsPaymentFeesExplainedFaq4Q => 'How is the platform fee calculated for groups?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq4A => 'The platform fee is charged **once per booking**, not per person. So if you book for a family of 4, you pay just one GHS 2 fee instead of four separate fees. This makes group bookings more economical!';
+
+  @override
+  String get docsPaymentFeesExplainedFaq5Q => 'When would I get a refund?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq5A => 'Refunds are issued only if the shop cancels your booking. In that case, both your deposit and platform fee are fully refunded. If you cancel, the deposit and fee are non-refundable by policy.';
+
+  @override
+  String get docsPaymentFeesExplainedFaq6Q => 'What payment methods are accepted?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq6A => 'For deposits: Credit/debit cards, mobile money, bank transfers, and digital wallets. For remaining balance: Cash or any of the digital methods through the app. Available options may vary by region.';
+
+  @override
+  String get docsPaymentFeesExplainedFaq7Q => 'How do I tip my worker?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq7A => 'You can tip your worker in two ways:\n1. **Cash:** Give directly to your worker after service\n2. **Via App:** Add a tip when paying the remaining 70%\n\n100% of tips go directly to your worker!';
+
+  @override
+  String get docsPaymentFeesExplainedFaq8Q => 'How do I get a receipt?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq8A => 'Receipts are automatically generated and sent to your email. You can also access all receipts in the app under Profile → Payment History. Each receipt shows full details of your transaction.';
+
+  @override
+  String get docsPaymentFeesExplainedFaq9Q => 'Can we split the bill for group bookings?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq9A => 'Yes! For group bookings, you can split the remaining 70% however you like:\n• One person pays all (cash or app)\n• Each person pays their share (cash to shop)\n• Mix of cash and app payments\n\nThe deposit is paid by the person making the booking.';
+
+  @override
+  String get docsPaymentFeesExplainedFaq10Q => 'What if I have an emergency and can\'t make it?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq10A => 'We understand emergencies happen. While the deposit is officially non-refundable, you can contact the shop directly through the app. Some shops may offer credit toward a future booking at their discretion. The platform fee cannot be refunded.';
+
+  @override
+  String get docsPaymentFeesExplainedFaq11Q => 'Can I save my payment details for faster booking?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq11A => 'Yes! In your Profile settings, you can save payment methods securely. This makes future bookings faster – just confirm and pay with one tap. Your information is encrypted and stored securely.';
+
+  @override
+  String get docsPaymentFeesExplainedFaq12Q => 'Is my payment information secure?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq12A => 'Absolutely. All payments are processed through secure, PCI-compliant gateways. Your payment details are encrypted and never stored in plain text. We use industry-standard security measures to protect your information.';
+
+  @override
+  String get docsPaymentFeesExplainedFaq13Q => 'What is a guest booking and do I need an account?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq13A => 'A guest booking lets you reserve through a provider\'s shared link without downloading the app or creating an account. You pay the same 30% deposit + platform fee, and your receipt is sent to WhatsApp.';
+
+  @override
+  String get docsPaymentFeesExplainedFaq14Q => 'How do I get my booking details if I book as a guest?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq14A => 'Your appointment details, payment receipt, and reminders are sent to your WhatsApp. You can access everything there without downloading the app.';
+
+  @override
+  String get docsPaymentFeesExplainedFaq15Q => 'Can I convert my guest booking to a full account?';
+
+  @override
+  String get docsPaymentFeesExplainedFaq15A => 'Yes! After booking as a guest, you can create a full account anytime to access your booking history, saved payments, and other features like loyalty rewards.';
 }

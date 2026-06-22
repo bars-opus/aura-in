@@ -12222,6 +12222,1326 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have full flexibility! You can pay the remaining 70% in cash (to the shop/worker), via the app individually, or any combination. Some people can pay cash while others use the app for their portion.'**
   String get docsGroupBookingsFaq14A;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentOverview_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How Payment Works'**
+  String get docsPaymentFeesExplainedPaymentOverview_title;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentOverview_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple, transparent, secure'**
+  String get docsPaymentFeesExplainedPaymentOverview_subtitle;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentSummary_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment at a Glance'**
+  String get docsPaymentFeesExplainedPaymentSummary_title;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentSummary_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Our payment system is designed to be fair for both clients and shop owners. Here\'s the simple breakdown:'**
+  String get docsPaymentFeesExplainedPaymentSummary_content;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentSummary_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**30% Deposit:** Paid at booking to secure your appointment'**
+  String get docsPaymentFeesExplainedPaymentSummary_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentSummary_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Platform Fee:** Small fixed fee (e.g., GHS 2) charged by the app'**
+  String get docsPaymentFeesExplainedPaymentSummary_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentSummary_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Remaining 70%:** Paid after your service is complete'**
+  String get docsPaymentFeesExplainedPaymentSummary_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentSummary_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Two Ways to Pay Remaining:** Cash or via app'**
+  String get docsPaymentFeesExplainedPaymentSummary_bullet4;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentExampleQuick_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Example'**
+  String get docsPaymentFeesExplainedPaymentExampleQuick_title;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentExampleQuick_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Service cost: GHS 100**\n• At booking: Pay GHS 30 (deposit) + GHS 2 (fee) = GHS 32\n• After service: Pay GHS 70 (cash or app)\n• Total to shop: GHS 100\n• Platform fee: GHS 2'**
+  String get docsPaymentFeesExplainedPaymentExampleQuick_content;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentImportant_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The platform fee is charged by the app, not the shop. It helps us maintain the platform and provide you with a great booking experience.'**
+  String get docsPaymentFeesExplainedPaymentImportant_content;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestBookingNote_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest Booking (No App Download)'**
+  String get docsPaymentFeesExplainedGuestBookingNote_title;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestBookingNote_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have the app? No problem! You can still book through your provider\'s booking link without creating an account. You pay the same 30% deposit + platform fee, and your receipt is sent to WhatsApp.'**
+  String get docsPaymentFeesExplainedGuestBookingNote_content;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositExplained_title.
+  ///
+  /// In en, this message translates to:
+  /// **'The 30% Deposit'**
+  String get docsPaymentFeesExplainedDepositExplained_title;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositExplained_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why it\'s needed and how it works'**
+  String get docsPaymentFeesExplainedDepositExplained_subtitle;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositWhy_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Why Do We Require a Deposit?'**
+  String get docsPaymentFeesExplainedDepositWhy_title;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositWhy_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The 30% deposit protects both you and the shop:'**
+  String get docsPaymentFeesExplainedDepositWhy_content;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositWhy_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**For you:** Your slot is guaranteed – no one else can book it'**
+  String get docsPaymentFeesExplainedDepositWhy_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositWhy_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**For the shop:** Workers are compensated if you cancel last minute'**
+  String get docsPaymentFeesExplainedDepositWhy_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositWhy_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**For everyone:** Reduces no-shows, keeping prices fair'**
+  String get docsPaymentFeesExplainedDepositWhy_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositCalculation_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How the Deposit is Calculated'**
+  String get docsPaymentFeesExplainedDepositCalculation_title;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositCalculation_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The deposit is always **30% of the total service cost**. This includes:'**
+  String get docsPaymentFeesExplainedDepositCalculation_content;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositCalculation_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Single service:** 30% of that service price'**
+  String get docsPaymentFeesExplainedDepositCalculation_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositCalculation_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Multiple services:** 30% of all services combined'**
+  String get docsPaymentFeesExplainedDepositCalculation_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositCalculation_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Group bookings:** 30% of total for all people'**
+  String get docsPaymentFeesExplainedDepositCalculation_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositExamples_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit Examples'**
+  String get docsPaymentFeesExplainedDepositExamples_title;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositExamples_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Single Service:**\n• Haircut (GHS 45) → Deposit GHS 13.50\n\n**Multiple Services:**\n• Haircut (GHS 45) + Beard Trim (GHS 25) = GHS 70 total\n• Deposit: GHS 21\n\n**Group Booking (3 people):**\n• 3 × Haircut (GHS 45 each) = GHS 135 total\n• Deposit: GHS 40.50'**
+  String get docsPaymentFeesExplainedDepositExamples_content;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositNonRefundable_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit Refund Policy'**
+  String get docsPaymentFeesExplainedDepositNonRefundable_title;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositNonRefundable_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The 30% deposit is **non-refundable**. This means:'**
+  String get docsPaymentFeesExplainedDepositNonRefundable_content;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositNonRefundable_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**If you cancel:** Deposit is not returned'**
+  String get docsPaymentFeesExplainedDepositNonRefundable_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositNonRefundable_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**If you don\'t show up:** Deposit is not returned'**
+  String get docsPaymentFeesExplainedDepositNonRefundable_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositNonRefundable_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**If you reschedule:** Deposit transfers to new time'**
+  String get docsPaymentFeesExplainedDepositNonRefundable_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositNonRefundable_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**If shop cancels:** Full deposit refunded'**
+  String get docsPaymentFeesExplainedDepositNonRefundable_bullet4;
+
+  /// No description provided for @docsPaymentFeesExplainedDepositWarning_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Please be sure about your booking before paying the deposit. While you can reschedule, the deposit cannot be refunded if you cancel.'**
+  String get docsPaymentFeesExplainedDepositWarning_content;
+
+  /// No description provided for @docsPaymentFeesExplainedPlatformFee_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Fee'**
+  String get docsPaymentFeesExplainedPlatformFee_title;
+
+  /// No description provided for @docsPaymentFeesExplainedPlatformFee_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The small fee that keeps the app running'**
+  String get docsPaymentFeesExplainedPlatformFee_subtitle;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeWhat_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What is the Platform Fee?'**
+  String get docsPaymentFeesExplainedFeeWhat_title;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeWhat_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The platform fee is a small fixed charge (e.g., GHS 2) that goes to the app, not the shop. It covers:'**
+  String get docsPaymentFeesExplainedFeeWhat_content;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeWhat_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**App development** and maintenance'**
+  String get docsPaymentFeesExplainedFeeWhat_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeWhat_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Customer support** and dispute resolution'**
+  String get docsPaymentFeesExplainedFeeWhat_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeWhat_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Payment processing** costs'**
+  String get docsPaymentFeesExplainedFeeWhat_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeWhat_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**New features** and improvements'**
+  String get docsPaymentFeesExplainedFeeWhat_bullet4;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeHow_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How the Fee is Charged'**
+  String get docsPaymentFeesExplainedFeeHow_title;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeHow_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Important things to know about the platform fee:'**
+  String get docsPaymentFeesExplainedFeeHow_content;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeHow_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Fixed amount** (not a percentage) – e.g., GHS 2 per booking'**
+  String get docsPaymentFeesExplainedFeeHow_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeHow_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Charged once per booking** – not per service or per person'**
+  String get docsPaymentFeesExplainedFeeHow_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeHow_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Non-refundable** – even if you cancel'**
+  String get docsPaymentFeesExplainedFeeHow_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeHow_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Clearly shown** before you confirm payment'**
+  String get docsPaymentFeesExplainedFeeHow_bullet4;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeExamples_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Fee Examples'**
+  String get docsPaymentFeesExplainedFeeExamples_title;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeExamples_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Single person, one service:** GHS 2 fee\n**Single person, multiple services:** GHS 2 fee (still one booking!)\n**Family of 4 booking together:** GHS 2 fee (entire group)\n\n**Compare to booking separately:**\n• 4 separate bookings = 4 × GHS 2 = GHS 8 in fees\n• 1 group booking = GHS 2 fee – **you save GHS 6!**'**
+  String get docsPaymentFeesExplainedFeeExamples_content;
+
+  /// No description provided for @docsPaymentFeesExplainedFeeTip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking as a group saves you money on fees! Instead of paying the platform fee for each person, you pay just one fee for the entire group booking.'**
+  String get docsPaymentFeesExplainedFeeTip_content;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingPayment_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Paying the Remaining 70%'**
+  String get docsPaymentFeesExplainedRemainingPayment_title;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingPayment_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Two convenient options'**
+  String get docsPaymentFeesExplainedRemainingPayment_subtitle;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingOverview_title.
+  ///
+  /// In en, this message translates to:
+  /// **'After Your Service'**
+  String get docsPaymentFeesExplainedRemainingOverview_title;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingOverview_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Once your service is complete, you have two ways to pay the remaining 70%:'**
+  String get docsPaymentFeesExplainedRemainingOverview_content;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingOverview_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Option 1: Cash** – Pay the worker or shop directly'**
+  String get docsPaymentFeesExplainedRemainingOverview_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingOverview_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Option 2: Via App** – Pay through the app using your preferred method'**
+  String get docsPaymentFeesExplainedRemainingOverview_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingCash_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Paying with Cash'**
+  String get docsPaymentFeesExplainedRemainingCash_title;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingCash_content.
+  ///
+  /// In en, this message translates to:
+  /// **'If you choose to pay the remaining balance in cash:'**
+  String get docsPaymentFeesExplainedRemainingCash_content;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingCash_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Simply hand the cash to your worker or at the counter'**
+  String get docsPaymentFeesExplainedRemainingCash_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingCash_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll still receive a receipt through the app'**
+  String get docsPaymentFeesExplainedRemainingCash_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingCash_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop will mark the payment as received'**
+  String get docsPaymentFeesExplainedRemainingCash_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingCash_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'No additional fees'**
+  String get docsPaymentFeesExplainedRemainingCash_bullet4;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingApp_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Paying Through the App'**
+  String get docsPaymentFeesExplainedRemainingApp_title;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingApp_content.
+  ///
+  /// In en, this message translates to:
+  /// **'If you prefer to pay via the app:'**
+  String get docsPaymentFeesExplainedRemainingApp_content;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingApp_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Open your booking in \"My Bookings\"'**
+  String get docsPaymentFeesExplainedRemainingApp_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingApp_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \"Pay Remaining Balance\"'**
+  String get docsPaymentFeesExplainedRemainingApp_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingApp_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your payment method (card, mobile money, etc.)'**
+  String get docsPaymentFeesExplainedRemainingApp_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingApp_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete payment – instant confirmation'**
+  String get docsPaymentFeesExplainedRemainingApp_bullet4;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingApp_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt saved in the app'**
+  String get docsPaymentFeesExplainedRemainingApp_bullet5;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingChoice_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Which Option Should You Choose?'**
+  String get docsPaymentFeesExplainedRemainingChoice_title;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingChoice_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Choose cash if:** You prefer physical payment, have cash on hand, or want to tip in cash\n\n**Choose app if:** You want a digital record, don\'t carry cash, or prefer using mobile money/cards'**
+  String get docsPaymentFeesExplainedRemainingChoice_content;
+
+  /// No description provided for @docsPaymentFeesExplainedRemainingImportant_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The remaining 70% is paid to the shop, not the platform. No additional platform fee is charged at this stage.'**
+  String get docsPaymentFeesExplainedRemainingImportant_content;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentTiming_title.
+  ///
+  /// In en, this message translates to:
+  /// **'When Payments Happen'**
+  String get docsPaymentFeesExplainedPaymentTiming_title;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentTiming_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A timeline of when you pay'**
+  String get docsPaymentFeesExplainedPaymentTiming_subtitle;
+
+  /// No description provided for @docsPaymentFeesExplainedTimelineAtBooking_title.
+  ///
+  /// In en, this message translates to:
+  /// **'At Booking Time'**
+  String get docsPaymentFeesExplainedTimelineAtBooking_title;
+
+  /// No description provided for @docsPaymentFeesExplainedTimelineAtBooking_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**What you pay:**\n• 30% deposit\n• Platform fee (e.g., GHS 2)\n\n**What happens:** Your slot is secured immediately'**
+  String get docsPaymentFeesExplainedTimelineAtBooking_content;
+
+  /// No description provided for @docsPaymentFeesExplainedTimelineBefore_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Before Appointment'**
+  String get docsPaymentFeesExplainedTimelineBefore_title;
+
+  /// No description provided for @docsPaymentFeesExplainedTimelineBefore_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Nothing to pay** – just show up at your scheduled time!\n\nYou\'ll receive reminders 24 hours and 1 hour before.'**
+  String get docsPaymentFeesExplainedTimelineBefore_content;
+
+  /// No description provided for @docsPaymentFeesExplainedTimelineAfter_title.
+  ///
+  /// In en, this message translates to:
+  /// **'After Service'**
+  String get docsPaymentFeesExplainedTimelineAfter_title;
+
+  /// No description provided for @docsPaymentFeesExplainedTimelineAfter_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**What you pay:**\n• Remaining 70% of total cost\n\n**How to pay:**\n• Cash (to worker or shop)\n• Via app (digital payment)'**
+  String get docsPaymentFeesExplainedTimelineAfter_content;
+
+  /// No description provided for @docsPaymentFeesExplainedTimelineSummary_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Summary Example'**
+  String get docsPaymentFeesExplainedTimelineSummary_title;
+
+  /// No description provided for @docsPaymentFeesExplainedTimelineSummary_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Total bill: GHS 200**\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n**At booking:** GHS 60 (deposit) + GHS 2 (fee) = GHS 62\n**After service:** GHS 140 (remaining)\n**Total to shop:** GHS 200\n**Platform fee:** GHS 2'**
+  String get docsPaymentFeesExplainedTimelineSummary_content;
+
+  /// No description provided for @docsPaymentFeesExplainedCancellationRefunds_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancellation & Refunds'**
+  String get docsPaymentFeesExplainedCancellationRefunds_title;
+
+  /// No description provided for @docsPaymentFeesExplainedCancellationRefunds_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What happens when plans change'**
+  String get docsPaymentFeesExplainedCancellationRefunds_subtitle;
+
+  /// No description provided for @docsPaymentFeesExplainedCancelClient_title.
+  ///
+  /// In en, this message translates to:
+  /// **'If You Cancel'**
+  String get docsPaymentFeesExplainedCancelClient_title;
+
+  /// No description provided for @docsPaymentFeesExplainedCancelClient_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**You cancel more than 24 hours before:**\n• Deposit: ❌ Non-refundable\n• Platform fee: ❌ Non-refundable\n• Remaining 70%: Not charged\n\n**You cancel within 24 hours:**\n• Deposit: ❌ Non-refundable\n• Platform fee: ❌ Non-refundable\n• Remaining 70%: Not charged\n• Note: Last-minute cancellations may affect your account standing'**
+  String get docsPaymentFeesExplainedCancelClient_content;
+
+  /// No description provided for @docsPaymentFeesExplainedCancelNoShow_title.
+  ///
+  /// In en, this message translates to:
+  /// **'If You Don\'t Show Up'**
+  String get docsPaymentFeesExplainedCancelNoShow_title;
+
+  /// No description provided for @docsPaymentFeesExplainedCancelNoShow_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**No-show policy:**\n• Deposit: ❌ Forfeited\n• Platform fee: ❌ Forfeited\n• Remaining 70%: Not charged\n• Account: Marked as no-show\n• Repeated no-shows may result in account restrictions'**
+  String get docsPaymentFeesExplainedCancelNoShow_content;
+
+  /// No description provided for @docsPaymentFeesExplainedCancelShop_title.
+  ///
+  /// In en, this message translates to:
+  /// **'If the Shop Cancels'**
+  String get docsPaymentFeesExplainedCancelShop_title;
+
+  /// No description provided for @docsPaymentFeesExplainedCancelShop_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Shop cancels for any reason:**\n• Deposit: ✅ Full refund\n• Platform fee: ✅ Full refund\n• Remaining 70%: Not applicable\n• You\'ll receive notification and refund automatically'**
+  String get docsPaymentFeesExplainedCancelShop_content;
+
+  /// No description provided for @docsPaymentFeesExplainedCancelReschedule_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Rescheduling vs Cancelling'**
+  String get docsPaymentFeesExplainedCancelReschedule_title;
+
+  /// No description provided for @docsPaymentFeesExplainedCancelReschedule_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Rescheduling** (changing time/date):\n• Deposit transfers to new booking\n• Platform fee transfers (no additional fee)\n• Available up to 24 hours before\n\n**Cancelling** (completely):\n• Deposit and fee are forfeited\n• Must rebook and pay deposit again'**
+  String get docsPaymentFeesExplainedCancelReschedule_content;
+
+  /// No description provided for @docsPaymentFeesExplainedCancelTip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'If you can\'t make it, try to reschedule instead of cancelling. Your deposit transfers and you won\'t lose your money!'**
+  String get docsPaymentFeesExplainedCancelTip_content;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupPayment_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment for Group Bookings'**
+  String get docsPaymentFeesExplainedGroupPayment_title;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupPayment_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works when booking for multiple people'**
+  String get docsPaymentFeesExplainedGroupPayment_subtitle;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupDeposit_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit for Groups'**
+  String get docsPaymentFeesExplainedGroupDeposit_title;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupDeposit_content.
+  ///
+  /// In en, this message translates to:
+  /// **'For group bookings, the 30% deposit is calculated on the **total cost for everyone**.'**
+  String get docsPaymentFeesExplainedGroupDeposit_content;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupDeposit_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Example:** 4 people × GHS 50 each = GHS 200 total'**
+  String get docsPaymentFeesExplainedGroupDeposit_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupDeposit_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Deposit:** 30% of GHS 200 = GHS 60'**
+  String get docsPaymentFeesExplainedGroupDeposit_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupDeposit_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Paid by:** One person (the booker)'**
+  String get docsPaymentFeesExplainedGroupDeposit_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupFee_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Fee for Groups'**
+  String get docsPaymentFeesExplainedGroupFee_title;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupFee_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Great news!** The platform fee is charged **once per booking**, not per person.'**
+  String get docsPaymentFeesExplainedGroupFee_content;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupFee_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Example:** Family of 4 booking together'**
+  String get docsPaymentFeesExplainedGroupFee_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupFee_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Fee:** GHS 2 total (not GHS 8)'**
+  String get docsPaymentFeesExplainedGroupFee_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupFee_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Savings:** GHS 6 compared to booking separately'**
+  String get docsPaymentFeesExplainedGroupFee_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupRemaining_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Paying the Remaining 70% for Groups'**
+  String get docsPaymentFeesExplainedGroupRemaining_title;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupRemaining_content.
+  ///
+  /// In en, this message translates to:
+  /// **'After the service, you have flexibility:'**
+  String get docsPaymentFeesExplainedGroupRemaining_content;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupRemaining_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**One person pays all:** Pay total remaining in cash or app'**
+  String get docsPaymentFeesExplainedGroupRemaining_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupRemaining_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Split the bill:** Each person pays their share (cash to shop or individual app payments)'**
+  String get docsPaymentFeesExplainedGroupRemaining_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupRemaining_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Mix and match:** Some pay cash, others use app'**
+  String get docsPaymentFeesExplainedGroupRemaining_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupCancellation_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Cancellations'**
+  String get docsPaymentFeesExplainedGroupCancellation_title;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupCancellation_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**If one person cancels:**\n• Their portion of the deposit is forfeited\n• The rest of the group can proceed\n• Contact shop to adjust\n\n**If entire group cancels:**\n• Full deposit and fee forfeited (standard policy)'**
+  String get docsPaymentFeesExplainedGroupCancellation_content;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupSaving_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Savings Example'**
+  String get docsPaymentFeesExplainedGroupSaving_title;
+
+  /// No description provided for @docsPaymentFeesExplainedGroupSaving_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Family of 4 booking separately vs together:**\n\n**Separate bookings:**\n• 4 × GHS 2 platform fee = GHS 8 in fees\n\n**Group booking:**\n• 1 × GHS 2 platform fee = GHS 2\n• **You save GHS 6!**'**
+  String get docsPaymentFeesExplainedGroupSaving_content;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentMethods_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted Payment Methods'**
+  String get docsPaymentFeesExplainedPaymentMethods_title;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentMethods_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How you can pay'**
+  String get docsPaymentFeesExplainedPaymentMethods_subtitle;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsDeposit_title.
+  ///
+  /// In en, this message translates to:
+  /// **'For Deposits (at booking)'**
+  String get docsPaymentFeesExplainedMethodsDeposit_title;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsDeposit_content.
+  ///
+  /// In en, this message translates to:
+  /// **'You can pay your deposit using:'**
+  String get docsPaymentFeesExplainedMethodsDeposit_content;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsDeposit_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Credit/Debit Cards** (Visa, Mastercard, etc.)'**
+  String get docsPaymentFeesExplainedMethodsDeposit_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsDeposit_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Mobile Money** (MTN, Vodafone, AirtelTigo)'**
+  String get docsPaymentFeesExplainedMethodsDeposit_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsDeposit_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Bank Transfers** (instant payment)'**
+  String get docsPaymentFeesExplainedMethodsDeposit_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsDeposit_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Apple Pay / Google Pay** (where available)'**
+  String get docsPaymentFeesExplainedMethodsDeposit_bullet4;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsRemaining_title.
+  ///
+  /// In en, this message translates to:
+  /// **'For Remaining Balance (after service)'**
+  String get docsPaymentFeesExplainedMethodsRemaining_title;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsRemaining_content.
+  ///
+  /// In en, this message translates to:
+  /// **'After your service, you can pay the remaining 70% via:'**
+  String get docsPaymentFeesExplainedMethodsRemaining_content;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsRemaining_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Cash** (pay directly to worker or shop)'**
+  String get docsPaymentFeesExplainedMethodsRemaining_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsRemaining_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Mobile Money** (send to shop number)'**
+  String get docsPaymentFeesExplainedMethodsRemaining_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsRemaining_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Card** (if shop has card reader)'**
+  String get docsPaymentFeesExplainedMethodsRemaining_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsRemaining_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**App Payment** (through the app)'**
+  String get docsPaymentFeesExplainedMethodsRemaining_bullet4;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsSecurity_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Security'**
+  String get docsPaymentFeesExplainedMethodsSecurity_title;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsSecurity_content.
+  ///
+  /// In en, this message translates to:
+  /// **'All payments through the app are:'**
+  String get docsPaymentFeesExplainedMethodsSecurity_content;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsSecurity_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Encrypted** – your information is safe'**
+  String get docsPaymentFeesExplainedMethodsSecurity_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsSecurity_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**PCI compliant** – meets security standards'**
+  String get docsPaymentFeesExplainedMethodsSecurity_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsSecurity_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Protected** – fraud monitoring in place'**
+  String get docsPaymentFeesExplainedMethodsSecurity_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsSecurity_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Receipt provided** – digital record of every payment'**
+  String get docsPaymentFeesExplainedMethodsSecurity_bullet4;
+
+  /// No description provided for @docsPaymentFeesExplainedMethodsTip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your payment details in the app for faster checkout next time!'**
+  String get docsPaymentFeesExplainedMethodsTip_content;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestBookings_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest Bookings (No App Download)'**
+  String get docsPaymentFeesExplainedGuestBookings_title;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestBookings_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Book without creating an account'**
+  String get docsPaymentFeesExplainedGuestBookings_subtitle;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestWhat_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What is a Guest Booking?'**
+  String get docsPaymentFeesExplainedGuestWhat_title;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestWhat_content.
+  ///
+  /// In en, this message translates to:
+  /// **'A guest booking lets you reserve an appointment without downloading the app or creating an account. Your provider shares a link – you click it and book directly.'**
+  String get docsPaymentFeesExplainedGuestWhat_content;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestPayment_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How Guest Booking Payment Works'**
+  String get docsPaymentFeesExplainedGuestPayment_title;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestPayment_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest bookings follow the same payment model as app bookings:'**
+  String get docsPaymentFeesExplainedGuestPayment_content;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestPayment_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**30% Deposit** – Pay upfront to secure your slot'**
+  String get docsPaymentFeesExplainedGuestPayment_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestPayment_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Platform Fee** – Small fixed fee added to deposit'**
+  String get docsPaymentFeesExplainedGuestPayment_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestPayment_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**70% Balance** – Pay cash or online after service'**
+  String get docsPaymentFeesExplainedGuestPayment_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestWhatsapp_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking Details via WhatsApp'**
+  String get docsPaymentFeesExplainedGuestWhatsapp_title;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestWhatsapp_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Once you complete your guest booking, your appointment details and payment receipt are sent to your WhatsApp. This way you can track everything without the app.'**
+  String get docsPaymentFeesExplainedGuestWhatsapp_content;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestBenefits_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Why Book as a Guest?'**
+  String get docsPaymentFeesExplainedGuestBenefits_title;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestBenefits_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest bookings are perfect if:'**
+  String get docsPaymentFeesExplainedGuestBenefits_content;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestBenefits_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t want to download another app'**
+  String get docsPaymentFeesExplainedGuestBenefits_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestBenefits_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re booking for a one-time appointment'**
+  String get docsPaymentFeesExplainedGuestBenefits_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestBenefits_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'You prefer simple, hassle-free booking'**
+  String get docsPaymentFeesExplainedGuestBenefits_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestBenefits_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Your provider shared a direct link with you'**
+  String get docsPaymentFeesExplainedGuestBenefits_bullet4;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestConvert_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert Guest to Account'**
+  String get docsPaymentFeesExplainedGuestConvert_title;
+
+  /// No description provided for @docsPaymentFeesExplainedGuestConvert_content.
+  ///
+  /// In en, this message translates to:
+  /// **'If you make multiple bookings, you can create a full account anytime to access your booking history, saved payments, and loyalty benefits.'**
+  String get docsPaymentFeesExplainedGuestConvert_content;
+
+  /// No description provided for @docsPaymentFeesExplainedReceipts_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts & Records'**
+  String get docsPaymentFeesExplainedReceipts_title;
+
+  /// No description provided for @docsPaymentFeesExplainedReceipts_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeping track of your payments'**
+  String get docsPaymentFeesExplainedReceipts_subtitle;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptWhat_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What You\'ll Receive'**
+  String get docsPaymentFeesExplainedReceiptWhat_title;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptWhat_content.
+  ///
+  /// In en, this message translates to:
+  /// **'For every payment, you\'ll get:'**
+  String get docsPaymentFeesExplainedReceiptWhat_content;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptWhat_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Booking confirmation receipt** (at booking)'**
+  String get docsPaymentFeesExplainedReceiptWhat_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptWhat_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Deposit payment receipt** (immediate)'**
+  String get docsPaymentFeesExplainedReceiptWhat_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptWhat_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Final payment receipt** (after service)'**
+  String get docsPaymentFeesExplainedReceiptWhat_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptWhat_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Email copy** sent to your registered email'**
+  String get docsPaymentFeesExplainedReceiptWhat_bullet4;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptWhat_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'**In-app record** in \"My Bookings\"'**
+  String get docsPaymentFeesExplainedReceiptWhat_bullet5;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptInfo_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s on Your Receipt'**
+  String get docsPaymentFeesExplainedReceiptInfo_title;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptInfo_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Each receipt shows:'**
+  String get docsPaymentFeesExplainedReceiptInfo_content;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptInfo_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Shop name** and location'**
+  String get docsPaymentFeesExplainedReceiptInfo_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptInfo_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Services booked** with quantities'**
+  String get docsPaymentFeesExplainedReceiptInfo_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptInfo_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Workers assigned**'**
+  String get docsPaymentFeesExplainedReceiptInfo_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptInfo_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Date and time** of appointment'**
+  String get docsPaymentFeesExplainedReceiptInfo_bullet4;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptInfo_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'**Amount paid** (deposit/fee/remaining)'**
+  String get docsPaymentFeesExplainedReceiptInfo_bullet5;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptInfo_bullet6.
+  ///
+  /// In en, this message translates to:
+  /// **'**Payment method** used'**
+  String get docsPaymentFeesExplainedReceiptInfo_bullet6;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptInfo_bullet7.
+  ///
+  /// In en, this message translates to:
+  /// **'**Transaction reference** number'**
+  String get docsPaymentFeesExplainedReceiptInfo_bullet7;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptAccess_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Access Receipts'**
+  String get docsPaymentFeesExplainedReceiptAccess_title;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptAccess_content.
+  ///
+  /// In en, this message translates to:
+  /// **'To view your payment history:'**
+  String get docsPaymentFeesExplainedReceiptAccess_content;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptAccess_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to **Profile** tab'**
+  String get docsPaymentFeesExplainedReceiptAccess_bullet1;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptAccess_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap **Payment History**'**
+  String get docsPaymentFeesExplainedReceiptAccess_bullet2;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptAccess_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'See all transactions'**
+  String get docsPaymentFeesExplainedReceiptAccess_bullet3;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptAccess_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap any receipt to view details'**
+  String get docsPaymentFeesExplainedReceiptAccess_bullet4;
+
+  /// No description provided for @docsPaymentFeesExplainedReceiptAccess_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'Share or download as PDF'**
+  String get docsPaymentFeesExplainedReceiptAccess_bullet5;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentFAQ_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Common Payment Questions'**
+  String get docsPaymentFeesExplainedPaymentFAQ_title;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentFAQ_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick answers'**
+  String get docsPaymentFeesExplainedPaymentFAQ_subtitle;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentFAQ1_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Is the deposit really non-refundable?'**
+  String get docsPaymentFeesExplainedPaymentFAQ1_title;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentFAQ1_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, the 30% deposit is non-refundable by policy. This protects workers\' time and discourages last-minute cancellations. The only exception is if the shop cancels on you.'**
+  String get docsPaymentFeesExplainedPaymentFAQ1_content;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentFAQ2_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Why a deposit instead of full payment?'**
+  String get docsPaymentFeesExplainedPaymentFAQ2_title;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentFAQ2_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The deposit system is designed to be fair to everyone:\n• **You:** Only pay 30% upfront, not the full amount\n• **Shop:** Gets some compensation if you cancel\n• **Workers:** Time is valued and protected'**
+  String get docsPaymentFeesExplainedPaymentFAQ2_content;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentFAQ3_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I pay the full amount upfront?'**
+  String get docsPaymentFeesExplainedPaymentFAQ3_title;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentFAQ3_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Currently, we only collect the 30% deposit at booking. The remaining 70% is paid after service to ensure you\'re happy with the result before paying in full.'**
+  String get docsPaymentFeesExplainedPaymentFAQ3_content;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentFAQ4_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What if I want to add a tip?'**
+  String get docsPaymentFeesExplainedPaymentFAQ4_title;
+
+  /// No description provided for @docsPaymentFeesExplainedPaymentFAQ4_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Great question! Tips can be added when paying the remaining 70% via the app, or you can tip in cash directly to your worker. 100% of tips go to the worker.'**
+  String get docsPaymentFeesExplainedPaymentFAQ4_content;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq1Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is the deposit non-refundable?'**
+  String get docsPaymentFeesExplainedFaq1Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq1A.
+  ///
+  /// In en, this message translates to:
+  /// **'The deposit compensates workers for holding time exclusively for you. When you book a slot, that time can\'t be sold to someone else. The deposit policy discourages last-minute cancellations and no-shows, which helps keep prices fair for everyone.'**
+  String get docsPaymentFeesExplainedFaq1A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq2Q.
+  ///
+  /// In en, this message translates to:
+  /// **'What exactly is the platform fee for?'**
+  String get docsPaymentFeesExplainedFaq2Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq2A.
+  ///
+  /// In en, this message translates to:
+  /// **'The platform fee (e.g., GHS 2) helps us maintain the app, provide customer support, process payments securely, and develop new features. It\'s a small fixed fee that keeps the platform running smoothly for both clients and shops.'**
+  String get docsPaymentFeesExplainedFaq2A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq3Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I really pay the remaining amount in cash?'**
+  String get docsPaymentFeesExplainedFaq3Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq3A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! Many shops accept cash for the remaining 70%. You can also choose to pay through the app if you prefer digital payments. The choice is yours at the time of service.'**
+  String get docsPaymentFeesExplainedFaq3A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq4Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How is the platform fee calculated for groups?'**
+  String get docsPaymentFeesExplainedFaq4Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq4A.
+  ///
+  /// In en, this message translates to:
+  /// **'The platform fee is charged **once per booking**, not per person. So if you book for a family of 4, you pay just one GHS 2 fee instead of four separate fees. This makes group bookings more economical!'**
+  String get docsPaymentFeesExplainedFaq4A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq5Q.
+  ///
+  /// In en, this message translates to:
+  /// **'When would I get a refund?'**
+  String get docsPaymentFeesExplainedFaq5Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq5A.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds are issued only if the shop cancels your booking. In that case, both your deposit and platform fee are fully refunded. If you cancel, the deposit and fee are non-refundable by policy.'**
+  String get docsPaymentFeesExplainedFaq5A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq6Q.
+  ///
+  /// In en, this message translates to:
+  /// **'What payment methods are accepted?'**
+  String get docsPaymentFeesExplainedFaq6Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq6A.
+  ///
+  /// In en, this message translates to:
+  /// **'For deposits: Credit/debit cards, mobile money, bank transfers, and digital wallets. For remaining balance: Cash or any of the digital methods through the app. Available options may vary by region.'**
+  String get docsPaymentFeesExplainedFaq6A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq7Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I tip my worker?'**
+  String get docsPaymentFeesExplainedFaq7Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq7A.
+  ///
+  /// In en, this message translates to:
+  /// **'You can tip your worker in two ways:\n1. **Cash:** Give directly to your worker after service\n2. **Via App:** Add a tip when paying the remaining 70%\n\n100% of tips go directly to your worker!'**
+  String get docsPaymentFeesExplainedFaq7A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq8Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I get a receipt?'**
+  String get docsPaymentFeesExplainedFaq8Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq8A.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts are automatically generated and sent to your email. You can also access all receipts in the app under Profile → Payment History. Each receipt shows full details of your transaction.'**
+  String get docsPaymentFeesExplainedFaq8A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq9Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can we split the bill for group bookings?'**
+  String get docsPaymentFeesExplainedFaq9Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq9A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! For group bookings, you can split the remaining 70% however you like:\n• One person pays all (cash or app)\n• Each person pays their share (cash to shop)\n• Mix of cash and app payments\n\nThe deposit is paid by the person making the booking.'**
+  String get docsPaymentFeesExplainedFaq9A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq10Q.
+  ///
+  /// In en, this message translates to:
+  /// **'What if I have an emergency and can\'t make it?'**
+  String get docsPaymentFeesExplainedFaq10Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq10A.
+  ///
+  /// In en, this message translates to:
+  /// **'We understand emergencies happen. While the deposit is officially non-refundable, you can contact the shop directly through the app. Some shops may offer credit toward a future booking at their discretion. The platform fee cannot be refunded.'**
+  String get docsPaymentFeesExplainedFaq10A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq11Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I save my payment details for faster booking?'**
+  String get docsPaymentFeesExplainedFaq11Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq11A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! In your Profile settings, you can save payment methods securely. This makes future bookings faster – just confirm and pay with one tap. Your information is encrypted and stored securely.'**
+  String get docsPaymentFeesExplainedFaq11A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq12Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Is my payment information secure?'**
+  String get docsPaymentFeesExplainedFaq12Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq12A.
+  ///
+  /// In en, this message translates to:
+  /// **'Absolutely. All payments are processed through secure, PCI-compliant gateways. Your payment details are encrypted and never stored in plain text. We use industry-standard security measures to protect your information.'**
+  String get docsPaymentFeesExplainedFaq12A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq13Q.
+  ///
+  /// In en, this message translates to:
+  /// **'What is a guest booking and do I need an account?'**
+  String get docsPaymentFeesExplainedFaq13Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq13A.
+  ///
+  /// In en, this message translates to:
+  /// **'A guest booking lets you reserve through a provider\'s shared link without downloading the app or creating an account. You pay the same 30% deposit + platform fee, and your receipt is sent to WhatsApp.'**
+  String get docsPaymentFeesExplainedFaq13A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq14Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I get my booking details if I book as a guest?'**
+  String get docsPaymentFeesExplainedFaq14Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq14A.
+  ///
+  /// In en, this message translates to:
+  /// **'Your appointment details, payment receipt, and reminders are sent to your WhatsApp. You can access everything there without downloading the app.'**
+  String get docsPaymentFeesExplainedFaq14A;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq15Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I convert my guest booking to a full account?'**
+  String get docsPaymentFeesExplainedFaq15Q;
+
+  /// No description provided for @docsPaymentFeesExplainedFaq15A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! After booking as a guest, you can create a full account anytime to access your booking history, saved payments, and other features like loyalty rewards.'**
+  String get docsPaymentFeesExplainedFaq15A;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
