@@ -10068,6 +10068,1242 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your booking confirmation and receipt are sent to your WhatsApp number. You\'ll receive appointment reminders and can track everything through WhatsApp without downloading the app.'**
   String get docsBookingStartedFaq14A;
+
+  /// No description provided for @docsHowBooktitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Book Services'**
+  String get docsHowBooktitle;
+
+  /// No description provided for @docsHowBooksubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Book Services'**
+  String get docsHowBooksubtitle;
+
+  /// No description provided for @docsHowBookBookingOverview_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking at a Glance'**
+  String get docsHowBookBookingOverview_title;
+
+  /// No description provided for @docsHowBookBookingOverview_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The booking process in simple steps'**
+  String get docsHowBookBookingOverview_subtitle;
+
+  /// No description provided for @docsHowBookBookingOverview_twoBookingWays_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Two Ways to Book'**
+  String get docsHowBookBookingOverview_twoBookingWays_title;
+
+  /// No description provided for @docsHowBookBookingOverview_twoBookingWays_content.
+  ///
+  /// In en, this message translates to:
+  /// **'You can book in two ways:'**
+  String get docsHowBookBookingOverview_twoBookingWays_content;
+
+  /// No description provided for @docsHowBookBookingOverview_twoBookingWays_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**With App Account:** Download app, create account, book anytime'**
+  String get docsHowBookBookingOverview_twoBookingWays_bullet1;
+
+  /// No description provided for @docsHowBookBookingOverview_twoBookingWays_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**As Guest:** Use booking link, no app needed, receipt via WhatsApp'**
+  String get docsHowBookBookingOverview_twoBookingWays_bullet2;
+
+  /// No description provided for @docsHowBookBookingOverview_bookingStepsOverview_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Booking Journey (With Account)'**
+  String get docsHowBookBookingOverview_bookingStepsOverview_title;
+
+  /// No description provided for @docsHowBookBookingOverview_bookingStepsOverview_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking a service takes just a few minutes. Here\'s what you\'ll do:'**
+  String get docsHowBookBookingOverview_bookingStepsOverview_content;
+
+  /// No description provided for @docsHowBookBookingOverview_bookingStepsOverview_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Step 1:** Find a shop and browse services'**
+  String get docsHowBookBookingOverview_bookingStepsOverview_bullet1;
+
+  /// No description provided for @docsHowBookBookingOverview_bookingStepsOverview_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Step 2:** Select your services and quantities'**
+  String get docsHowBookBookingOverview_bookingStepsOverview_bullet2;
+
+  /// No description provided for @docsHowBookBookingOverview_bookingStepsOverview_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Step 3:** Choose your preferred worker (if available)'**
+  String get docsHowBookBookingOverview_bookingStepsOverview_bullet3;
+
+  /// No description provided for @docsHowBookBookingOverview_bookingStepsOverview_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Step 4:** Pick a date and time'**
+  String get docsHowBookBookingOverview_bookingStepsOverview_bullet4;
+
+  /// No description provided for @docsHowBookBookingOverview_bookingStepsOverview_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'**Step 5:** Pay 30% deposit + small fee to confirm'**
+  String get docsHowBookBookingOverview_bookingStepsOverview_bullet5;
+
+  /// No description provided for @docsHowBookBookingOverview_bookingStepsOverview_bullet6.
+  ///
+  /// In en, this message translates to:
+  /// **'**Step 6:** After service, pay remaining 70% in cash or via app'**
+  String get docsHowBookBookingOverview_bookingStepsOverview_bullet6;
+
+  /// No description provided for @docsHowBookBookingOverview_guestBookingNote_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest Booking (No App)'**
+  String get docsHowBookBookingOverview_guestBookingNote_title;
+
+  /// No description provided for @docsHowBookBookingOverview_guestBookingNote_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have the app? If a shop shares a booking link with you, follow the same steps above but without needing to create an account. Your confirmation and receipt go to your WhatsApp.'**
+  String get docsHowBookBookingOverview_guestBookingNote_content;
+
+  /// No description provided for @docsHowBookBookingOverview_bookingTimeNote_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The entire process usually takes less than 2 minutes. Your progress is saved as you go, so you can take your time.'**
+  String get docsHowBookBookingOverview_bookingTimeNote_content;
+
+  /// No description provided for @docsHowBookStepOne_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1: Find Your Shop & Services'**
+  String get docsHowBookStepOne_title;
+
+  /// No description provided for @docsHowBookStepOne_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover the perfect place for your needs'**
+  String get docsHowBookStepOne_subtitle;
+
+  /// No description provided for @docsHowBookStepOne_findShop_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How to find a shop'**
+  String get docsHowBookStepOne_findShop_title;
+
+  /// No description provided for @docsHowBookStepOne_findShop_content.
+  ///
+  /// In en, this message translates to:
+  /// **'You can find shops in several ways:'**
+  String get docsHowBookStepOne_findShop_content;
+
+  /// No description provided for @docsHowBookStepOne_findShop_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Home Screen:** Browse recommended shops near you'**
+  String get docsHowBookStepOne_findShop_bullet1;
+
+  /// No description provided for @docsHowBookStepOne_findShop_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Search:** Look for specific shops or services by name'**
+  String get docsHowBookStepOne_findShop_bullet2;
+
+  /// No description provided for @docsHowBookStepOne_findShop_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Categories:** Filter by service type (Haircut, Braiding, Beard, etc.)'**
+  String get docsHowBookStepOne_findShop_bullet3;
+
+  /// No description provided for @docsHowBookStepOne_findShop_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Favorites:** Quick access to shops you\'ve saved'**
+  String get docsHowBookStepOne_findShop_bullet4;
+
+  /// No description provided for @docsHowBookStepOne_browseServices_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Browsing Services'**
+  String get docsHowBookStepOne_browseServices_title;
+
+  /// No description provided for @docsHowBookStepOne_browseServices_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Once you select a shop, you\'ll see all their available services. Each service shows:'**
+  String get docsHowBookStepOne_browseServices_content;
+
+  /// No description provided for @docsHowBookStepOne_browseServices_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Service name** (e.g., \"Afro Haircut\", \"Box Braids\")'**
+  String get docsHowBookStepOne_browseServices_bullet1;
+
+  /// No description provided for @docsHowBookStepOne_browseServices_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Duration** (how long it takes)'**
+  String get docsHowBookStepOne_browseServices_bullet2;
+
+  /// No description provided for @docsHowBookStepOne_browseServices_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Price** (cost of the service - this goes to the shop)'**
+  String get docsHowBookStepOne_browseServices_bullet3;
+
+  /// No description provided for @docsHowBookStepOne_browseServices_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Description** (what\'s included)'**
+  String get docsHowBookStepOne_browseServices_bullet4;
+
+  /// No description provided for @docsHowBookStepOne_browseServices_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'**Worker requirement** (whether you can choose who does it)'**
+  String get docsHowBookStepOne_browseServices_bullet5;
+
+  /// No description provided for @docsHowBookStepOne_serviceExample_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example'**
+  String get docsHowBookStepOne_serviceExample_title;
+
+  /// No description provided for @docsHowBookStepOne_serviceExample_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Haircut Service:**\n• Name: Afro Haircut\n• Duration: 1 hour\n• Price: GHS 45 (paid to shop)\n• Description: Professional afro haircut with styling\n• Worker: You can choose your preferred barber'**
+  String get docsHowBookStepOne_serviceExample_content;
+
+  /// No description provided for @docsHowBookStepTwo_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2: Select Your Services'**
+  String get docsHowBookStepTwo_title;
+
+  /// No description provided for @docsHowBookStepTwo_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what you want and how many people'**
+  String get docsHowBookStepTwo_subtitle;
+
+  /// No description provided for @docsHowBookStepTwo_selectServices_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Selecting Services'**
+  String get docsHowBookStepTwo_selectServices_title;
+
+  /// No description provided for @docsHowBookStepTwo_selectServices_content.
+  ///
+  /// In en, this message translates to:
+  /// **'To select a service, simply tap on it. You\'ll see it become highlighted. You can select multiple services at once:'**
+  String get docsHowBookStepTwo_selectServices_content;
+
+  /// No description provided for @docsHowBookStepTwo_selectServices_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a service to select it'**
+  String get docsHowBookStepTwo_selectServices_bullet1;
+
+  /// No description provided for @docsHowBookStepTwo_selectServices_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected services show a checkmark'**
+  String get docsHowBookStepTwo_selectServices_bullet2;
+
+  /// No description provided for @docsHowBookStepTwo_selectServices_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'You can select multiple services (e.g., Haircut + Beard Trim)'**
+  String get docsHowBookStepTwo_selectServices_bullet3;
+
+  /// No description provided for @docsHowBookStepTwo_selectServices_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap again to deselect'**
+  String get docsHowBookStepTwo_selectServices_bullet4;
+
+  /// No description provided for @docsHowBookStepTwo_groupBooking_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking for Multiple People'**
+  String get docsHowBookStepTwo_groupBooking_title;
+
+  /// No description provided for @docsHowBookStepTwo_groupBooking_content.
+  ///
+  /// In en, this message translates to:
+  /// **'If you\'re booking for a group (like yourself and your children), you can increase the quantity:'**
+  String get docsHowBookStepTwo_groupBooking_content;
+
+  /// No description provided for @docsHowBookStepTwo_groupBooking_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'After selecting a service, you\'ll see a **+** and **-** button'**
+  String get docsHowBookStepTwo_groupBooking_bullet1;
+
+  /// No description provided for @docsHowBookStepTwo_groupBooking_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap **+** to increase the number of people'**
+  String get docsHowBookStepTwo_groupBooking_bullet2;
+
+  /// No description provided for @docsHowBookStepTwo_groupBooking_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'The price updates automatically'**
+  String get docsHowBookStepTwo_groupBooking_bullet3;
+
+  /// No description provided for @docsHowBookStepTwo_groupBooking_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum quantity is shown (some services have limits)'**
+  String get docsHowBookStepTwo_groupBooking_bullet4;
+
+  /// No description provided for @docsHowBookStepTwo_groupExample_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Family Booking'**
+  String get docsHowBookStepTwo_groupExample_title;
+
+  /// No description provided for @docsHowBookStepTwo_groupExample_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Dad wants haircuts for himself and his two sons:**\n• Select \"Haircut\" service\n• Tap **+** until quantity shows 3\n• Total price shows 3 × GHS 45 = GHS 135 (for the shop)\n• You\'ll choose workers for each person later'**
+  String get docsHowBookStepTwo_groupExample_content;
+
+  /// No description provided for @docsHowBookStepTwo_quantityTip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The quantity feature is perfect for families, groups of friends, or anyone booking for multiple people at once.'**
+  String get docsHowBookStepTwo_quantityTip_content;
+
+  /// No description provided for @docsHowBookStepThree_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 3: Choose Your Workers'**
+  String get docsHowBookStepThree_title;
+
+  /// No description provided for @docsHowBookStepThree_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick who will perform your services'**
+  String get docsHowBookStepThree_subtitle;
+
+  /// No description provided for @docsHowBookStepThree_workerSelection_title.
+  ///
+  /// In en, this message translates to:
+  /// **'When You Can Choose a Worker'**
+  String get docsHowBookStepThree_workerSelection_title;
+
+  /// No description provided for @docsHowBookStepThree_workerSelection_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Some services let you choose your preferred worker, while others assign whoever is available:'**
+  String get docsHowBookStepThree_workerSelection_content;
+
+  /// No description provided for @docsHowBookStepThree_workerSelection_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Services with worker choice:** You\'ll see a \"Choose Worker\" button'**
+  String get docsHowBookStepThree_workerSelection_bullet1;
+
+  /// No description provided for @docsHowBookStepThree_workerSelection_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Services without worker choice:** The system will assign an available worker'**
+  String get docsHowBookStepThree_workerSelection_bullet2;
+
+  /// No description provided for @docsHowBookStepThree_workerSelection_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Group bookings:** You can choose different workers for each person'**
+  String get docsHowBookStepThree_workerSelection_bullet3;
+
+  /// No description provided for @docsHowBookStepThree_choosingWorker_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Choose a Worker'**
+  String get docsHowBookStepThree_choosingWorker_title;
+
+  /// No description provided for @docsHowBookStepThree_choosingWorker_content.
+  ///
+  /// In en, this message translates to:
+  /// **'If a service lets you choose a worker:'**
+  String get docsHowBookStepThree_choosingWorker_content;
+
+  /// No description provided for @docsHowBookStepThree_choosingWorker_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \"Choose Worker\" for that service'**
+  String get docsHowBookStepThree_choosingWorker_bullet1;
+
+  /// No description provided for @docsHowBookStepThree_choosingWorker_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll see a list of available workers'**
+  String get docsHowBookStepThree_choosingWorker_bullet2;
+
+  /// No description provided for @docsHowBookStepThree_choosingWorker_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Each worker shows their name, photo, specialties, and rating'**
+  String get docsHowBookStepThree_choosingWorker_bullet3;
+
+  /// No description provided for @docsHowBookStepThree_choosingWorker_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap on a worker to select them'**
+  String get docsHowBookStepThree_choosingWorker_bullet4;
+
+  /// No description provided for @docsHowBookStepThree_choosingWorker_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'For group bookings, you\'ll choose a worker for each person'**
+  String get docsHowBookStepThree_choosingWorker_bullet5;
+
+  /// No description provided for @docsHowBookStepThree_workerExample_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Group with Different Workers'**
+  String get docsHowBookStepThree_workerExample_title;
+
+  /// No description provided for @docsHowBookStepThree_workerExample_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Family of 3 booking haircuts:**\n• Person 1 (Dad): Choose John (fade specialist)\n• Person 2 (Son 1): Choose Michael (kids cuts)\n• Person 3 (Son 2): Choose Michael (same worker)\n• All three will be served during your appointment time'**
+  String get docsHowBookStepThree_workerExample_content;
+
+  /// No description provided for @docsHowBookStepThree_workerTip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'You can see each worker\'s availability in real-time. If your preferred worker isn\'t available at your desired time, you\'ll need to choose a different time or worker.'**
+  String get docsHowBookStepThree_workerTip_content;
+
+  /// No description provided for @docsHowBookStepFour_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 4: Pick Your Date & Time'**
+  String get docsHowBookStepFour_title;
+
+  /// No description provided for @docsHowBookStepFour_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select when you want your appointment'**
+  String get docsHowBookStepFour_subtitle;
+
+  /// No description provided for @docsHowBookStepFour_dateSelection_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Choosing a Date'**
+  String get docsHowBookStepFour_dateSelection_title;
+
+  /// No description provided for @docsHowBookStepFour_dateSelection_content.
+  ///
+  /// In en, this message translates to:
+  /// **'First, pick your preferred date from the calendar:'**
+  String get docsHowBookStepFour_dateSelection_content;
+
+  /// No description provided for @docsHowBookStepFour_dateSelection_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates with available slots are highlighted'**
+  String get docsHowBookStepFour_dateSelection_bullet1;
+
+  /// No description provided for @docsHowBookStepFour_dateSelection_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Past dates are greyed out'**
+  String get docsHowBookStepFour_dateSelection_bullet2;
+
+  /// No description provided for @docsHowBookStepFour_dateSelection_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Today is marked with \"Today\"'**
+  String get docsHowBookStepFour_dateSelection_bullet3;
+
+  /// No description provided for @docsHowBookStepFour_dateSelection_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'You can scroll forward up to 30 days'**
+  String get docsHowBookStepFour_dateSelection_bullet4;
+
+  /// No description provided for @docsHowBookStepFour_timeSelection_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Two Ways to View Time Slots'**
+  String get docsHowBookStepFour_timeSelection_title;
+
+  /// No description provided for @docsHowBookStepFour_timeSelection_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Once you pick a date, you\'ll see available time slots. You can switch between two views:'**
+  String get docsHowBookStepFour_timeSelection_content;
+
+  /// No description provided for @docsHowBookStepFour_timeSelection_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Regular View:** Shows slots for each service separately'**
+  String get docsHowBookStepFour_timeSelection_bullet1;
+
+  /// No description provided for @docsHowBookStepFour_timeSelection_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Combined View:** Shows only slots where ALL your services can be booked together'**
+  String get docsHowBookStepFour_timeSelection_bullet2;
+
+  /// No description provided for @docsHowBookStepFour_regularVsCombined_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular vs Combined View'**
+  String get docsHowBookStepFour_regularVsCombined_title;
+
+  /// No description provided for @docsHowBookStepFour_regularVsCombined_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Regular View Example (2 services):**\n• Haircut: 9:00 AM, 9:30 AM, 10:00 AM...\n• Beard Trim: 9:00 AM, 9:30 AM, 10:00 AM...\n\n**Combined View Example (same 2 services):**\n• 9:00 AM - 10:30 AM (both services together)\n• 9:30 AM - 11:00 AM\n• 10:00 AM - 11:30 AM'**
+  String get docsHowBookStepFour_regularVsCombined_content;
+
+  /// No description provided for @docsHowBookStepFour_viewSwitch_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the toggle switch to switch between Regular and Combined view. Combined view is especially useful when booking multiple services.'**
+  String get docsHowBookStepFour_viewSwitch_content;
+
+  /// No description provided for @docsHowBookStepFive_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 5: Payment & Confirmation'**
+  String get docsHowBookStepFive_title;
+
+  /// No description provided for @docsHowBookStepFive_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure your booking with a 30% deposit'**
+  String get docsHowBookStepFive_subtitle;
+
+  /// No description provided for @docsHowBookStepFive_paymentOverview_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How Payment Works'**
+  String get docsHowBookStepFive_paymentOverview_title;
+
+  /// No description provided for @docsHowBookStepFive_paymentOverview_content.
+  ///
+  /// In en, this message translates to:
+  /// **'To secure your booking, you\'ll pay a 30% deposit plus a small processing fee. Here\'s what you need to know:'**
+  String get docsHowBookStepFive_paymentOverview_content;
+
+  /// No description provided for @docsHowBookStepFive_paymentOverview_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**30% Deposit:** Required at the time of booking (goes to the shop)'**
+  String get docsHowBookStepFive_paymentOverview_bullet1;
+
+  /// No description provided for @docsHowBookStepFive_paymentOverview_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Processing Fee:** Small fixed fee charged by the platform (e.g., GHS 2 per booking)'**
+  String get docsHowBookStepFive_paymentOverview_bullet2;
+
+  /// No description provided for @docsHowBookStepFive_paymentOverview_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Non-Refundable Deposit:** The 30% deposit is not refunded if you cancel or don\'t show up'**
+  String get docsHowBookStepFive_paymentOverview_bullet3;
+
+  /// No description provided for @docsHowBookStepFive_paymentOverview_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Processing Fee Non-Refundable:** The platform fee is also non-refundable'**
+  String get docsHowBookStepFive_paymentOverview_bullet4;
+
+  /// No description provided for @docsHowBookStepFive_paymentOverview_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'**Secure Processing:** All payments are encrypted and secure'**
+  String get docsHowBookStepFive_paymentOverview_bullet5;
+
+  /// No description provided for @docsHowBookStepFive_paymentExample_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Example'**
+  String get docsHowBookStepFive_paymentExample_title;
+
+  /// No description provided for @docsHowBookStepFive_paymentExample_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Sarah books services totaling GHS 200:**\n• At booking: Pays GHS 60 (30% deposit for shop) + GHS 2 (platform fee) = GHS 62\n• After service: Pays remaining GHS 140 to the shop (in cash or via app)\n• Total paid: GHS 200 to shop + GHS 2 platform fee\n\n**If Sarah cancels:** She loses the GHS 60 deposit and GHS 2 fee\n**If Sarah doesn\'t show up:** Same as cancellation'**
+  String get docsHowBookStepFive_paymentExample_content;
+
+  /// No description provided for @docsHowBookStepFive_paymentStep_title.
+  ///
+  /// In en, this message translates to:
+  /// **'The Payment Screen'**
+  String get docsHowBookStepFive_paymentStep_title;
+
+  /// No description provided for @docsHowBookStepFive_paymentStep_content.
+  ///
+  /// In en, this message translates to:
+  /// **'On the confirmation screen, you\'ll see:'**
+  String get docsHowBookStepFive_paymentStep_content;
+
+  /// No description provided for @docsHowBookStepFive_paymentStep_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Summary:** All services, quantities, and workers'**
+  String get docsHowBookStepFive_paymentStep_bullet1;
+
+  /// No description provided for @docsHowBookStepFive_paymentStep_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Total Price:** Full cost of all services (for the shop)'**
+  String get docsHowBookStepFive_paymentStep_bullet2;
+
+  /// No description provided for @docsHowBookStepFive_paymentStep_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Deposit Amount:** 30% payable now'**
+  String get docsHowBookStepFive_paymentStep_bullet3;
+
+  /// No description provided for @docsHowBookStepFive_paymentStep_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Platform Fee:** Small processing fee (e.g., GHS 2)'**
+  String get docsHowBookStepFive_paymentStep_bullet4;
+
+  /// No description provided for @docsHowBookStepFive_paymentStep_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'**Total Due Now:** Deposit + platform fee'**
+  String get docsHowBookStepFive_paymentStep_bullet5;
+
+  /// No description provided for @docsHowBookStepFive_paymentStep_bullet6.
+  ///
+  /// In en, this message translates to:
+  /// **'**Remaining Balance:** 70% to pay after service (cash or app)'**
+  String get docsHowBookStepFive_paymentStep_bullet6;
+
+  /// No description provided for @docsHowBookStepFive_paymentStep_bullet7.
+  ///
+  /// In en, this message translates to:
+  /// **'**Payment Methods:** Choose how to pay the deposit'**
+  String get docsHowBookStepFive_paymentStep_bullet7;
+
+  /// No description provided for @docsHowBookStepFive_feeExplanation_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Understanding the Platform Fee'**
+  String get docsHowBookStepFive_feeExplanation_title;
+
+  /// No description provided for @docsHowBookStepFive_feeExplanation_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The processing fee (e.g., GHS 2 per booking) is charged by the platform, not the shop. This fee helps us maintain the app and provide you with a great booking experience. The fee is:'**
+  String get docsHowBookStepFive_feeExplanation_content;
+
+  /// No description provided for @docsHowBookStepFive_feeExplanation_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Fixed amount** (not a percentage)'**
+  String get docsHowBookStepFive_feeExplanation_bullet1;
+
+  /// No description provided for @docsHowBookStepFive_feeExplanation_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Charged once per booking** (not per service)'**
+  String get docsHowBookStepFive_feeExplanation_bullet2;
+
+  /// No description provided for @docsHowBookStepFive_feeExplanation_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Non-refundable** even if you cancel'**
+  String get docsHowBookStepFive_feeExplanation_bullet3;
+
+  /// No description provided for @docsHowBookStepFive_feeExplanation_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Clearly shown** before you confirm'**
+  String get docsHowBookStepFive_feeExplanation_bullet4;
+
+  /// No description provided for @docsHowBookStepFive_paymentImportant_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The 30% deposit goes to the shop and is applied toward your total bill. The platform fee is separate and helps keep the app running. You\'re not paying extra to the shop - just paying part of your bill upfront.'**
+  String get docsHowBookStepFive_paymentImportant_content;
+
+  /// No description provided for @docsHowBookStepFive_remainingPayment_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Paying the Remaining 70%'**
+  String get docsHowBookStepFive_remainingPayment_title;
+
+  /// No description provided for @docsHowBookStepFive_remainingPayment_content.
+  ///
+  /// In en, this message translates to:
+  /// **'After your service is complete, you have two options to pay the remaining balance:'**
+  String get docsHowBookStepFive_remainingPayment_content;
+
+  /// No description provided for @docsHowBookStepFive_remainingPayment_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Cash:** Pay the worker or shop directly'**
+  String get docsHowBookStepFive_remainingPayment_bullet1;
+
+  /// No description provided for @docsHowBookStepFive_remainingPayment_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Via App:** Pay through the app using your preferred payment method'**
+  String get docsHowBookStepFive_remainingPayment_bullet2;
+
+  /// No description provided for @docsHowBookStepFive_remainingPayment_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Receipt:** You\'ll get a receipt regardless of how you pay'**
+  String get docsHowBookStepFive_remainingPayment_bullet3;
+
+  /// No description provided for @docsHowBookStepFive_confirmation_title.
+  ///
+  /// In en, this message translates to:
+  /// **'After Payment'**
+  String get docsHowBookStepFive_confirmation_title;
+
+  /// No description provided for @docsHowBookStepFive_confirmation_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Once your deposit payment is successful:'**
+  String get docsHowBookStepFive_confirmation_content;
+
+  /// No description provided for @docsHowBookStepFive_confirmation_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll see a confirmation screen'**
+  String get docsHowBookStepFive_confirmation_bullet1;
+
+  /// No description provided for @docsHowBookStepFive_confirmation_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'The booking appears in \"My Bookings\"'**
+  String get docsHowBookStepFive_confirmation_bullet2;
+
+  /// No description provided for @docsHowBookStepFive_confirmation_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll receive an email confirmation'**
+  String get docsHowBookStepFive_confirmation_bullet3;
+
+  /// No description provided for @docsHowBookStepFive_confirmation_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop is notified of your booking'**
+  String get docsHowBookStepFive_confirmation_bullet4;
+
+  /// No description provided for @docsHowBookStepFive_confirmation_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll get a reminder before your appointment'**
+  String get docsHowBookStepFive_confirmation_bullet5;
+
+  /// No description provided for @docsHowBookStepFive_paymentWarning_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The 30% deposit and platform fee are non-refundable. Please be sure about your booking before confirming. You can reschedule up to 24 hours before, but the deposit and fee remain non-refundable.'**
+  String get docsHowBookStepFive_paymentWarning_content;
+
+  /// No description provided for @docsHowBookAfterBooking_title.
+  ///
+  /// In en, this message translates to:
+  /// **'After You Book'**
+  String get docsHowBookAfterBooking_title;
+
+  /// No description provided for @docsHowBookAfterBooking_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What happens next'**
+  String get docsHowBookAfterBooking_subtitle;
+
+  /// No description provided for @docsHowBookAfterBooking_whatsNext_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Booking is Confirmed!'**
+  String get docsHowBookAfterBooking_whatsNext_title;
+
+  /// No description provided for @docsHowBookAfterBooking_whatsNext_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Here\'s what you can do after booking:'**
+  String get docsHowBookAfterBooking_whatsNext_content;
+
+  /// No description provided for @docsHowBookAfterBooking_whatsNext_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**View Booking:** Check details in \"My Bookings\"'**
+  String get docsHowBookAfterBooking_whatsNext_bullet1;
+
+  /// No description provided for @docsHowBookAfterBooking_whatsNext_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Reschedule:** Change the time (up to 24 hours before)'**
+  String get docsHowBookAfterBooking_whatsNext_bullet2;
+
+  /// No description provided for @docsHowBookAfterBooking_whatsNext_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Cancel:** Cancel if needed (deposit and fee are non-refundable)'**
+  String get docsHowBookAfterBooking_whatsNext_bullet3;
+
+  /// No description provided for @docsHowBookAfterBooking_whatsNext_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Contact Shop:** Message the shop directly'**
+  String get docsHowBookAfterBooking_whatsNext_bullet4;
+
+  /// No description provided for @docsHowBookAfterBooking_whatsNext_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'**Add to Calendar:** Export to your phone\'s calendar'**
+  String get docsHowBookAfterBooking_whatsNext_bullet5;
+
+  /// No description provided for @docsHowBookAfterBooking_reminders_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking Reminders'**
+  String get docsHowBookAfterBooking_reminders_title;
+
+  /// No description provided for @docsHowBookAfterBooking_reminders_content.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll receive reminders at:'**
+  String get docsHowBookAfterBooking_reminders_content;
+
+  /// No description provided for @docsHowBookAfterBooking_reminders_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**24 hours before:** Check you\'re still coming'**
+  String get docsHowBookAfterBooking_reminders_bullet1;
+
+  /// No description provided for @docsHowBookAfterBooking_reminders_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**1 hour before:** Time to head to the shop'**
+  String get docsHowBookAfterBooking_reminders_bullet2;
+
+  /// No description provided for @docsHowBookAfterBooking_reminders_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**After appointment:** Option to leave a review and pay remaining balance'**
+  String get docsHowBookAfterBooking_reminders_bullet3;
+
+  /// No description provided for @docsHowBookAfterBooking_afterService_title.
+  ///
+  /// In en, this message translates to:
+  /// **'After Your Service'**
+  String get docsHowBookAfterBooking_afterService_title;
+
+  /// No description provided for @docsHowBookAfterBooking_afterService_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Once your service is complete:'**
+  String get docsHowBookAfterBooking_afterService_content;
+
+  /// No description provided for @docsHowBookAfterBooking_afterService_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Pay Remaining 70%:** In cash or through the app'**
+  String get docsHowBookAfterBooking_afterService_bullet1;
+
+  /// No description provided for @docsHowBookAfterBooking_afterService_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Rate Your Experience:** Leave a review for the shop and worker'**
+  String get docsHowBookAfterBooking_afterService_bullet2;
+
+  /// No description provided for @docsHowBookAfterBooking_afterService_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Tip Your Worker:** Optional tip can be added'**
+  String get docsHowBookAfterBooking_afterService_bullet3;
+
+  /// No description provided for @docsHowBookAfterBooking_afterService_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Book Again:** Easily rebook with the same shop or worker'**
+  String get docsHowBookAfterBooking_afterService_bullet4;
+
+  /// No description provided for @docsHowBookAfterBooking_afterTip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrive 5-10 minutes before your appointment time to check in. This gives you time to settle in before your service starts.'**
+  String get docsHowBookAfterBooking_afterTip_content;
+
+  /// No description provided for @docsHowBookFaq11.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I cancel a booking?'**
+  String get docsHowBookFaq11;
+
+  /// No description provided for @docsHowBookFaq21.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to \"My Bookings\", find the booking, and tap \"Cancel\". You can cancel up to 24 hours before the appointment. The 30% deposit and platform fee are non-refundable, but you won\'t be charged the remaining 70%.'**
+  String get docsHowBookFaq21;
+
+  /// No description provided for @docsHowBookFaq32.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I change my appointment time?'**
+  String get docsHowBookFaq32;
+
+  /// No description provided for @docsHowBookFaq42.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! Go to \"My Bookings\", find your booking, and tap \"Reschedule\". You can choose a new time if available. The deposit and fee remain applied to your new booking.'**
+  String get docsHowBookFaq42;
+
+  /// No description provided for @docsHowBookFaq53.
+  ///
+  /// In en, this message translates to:
+  /// **'Why do I need to pay a deposit?'**
+  String get docsHowBookFaq53;
+
+  /// No description provided for @docsHowBookFaq63.
+  ///
+  /// In en, this message translates to:
+  /// **'The 30% deposit protects both you and the shop. It ensures your slot is reserved exclusively for you, and compensates the worker if you cancel last minute. The deposit goes toward your total bill.'**
+  String get docsHowBookFaq63;
+
+  /// No description provided for @docsHowBookFaq74.
+  ///
+  /// In en, this message translates to:
+  /// **'What is the platform fee?'**
+  String get docsHowBookFaq74;
+
+  /// No description provided for @docsHowBookFaq84.
+  ///
+  /// In en, this message translates to:
+  /// **'The platform fee (e.g., GHS 2 per booking) is a small fixed charge by the app, not the shop. It helps us maintain the platform and provide you with a smooth booking experience. The fee is clearly shown before you confirm.'**
+  String get docsHowBookFaq84;
+
+  /// No description provided for @docsHowBookFaq95.
+  ///
+  /// In en, this message translates to:
+  /// **'Is the deposit ever refundable?'**
+  String get docsHowBookFaq95;
+
+  /// No description provided for @docsHowBookFaq105.
+  ///
+  /// In en, this message translates to:
+  /// **'The deposit and platform fee are non-refundable by policy. However, in genuine emergency situations, you can contact the shop directly through the app. Some shops may offer credit toward a future booking at their discretion, but the platform fee cannot be refunded.'**
+  String get docsHowBookFaq105;
+
+  /// No description provided for @docsHowBookFaq116.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I pay the remaining 70%?'**
+  String get docsHowBookFaq116;
+
+  /// No description provided for @docsHowBookFaq126.
+  ///
+  /// In en, this message translates to:
+  /// **'After your service, you have two options: pay in cash directly to the shop, or pay through the app using your preferred payment method. Both options are accepted at participating shops.'**
+  String get docsHowBookFaq126;
+
+  /// No description provided for @docsHowBookFaq137.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I book multiple services at once?'**
+  String get docsHowBookFaq137;
+
+  /// No description provided for @docsHowBookFaq147.
+  ///
+  /// In en, this message translates to:
+  /// **'Absolutely! You can select multiple services (like haircut + beard trim) and book them together. The system will find time slots where all services can be done.'**
+  String get docsHowBookFaq147;
+
+  /// No description provided for @docsHowBookFaq158.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I book for multiple people?'**
+  String get docsHowBookFaq158;
+
+  /// No description provided for @docsHowBookFaq168.
+  ///
+  /// In en, this message translates to:
+  /// **'After selecting a service, use the **+** button to increase the quantity. For example, if you\'re booking haircuts for yourself and two children, set quantity to 3. You can then choose different workers for each person.'**
+  String get docsHowBookFaq168;
+
+  /// No description provided for @docsHowBookFaq179.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I change my chosen worker after booking?'**
+  String get docsHowBookFaq179;
+
+  /// No description provided for @docsHowBookFaq189.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, you can change your worker up to 24 hours before the appointment. Go to \"My Bookings\", find your booking, and look for the option to change worker. The new worker must be available at your booked time.'**
+  String get docsHowBookFaq189;
+
+  /// No description provided for @docsHowBookFaq191.
+  ///
+  /// In en, this message translates to:
+  /// **'What payment methods are accepted for the deposit?'**
+  String get docsHowBookFaq191;
+
+  /// No description provided for @docsHowBookFaq201.
+  ///
+  /// In en, this message translates to:
+  /// **'We accept various payment methods depending on your region, including credit/debit cards, mobile money, and bank transfers. Available options will be shown during checkout.'**
+  String get docsHowBookFaq201;
+
+  /// No description provided for @docsHowBookFaq211.
+  ///
+  /// In en, this message translates to:
+  /// **'When should I use Combined View?'**
+  String get docsHowBookFaq211;
+
+  /// No description provided for @docsHowBookFaq221.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Combined View when you\'ve selected multiple services. It shows only time slots where all your services can be done together, saving you from trying to coordinate separate times.'**
+  String get docsHowBookFaq221;
+
+  /// No description provided for @docsHowBookFaq231.
+  ///
+  /// In en, this message translates to:
+  /// **'What happens if I don\'t show up?'**
+  String get docsHowBookFaq231;
+
+  /// No description provided for @docsHowBookFaq241.
+  ///
+  /// In en, this message translates to:
+  /// **'If you don\'t show up for your appointment, the 30% deposit and platform fee are kept. You may also be marked as a \"no-show\". Repeated no-shows may result in restrictions on your account.'**
+  String get docsHowBookFaq241;
+
+  /// No description provided for @docsHowBookFaq251.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I really pay the remaining amount in cash?'**
+  String get docsHowBookFaq251;
+
+  /// No description provided for @docsHowBookFaq261.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! Many shops accept cash for the remaining 70%. You can also choose to pay through the app if you prefer. The choice is yours at the time of service.'**
+  String get docsHowBookFaq261;
+
+  /// No description provided for @docsHowBookFaq271.
+  ///
+  /// In en, this message translates to:
+  /// **'Is the platform fee charged per service or per booking?'**
+  String get docsHowBookFaq271;
+
+  /// No description provided for @docsHowBookFaq281.
+  ///
+  /// In en, this message translates to:
+  /// **'The platform fee is charged **per booking**, not per service. So whether you book one service or multiple services together, you pay the platform fee only once.'**
+  String get docsHowBookFaq281;
+
+  /// No description provided for @docsHowBookFaq291.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I book without creating an account?'**
+  String get docsHowBookFaq291;
+
+  /// No description provided for @docsHowBookFaq301.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! If a shop shares a booking link with you, you can book directly without an account or downloading the app. Follow the same booking steps, and your confirmation and receipt are sent to your WhatsApp.'**
+  String get docsHowBookFaq301;
+
+  /// No description provided for @docsHowBookFaq1Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I cancel a booking?'**
+  String get docsHowBookFaq1Q;
+
+  /// No description provided for @docsHowBookFaq1A.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to \"My Bookings\", find the booking, and tap \"Cancel\". You can cancel up to 24 hours before the appointment. The 30% deposit and platform fee are non-refundable, but you won\'t be charged the remaining 70%.'**
+  String get docsHowBookFaq1A;
+
+  /// No description provided for @docsHowBookFaq2Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I change my appointment time?'**
+  String get docsHowBookFaq2Q;
+
+  /// No description provided for @docsHowBookFaq2A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! Go to \"My Bookings\", find your booking, and tap \"Reschedule\". You can choose a new time if available. The deposit and fee remain applied to your new booking.'**
+  String get docsHowBookFaq2A;
+
+  /// No description provided for @docsHowBookFaq3Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Why do I need to pay a deposit?'**
+  String get docsHowBookFaq3Q;
+
+  /// No description provided for @docsHowBookFaq3A.
+  ///
+  /// In en, this message translates to:
+  /// **'The 30% deposit protects both you and the shop. It ensures your slot is reserved exclusively for you, and compensates the worker if you cancel last minute. The deposit goes toward your total bill.'**
+  String get docsHowBookFaq3A;
+
+  /// No description provided for @docsHowBookFaq4Q.
+  ///
+  /// In en, this message translates to:
+  /// **'What is the platform fee?'**
+  String get docsHowBookFaq4Q;
+
+  /// No description provided for @docsHowBookFaq4A.
+  ///
+  /// In en, this message translates to:
+  /// **'The platform fee (e.g., GHS 2 per booking) is a small fixed charge by the app, not the shop. It helps us maintain the platform and provide you with a smooth booking experience. The fee is clearly shown before you confirm.'**
+  String get docsHowBookFaq4A;
+
+  /// No description provided for @docsHowBookFaq5Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Is the deposit ever refundable?'**
+  String get docsHowBookFaq5Q;
+
+  /// No description provided for @docsHowBookFaq5A.
+  ///
+  /// In en, this message translates to:
+  /// **'The deposit and platform fee are non-refundable by policy. However, in genuine emergency situations, you can contact the shop directly through the app. Some shops may offer credit toward a future booking at their discretion, but the platform fee cannot be refunded.'**
+  String get docsHowBookFaq5A;
+
+  /// No description provided for @docsHowBookFaq6Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I pay the remaining 70%?'**
+  String get docsHowBookFaq6Q;
+
+  /// No description provided for @docsHowBookFaq6A.
+  ///
+  /// In en, this message translates to:
+  /// **'After your service, you have two options: pay in cash directly to the shop, or pay through the app using your preferred payment method. Both options are accepted at participating shops.'**
+  String get docsHowBookFaq6A;
+
+  /// No description provided for @docsHowBookFaq7Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I book multiple services at once?'**
+  String get docsHowBookFaq7Q;
+
+  /// No description provided for @docsHowBookFaq7A.
+  ///
+  /// In en, this message translates to:
+  /// **'Absolutely! You can select multiple services (like haircut + beard trim) and book them together. The system will find time slots where all services can be done.'**
+  String get docsHowBookFaq7A;
+
+  /// No description provided for @docsHowBookFaq8Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I book for multiple people?'**
+  String get docsHowBookFaq8Q;
+
+  /// No description provided for @docsHowBookFaq8A.
+  ///
+  /// In en, this message translates to:
+  /// **'After selecting a service, use the **+** button to increase the quantity. For example, if you\'re booking haircuts for yourself and two children, set quantity to 3. You can then choose different workers for each person.'**
+  String get docsHowBookFaq8A;
+
+  /// No description provided for @docsHowBookFaq9Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I change my chosen worker after booking?'**
+  String get docsHowBookFaq9Q;
+
+  /// No description provided for @docsHowBookFaq9A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, you can change your worker up to 24 hours before the appointment. Go to \"My Bookings\", find your booking, and look for the option to change worker. The new worker must be available at your booked time.'**
+  String get docsHowBookFaq9A;
+
+  /// No description provided for @docsHowBookFaq10Q.
+  ///
+  /// In en, this message translates to:
+  /// **'What payment methods are accepted for the deposit?'**
+  String get docsHowBookFaq10Q;
+
+  /// No description provided for @docsHowBookFaq10A.
+  ///
+  /// In en, this message translates to:
+  /// **'We accept various payment methods depending on your region, including credit/debit cards, mobile money, and bank transfers. Available options will be shown during checkout.'**
+  String get docsHowBookFaq10A;
+
+  /// No description provided for @docsHowBookFaq11Q.
+  ///
+  /// In en, this message translates to:
+  /// **'When should I use Combined View?'**
+  String get docsHowBookFaq11Q;
+
+  /// No description provided for @docsHowBookFaq11A.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Combined View when you\'ve selected multiple services. It shows only time slots where all your services can be done together, saving you from trying to coordinate separate times.'**
+  String get docsHowBookFaq11A;
+
+  /// No description provided for @docsHowBookFaq12Q.
+  ///
+  /// In en, this message translates to:
+  /// **'What happens if I don\'t show up?'**
+  String get docsHowBookFaq12Q;
+
+  /// No description provided for @docsHowBookFaq12A.
+  ///
+  /// In en, this message translates to:
+  /// **'If you don\'t show up for your appointment, the 30% deposit and platform fee are kept. You may also be marked as a \"no-show\". Repeated no-shows may result in restrictions on your account.'**
+  String get docsHowBookFaq12A;
+
+  /// No description provided for @docsHowBookFaq13Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I really pay the remaining amount in cash?'**
+  String get docsHowBookFaq13Q;
+
+  /// No description provided for @docsHowBookFaq13A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! Many shops accept cash for the remaining 70%. You can also choose to pay through the app if you prefer. The choice is yours at the time of service.'**
+  String get docsHowBookFaq13A;
+
+  /// No description provided for @docsHowBookFaq14Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Is the platform fee charged per service or per booking?'**
+  String get docsHowBookFaq14Q;
+
+  /// No description provided for @docsHowBookFaq14A.
+  ///
+  /// In en, this message translates to:
+  /// **'The platform fee is charged **per booking**, not per service. So whether you book one service or multiple services together, you pay the platform fee only once.'**
+  String get docsHowBookFaq14A;
+
+  /// No description provided for @docsHowBookFaq15Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I book without creating an account?'**
+  String get docsHowBookFaq15Q;
+
+  /// No description provided for @docsHowBookFaq15A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! If a shop shares a booking link with you, you can book directly without an account or downloading the app. Follow the same booking steps, and your confirmation and receipt are sent to your WhatsApp.'**
+  String get docsHowBookFaq15A;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

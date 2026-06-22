@@ -5185,4 +5185,622 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get docsBookingStartedFaq14A => 'Your booking confirmation and receipt are sent to your WhatsApp number. You\'ll receive appointment reminders and can track everything through WhatsApp without downloading the app.';
+
+  @override
+  String get docsHowBooktitle => 'How to Book Services';
+
+  @override
+  String get docsHowBooksubtitle => 'How to Book Services';
+
+  @override
+  String get docsHowBookBookingOverview_title => 'Booking at a Glance';
+
+  @override
+  String get docsHowBookBookingOverview_subtitle => 'The booking process in simple steps';
+
+  @override
+  String get docsHowBookBookingOverview_twoBookingWays_title => 'Two Ways to Book';
+
+  @override
+  String get docsHowBookBookingOverview_twoBookingWays_content => 'You can book in two ways:';
+
+  @override
+  String get docsHowBookBookingOverview_twoBookingWays_bullet1 => '**With App Account:** Download app, create account, book anytime';
+
+  @override
+  String get docsHowBookBookingOverview_twoBookingWays_bullet2 => '**As Guest:** Use booking link, no app needed, receipt via WhatsApp';
+
+  @override
+  String get docsHowBookBookingOverview_bookingStepsOverview_title => 'Your Booking Journey (With Account)';
+
+  @override
+  String get docsHowBookBookingOverview_bookingStepsOverview_content => 'Booking a service takes just a few minutes. Here\'s what you\'ll do:';
+
+  @override
+  String get docsHowBookBookingOverview_bookingStepsOverview_bullet1 => '**Step 1:** Find a shop and browse services';
+
+  @override
+  String get docsHowBookBookingOverview_bookingStepsOverview_bullet2 => '**Step 2:** Select your services and quantities';
+
+  @override
+  String get docsHowBookBookingOverview_bookingStepsOverview_bullet3 => '**Step 3:** Choose your preferred worker (if available)';
+
+  @override
+  String get docsHowBookBookingOverview_bookingStepsOverview_bullet4 => '**Step 4:** Pick a date and time';
+
+  @override
+  String get docsHowBookBookingOverview_bookingStepsOverview_bullet5 => '**Step 5:** Pay 30% deposit + small fee to confirm';
+
+  @override
+  String get docsHowBookBookingOverview_bookingStepsOverview_bullet6 => '**Step 6:** After service, pay remaining 70% in cash or via app';
+
+  @override
+  String get docsHowBookBookingOverview_guestBookingNote_title => 'Guest Booking (No App)';
+
+  @override
+  String get docsHowBookBookingOverview_guestBookingNote_content => 'Don\'t have the app? If a shop shares a booking link with you, follow the same steps above but without needing to create an account. Your confirmation and receipt go to your WhatsApp.';
+
+  @override
+  String get docsHowBookBookingOverview_bookingTimeNote_content => 'The entire process usually takes less than 2 minutes. Your progress is saved as you go, so you can take your time.';
+
+  @override
+  String get docsHowBookStepOne_title => 'Step 1: Find Your Shop & Services';
+
+  @override
+  String get docsHowBookStepOne_subtitle => 'Discover the perfect place for your needs';
+
+  @override
+  String get docsHowBookStepOne_findShop_title => 'How to find a shop';
+
+  @override
+  String get docsHowBookStepOne_findShop_content => 'You can find shops in several ways:';
+
+  @override
+  String get docsHowBookStepOne_findShop_bullet1 => '**Home Screen:** Browse recommended shops near you';
+
+  @override
+  String get docsHowBookStepOne_findShop_bullet2 => '**Search:** Look for specific shops or services by name';
+
+  @override
+  String get docsHowBookStepOne_findShop_bullet3 => '**Categories:** Filter by service type (Haircut, Braiding, Beard, etc.)';
+
+  @override
+  String get docsHowBookStepOne_findShop_bullet4 => '**Favorites:** Quick access to shops you\'ve saved';
+
+  @override
+  String get docsHowBookStepOne_browseServices_title => 'Browsing Services';
+
+  @override
+  String get docsHowBookStepOne_browseServices_content => 'Once you select a shop, you\'ll see all their available services. Each service shows:';
+
+  @override
+  String get docsHowBookStepOne_browseServices_bullet1 => '**Service name** (e.g., \"Afro Haircut\", \"Box Braids\")';
+
+  @override
+  String get docsHowBookStepOne_browseServices_bullet2 => '**Duration** (how long it takes)';
+
+  @override
+  String get docsHowBookStepOne_browseServices_bullet3 => '**Price** (cost of the service - this goes to the shop)';
+
+  @override
+  String get docsHowBookStepOne_browseServices_bullet4 => '**Description** (what\'s included)';
+
+  @override
+  String get docsHowBookStepOne_browseServices_bullet5 => '**Worker requirement** (whether you can choose who does it)';
+
+  @override
+  String get docsHowBookStepOne_serviceExample_title => 'Example';
+
+  @override
+  String get docsHowBookStepOne_serviceExample_content => '**Haircut Service:**\n• Name: Afro Haircut\n• Duration: 1 hour\n• Price: GHS 45 (paid to shop)\n• Description: Professional afro haircut with styling\n• Worker: You can choose your preferred barber';
+
+  @override
+  String get docsHowBookStepTwo_title => 'Step 2: Select Your Services';
+
+  @override
+  String get docsHowBookStepTwo_subtitle => 'Choose what you want and how many people';
+
+  @override
+  String get docsHowBookStepTwo_selectServices_title => 'Selecting Services';
+
+  @override
+  String get docsHowBookStepTwo_selectServices_content => 'To select a service, simply tap on it. You\'ll see it become highlighted. You can select multiple services at once:';
+
+  @override
+  String get docsHowBookStepTwo_selectServices_bullet1 => 'Tap a service to select it';
+
+  @override
+  String get docsHowBookStepTwo_selectServices_bullet2 => 'Selected services show a checkmark';
+
+  @override
+  String get docsHowBookStepTwo_selectServices_bullet3 => 'You can select multiple services (e.g., Haircut + Beard Trim)';
+
+  @override
+  String get docsHowBookStepTwo_selectServices_bullet4 => 'Tap again to deselect';
+
+  @override
+  String get docsHowBookStepTwo_groupBooking_title => 'Booking for Multiple People';
+
+  @override
+  String get docsHowBookStepTwo_groupBooking_content => 'If you\'re booking for a group (like yourself and your children), you can increase the quantity:';
+
+  @override
+  String get docsHowBookStepTwo_groupBooking_bullet1 => 'After selecting a service, you\'ll see a **+** and **-** button';
+
+  @override
+  String get docsHowBookStepTwo_groupBooking_bullet2 => 'Tap **+** to increase the number of people';
+
+  @override
+  String get docsHowBookStepTwo_groupBooking_bullet3 => 'The price updates automatically';
+
+  @override
+  String get docsHowBookStepTwo_groupBooking_bullet4 => 'Maximum quantity is shown (some services have limits)';
+
+  @override
+  String get docsHowBookStepTwo_groupExample_title => 'Example: Family Booking';
+
+  @override
+  String get docsHowBookStepTwo_groupExample_content => '**Dad wants haircuts for himself and his two sons:**\n• Select \"Haircut\" service\n• Tap **+** until quantity shows 3\n• Total price shows 3 × GHS 45 = GHS 135 (for the shop)\n• You\'ll choose workers for each person later';
+
+  @override
+  String get docsHowBookStepTwo_quantityTip_content => 'The quantity feature is perfect for families, groups of friends, or anyone booking for multiple people at once.';
+
+  @override
+  String get docsHowBookStepThree_title => 'Step 3: Choose Your Workers';
+
+  @override
+  String get docsHowBookStepThree_subtitle => 'Pick who will perform your services';
+
+  @override
+  String get docsHowBookStepThree_workerSelection_title => 'When You Can Choose a Worker';
+
+  @override
+  String get docsHowBookStepThree_workerSelection_content => 'Some services let you choose your preferred worker, while others assign whoever is available:';
+
+  @override
+  String get docsHowBookStepThree_workerSelection_bullet1 => '**Services with worker choice:** You\'ll see a \"Choose Worker\" button';
+
+  @override
+  String get docsHowBookStepThree_workerSelection_bullet2 => '**Services without worker choice:** The system will assign an available worker';
+
+  @override
+  String get docsHowBookStepThree_workerSelection_bullet3 => '**Group bookings:** You can choose different workers for each person';
+
+  @override
+  String get docsHowBookStepThree_choosingWorker_title => 'How to Choose a Worker';
+
+  @override
+  String get docsHowBookStepThree_choosingWorker_content => 'If a service lets you choose a worker:';
+
+  @override
+  String get docsHowBookStepThree_choosingWorker_bullet1 => 'Tap \"Choose Worker\" for that service';
+
+  @override
+  String get docsHowBookStepThree_choosingWorker_bullet2 => 'You\'ll see a list of available workers';
+
+  @override
+  String get docsHowBookStepThree_choosingWorker_bullet3 => 'Each worker shows their name, photo, specialties, and rating';
+
+  @override
+  String get docsHowBookStepThree_choosingWorker_bullet4 => 'Tap on a worker to select them';
+
+  @override
+  String get docsHowBookStepThree_choosingWorker_bullet5 => 'For group bookings, you\'ll choose a worker for each person';
+
+  @override
+  String get docsHowBookStepThree_workerExample_title => 'Example: Group with Different Workers';
+
+  @override
+  String get docsHowBookStepThree_workerExample_content => '**Family of 3 booking haircuts:**\n• Person 1 (Dad): Choose John (fade specialist)\n• Person 2 (Son 1): Choose Michael (kids cuts)\n• Person 3 (Son 2): Choose Michael (same worker)\n• All three will be served during your appointment time';
+
+  @override
+  String get docsHowBookStepThree_workerTip_content => 'You can see each worker\'s availability in real-time. If your preferred worker isn\'t available at your desired time, you\'ll need to choose a different time or worker.';
+
+  @override
+  String get docsHowBookStepFour_title => 'Step 4: Pick Your Date & Time';
+
+  @override
+  String get docsHowBookStepFour_subtitle => 'Select when you want your appointment';
+
+  @override
+  String get docsHowBookStepFour_dateSelection_title => 'Choosing a Date';
+
+  @override
+  String get docsHowBookStepFour_dateSelection_content => 'First, pick your preferred date from the calendar:';
+
+  @override
+  String get docsHowBookStepFour_dateSelection_bullet1 => 'Dates with available slots are highlighted';
+
+  @override
+  String get docsHowBookStepFour_dateSelection_bullet2 => 'Past dates are greyed out';
+
+  @override
+  String get docsHowBookStepFour_dateSelection_bullet3 => 'Today is marked with \"Today\"';
+
+  @override
+  String get docsHowBookStepFour_dateSelection_bullet4 => 'You can scroll forward up to 30 days';
+
+  @override
+  String get docsHowBookStepFour_timeSelection_title => 'Two Ways to View Time Slots';
+
+  @override
+  String get docsHowBookStepFour_timeSelection_content => 'Once you pick a date, you\'ll see available time slots. You can switch between two views:';
+
+  @override
+  String get docsHowBookStepFour_timeSelection_bullet1 => '**Regular View:** Shows slots for each service separately';
+
+  @override
+  String get docsHowBookStepFour_timeSelection_bullet2 => '**Combined View:** Shows only slots where ALL your services can be booked together';
+
+  @override
+  String get docsHowBookStepFour_regularVsCombined_title => 'Regular vs Combined View';
+
+  @override
+  String get docsHowBookStepFour_regularVsCombined_content => '**Regular View Example (2 services):**\n• Haircut: 9:00 AM, 9:30 AM, 10:00 AM...\n• Beard Trim: 9:00 AM, 9:30 AM, 10:00 AM...\n\n**Combined View Example (same 2 services):**\n• 9:00 AM - 10:30 AM (both services together)\n• 9:30 AM - 11:00 AM\n• 10:00 AM - 11:30 AM';
+
+  @override
+  String get docsHowBookStepFour_viewSwitch_content => 'Use the toggle switch to switch between Regular and Combined view. Combined view is especially useful when booking multiple services.';
+
+  @override
+  String get docsHowBookStepFive_title => 'Step 5: Payment & Confirmation';
+
+  @override
+  String get docsHowBookStepFive_subtitle => 'Secure your booking with a 30% deposit';
+
+  @override
+  String get docsHowBookStepFive_paymentOverview_title => 'How Payment Works';
+
+  @override
+  String get docsHowBookStepFive_paymentOverview_content => 'To secure your booking, you\'ll pay a 30% deposit plus a small processing fee. Here\'s what you need to know:';
+
+  @override
+  String get docsHowBookStepFive_paymentOverview_bullet1 => '**30% Deposit:** Required at the time of booking (goes to the shop)';
+
+  @override
+  String get docsHowBookStepFive_paymentOverview_bullet2 => '**Processing Fee:** Small fixed fee charged by the platform (e.g., GHS 2 per booking)';
+
+  @override
+  String get docsHowBookStepFive_paymentOverview_bullet3 => '**Non-Refundable Deposit:** The 30% deposit is not refunded if you cancel or don\'t show up';
+
+  @override
+  String get docsHowBookStepFive_paymentOverview_bullet4 => '**Processing Fee Non-Refundable:** The platform fee is also non-refundable';
+
+  @override
+  String get docsHowBookStepFive_paymentOverview_bullet5 => '**Secure Processing:** All payments are encrypted and secure';
+
+  @override
+  String get docsHowBookStepFive_paymentExample_title => 'Payment Example';
+
+  @override
+  String get docsHowBookStepFive_paymentExample_content => '**Sarah books services totaling GHS 200:**\n• At booking: Pays GHS 60 (30% deposit for shop) + GHS 2 (platform fee) = GHS 62\n• After service: Pays remaining GHS 140 to the shop (in cash or via app)\n• Total paid: GHS 200 to shop + GHS 2 platform fee\n\n**If Sarah cancels:** She loses the GHS 60 deposit and GHS 2 fee\n**If Sarah doesn\'t show up:** Same as cancellation';
+
+  @override
+  String get docsHowBookStepFive_paymentStep_title => 'The Payment Screen';
+
+  @override
+  String get docsHowBookStepFive_paymentStep_content => 'On the confirmation screen, you\'ll see:';
+
+  @override
+  String get docsHowBookStepFive_paymentStep_bullet1 => '**Summary:** All services, quantities, and workers';
+
+  @override
+  String get docsHowBookStepFive_paymentStep_bullet2 => '**Total Price:** Full cost of all services (for the shop)';
+
+  @override
+  String get docsHowBookStepFive_paymentStep_bullet3 => '**Deposit Amount:** 30% payable now';
+
+  @override
+  String get docsHowBookStepFive_paymentStep_bullet4 => '**Platform Fee:** Small processing fee (e.g., GHS 2)';
+
+  @override
+  String get docsHowBookStepFive_paymentStep_bullet5 => '**Total Due Now:** Deposit + platform fee';
+
+  @override
+  String get docsHowBookStepFive_paymentStep_bullet6 => '**Remaining Balance:** 70% to pay after service (cash or app)';
+
+  @override
+  String get docsHowBookStepFive_paymentStep_bullet7 => '**Payment Methods:** Choose how to pay the deposit';
+
+  @override
+  String get docsHowBookStepFive_feeExplanation_title => 'Understanding the Platform Fee';
+
+  @override
+  String get docsHowBookStepFive_feeExplanation_content => 'The processing fee (e.g., GHS 2 per booking) is charged by the platform, not the shop. This fee helps us maintain the app and provide you with a great booking experience. The fee is:';
+
+  @override
+  String get docsHowBookStepFive_feeExplanation_bullet1 => '**Fixed amount** (not a percentage)';
+
+  @override
+  String get docsHowBookStepFive_feeExplanation_bullet2 => '**Charged once per booking** (not per service)';
+
+  @override
+  String get docsHowBookStepFive_feeExplanation_bullet3 => '**Non-refundable** even if you cancel';
+
+  @override
+  String get docsHowBookStepFive_feeExplanation_bullet4 => '**Clearly shown** before you confirm';
+
+  @override
+  String get docsHowBookStepFive_paymentImportant_content => 'The 30% deposit goes to the shop and is applied toward your total bill. The platform fee is separate and helps keep the app running. You\'re not paying extra to the shop - just paying part of your bill upfront.';
+
+  @override
+  String get docsHowBookStepFive_remainingPayment_title => 'Paying the Remaining 70%';
+
+  @override
+  String get docsHowBookStepFive_remainingPayment_content => 'After your service is complete, you have two options to pay the remaining balance:';
+
+  @override
+  String get docsHowBookStepFive_remainingPayment_bullet1 => '**Cash:** Pay the worker or shop directly';
+
+  @override
+  String get docsHowBookStepFive_remainingPayment_bullet2 => '**Via App:** Pay through the app using your preferred payment method';
+
+  @override
+  String get docsHowBookStepFive_remainingPayment_bullet3 => '**Receipt:** You\'ll get a receipt regardless of how you pay';
+
+  @override
+  String get docsHowBookStepFive_confirmation_title => 'After Payment';
+
+  @override
+  String get docsHowBookStepFive_confirmation_content => 'Once your deposit payment is successful:';
+
+  @override
+  String get docsHowBookStepFive_confirmation_bullet1 => 'You\'ll see a confirmation screen';
+
+  @override
+  String get docsHowBookStepFive_confirmation_bullet2 => 'The booking appears in \"My Bookings\"';
+
+  @override
+  String get docsHowBookStepFive_confirmation_bullet3 => 'You\'ll receive an email confirmation';
+
+  @override
+  String get docsHowBookStepFive_confirmation_bullet4 => 'The shop is notified of your booking';
+
+  @override
+  String get docsHowBookStepFive_confirmation_bullet5 => 'You\'ll get a reminder before your appointment';
+
+  @override
+  String get docsHowBookStepFive_paymentWarning_content => 'The 30% deposit and platform fee are non-refundable. Please be sure about your booking before confirming. You can reschedule up to 24 hours before, but the deposit and fee remain non-refundable.';
+
+  @override
+  String get docsHowBookAfterBooking_title => 'After You Book';
+
+  @override
+  String get docsHowBookAfterBooking_subtitle => 'What happens next';
+
+  @override
+  String get docsHowBookAfterBooking_whatsNext_title => 'Your Booking is Confirmed!';
+
+  @override
+  String get docsHowBookAfterBooking_whatsNext_content => 'Here\'s what you can do after booking:';
+
+  @override
+  String get docsHowBookAfterBooking_whatsNext_bullet1 => '**View Booking:** Check details in \"My Bookings\"';
+
+  @override
+  String get docsHowBookAfterBooking_whatsNext_bullet2 => '**Reschedule:** Change the time (up to 24 hours before)';
+
+  @override
+  String get docsHowBookAfterBooking_whatsNext_bullet3 => '**Cancel:** Cancel if needed (deposit and fee are non-refundable)';
+
+  @override
+  String get docsHowBookAfterBooking_whatsNext_bullet4 => '**Contact Shop:** Message the shop directly';
+
+  @override
+  String get docsHowBookAfterBooking_whatsNext_bullet5 => '**Add to Calendar:** Export to your phone\'s calendar';
+
+  @override
+  String get docsHowBookAfterBooking_reminders_title => 'Booking Reminders';
+
+  @override
+  String get docsHowBookAfterBooking_reminders_content => 'You\'ll receive reminders at:';
+
+  @override
+  String get docsHowBookAfterBooking_reminders_bullet1 => '**24 hours before:** Check you\'re still coming';
+
+  @override
+  String get docsHowBookAfterBooking_reminders_bullet2 => '**1 hour before:** Time to head to the shop';
+
+  @override
+  String get docsHowBookAfterBooking_reminders_bullet3 => '**After appointment:** Option to leave a review and pay remaining balance';
+
+  @override
+  String get docsHowBookAfterBooking_afterService_title => 'After Your Service';
+
+  @override
+  String get docsHowBookAfterBooking_afterService_content => 'Once your service is complete:';
+
+  @override
+  String get docsHowBookAfterBooking_afterService_bullet1 => '**Pay Remaining 70%:** In cash or through the app';
+
+  @override
+  String get docsHowBookAfterBooking_afterService_bullet2 => '**Rate Your Experience:** Leave a review for the shop and worker';
+
+  @override
+  String get docsHowBookAfterBooking_afterService_bullet3 => '**Tip Your Worker:** Optional tip can be added';
+
+  @override
+  String get docsHowBookAfterBooking_afterService_bullet4 => '**Book Again:** Easily rebook with the same shop or worker';
+
+  @override
+  String get docsHowBookAfterBooking_afterTip_content => 'Arrive 5-10 minutes before your appointment time to check in. This gives you time to settle in before your service starts.';
+
+  @override
+  String get docsHowBookFaq11 => 'How do I cancel a booking?';
+
+  @override
+  String get docsHowBookFaq21 => 'Go to \"My Bookings\", find the booking, and tap \"Cancel\". You can cancel up to 24 hours before the appointment. The 30% deposit and platform fee are non-refundable, but you won\'t be charged the remaining 70%.';
+
+  @override
+  String get docsHowBookFaq32 => 'Can I change my appointment time?';
+
+  @override
+  String get docsHowBookFaq42 => 'Yes! Go to \"My Bookings\", find your booking, and tap \"Reschedule\". You can choose a new time if available. The deposit and fee remain applied to your new booking.';
+
+  @override
+  String get docsHowBookFaq53 => 'Why do I need to pay a deposit?';
+
+  @override
+  String get docsHowBookFaq63 => 'The 30% deposit protects both you and the shop. It ensures your slot is reserved exclusively for you, and compensates the worker if you cancel last minute. The deposit goes toward your total bill.';
+
+  @override
+  String get docsHowBookFaq74 => 'What is the platform fee?';
+
+  @override
+  String get docsHowBookFaq84 => 'The platform fee (e.g., GHS 2 per booking) is a small fixed charge by the app, not the shop. It helps us maintain the platform and provide you with a smooth booking experience. The fee is clearly shown before you confirm.';
+
+  @override
+  String get docsHowBookFaq95 => 'Is the deposit ever refundable?';
+
+  @override
+  String get docsHowBookFaq105 => 'The deposit and platform fee are non-refundable by policy. However, in genuine emergency situations, you can contact the shop directly through the app. Some shops may offer credit toward a future booking at their discretion, but the platform fee cannot be refunded.';
+
+  @override
+  String get docsHowBookFaq116 => 'How do I pay the remaining 70%?';
+
+  @override
+  String get docsHowBookFaq126 => 'After your service, you have two options: pay in cash directly to the shop, or pay through the app using your preferred payment method. Both options are accepted at participating shops.';
+
+  @override
+  String get docsHowBookFaq137 => 'Can I book multiple services at once?';
+
+  @override
+  String get docsHowBookFaq147 => 'Absolutely! You can select multiple services (like haircut + beard trim) and book them together. The system will find time slots where all services can be done.';
+
+  @override
+  String get docsHowBookFaq158 => 'How do I book for multiple people?';
+
+  @override
+  String get docsHowBookFaq168 => 'After selecting a service, use the **+** button to increase the quantity. For example, if you\'re booking haircuts for yourself and two children, set quantity to 3. You can then choose different workers for each person.';
+
+  @override
+  String get docsHowBookFaq179 => 'Can I change my chosen worker after booking?';
+
+  @override
+  String get docsHowBookFaq189 => 'Yes, you can change your worker up to 24 hours before the appointment. Go to \"My Bookings\", find your booking, and look for the option to change worker. The new worker must be available at your booked time.';
+
+  @override
+  String get docsHowBookFaq191 => 'What payment methods are accepted for the deposit?';
+
+  @override
+  String get docsHowBookFaq201 => 'We accept various payment methods depending on your region, including credit/debit cards, mobile money, and bank transfers. Available options will be shown during checkout.';
+
+  @override
+  String get docsHowBookFaq211 => 'When should I use Combined View?';
+
+  @override
+  String get docsHowBookFaq221 => 'Use Combined View when you\'ve selected multiple services. It shows only time slots where all your services can be done together, saving you from trying to coordinate separate times.';
+
+  @override
+  String get docsHowBookFaq231 => 'What happens if I don\'t show up?';
+
+  @override
+  String get docsHowBookFaq241 => 'If you don\'t show up for your appointment, the 30% deposit and platform fee are kept. You may also be marked as a \"no-show\". Repeated no-shows may result in restrictions on your account.';
+
+  @override
+  String get docsHowBookFaq251 => 'Can I really pay the remaining amount in cash?';
+
+  @override
+  String get docsHowBookFaq261 => 'Yes! Many shops accept cash for the remaining 70%. You can also choose to pay through the app if you prefer. The choice is yours at the time of service.';
+
+  @override
+  String get docsHowBookFaq271 => 'Is the platform fee charged per service or per booking?';
+
+  @override
+  String get docsHowBookFaq281 => 'The platform fee is charged **per booking**, not per service. So whether you book one service or multiple services together, you pay the platform fee only once.';
+
+  @override
+  String get docsHowBookFaq291 => 'Can I book without creating an account?';
+
+  @override
+  String get docsHowBookFaq301 => 'Yes! If a shop shares a booking link with you, you can book directly without an account or downloading the app. Follow the same booking steps, and your confirmation and receipt are sent to your WhatsApp.';
+
+  @override
+  String get docsHowBookFaq1Q => 'How do I cancel a booking?';
+
+  @override
+  String get docsHowBookFaq1A => 'Go to \"My Bookings\", find the booking, and tap \"Cancel\". You can cancel up to 24 hours before the appointment. The 30% deposit and platform fee are non-refundable, but you won\'t be charged the remaining 70%.';
+
+  @override
+  String get docsHowBookFaq2Q => 'Can I change my appointment time?';
+
+  @override
+  String get docsHowBookFaq2A => 'Yes! Go to \"My Bookings\", find your booking, and tap \"Reschedule\". You can choose a new time if available. The deposit and fee remain applied to your new booking.';
+
+  @override
+  String get docsHowBookFaq3Q => 'Why do I need to pay a deposit?';
+
+  @override
+  String get docsHowBookFaq3A => 'The 30% deposit protects both you and the shop. It ensures your slot is reserved exclusively for you, and compensates the worker if you cancel last minute. The deposit goes toward your total bill.';
+
+  @override
+  String get docsHowBookFaq4Q => 'What is the platform fee?';
+
+  @override
+  String get docsHowBookFaq4A => 'The platform fee (e.g., GHS 2 per booking) is a small fixed charge by the app, not the shop. It helps us maintain the platform and provide you with a smooth booking experience. The fee is clearly shown before you confirm.';
+
+  @override
+  String get docsHowBookFaq5Q => 'Is the deposit ever refundable?';
+
+  @override
+  String get docsHowBookFaq5A => 'The deposit and platform fee are non-refundable by policy. However, in genuine emergency situations, you can contact the shop directly through the app. Some shops may offer credit toward a future booking at their discretion, but the platform fee cannot be refunded.';
+
+  @override
+  String get docsHowBookFaq6Q => 'How do I pay the remaining 70%?';
+
+  @override
+  String get docsHowBookFaq6A => 'After your service, you have two options: pay in cash directly to the shop, or pay through the app using your preferred payment method. Both options are accepted at participating shops.';
+
+  @override
+  String get docsHowBookFaq7Q => 'Can I book multiple services at once?';
+
+  @override
+  String get docsHowBookFaq7A => 'Absolutely! You can select multiple services (like haircut + beard trim) and book them together. The system will find time slots where all services can be done.';
+
+  @override
+  String get docsHowBookFaq8Q => 'How do I book for multiple people?';
+
+  @override
+  String get docsHowBookFaq8A => 'After selecting a service, use the **+** button to increase the quantity. For example, if you\'re booking haircuts for yourself and two children, set quantity to 3. You can then choose different workers for each person.';
+
+  @override
+  String get docsHowBookFaq9Q => 'Can I change my chosen worker after booking?';
+
+  @override
+  String get docsHowBookFaq9A => 'Yes, you can change your worker up to 24 hours before the appointment. Go to \"My Bookings\", find your booking, and look for the option to change worker. The new worker must be available at your booked time.';
+
+  @override
+  String get docsHowBookFaq10Q => 'What payment methods are accepted for the deposit?';
+
+  @override
+  String get docsHowBookFaq10A => 'We accept various payment methods depending on your region, including credit/debit cards, mobile money, and bank transfers. Available options will be shown during checkout.';
+
+  @override
+  String get docsHowBookFaq11Q => 'When should I use Combined View?';
+
+  @override
+  String get docsHowBookFaq11A => 'Use Combined View when you\'ve selected multiple services. It shows only time slots where all your services can be done together, saving you from trying to coordinate separate times.';
+
+  @override
+  String get docsHowBookFaq12Q => 'What happens if I don\'t show up?';
+
+  @override
+  String get docsHowBookFaq12A => 'If you don\'t show up for your appointment, the 30% deposit and platform fee are kept. You may also be marked as a \"no-show\". Repeated no-shows may result in restrictions on your account.';
+
+  @override
+  String get docsHowBookFaq13Q => 'Can I really pay the remaining amount in cash?';
+
+  @override
+  String get docsHowBookFaq13A => 'Yes! Many shops accept cash for the remaining 70%. You can also choose to pay through the app if you prefer. The choice is yours at the time of service.';
+
+  @override
+  String get docsHowBookFaq14Q => 'Is the platform fee charged per service or per booking?';
+
+  @override
+  String get docsHowBookFaq14A => 'The platform fee is charged **per booking**, not per service. So whether you book one service or multiple services together, you pay the platform fee only once.';
+
+  @override
+  String get docsHowBookFaq15Q => 'Can I book without creating an account?';
+
+  @override
+  String get docsHowBookFaq15A => 'Yes! If a shop shares a booking link with you, you can book directly without an account or downloading the app. Follow the same booking steps, and your confirmation and receipt are sent to your WhatsApp.';
 }
