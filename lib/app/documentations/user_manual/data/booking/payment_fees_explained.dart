@@ -8,7 +8,7 @@ import 'package:nano_embryo/app/documentations/user_manual/models/manual_section
 
 class PaymentFeesExplainedDocs implements DocumentationModule {
   @override
-  int get order => 4;
+  int get order => 3;
 
   @override
   String getTitle(BuildContext context) => 'Payment & Fees Explained';
@@ -18,7 +18,7 @@ class PaymentFeesExplainedDocs implements DocumentationModule {
 
   @override
   String getSubtitle(BuildContext context) =>
-      'A clear breakdown of deposits, fees, and payments';
+      'How 30% deposits, platform fees, and guest bookings work';
 
   @override
   IconData get icon => Icons.payment;
@@ -64,6 +64,14 @@ class PaymentFeesExplainedDocs implements DocumentationModule {
           content:
               'The platform fee is charged by the app, not the shop. It helps us maintain the platform and provide you with a great booking experience.',
           type: ManualContentType.important,
+        ),
+        ManualContent(
+          id: 'guest_booking_note',
+          title: 'Guest Booking (No App Download)',
+          content:
+              'Don\'t have the app? No problem! You can still book through your provider\'s booking link without creating an account. You pay the same 30% deposit + platform fee, and your receipt is sent to WhatsApp.',
+          numberPrefix: '2',
+          type: ManualContentType.text,
         ),
       ],
     ),
@@ -453,7 +461,7 @@ class PaymentFeesExplainedDocs implements DocumentationModule {
       subtitle: 'How you can pay',
       icon: Icons.credit_card,
       category: 'Payment',
-      order: 8,
+      order: 11,
       contents: [
         ManualContent(
           id: 'methods_deposit',
@@ -504,12 +512,72 @@ class PaymentFeesExplainedDocs implements DocumentationModule {
       ],
     ),
     ManualSection(
+      id: 'guest_bookings',
+      title: 'Guest Bookings (No App Download)',
+      subtitle: 'Book without creating an account',
+      icon: Icons.link,
+      category: 'Payment',
+      order: 9,
+      contents: [
+        ManualContent(
+          id: 'guest_what',
+          title: 'What is a Guest Booking?',
+          content:
+              'A guest booking lets you reserve an appointment without downloading the app or creating an account. Your provider shares a link – you click it and book directly.',
+          numberPrefix: '1',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
+          id: 'guest_payment',
+          title: 'How Guest Booking Payment Works',
+          content: 'Guest bookings follow the same payment model as app bookings:',
+          numberPrefix: '2',
+          type: ManualContentType.bulletList,
+          bulletPoints: [
+            '**30% Deposit** – Pay upfront to secure your slot',
+            '**Platform Fee** – Small fixed fee added to deposit',
+            '**70% Balance** – Pay cash or online after service',
+          ],
+        ),
+        ManualContent(
+          id: 'guest_whatsapp',
+          title: 'Booking Details via WhatsApp',
+          content:
+              'Once you complete your guest booking, your appointment details and payment receipt are sent to your WhatsApp. This way you can track everything without the app.',
+          numberPrefix: '3',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
+          id: 'guest_benefits',
+          title: 'Why Book as a Guest?',
+          content: 'Guest bookings are perfect if:',
+          numberPrefix: '4',
+          type: ManualContentType.bulletList,
+          bulletPoints: [
+            'You don\'t want to download another app',
+            'You\'re booking for a one-time appointment',
+            'You prefer simple, hassle-free booking',
+            'Your provider shared a direct link with you',
+          ],
+        ),
+        ManualContent(
+          id: 'guest_convert',
+          title: 'Convert Guest to Account',
+          content:
+              'If you make multiple bookings, you can create a full account anytime to access your booking history, saved payments, and loyalty benefits.',
+          numberPrefix: '5',
+          type: ManualContentType.text,
+        ),
+      ],
+    ),
+
+    ManualSection(
       id: 'receipts',
       title: 'Receipts & Records',
       subtitle: 'Keeping track of your payments',
       icon: Icons.receipt,
       category: 'Payment',
-      order: 9,
+      order: 10,
       contents: [
         ManualContent(
           id: 'receipt_what',
@@ -563,7 +631,7 @@ class PaymentFeesExplainedDocs implements DocumentationModule {
       subtitle: 'Quick answers',
       icon: Icons.help,
       category: 'Payment',
-      order: 10,
+      order: 12,
       contents: [
         ManualContent(
           id: 'payment_faq_1',
@@ -705,6 +773,30 @@ class PaymentFeesExplainedDocs implements DocumentationModule {
             'Absolutely. All payments are processed through secure, PCI-compliant gateways. Your payment details are encrypted and never stored in plain text. We use industry-standard security measures to protect your information.',
         category: 'Payment',
         order: 12,
+      ),
+      FAQModel(
+        id: 'faq_guest_booking',
+        question: 'What is a guest booking and do I need an account?',
+        answer:
+            'A guest booking lets you reserve through a provider\'s shared link without downloading the app or creating an account. You pay the same 30% deposit + platform fee, and your receipt is sent to WhatsApp.',
+        category: 'Guest Bookings',
+        order: 13,
+      ),
+      FAQModel(
+        id: 'faq_guest_receipt',
+        question: 'How do I get my booking details if I book as a guest?',
+        answer:
+            'Your appointment details, payment receipt, and reminders are sent to your WhatsApp. You can access everything there without downloading the app.',
+        category: 'Guest Bookings',
+        order: 14,
+      ),
+      FAQModel(
+        id: 'faq_guest_conversion',
+        question: 'Can I convert my guest booking to a full account?',
+        answer:
+            'Yes! After booking as a guest, you can create a full account anytime to access your booking history, saved payments, and other features like loyalty rewards.',
+        category: 'Guest Bookings',
+        order: 15,
       ),
     ];
   }
