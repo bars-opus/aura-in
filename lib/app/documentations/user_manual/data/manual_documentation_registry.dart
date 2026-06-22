@@ -1,5 +1,5 @@
 // lib/core/documentation/documentation_registry.dart
-import 'package:nano_embryo/app/documentations/user_manual/data/architecture_docs.dart';
+import 'package:nano_embryo/app/documentations/user_manual/data/freelancer_docs.dart';
 import 'package:nano_embryo/app/documentations/user_manual/data/booking/booking_getting_started.dart';
 import 'package:nano_embryo/app/documentations/user_manual/data/booking/faqs.dart';
 import 'package:nano_embryo/app/documentations/user_manual/data/booking/group_bookings.dart';
@@ -23,6 +23,7 @@ class DocumentationRegistry {
   static void initialize() {
     // Register all your modules here
     registerModule(CreateShopDocs());
+    registerModule(FreelancerDocs());
     registerModule(BookingGettingStartedDocs());
     registerModule(HowToBookServicesDocs());
     registerModule(GroupBookingsDocs());
@@ -30,7 +31,6 @@ class DocumentationRegistry {
     registerModule(TimeSlotsExplainedDocs());
     registerModule(FAQsDocs());
 
-    registerModule(ArchitectureDocs());
     registerModule(DashboardDocs());
     registerModule(GettingStartedDocs());
     registerModule(TestingDocs());
@@ -48,6 +48,8 @@ class DocumentationRegistry {
 
   static CreateShopDocs get createShop =>
       getById('create_shop') as CreateShopDocs;
+  static FreelancerDocs get freelancer =>
+      getById('become_freelancer') as FreelancerDocs;
   static BookingGettingStartedDocs get bookingGettingStarted =>
       getById('bookingGettingStarted') as BookingGettingStartedDocs;
   static HowToBookServicesDocs get howToBookServices =>
@@ -61,8 +63,6 @@ class DocumentationRegistry {
   static FAQsDocs get faqs => getById('faqs') as FAQsDocs;
 
   // ✅ 3. Get direct instances (for type-safe access)
-  static ArchitectureDocs get architecture =>
-      getById('architecture') as ArchitectureDocs;
   static DashboardDocs get dashboard => getById('dashboard') as DashboardDocs;
   static GettingStartedDocs get gettingStarted =>
       getById('gettingStarted') as GettingStartedDocs;
