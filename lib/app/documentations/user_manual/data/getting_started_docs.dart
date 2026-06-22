@@ -77,6 +77,14 @@ class GettingStartedDocs implements DocumentationModule {
           type: ManualContentType.text,
         ),
         ManualContent(
+          id: 'guest_booking',
+          title: 'Guest Booking (No App Download Needed)',
+          content:
+              'Don\'t want to download the app? Service providers can share a booking link - you can book and pay directly through that link without creating an account. Your booking details and receipt will be sent to your WhatsApp.',
+          numberPrefix: '1b',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
           id: 'option_provider',
           title: 'Option 2: Offer Services (Shop Owner or Freelancer)',
           content:
@@ -330,14 +338,151 @@ class GettingStartedDocs implements DocumentationModule {
       ],
     ),
 
-    // Section 9: Need Help?
+    // Section 9: How Booking & Payment Works
+    ManualSection(
+      id: 'booking_payment_explained',
+      title: 'Booking & Payment System',
+      subtitle: 'How service booking and payment work',
+      icon: Icons.payment,
+      category: 'Core Features',
+      order: 9,
+      contents: [
+        ManualContent(
+          id: 'booking_overview',
+          title: 'How Service Bookings Work',
+          content:
+              'Customers book appointments with service providers. Payments are handled securely through the app using Paystack (Africa) or Stripe (Global).',
+          numberPrefix: '1',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
+          id: 'deposit_payment',
+          title: 'Deposit Payment (30%)',
+          content:
+              'When booking a service, customers pay 30% upfront as a deposit to secure the time slot. This confirms the booking is real and reserved.',
+          numberPrefix: '2',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
+          id: 'platform_fee',
+          title: 'Platform Fee',
+          content:
+              'A small platform fee (2%) is added to help us maintain the platform and provide support. This is calculated on the total booking amount.',
+          numberPrefix: '3',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
+          id: 'remaining_payment',
+          title: 'Remaining Payment (70%)',
+          content:
+              'The remaining 70% can be paid either: (1) in cash when the service is completed, or (2) online through the app before the appointment.',
+          numberPrefix: '4',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
+          id: 'guest_booking_payment',
+          title: 'Guest Booking Payment',
+          content:
+              'No app download needed! Customers receive a booking link from the service provider. They pay 30% to secure the slot, and their receipt is sent to WhatsApp.',
+          numberPrefix: '5',
+          type: ManualContentType.text,
+        ),
+      ],
+    ),
+
+    // Section 10: Product Ordering & Delivery
+    ManualSection(
+      id: 'product_ordering',
+      title: 'Product Ordering & Delivery',
+      subtitle: 'How product sales work',
+      icon: Icons.shopping_cart,
+      category: 'Core Features',
+      order: 10,
+      contents: [
+        ManualContent(
+          id: 'product_overview',
+          title: 'How Product Ordering Works',
+          content:
+              'Customers browse products, add items to cart, and checkout. Products are delivered to the customer\'s location.',
+          numberPrefix: '1',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
+          id: 'cod_payment',
+          title: 'Cash on Delivery (COD)',
+          content:
+              'For product orders, payment is handled as Cash on Delivery. Customers pay the seller when they receive the items - no upfront payment needed.',
+          numberPrefix: '2',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
+          id: 'cod_benefits',
+          title: 'Why Cash on Delivery?',
+          content: 'COD is used for products because:',
+          numberPrefix: '3',
+          type: ManualContentType.bulletList,
+          bulletPoints: [
+            'Customers can verify item quality before paying',
+            'No payment risk if delivery is delayed',
+            'Simpler delivery process for sellers',
+            'Works well for local deliveries',
+          ],
+        ),
+        ManualContent(
+          id: 'delivery_details',
+          title: 'Delivery Details',
+          content:
+              'Customers provide delivery address and phone number at checkout. Sellers arrange delivery and collect payment on arrival.',
+          numberPrefix: '4',
+          type: ManualContentType.text,
+        ),
+      ],
+    ),
+
+    // Section 11: Share & Earn
+    ManualSection(
+      id: 'share_and_earn',
+      title: 'Share Your Profile',
+      subtitle: 'Make it easy for customers to find you',
+      icon: Icons.share,
+      category: 'Marketing',
+      order: 11,
+      contents: [
+        ManualContent(
+          id: 'share_link',
+          title: 'Your Unique Booking Link',
+          content:
+              'As a service provider, you get a unique booking link. Share it on WhatsApp, social media, or email. Customers can book services without downloading the app.',
+          numberPrefix: '1',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
+          id: 'custom_slug',
+          title: 'Custom URL (Optional)',
+          content:
+              'You can customize your booking link slug (e.g., aura.in/glamour-salon instead of aura.in/abc123). Makes it easier to share and remember.',
+          numberPrefix: '2',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
+          id: 'share_benefits',
+          title: 'Why Sharing Matters',
+          content:
+              'The easier you make it for customers to book, the more bookings you get. Share your link everywhere your customers are.',
+          numberPrefix: '3',
+          type: ManualContentType.text,
+        ),
+      ],
+    ),
+
+    // Section 12: Need Help?
     ManualSection(
       id: 'getting_help',
       title: 'Get Help',
       subtitle: 'Where to find answers',
       icon: Icons.help_outline,
       category: 'Support',
-      order: 9,
+      order: 12,
       contents: [
         ManualContent(
           id: 'help_documentation',
@@ -359,7 +504,6 @@ class GettingStartedDocs implements DocumentationModule {
             'Sell Products Online - Product listing guide',
             'Manage Your Business Dashboard - Analytics & reports',
             'Business Tools - Reminders, promotions, loyalty programs',
-            'Booking System - How bookings work',
           ],
         ),
       ],
@@ -416,6 +560,38 @@ class GettingStartedDocs implements DocumentationModule {
             'Every service provider has ratings and reviews from customers who have booked with them. Read reviews before booking. High ratings mean consistent, quality service.',
         category: 'Trust',
         order: 6,
+      ),
+      FAQModel(
+        id: 'faq_getting_started_7',
+        question: 'Can I book without downloading the app?',
+        answer:
+            'Yes! Service providers share a unique booking link. You can book directly through that link without downloading the app. Your receipt will be sent to WhatsApp.',
+        category: 'Booking',
+        order: 7,
+      ),
+      FAQModel(
+        id: 'faq_getting_started_8',
+        question: 'How much do I pay upfront for bookings?',
+        answer:
+            'You pay 30% of the service total upfront to secure the booking slot (plus a 2% platform fee). The remaining 70% can be paid in cash or online before/at the service.',
+        category: 'Payments',
+        order: 8,
+      ),
+      FAQModel(
+        id: 'faq_getting_started_9',
+        question: 'How do I pay for products?',
+        answer:
+            'Products use Cash on Delivery (COD). You pay the seller when you receive the items. This lets you check quality before paying and works well for local deliveries.',
+        category: 'Payments',
+        order: 9,
+      ),
+      FAQModel(
+        id: 'faq_getting_started_10',
+        question: 'Why the 2% platform fee?',
+        answer:
+            'The platform fee helps us maintain Aura In, provide payment processing, customer support, and continuously improve features for both customers and service providers.',
+        category: 'Payments',
+        order: 10,
       ),
     ];
   }
