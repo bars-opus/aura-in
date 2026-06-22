@@ -1,15 +1,21 @@
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 
 class CreateProductDocs implements DocumentationModule {
   @override
-  String getTitle(BuildContext context) => 'Sell Products Online';
+  String getTitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsCreateProductTitle;
+  }
 
   @override
   String get id => 'sell_products';
 
   @override
-  String getSubtitle(BuildContext context) =>
-      'List items for sale and reach customers in your area';
+  String getSubtitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsCreateProductSubtitle;
+  }
 
   @override
   IconData get icon => Icons.shopping_bag;
