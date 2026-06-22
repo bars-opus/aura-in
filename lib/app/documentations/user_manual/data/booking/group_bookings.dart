@@ -1,6 +1,7 @@
 // lib/features/documentation/data/docs/booking_docs/group_bookings.dart
 
 import 'package:flutter/material.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 import 'package:nano_embryo/app/documentations/user_manual/models/documentation_model.dart'
     show DocumentationModule;
 import 'package:nano_embryo/app/documentations/user_manual/models/faq_model.dart';
@@ -12,14 +13,19 @@ class GroupBookingsDocs implements DocumentationModule {
   int get order => 3;
 
   @override
-  String getTitle(BuildContext context) => 'Group Bookings';
+  String getTitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsGroupBookingsTitle;
+  }
 
   @override
   String get id => 'groupBookings';
 
   @override
-  String getSubtitle(BuildContext context) =>
-      'How to book services for yourself and others';
+  String getSubtitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsGroupBookingsSubtitle;
+  }
 
   @override
   IconData get icon => Icons.group;
