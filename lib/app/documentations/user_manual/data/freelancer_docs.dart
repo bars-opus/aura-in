@@ -1,18 +1,24 @@
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 
 class FreelancerDocs implements DocumentationModule {
   @override
   int get order => 2;
 
   @override
-  String getTitle(BuildContext context) => 'Become a Freelancer';
+  String getTitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsFreelancerTitle;
+  }
 
   @override
   String get id => 'become_freelancer';
 
   @override
-  String getSubtitle(BuildContext context) =>
-      'Offer your services on demand and grow your client base';
+  String getSubtitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsFreelancerSubtitle;
+  }
 
   @override
   IconData get icon => Icons.person_add;
