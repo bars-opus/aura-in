@@ -2572,4 +2572,2230 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get dailyReportErrorGeneric => 'We couldn\'t build the report. Please try again.';
+
+  @override
+  String get docsGettingStartedTitle => 'Começar';
+
+  @override
+  String get docsGettingStartedSubtitle => 'Aprenda o básico';
+
+  @override
+  String get docsGettingStartedWhatIsTitle => 'O que é Aura In?';
+
+  @override
+  String get docsGettingStartedWhatIsSubtitle => 'Entenda a plataforma';
+
+  @override
+  String get docsGettingStartedWelcomeIntroContent => 'Aura In é um marketplace móvel que conecta profissionais de serviços com clientes. Se você oferece cortes de cabelo, massagens, serviços freelancer ou vende produtos, esta plataforma ajuda seu negócio a crescer.';
+
+  @override
+  String get docsGettingStartedWhoUsesTitle => 'Quem usa Aura In?';
+
+  @override
+  String get docsGettingStartedWhoUsesContent => 'Dois tipos de usuários alimentam a plataforma:';
+
+  @override
+  String get docsGettingStartedWhoUsesProviders => 'Prestadores de serviços - Salões, spas, barbearias, freelancers que oferecem serviços';
+
+  @override
+  String get docsGettingStartedWhoUsesCustomers => 'Clientes - Pessoas que buscam e reservam serviços em sua área';
+
+  @override
+  String get docsGettingStartedWhoUsesSellers => 'Vendedores de produtos - Lojas que vendem produtos de varejo ou artigos feitos à mão';
+
+  @override
+  String get docsGettingStartedHowItWorksTitle => 'Como funciona';
+
+  @override
+  String get docsGettingStartedHowItWorksContent => 'Prestadores de serviços criam um perfil, listam seus serviços com preços e aceitam reservas de clientes. Clientes buscam por localização, navegam por serviços e reservam compromissos. Tudo é gerenciado através do app.';
+
+  @override
+  String get docsGettingStartedThreeWaysTitle => 'Três formas de usar Aura In';
+
+  @override
+  String get docsGettingStartedThreeWaysSubtitle => 'Escolha seu papel';
+
+  @override
+  String get docsGettingStartedOption1Title => 'Opção 1: Navegar e reservar serviços (Cliente)';
+
+  @override
+  String get docsGettingStartedOption1Content => 'Procure por salões, massoterapeutas, barbeiros ou freelancers perto de você. Veja seus serviços, preços e disponibilidade. Reserve compromissos diretamente pelo app e pague com segurança.';
+
+  @override
+  String get docsGettingStartedGuestBookingTitle => 'Reserva de convidado (sem necessidade de download do app)';
+
+  @override
+  String get docsGettingStartedGuestBookingContent => 'Não quer baixar o app? Prestadores de serviços podem compartilhar um link de reserva - você pode reservar e pagar diretamente através desse link sem criar uma conta. Seus detalhes de reserva e recibo serão enviados para WhatsApp.';
+
+  @override
+  String get docsGettingStartedOption2Title => 'Opção 2: Oferecer serviços (Proprietário de loja ou Freelancer)';
+
+  @override
+  String get docsGettingStartedOption2Content => 'Crie um perfil de loja ou freelancer, liste seus serviços com preços e duração, defina seus horários de trabalho e gerencie reservas. Ganhe dinheiro com cada serviço reservado.';
+
+  @override
+  String get docsGettingStartedOption3Title => 'Opção 3: Vender produtos (Vendedor de produtos)';
+
+  @override
+  String get docsGettingStartedOption3Content => 'Se você fabrica itens artesanais ou vende produtos de varejo, você pode listá-los à venda. Clientes navegam e compram diretamente de sua loja.';
+
+  @override
+  String get docsGettingStartedBookingPaymentTitle => 'Sistema de reserva e pagamento';
+
+  @override
+  String get docsGettingStartedBookingPaymentSubtitle => 'Como funcionam reservas de serviços e pagamentos';
+
+  @override
+  String get docsGettingStartedBookingOverviewContent => 'Clientes reservam compromissos com prestadores de serviços. Pagamentos são processados com segurança através do app usando Paystack (África) ou Stripe (Global).';
+
+  @override
+  String get docsGettingStartedDepositPaymentTitle => 'Depósito (30%)';
+
+  @override
+  String get docsGettingStartedDepositPaymentContent => 'Ao reservar um serviço, clientes pagam 30% antecipadamente como depósito para garantir o horário. Isso confirma que a reserva é real e está reservada.';
+
+  @override
+  String get docsGettingStartedPlatformFeeTitle => 'Taxa de plataforma';
+
+  @override
+  String get docsGettingStartedPlatformFeeContent => 'Uma pequena taxa de plataforma (2%) é adicionada para nos ajudar a manter a plataforma e fornecer suporte. Ela é calculada sobre o valor total da reserva.';
+
+  @override
+  String get docsGettingStartedRemainingPaymentTitle => 'Pagamento restante (70%)';
+
+  @override
+  String get docsGettingStartedRemainingPaymentContent => 'Os 70% restantes podem ser pagos de duas formas: (1) em dinheiro quando o serviço for concluído, ou (2) online através do app antes do compromisso.';
+
+  @override
+  String get docsGettingStartedGuestBookingPaymentTitle => 'Pagamento de reserva de convidado';
+
+  @override
+  String get docsGettingStartedGuestBookingPaymentContent => 'Sem necessidade de download do app! Clientes recebem um link de reserva do prestador de serviços. Eles pagam 30% para garantir o horário, e seu recibo é enviado para WhatsApp.';
+
+  @override
+  String get docsGettingStartedProductOrderingTitle => 'Pedido e entrega de produtos';
+
+  @override
+  String get docsGettingStartedProductOrderingSubtitle => 'Como funciona a venda de produtos';
+
+  @override
+  String get docsGettingStartedProductOverviewContent => 'Clientes navegam por produtos, adicionam itens ao carrinho e concluem o checkout. Produtos são entregues na localização do cliente.';
+
+  @override
+  String get docsGettingStartedCODPaymentTitle => 'Pagamento na entrega (COD)';
+
+  @override
+  String get docsGettingStartedCODPaymentContent => 'Para pedidos de produtos, o pagamento é feito como pagamento na entrega. Clientes pagam o vendedor quando recebem os itens - sem pagamento antecipado necessário.';
+
+  @override
+  String get docsGettingStartedShareYourProfileTitle => 'Compartilhe seu perfil';
+
+  @override
+  String get docsGettingStartedShareYourProfileSubtitle => 'Facilite para os clientes encontrarem você';
+
+  @override
+  String get docsGettingStartedShareLinkContent => 'Como prestador de serviços, você recebe um link de reserva único. Compartilhe-o no WhatsApp, redes sociais ou email. Clientes podem reservar serviços sem baixar o app.';
+
+  @override
+  String get docsGettingStartedCustomURLTitle => 'URL personalizada (opcional)';
+
+  @override
+  String get docsGettingStartedCustomURLContent => 'Você pode personalizar seu slug de link de reserva (por ex. aura.in/glamour-salon em vez de aura.in/abc123). Facilita compartilhar e lembrar.';
+
+  @override
+  String get docsGettingStartedGetHelpTitle => 'Obtenha ajuda';
+
+  @override
+  String get docsGettingStartedGetHelpSubtitle => 'Onde encontrar respostas';
+
+  @override
+  String get docsGettingStartedHelpDocumentationContent => 'Este app tem documentação completa para cada recurso. Quando você precisar de ajuda, consulte o guia relevante - há um para seu papel e o recurso que você está usando.';
+
+  @override
+  String get docsGettingStartedFAQ1Question => 'O que é Aura In?';
+
+  @override
+  String get docsGettingStartedFAQ1Answer => 'Aura In é um marketplace móvel para negócios baseados em serviços. Clientes encontram e reservam serviços (cortes de cabelo, massagens, etc.), prestadores de serviços gerenciam reservas e receita, e vendedores de produtos listam itens à venda.';
+
+  @override
+  String get docsGettingStartedFAQ2Question => 'Preciso pagar para usar o app?';
+
+  @override
+  String get docsGettingStartedFAQ2Answer => 'O app é gratuito para baixar e usar. Prestadores de serviços pagam apenas uma pequena comissão quando clientes pagam por serviços. Processadores de pagamento (Paystack/Stripe) cobram uma taxa.';
+
+  @override
+  String get docsGettingStartedFAQ3Question => 'Qual é a diferença entre proprietário de loja e freelancer?';
+
+  @override
+  String get docsGettingStartedFAQ3Answer => 'Proprietários de lojas têm um local fixo com uma equipe de trabalhadores. Freelancers trabalham de forma independente e podem se deslocar até os clientes. Escolha com base em seu modelo de negócio.';
+
+  @override
+  String get docsGettingStartedFAQ4Question => 'Como sou pago?';
+
+  @override
+  String get docsGettingStartedFAQ4Answer => 'Quando clientes pagam por serviços, o dinheiro vai para sua carteira. Você pode sacar para sua conta bancária usando Paystack (África) ou Stripe (Global).';
+
+  @override
+  String get docsGettingStartedFAQ5Question => 'Minhas informações de pagamento são seguras?';
+
+  @override
+  String get docsGettingStartedFAQ5Answer => 'Sim. Aura In usa Paystack e Stripe, processadores de pagamento líderes com segurança em nível bancário. Nunca vemos seus detalhes de pagamento.';
+
+  @override
+  String get docsGettingStartedFAQ6Question => 'Como sei se prestadores de serviços perto de mim são confiáveis?';
+
+  @override
+  String get docsGettingStartedFAQ6Answer => 'Todo prestador de serviços tem avaliações e comentários de clientes que reservaram com eles. Leia os comentários antes de reservar. Avaliações altas significam serviço consistente e de qualidade.';
+
+  @override
+  String get docsGettingStartedFAQ7Question => 'Posso reservar sem baixar o app?';
+
+  @override
+  String get docsGettingStartedFAQ7Answer => 'Sim! Prestadores de serviços compartilham um link de reserva único. Você pode reservar diretamente através desse link sem baixar o app. Seu recibo será enviado para WhatsApp.';
+
+  @override
+  String get docsGettingStartedFAQ8Question => 'Quanto pago antecipadamente para reservas?';
+
+  @override
+  String get docsGettingStartedFAQ8Answer => 'Você paga 30% do valor total do serviço antecipadamente para garantir o horário da reserva (mais uma taxa de plataforma de 2%). Os 70% restantes podem ser pagos em dinheiro ou online antes/no momento do serviço.';
+
+  @override
+  String get docsGettingStartedFAQ9Question => 'Como pago por produtos?';
+
+  @override
+  String get docsGettingStartedFAQ9Answer => 'Produtos usam pagamento na entrega (COD). Você paga o vendedor quando recebe os itens. Isso permite verificar a qualidade antes de pagar e funciona bem para entregas locais.';
+
+  @override
+  String get docsGettingStartedFAQ10Question => 'Por que a taxa de plataforma de 2%?';
+
+  @override
+  String get docsGettingStartedFAQ10Answer => 'A taxa de plataforma nos ajuda a manter Aura In, processar pagamentos, fornecer suporte ao cliente e melhorar continuamente os recursos para clientes e prestadores de serviços.';
+
+  @override
+  String get docsBookingStartedTitle => 'Primeiros passos com reservas';
+
+  @override
+  String get docsBookingStartedSubtitle => 'Um guia simples para entender como funcionam as reservas';
+
+  @override
+  String get docsBookingIntroTitle => 'Bem-vindo ao sistema de reservas';
+
+  @override
+  String get docsBookingIntroSubtitle => 'Tudo o que você precisa saber sobre reservar serviços, seja como cliente ou como proprietário de loja.';
+
+  @override
+  String get docsBookingWhatIsTitle => 'O que é o sistema de reservas?';
+
+  @override
+  String get docsBookingWhatIsContent => 'O sistema de reservas é seu portal para agendar serviços em suas lojas favoritas. Quer você precise de um corte de cabelo, aparar a barba, tranças ou qualquer outro serviço, o sistema facilita o agendamento de consultas no seu tempo.';
+
+  @override
+  String get docsBookingWhoIsForTitle => 'Para quem é este guia?';
+
+  @override
+  String get docsBookingWhoIsForContent => 'Este guia foi desenvolvido para dois tipos de usuários:';
+
+  @override
+  String get docsBookingWhoIsForClients => 'Clientes: Pessoas que desejam reservar serviços em lojas';
+
+  @override
+  String get docsBookingWhoIsForGuests => 'Reservadores de hóspedes: Pessoas que desejam reservar via link sem criar uma conta';
+
+  @override
+  String get docsBookingWhoIsForOwners => 'Proprietários de lojas: Pessoas que gerenciam lojas, serviços e funcionários';
+
+  @override
+  String get docsBookingGuestIntroTitle => 'Novo: Reservar sem baixar o app';
+
+  @override
+  String get docsBookingGuestIntroContent => 'Sem conta? Sem problema! Se um proprietário de loja compartilhar um link de reserva com você, poderá reservar diretamente sem baixar o app. Seu recibo é enviado para WhatsApp.';
+
+  @override
+  String get docsBookingWelcomeTip => 'Nenhum conhecimento técnico necessário! Este guia usa linguagem simples e exemplos reais para ajudá-lo a entender tudo.';
+
+  @override
+  String get docsBookingAccountTitle => 'Crie sua conta (ou reserve como hóspede)';
+
+  @override
+  String get docsBookingAccountSubtitle => 'Comece em minutos - com ou sem conta';
+
+  @override
+  String get docsBookingTwoWaysTitle => 'Duas formas de reservar';
+
+  @override
+  String get docsBookingTwoWaysContent => 'Você pode reservar de duas formas:';
+
+  @override
+  String get docsBookingTwoWaysAccount => 'Com conta: Baixe o app, crie conta, reserve a qualquer momento';
+
+  @override
+  String get docsBookingTwoWaysGuest => 'Como hóspede: Use link de reserva, nenhum app necessário, recibo via WhatsApp';
+
+  @override
+  String get docsBookingAccountStepsTitle => 'Como criar uma conta';
+
+  @override
+  String get docsBookingAccountStepsContent => 'Siga estes passos simples para criar sua conta:';
+
+  @override
+  String get docsBookingAccountTypesTitle => 'Tipos de conta';
+
+  @override
+  String get docsBookingAccountTypesContent => 'Existem dois tipos de conta:';
+
+  @override
+  String get docsBookingAccountTypesClient => 'Conta de cliente: Para reservar serviços em lojas';
+
+  @override
+  String get docsBookingAccountTypesShop => 'Conta de proprietário de loja: Para gerenciar sua própria loja (requer aprovação)';
+
+  @override
+  String get docsBookingGuestOptionTitle => 'Reserve como hóspede (sem conta)';
+
+  @override
+  String get docsBookingGuestOptionContent => 'Se alguém compartilhar um link de reserva com você, poderá reservar diretamente sem criar uma conta. Basta clicar no link e seguir as etapas. Seu recibo é enviado para seu WhatsApp.';
+
+  @override
+  String get docsBookingVerificationNote => 'Você pode procurar e reservar sem uma conta usando um link de reserva. Criar uma conta dá acesso ao histórico de reservas, pagamentos salvos e recompensas de fidelidade.';
+
+  @override
+  String get docsBookingFirstBookingTitle => 'Sua primeira reserva';
+
+  @override
+  String get docsBookingFirstBookingSubtitle => 'Uma visão geral rápida';
+
+  @override
+  String get docsBookingPaymentTitle => 'Como funciona o pagamento';
+
+  @override
+  String get docsBookingPaymentContent => 'Quando você reserva um serviço, é assim que o pagamento funciona:';
+
+  @override
+  String get docsBookingPaymentDeposit => 'Depósito de 30% necessário: Para garantir sua reserva, você paga 30% do custo total do serviço antecipadamente';
+
+  @override
+  String get docsBookingPaymentNonRefundable => 'Não reembolsável: Este depósito não é reembolsado se você cancelar ou não aparecer';
+
+  @override
+  String get docsBookingPaymentRemaining => 'Saldo restante: Os 70% restantes são pagos após a conclusão do seu serviço';
+
+  @override
+  String get docsBookingPaymentSecure => 'Pagamento seguro: Todos os pagamentos são processados com segurança pelos nossos parceiros de pagamento';
+
+  @override
+  String get docsBookingDepositNote => 'O depósito de 30% o protege e protege a loja. Garante que seu horário seja reservado exclusivamente para você e compensa o funcionário se você cancelar no último momento.';
+
+  @override
+  String get docsBookingBookingTip => 'Dica profissional: Reserve pelo menos 24 horas antes para obter a melhor seleção de horários, especialmente para serviços populares.';
+
+  @override
+  String get docsBookingAfterTitle => 'Após sua reserva';
+
+  @override
+  String get docsBookingAfterSubtitle => 'O que acontece a seguir';
+
+  @override
+  String get docsBookingWhatsNextTitle => 'Sua reserva está confirmada!';
+
+  @override
+  String get docsBookingWhatsNextContent => 'Aqui está o que você pode fazer após a reserva:';
+
+  @override
+  String get docsBookingRemindersTitle => 'Lembretes de reserva';
+
+  @override
+  String get docsBookingRemindersContent => 'Você receberá lembretes em:';
+
+  @override
+  String get docsBookingAfterServiceTitle => 'Após seu serviço';
+
+  @override
+  String get docsBookingAfterServiceContent => 'Uma vez que seu serviço seja concluído:';
+
+  @override
+  String get docsPaymentTitle => 'Pagamento e taxas explicados';
+
+  @override
+  String get docsPaymentSubtitle => 'Como funcionam depósitos de 30%, taxas de plataforma e reservas de hóspedes';
+
+  @override
+  String get docsPaymentOverviewTitle => 'Como funciona o pagamento';
+
+  @override
+  String get docsPaymentOverviewSubtitle => 'Simples, transparente, seguro';
+
+  @override
+  String get docsPaymentSummaryTitle => 'Pagamento em um relance';
+
+  @override
+  String get docsPaymentSummaryContent => 'Nosso sistema de pagamento foi projetado para ser justo para clientes e proprietários de lojas. Aqui está o resumo simples:';
+
+  @override
+  String get docsPaymentDeposit30 => 'Depósito de 30%: Pago na reserva para garantir seu compromisso';
+
+  @override
+  String get docsPaymentPlatformFee => 'Taxa de plataforma: Pequena taxa fixa (ex. GHS 2) cobrada pelo app';
+
+  @override
+  String get docsPaymentRemaining70 => '70% restantes: Pagos após a conclusão do seu serviço';
+
+  @override
+  String get docsPaymentTwoWays => 'Duas formas de pagar o restante: Dinheiro ou via app';
+
+  @override
+  String get docsPaymentQuickExampleTitle => 'Exemplo rápido';
+
+  @override
+  String get docsPaymentQuickExampleContent => 'Custo do serviço: GHS 100\nNa reserva: Pague GHS 30 (depósito) + GHS 2 (taxa) = GHS 32\nApós o serviço: Pague GHS 70 (dinheiro ou app)\nTotal para a loja: GHS 100\nTaxa de plataforma: GHS 2';
+
+  @override
+  String get docsPaymentImportantNote => 'A taxa de plataforma é cobrada pelo app, não pela loja. Nos ajuda a manter a plataforma e oferecer uma ótima experiência de reserva.';
+
+  @override
+  String get docsPaymentGuestBookingTitle => 'Reserva de hóspede (sem download do app)';
+
+  @override
+  String get docsPaymentGuestBookingContent => 'Não tem o app? Sem problema! Você ainda pode reservar através do link de reserva do seu provedor sem criar uma conta. Você paga o mesmo depósito de 30% + taxa de plataforma, e seu recibo é enviado para WhatsApp.';
+
+  @override
+  String get docsDepositTitle => 'O depósito de 30%';
+
+  @override
+  String get docsDepositSubtitle => 'Por que é necessário e como funciona';
+
+  @override
+  String get docsDepositWhyTitle => 'Por que exigimos um depósito?';
+
+  @override
+  String get docsDepositWhyContent => 'O depósito de 30% o protege e protege a loja:';
+
+  @override
+  String get docsDepositProtectsYou => 'Para você: Seu horário é garantido – ninguém mais pode reservá-lo';
+
+  @override
+  String get docsDepositProtectsShop => 'Para a loja: Os funcionários são compensados se você cancelar no último minuto';
+
+  @override
+  String get docsDepositProtectsEveryone => 'Para todos: Reduz faltas, mantendo os preços justos';
+
+  @override
+  String get docsDepositCalcTitle => 'Como o depósito é calculado';
+
+  @override
+  String get docsDepositCalcContent => 'O depósito é sempre 30% do custo total do serviço. Isso inclui:';
+
+  @override
+  String get docsDepositCalcSingle => 'Serviço único: 30% desse preço de serviço';
+
+  @override
+  String get docsDepositCalcMultiple => 'Múltiplos serviços: 30% de todos os serviços combinados';
+
+  @override
+  String get docsDepositCalcGroup => 'Reservas em grupo: 30% do total para todas as pessoas';
+
+  @override
+  String get docsDepositExamplesTitle => 'Exemplos de depósito';
+
+  @override
+  String get docsDepositExamplesSingle => 'Serviço único:\nCorte de cabelo (GHS 45) → Depósito GHS 13,50';
+
+  @override
+  String get docsDepositExamplesMultiple => 'Múltiplos serviços:\nCorte de cabelo (GHS 45) + Aparador de barba (GHS 25) = GHS 70 total\nDepósito: GHS 21';
+
+  @override
+  String get docsDepositExamplesGroup => 'Reserva em grupo (3 pessoas):\n3 × Corte de cabelo (GHS 45 cada) = GHS 135 total\nDepósito: GHS 40,50';
+
+  @override
+  String get docsDepositRefundTitle => 'Política de reembolso de depósito';
+
+  @override
+  String get docsDepositRefundContent => 'O depósito de 30% não é reembolsável. Isso significa:';
+
+  @override
+  String get docsDepositRefundCancel => 'Se você cancelar: O depósito não é devolvido';
+
+  @override
+  String get docsDepositRefundNoShow => 'Se você não aparecer: O depósito não é devolvido';
+
+  @override
+  String get docsDepositRefundReschedule => 'Se você reagendar: O depósito é transferido para o novo horário';
+
+  @override
+  String get docsDepositRefundShop => 'Se a loja cancelar: Depósito completo reembolsado';
+
+  @override
+  String get docsDepositWarning => 'Certifique-se de que tem certeza sobre sua reserva antes de pagar o depósito. Embora você possa reagendar, o depósito não pode ser reembolsado se você cancelar.';
+
+  @override
+  String get docsFeeTitle => 'Taxa de plataforma';
+
+  @override
+  String get docsFeeSubtitle => 'A pequena taxa que mantém o app funcionando';
+
+  @override
+  String get docsFeeWhatTitle => 'O que é a taxa de plataforma?';
+
+  @override
+  String get docsFeeWhatContent => 'A taxa de plataforma é uma pequena cobrança fixa (ex. GHS 2) que vai para o app, não para a loja. Ela cobre:';
+
+  @override
+  String get docsFeeAppDev => 'Desenvolvimento e manutenção do app';
+
+  @override
+  String get docsFeeSupport => 'Suporte ao cliente e resolução de disputas';
+
+  @override
+  String get docsFeeProcessing => 'Custos de processamento de pagamento';
+
+  @override
+  String get docsFeeFeatures => 'Novos recursos e melhorias';
+
+  @override
+  String get docsFeeHowTitle => 'Como a taxa é cobrada';
+
+  @override
+  String get docsFeeHowContent => 'Coisas importantes a saber sobre a taxa de plataforma:';
+
+  @override
+  String get docsFeeFixed => 'Valor fixo (não uma porcentagem) – ex. GHS 2 por reserva';
+
+  @override
+  String get docsFeePerbooking => 'Cobrada uma vez por reserva – não por serviço ou pessoa';
+
+  @override
+  String get docsFeeNonRefundable => 'Não reembolsável – mesmo se você cancelar';
+
+  @override
+  String get docsFeeShown => 'Claramente exibida antes de confirmar o pagamento';
+
+  @override
+  String get docsFeeExamplesTitle => 'Exemplos de taxa de plataforma';
+
+  @override
+  String get docsFeeExamplesSingle => 'Uma pessoa, um serviço: Taxa GHS 2';
+
+  @override
+  String get docsFeeExamplesMultiple => 'Uma pessoa, múltiplos serviços: Taxa GHS 2 (ainda uma reserva!)';
+
+  @override
+  String get docsFeeExamplesGroup => 'Família de 4 reservando juntos: Taxa GHS 2 (grupo inteiro)';
+
+  @override
+  String get docsFeeExamplesSeparate => 'Compare com reservas separadas:\n4 reservas separadas = 4 × GHS 2 = GHS 8 em taxas\n1 reserva em grupo = Taxa GHS 2 – você economiza GHS 6!';
+
+  @override
+  String get docsFeeGroupTip => 'Reservar em grupo economiza taxas! Em vez de pagar a taxa de plataforma para cada pessoa, você paga apenas uma taxa para toda a reserva em grupo.';
+
+  @override
+  String get docsPaymentRemainingTitle => 'Pagamento dos 70% restantes';
+
+  @override
+  String get docsPaymentRemainingSubtitle => 'Dinheiro ou online - sua escolha';
+
+  @override
+  String get docsPaymentRemainingOptionsTitle => 'Duas opções de pagamento';
+
+  @override
+  String get docsPaymentRemainingOptionsContent => 'Após a conclusão do seu serviço, você tem duas formas de pagar os 70% restantes:';
+
+  @override
+  String get docsPaymentCashOption => 'Dinheiro: Pague diretamente à loja ou ao funcionário';
+
+  @override
+  String get docsPaymentAppOption => 'Via app: Pague através do app usando seu método de pagamento salvo';
+
+  @override
+  String get docsPaymentRemainingTip => 'Ambos os métodos de pagamento são igualmente válidos. Escolha o que for mais conveniente para você no momento do serviço.';
+
+  @override
+  String get docsCancellationTitle => 'Cancelamentos e reembolsos';
+
+  @override
+  String get docsCancellationSubtitle => 'O que acontece se você precisar cancelar';
+
+  @override
+  String get docsCancellationInfoTitle => 'Política de cancelamento';
+
+  @override
+  String get docsCancellationInfoContent => 'Entenda o que acontece quando você cancela:';
+
+  @override
+  String get docsCancellationUpTo24 => 'Cancelar até 24 horas antes: O depósito e a taxa não são reembolsáveis';
+
+  @override
+  String get docsCancellationLessThan24 => 'Cancelar menos de 24 horas antes: Mesma política – depósito e taxa não reembolsáveis';
+
+  @override
+  String get docsCancellationReschedule => 'Reagendar em vez disso: Seu depósito é transferido para o novo horário (gratuito para reagendar)';
+
+  @override
+  String get docsCancellationNoShow => 'Não aparecer: Depósito e taxa perdidos, e pode afetar o status da sua conta';
+
+  @override
+  String get docsHowToBookTitle => 'Como reservar serviços';
+
+  @override
+  String get docsHowToBookSubtitle => 'Um guia passo a passo para reservar seus compromissos';
+
+  @override
+  String get docsHowToBookOverviewTitle => 'Reserva em um relance';
+
+  @override
+  String get docsHowToBookOverviewSubtitle => 'O processo de reserva em etapas simples';
+
+  @override
+  String get docsHowToBookTwoWaysTitle => 'Duas formas de reservar';
+
+  @override
+  String get docsHowToBookTwoWaysContent => 'Você pode reservar de duas formas:';
+
+  @override
+  String get docsHowToBookTwoWaysWithApp => 'Com conta de app: Baixe o app, crie conta, reserve a qualquer momento';
+
+  @override
+  String get docsHowToBookTwoWaysGuest => 'Como hóspede: Use link de reserva, nenhum app, recibo via WhatsApp';
+
+  @override
+  String get docsHowToBookStepsTitle => 'Sua jornada de reserva (Com conta)';
+
+  @override
+  String get docsHowToBookStepsContent => 'Reservar um serviço leva apenas alguns minutos. Aqui está o que você fará:';
+
+  @override
+  String get docsHowToBookStep1 => 'Etapa 1: Encontre uma loja e explore serviços';
+
+  @override
+  String get docsHowToBookStep2 => 'Etapa 2: Selecione seus serviços e quantidades';
+
+  @override
+  String get docsHowToBookStep3 => 'Etapa 3: Escolha seu funcionário preferido (se disponível)';
+
+  @override
+  String get docsHowToBookStep4 => 'Etapa 4: Escolha uma data e hora';
+
+  @override
+  String get docsHowToBookStep5 => 'Etapa 5: Pague depósito de 30% + pequena taxa para confirmar';
+
+  @override
+  String get docsHowToBookStep6 => 'Etapa 6: Após o serviço, pague os 70% restantes em dinheiro ou via app';
+
+  @override
+  String get docsHowToBookGuestTitle => 'Reserva de hóspede (sem app)';
+
+  @override
+  String get docsHowToBookGuestContent => 'Você não tem o app? Se uma loja compartilhar um link de reserva com você, siga os passos acima, mas sem precisar criar uma conta. Sua confirmação e recibo vão para seu WhatsApp.';
+
+  @override
+  String get docsHowToBookTimeTip => 'Todo o processo geralmente leva menos de 2 minutos. Seu progresso é salvo conforme você avança, então você pode se dedicar ao seu tempo.';
+
+  @override
+  String get docsBookingStep1Title => 'Etapa 1: Encontre sua loja e serviços';
+
+  @override
+  String get docsBookingStep1Subtitle => 'Descubra o lugar perfeito para suas necessidades';
+
+  @override
+  String get docsBookingFindShopTitle => 'Como encontrar uma loja';
+
+  @override
+  String get docsBookingFindShopContent => 'Você pode encontrar lojas de várias maneiras:';
+
+  @override
+  String get docsBookingFindShopHome => 'Tela inicial: Procure lojas recomendadas perto de você';
+
+  @override
+  String get docsBookingFindShopSearch => 'Pesquisa: Procure lojas ou serviços específicos por nome';
+
+  @override
+  String get docsBookingFindShopCategories => 'Categorias: Filtre por tipo de serviço (Corte, Tranças, Barba, etc.)';
+
+  @override
+  String get docsBookingFindShopFavorites => 'Favoritos: Acesso rápido a lojas que você salvou';
+
+  @override
+  String get docsBookingBrowseServicesTitle => 'Procurar serviços';
+
+  @override
+  String get docsBookingBrowseServicesContent => 'Depois de selecionar uma loja, você verá todos os seus serviços disponíveis. Cada serviço mostra:';
+
+  @override
+  String get docsBookingServiceName => 'Nome do serviço (ex., Corte Afro, Tranças Box)';
+
+  @override
+  String get docsBookingServiceDuration => 'Duração (quanto tempo leva)';
+
+  @override
+  String get docsBookingServicePrice => 'Preço (custo do serviço - vai para a loja)';
+
+  @override
+  String get docsBookingServiceDescription => 'Descrição (o que está incluído)';
+
+  @override
+  String get docsBookingServiceWorker => 'Requisito de funcionário (se você pode escolher quem faz)';
+
+  @override
+  String get docsBookingServiceExampleTitle => 'Exemplo';
+
+  @override
+  String get docsBookingServiceExampleContent => 'Serviço de corte de cabelo:\n• Nome: Corte Afro\n• Duração: 1 hora\n• Preço: GHS 45 (pago à loja)\n• Descrição: Corte afro profissional com penteado\n• Funcionário: Você pode escolher seu barbeiro preferido';
+
+  @override
+  String get docsBookingStep2Title => 'Etapa 2: Selecione seus serviços';
+
+  @override
+  String get docsBookingStep2Subtitle => 'Escolha o que você deseja e quantas pessoas';
+
+  @override
+  String get docsBookingSelectServicesTitle => 'Seleção de serviços';
+
+  @override
+  String get docsBookingSelectServicesContent => 'Para selecionar um serviço, simplesmente toque nele. Você o verá destacado. Você pode selecionar múltiplos serviços de uma vez:';
+
+  @override
+  String get docsBookingSelectServicesTap => 'Toque em um serviço para selecioná-lo';
+
+  @override
+  String get docsBookingSelectServicesCheckmark => 'Serviços selecionados mostram uma marca de seleção';
+
+  @override
+  String get docsBookingSelectServicesMultiple => 'Você pode selecionar múltiplos serviços (ex., Corte + Aparador de barba)';
+
+  @override
+  String get docsBookingSelectServicesDeselect => 'Toque novamente para desselecionar';
+
+  @override
+  String get docsBookingGroupBookingTitle => 'Reserva para múltiplas pessoas';
+
+  @override
+  String get docsBookingGroupBookingContent => 'Se você está reservando para um grupo (como você e seus filhos), você pode aumentar a quantidade:';
+
+  @override
+  String get docsBookingGroupBookingQuantity => 'Depois de selecionar um serviço, você verá um botão + e -';
+
+  @override
+  String get docsBookingGroupBookingIncrease => 'Toque em + para aumentar o número de pessoas';
+
+  @override
+  String get docsBookingGroupBookingPrice => 'O preço atualiza automaticamente';
+
+  @override
+  String get docsBookingGroupBookingLimit => 'Quantidade máxima é mostrada (alguns serviços têm limites)';
+
+  @override
+  String get docsBookingGroupExampleTitle => 'Exemplo: Reserva familiar';
+
+  @override
+  String get docsBookingGroupExampleContent => 'Pai quer cortes de cabelo para ele e seus dois filhos:\n• Selecione o serviço \"Corte de cabelo\"\n• Toque em + até que a quantidade mostre 3\n• O preço total mostra 3 × GHS 45 = GHS 135 (para a loja)\n• Você escolherá funcionários para cada pessoa depois';
+
+  @override
+  String get docsBookingQuantityTip => 'O recurso de quantidade é perfeito para famílias, grupos de amigos ou qualquer pessoa que reserve para várias pessoas de uma vez.';
+
+  @override
+  String get docsGroupBookingsTitle => 'Reservas em grupo';
+
+  @override
+  String get docsGroupBookingsSubtitle => 'Como reservar serviços para você e outros';
+
+  @override
+  String get docsGroupIntroTitle => 'O que são reservas em grupo?';
+
+  @override
+  String get docsGroupIntroSubtitle => 'Reserva para família, amigos ou grupos simplificada';
+
+  @override
+  String get docsGroupExplainedTitle => 'Reserva para múltiplas pessoas';
+
+  @override
+  String get docsGroupExplainedContent => 'As reservas em grupo permitem que você reserve serviços para mais de uma pessoa por vez. Isso é perfeito para:';
+
+  @override
+  String get docsGroupExplainedFamilies => 'Famílias: Pais reservando cortes de cabelo para si mesmos e seus filhos';
+
+  @override
+  String get docsGroupExplainedFriends => 'Amigos: Grupo de amigos obtendo serviços juntos';
+
+  @override
+  String get docsGroupExplainedEvents => 'Eventos: Festas nupciais, aniversários ou ocasiões especiais';
+
+  @override
+  String get docsGroupExplainedColleagues => 'Colegas: Team building ou saídas de trabalho';
+
+  @override
+  String get docsGroupRealExampleTitle => 'Exemplo da vida real';
+
+  @override
+  String get docsGroupRealExampleContent => 'A família Mensah precisa de cortes de cabelo:\n• Pai: Quer um corte fade\n• Mãe: Quer um corte\n• Filho (10): Quer um corte infantil\n• Filha (8): Quer tranças\n\nEm vez de fazer 4 reservas separadas, eles podem reservar tudo junto de uma vez!';
+
+  @override
+  String get docsGroupBenefitsTitle => 'Benefícios da reserva em grupo';
+
+  @override
+  String get docsGroupBenefitsContent => 'Reservar como grupo lhe dá:';
+
+  @override
+  String get docsGroupBenefitsTransaction => 'Uma transação: Pague depósitos para todos de uma vez';
+
+  @override
+  String get docsGroupBenefitsTiming => 'Horário coordenado: Todos recebem o serviço mais ou menos na mesma hora';
+
+  @override
+  String get docsGroupBenefitsWorkers => 'Diferentes funcionários: Cada pessoa pode escolher seu funcionário preferido';
+
+  @override
+  String get docsGroupBenefitsManagement => 'Gerenciamento simplificado: Visualize e gerencie todas as reservas juntas';
+
+  @override
+  String get docsGroupBenefitsPlanning => 'Melhor planejamento: A loja pode se preparar para seu grupo';
+
+  @override
+  String get docsGroupTip => 'As reservas em grupo são perfeitas para famílias! Você pode reservar para você e seus filhos de uma vez, escolhendo diferentes funcionários para cada pessoa. Sem conta? Use um link de reserva compartilhado pela loja!';
+
+  @override
+  String get docsGroupHowTitle => 'Como fazer uma reserva em grupo';
+
+  @override
+  String get docsGroupHowSubtitle => 'Guia passo a passo';
+
+  @override
+  String get docsGroupStep1Title => 'Etapa 1: Selecione seu serviço';
+
+  @override
+  String get docsGroupStep1Content => 'Comece encontrando uma loja e selecionando o serviço desejado. Por exemplo, toque em \"Corte de cabelo\".';
+
+  @override
+  String get docsGroupStep2Title => 'Etapa 2: Escolha a quantidade';
+
+  @override
+  String get docsGroupStep2Content => 'Depois de selecionar um serviço, você verá os botões + e -. Use-os para definir quantas pessoas precisam deste serviço:';
+
+  @override
+  String get docsGroupStep2Plus => 'Toque em + para aumentar o número';
+
+  @override
+  String get docsGroupStep2Minus => 'Toque em - para diminuir';
+
+  @override
+  String get docsGroupStep2Price => 'O preço é atualizado automaticamente';
+
+  @override
+  String get docsGroupStep2Max => 'Você não pode exceder a quantidade máxima mostrada';
+
+  @override
+  String get docsGroupStep2ExampleTitle => 'Exemplo';
+
+  @override
+  String get docsGroupStep2ExampleContent => 'Para uma família de 3 que precisa de cortes de cabelo:\n• Selecione o serviço \"Corte de cabelo\"\n• Toque em + duas vezes (ou até que a quantidade mostre 3)\n• O preço total mostra: 3 × GHS 45 = GHS 135';
+
+  @override
+  String get docsGroupStep3Title => 'Etapa 3: Repita para cada serviço';
+
+  @override
+  String get docsGroupStep3Content => 'Se seu grupo precisar de serviços diferentes (por exemplo, alguns querem cortes, outros querem tranças), selecione cada serviço e defina a quantidade para cada:';
+
+  @override
+  String get docsGroupStep3Haircut => 'Selecione \"Corte de cabelo\" → defina quantidade 2';
+
+  @override
+  String get docsGroupStep3Braids => 'Selecione \"Tranças\" → defina quantidade 1';
+
+  @override
+  String get docsGroupStep3Track => 'O sistema rastreia todas as seleções';
+
+  @override
+  String get docsGroupStep3ExampleTitle => 'Exemplo: Serviços mistos';
+
+  @override
+  String get docsGroupStep3ExampleContent => 'Família de 4 com necessidades diferentes:\n• Pai: Corte de cabelo (quantidade 1)\n• Mãe: Corte (quantidade 1)\n• Filho: Corte infantil (quantidade 1)\n• Filha: Tranças (quantidade 1)\n\nTotal: 4 serviços, mas você os reservou todos de uma vez!';
+
+  @override
+  String get docsGroupStep4Title => 'Etapa 4: Escolha os funcionários para cada pessoa';
+
+  @override
+  String get docsGroupStep4Content => 'Para serviços que permitem escolher funcionários, você verá uma lista de pessoas. Toque em cada pessoa para atribuir seu funcionário:';
+
+  @override
+  String get docsGroupStep4Person1 => 'Pessoa 1: Escolha John (especialista em fade)';
+
+  @override
+  String get docsGroupStep4Person2 => 'Pessoa 2: Escolha Sarah (especialista em tranças)';
+
+  @override
+  String get docsGroupStep4Person3 => 'Pessoa 3: Escolha Michael (cortes infantis)';
+
+  @override
+  String get docsGroupStep4Person4 => 'Pessoa 4: Escolha John (mesmo funcionário para múltiplas pessoas)';
+
+  @override
+  String get docsGroupStep4ExampleTitle => 'Exemplo: Diferentes funcionários para diferentes pessoas';
+
+  @override
+  String get docsGroupStep4ExampleContent => 'Família de 3 reservando cortes de cabelo:\n• Pessoa 1 (Pai): Escolha John (especialista em fade)\n• Pessoa 2 (Filho): Escolha Michael (ótimo com crianças)\n• Pessoa 3 (Filha): Escolha Sarah (especialista em tranças)\n\nTodos os três serão atendidos durante seu bloco de compromisso.';
+
+  @override
+  String get docsGroupStep5Title => 'Etapa 5: Escolha seu horário';
+
+  @override
+  String get docsGroupStep5Content => 'Quando você seleciona uma data e hora, o sistema mostra slots que podem acomodar TODAS as pessoas do seu grupo:';
+
+  @override
+  String get docsGroupStep5Regular => 'Visualização normal: Mostra slots para cada serviço separadamente';
+
+  @override
+  String get docsGroupStep5Combined => 'Visualização combinada: Mostra apenas slots onde todos podem ser atendidos juntos';
+
+  @override
+  String get docsGroupStep5Duration => 'Duração: O horário mostrado inclui todos os serviços para todas as pessoas';
+
+  @override
+  String get docsGroupStep5ExampleTitle => 'Exemplo: Cálculo de tempo';
+
+  @override
+  String get docsGroupStep5ExampleContent => 'Reserva familiar:\n• Corte de cabelo (45 min) × 2 pessoas = 90 min\n• Tranças (2 horas) × 1 pessoa = 120 min\n• Tempo de buffer entre serviços = 15 min\n• Tempo total de compromisso: 3 horas 45 minutos\n\nO sistema cuida de tudo isso automaticamente!';
+
+  @override
+  String get docsGroupStep6Title => 'Etapa 6: Pagamento';
+
+  @override
+  String get docsGroupStep6Content => 'Para reservas em grupo, você paga:';
+
+  @override
+  String get docsGroupStep6Deposit => 'Depósito de 30%: Calculado no TOTAL de todos os serviços';
+
+  @override
+  String get docsGroupStep6Fee => 'Taxa de plataforma: Pequena taxa fixa (por exemplo, GHS 2) - cobrada UMA VEZ para todo o grupo';
+
+  @override
+  String get docsGroupStep6Remaining => '70% restantes: Pagos após a conclusão de todos os serviços';
+
+  @override
+  String get docsGroupStep6Options => 'Opções de pagamento: Dinheiro, cartão, dinheiro móvel ou pagamento via app';
+
+  @override
+  String get docsGroupStep6ExampleTitle => 'Exemplo de pagamento';
+
+  @override
+  String get docsGroupStep6ExampleContent => 'Total de reserva familiar: GHS 400\n• Depósito na reserva: GHS 120 (30% de GHS 400)\n• Taxa de plataforma: GHS 2 (cobrada UMA VEZ para todo o grupo)\n• Total a pagar agora: GHS 122\n• Restante após o serviço: GHS 280\n• Pagamento depois: Dinheiro para funcionário/loja OU via app (sua escolha)';
+
+  @override
+  String get docsGroupPaymentFlexibility => 'Múltiplas opções de pagamento';
+
+  @override
+  String get docsGroupPaymentFlexibilityContent => 'Pelos 70% restantes, você tem opções:';
+
+  @override
+  String get docsGroupPaymentFlexibilityAllCash => 'Tudo em dinheiro: Todos pagam em dinheiro quando o serviço é concluído';
+
+  @override
+  String get docsGroupPaymentFlexibilitySplit => 'Pagamentos divididos: Alguns pagam em dinheiro, outros pagam via app';
+
+  @override
+  String get docsGroupPaymentFlexibilityMixed => 'Mistura de dinheiro e app: Pague parte em dinheiro, parte via app';
+
+  @override
+  String get docsGroupPaymentFlexibilityIndividual => 'Pagamentos individuais via app: Cada pessoa paga via app';
+
+  @override
+  String get docsGroupPaymentFlexibilityTip => 'Escolha o que funciona melhor para seu grupo!';
+
+  @override
+  String get docsGroupImportant => 'O depósito e a taxa de plataforma são calculados na reserva de grupo TOTAL, não por pessoa. Você paga uma vez para todo o grupo.';
+
+  @override
+  String get docsCreateShopTitle => 'Crie Sua Loja';
+
+  @override
+  String get docsCreateShopSubtitle => 'Configure seu negócio';
+
+  @override
+  String get docsShopOverviewTitle => 'Primeiros passos com sua loja';
+
+  @override
+  String get docsShopOverviewSubtitle => 'Aprenda o básico sobre criar seu perfil de negócio';
+
+  @override
+  String get docsWelcomeIntroTitle => 'Bem-vindo ao seu painel de loja';
+
+  @override
+  String get docsWelcomeIntroContent => 'Criar uma loja no Aura In leva apenas alguns minutos. Você adicionará suas informações comerciais, definirá seus serviços e horários de trabalho, e estará pronto para aceitar reservas de clientes.';
+
+  @override
+  String get docsSetupStepsTitle => 'O que você vai configurar';
+
+  @override
+  String get docsSetupStepsContent => 'Aqui está o que você fará ao criar sua loja:';
+
+  @override
+  String get docsSetupStepsShopName => 'Adicione o nome e logotipo da sua loja';
+
+  @override
+  String get docsSetupStepsDescription => 'Escreva uma breve descrição do seu negócio';
+
+  @override
+  String get docsSetupStepsType => 'Escolha seu tipo de loja (salão, barbearia, spa, etc.)';
+
+  @override
+  String get docsSetupStepsLocation => 'Defina seu local e endereço de serviço';
+
+  @override
+  String get docsSetupStepsHours => 'Adicione seus horários de trabalho';
+
+  @override
+  String get docsSetupStepsServices => 'Crie serviços que oferece com preços';
+
+  @override
+  String get docsSetupStepsContact => 'Adicione informações de contato';
+
+  @override
+  String get docsSetupStepsPhotos => 'Carregue fotos e documentos';
+
+  @override
+  String get docsSetupTip => 'Seu trabalho é salvo automaticamente enquanto você preenche o formulário. Você pode voltar a qualquer momento para continuar editando ou publicar quando estiver pronto.';
+
+  @override
+  String get docsBasicInfoTitle => 'Informações básicas da loja';
+
+  @override
+  String get docsBasicInfoSubtitle => 'Diga aos clientes quem você é';
+
+  @override
+  String get docsLogoTitle => 'Adicione o logotipo da sua loja';
+
+  @override
+  String get docsLogoContent => 'Seu logotipo é a primeira coisa que os clientes veem. Deve representar claramente seu negócio. Use uma imagem quadrada (por exemplo, 500x500 pixels) para melhores resultados.';
+
+  @override
+  String get docsShopNameTitle => 'Nome da loja';
+
+  @override
+  String get docsShopNameContent => 'Digite o nome da sua empresa exatamente como deseja que os clientes o vejam. Seja claro e profissional. Exemplo: \"Estúdio de cabelo de Maria\" ou \"Barbearia da cidade\"';
+
+  @override
+  String get docsShopTypeTitle => 'Escolha seu tipo de loja';
+
+  @override
+  String get docsShopTypeContent => 'Selecione o tipo de negócio que você gerencia. Isso ajuda os clientes a encontrá-lo na pesquisa. Os tipos disponíveis incluem:';
+
+  @override
+  String get docsShopTypeSalon => 'Salão de beleza - para cortes de cabelo, coloração, estilo';
+
+  @override
+  String get docsShopTypeBarber => 'Barbearia - para cortes de cabelo masculino e grooming';
+
+  @override
+  String get docsShopTypeSpa => 'Spa - para massagens, faciais, serviços de bem-estar';
+
+  @override
+  String get docsShopTypeBeauty => 'Serviços de beleza - maquiagem, unhas e outros tratamentos de beleza';
+
+  @override
+  String get docsShopTypeOther => 'Outros serviços - para negócios não listados acima';
+
+  @override
+  String get docsDescriptionTitle => 'Descrição da loja';
+
+  @override
+  String get docsDescriptionContent => 'Escreva uma breve descrição de sua loja (100-200 palavras). Diga aos clientes o que o torna especial. Exemplo: \"Nos especializamos em cuidados naturais de cabelo e estilo moderno para todos os tipos de cabelo. Ambiente familiar com estilistas profissionais.\"';
+
+  @override
+  String get docsTermsTitle => 'Termos e condições';
+
+  @override
+  String get docsTermsContent => 'Adicione as regras importantes que os clientes devem conhecer. Exemplos: política de cancelamento, restrições de idade, requisitos de depósito, código de vestimenta ou restrições de saúde.';
+
+  @override
+  String get docsLocationTitle => 'Local e horas';
+
+  @override
+  String get docsLocationSubtitle => 'Onde os clientes podem encontrá-lo e quando você trabalha';
+
+  @override
+  String get docsLocationIntroTitle => 'Defina seu local';
+
+  @override
+  String get docsLocationIntroContent => 'Os clientes precisam saber onde encontrá-lo. Você pode:';
+
+  @override
+  String get docsLocationPin => 'Marque seu local no mapa (arraste o marcador)';
+
+  @override
+  String get docsLocationSearch => 'Pesquise seu endereço na caixa de pesquisa';
+
+  @override
+  String get docsLocationManual => 'Digite seu endereço manualmente';
+
+  @override
+  String get docsLocationAccuracy => 'Certifique-se de que seu local é preciso. Os clientes o usam para encontrá-lo e calcular o tempo de viagem.';
+
+  @override
+  String get docsWorkingHoursTitle => 'Defina seus horários de trabalho';
+
+  @override
+  String get docsWorkingHoursContent => 'Os clientes só podem reservar quando você está aberto. Defina seus horários para cada dia da semana.';
+
+  @override
+  String get docsHoursExampleTitle => 'Cronograma de exemplo';
+
+  @override
+  String get docsHoursExampleContent => 'Segunda - Sexta: 9h às 18h\nSábado: 10h às 16h\nDomingo: Fechado';
+
+  @override
+  String get docsHoursTip => 'Você pode definir diferentes horários para dias diferentes, ou marcar qualquer dia como fechado quando não está trabalhando.';
+
+  @override
+  String get docsServicesTitle => 'Serviços e preços';
+
+  @override
+  String get docsServicesSubtitle => 'Diga aos clientes o que você oferece e quanto custa';
+
+  @override
+  String get docsServicesIntroTitle => 'Adicione seus serviços';
+
+  @override
+  String get docsServicesIntroContent => 'Cada serviço é algo que os clientes podem reservar e pagar. Exemplos: \"Corte de cabelo\", \"Coloração de cabelo\", \"Massagem\", \"Tratamento facial\".';
+
+  @override
+  String get docsServiceDetailsTitle => 'Para cada serviço, adicione:';
+
+  @override
+  String get docsServiceDetailsContent => 'Quando você cria um serviço, precisa fornecer:';
+
+  @override
+  String get docsServiceName => 'Nome do serviço - o que você está oferecendo (por exemplo, \"Corte de cabelo\")';
+
+  @override
+  String get docsServiceDescription => 'Descrição - detalhes breves sobre o que está incluído';
+
+  @override
+  String get docsServicePrice => 'Preço - quanto o serviço custa';
+
+  @override
+  String get docsServiceDuration => 'Duração - quanto tempo leva (por exemplo, 30 minutos, 1 hora)';
+
+  @override
+  String get docsServiceCategory => 'Categoria - que tipo de serviço é';
+
+  @override
+  String get docsPricingTipTitle => 'Dica de preço';
+
+  @override
+  String get docsPricingTipContent => 'Seja claro com seus preços. Você pode oferecer diferentes níveis de serviço (por exemplo, \"Corte básico\" vs \"Corte premium\") a preços diferentes.';
+
+  @override
+  String get docsDurationImportant => 'Defina a duração com precisão. Os clientes reservam com base neste tempo, e a equipe precisa saber quanto tempo reservar.';
+
+  @override
+  String get docsTeamTitle => 'Gerencie sua equipe';
+
+  @override
+  String get docsTeamSubtitle => 'Adicione membros da equipe e atribua-os a serviços';
+
+  @override
+  String get docsWorkersIntroTitle => 'Adicione sua equipe';
+
+  @override
+  String get docsWorkersIntroContent => 'Se você tem membros da equipe trabalhando em sua loja, você pode adicioná-los aqui. Isso ajuda você a gerenciar quem está disponível para reservas.';
+
+  @override
+  String get docsAddWorkerTitle => 'Como adicionar um membro da equipe';
+
+  @override
+  String get docsAddWorkerContent => 'Quando você adiciona um trabalhador, você precisa:';
+
+  @override
+  String get docsFreelancerTitle => 'Torne-se um Freelancer';
+
+  @override
+  String get docsFreelancerSubtitle => 'Trabalhe independentemente';
+
+  @override
+  String get docsFreelancerOverviewTitle => 'Primeiros passos como freelancer';
+
+  @override
+  String get docsFreelancerOverviewSubtitle => 'Aprenda como configurar seu perfil e começar a aceitar clientes';
+
+  @override
+  String get docsFreelancerWelcomeTitle => 'Bem-vindo ao trabalho autônomo';
+
+  @override
+  String get docsFreelancerWelcomeContent => 'Como freelancer no Aura In, você oferece serviços diretamente aos clientes em sua área. Ao contrário de uma loja tradicional, você trabalha de seu próprio local e pode viajar para encontrar clientes. Configure seu perfil em apenas alguns minutos e comece a aceitar reservas.';
+
+  @override
+  String get docsFreelancerVsShopTitle => 'Freelancer vs Loja: Qual é a diferença?';
+
+  @override
+  String get docsFreelancerVsShopContent => 'Assim é como o trabalho freelancer funciona:';
+
+  @override
+  String get docsFreelancerIndependent => 'Você trabalha de forma independente - nenhuma loja fixa necessária';
+
+  @override
+  String get docsFreelancerTravel => 'Você pode viajar para clientes dentro de seu raio escolhido';
+
+  @override
+  String get docsFreelancerHours => 'Você define seus próprios horários e disponibilidade';
+
+  @override
+  String get docsFreelancerManage => 'Você gerencia seu próprio cronograma e clientes';
+
+  @override
+  String get docsFreelancerBooking => 'Os clientes o reservam diretamente para serviços';
+
+  @override
+  String get docsFreelancerRequirementsTitle => 'O que você vai precisar';
+
+  @override
+  String get docsFreelancerRequirementsContent => 'Para começar como freelancer, você precisa de: seu nome, um tipo de profissão (cabeleireiro, terapeuta de massagem, etc.), local, raio de viagem, serviços e seus horários de trabalho. Uma foto profissional ajuda os clientes a confiar em você.';
+
+  @override
+  String get docsProfileSetupTitle => 'Crie seu perfil';
+
+  @override
+  String get docsProfileSetupSubtitle => 'Diga aos clientes quem você é';
+
+  @override
+  String get docsProfilePhotoTitle => 'Adicione sua foto de perfil';
+
+  @override
+  String get docsProfilePhotoContent => 'Um retrato profissional cria confiança com os clientes. Use uma foto clara e bem iluminada de si mesmo. Os clientes querem saber com quem estão reservando.';
+
+  @override
+  String get docsYourNameTitle => 'Seu nome';
+
+  @override
+  String get docsYourNameContent => 'Digite seu nome completo exatamente como deseja que os clientes o vejam. Seja profissional e claro.';
+
+  @override
+  String get docsProfessionTypeTitle => 'Escolha sua profissão';
+
+  @override
+  String get docsProfessionTypeContent => 'Selecione o que você faz. Exemplos: Cabeleireiro, Terapeuta de Massagem, Maquiador, Barbeiro, Esteticista ou outros serviços especializados.';
+
+  @override
+  String get docsBioDescriptionTitle => 'Escreva sua biografia';
+
+  @override
+  String get docsBioDescriptionContent => 'Escreva uma breve descrição sobre você e sua experiência (50-150 palavras). Diga aos clientes o que o torna especial. Exemplo: \"Sou especializado em cuidados naturais de cabelo com 5 anos de experiência. Certificado em coloração e styling.\"';
+
+  @override
+  String get docsTermsGuidelinesTitle => 'Adicione suas diretrizes';
+
+  @override
+  String get docsTermsGuidelinesContent => 'Compartilhe regras ou políticas importantes. Exemplos: restrições de idade, política de cancelamento, requisitos de saúde ou instruções de preparação.';
+
+  @override
+  String get docsServiceAreaTitle => 'Defina sua área de serviço';
+
+  @override
+  String get docsServiceAreaSubtitle => 'Defina onde você trabalha';
+
+  @override
+  String get docsBaseLocationTitle => 'Defina seu local base';
+
+  @override
+  String get docsBaseLocationContent => 'É onde você normalmente trabalha. Os clientes dentro de seu raio de viagem podem reservá-lo. Você pode marcar no mapa ou pesquisar seu endereço.';
+
+  @override
+  String get docsTravelRadiusTitle => 'Raio de viagem';
+
+  @override
+  String get docsTravelRadiusContent => 'Até que distância você está disposto a viajar para encontrar clientes? Defina isto em quilômetros. Exemplo: \"raio de 5 km\" significa que os clientes até 5 km de seu local podem reservá-lo.';
+
+  @override
+  String get docsMobileVsFixedTitle => 'Móvel ou local fixo?';
+
+  @override
+  String get docsMobileVsFixedContent => 'Escolha se viaja para clientes ou os encontra em um único local. Se for móvel, os clientes podem solicitá-lo em sua casa ou escritório.';
+
+  @override
+  String get docsServiceAddressTip => 'Os clientes verão seu raio de viagem ao pesquisar. Seja preciso para que saibam se você pode servir sua área.';
+
+  @override
+  String get docsToolsSetupTitle => 'Liste suas ferramentas e equipamentos';
+
+  @override
+  String get docsToolsSetupSubtitle => 'Mostre aos clientes o que você traz';
+
+  @override
+  String get docsToolsIntroTitle => 'O que são ferramentas?';
+
+  @override
+  String get docsToolsIntroContent => 'Ferramentas são o equipamento ou habilidades que você possui. Eles ajudam os clientes a entender o que você pode fazer e o que esperar.';
+
+  @override
+  String get docsToolExamplesTitle => 'Ferramentas de exemplo';
+
+  @override
+  String get docsToolExamplesContent => 'Para diferentes profissões:';
+
+  @override
+  String get docsToolHairdresser => 'Cabeleireiro: Secador de cabelo, chapinha, ondulador, tesoura';
+
+  @override
+  String get docsToolMassage => 'Terapeuta de Massagem: Maca de massagem, pedras quentes, óleos aromáticos';
+
+  @override
+  String get docsToolMakeup => 'Maquiador: Pincéis de maquiagem, aerógrafo, luz LED';
+
+  @override
+  String get docsToolBarber => 'Barbeiro: Máquinas de barbear elétricas, navalha, creme para pentear';
+
+  @override
+  String get docsToolSelectionTitle => 'Seleção de ferramentas';
+
+  @override
+  String get docsToolSelectionContent => 'Escolha todas as ferramentas e equipamentos que você usa profissionalmente. Os clientes querem saber que você tem o equipamento certo para seu serviço.';
+
+  @override
+  String get docsServicesSetupTitle => 'Serviços e preços';
+
+  @override
+  String get docsServicesSetupSubtitle => 'Diga aos clientes o que você oferece';
+
+  @override
+  String get docsServiceBasicsTitle => 'Adicione seus serviços';
+
+  @override
+  String get docsServiceBasicsContent => 'Cada serviço é algo que os clientes podem reservar. Exemplos: \"Corte de cabelo\", \"Massagem corporal completa\", \"Aplicação de maquiagem\".';
+
+  @override
+  String get docsServiceInfoTitle => 'Para cada serviço, adicione:';
+
+  @override
+  String get docsServiceInfoContent => 'Você precisa:';
+
+  @override
+  String get docsServiceInfoName => 'Nome do serviço - o que você está oferecendo';
+
+  @override
+  String get docsServiceInfoDescription => 'Descrição - o que está incluído';
+
+  @override
+  String get docsServiceInfoPrice => 'Preço - quanto custa';
+
+  @override
+  String get docsServiceInfoDuration => 'Duração - quanto tempo leva (30 min, 1 hora, etc.)';
+
+  @override
+  String get docsPricingStrategyTitle => 'Dicas de preço';
+
+  @override
+  String get docsPricingStrategyContent => 'Pesquise o que outros cobram pelos serviços similares em sua área. Preço competitivo mas justo para seu nível de experiência.';
+
+  @override
+  String get docsDurationImportanceFreelancer => 'Defina a duração com precisão. É assim que você bloqueia o tempo para cada reserva. Os clientes confiam neste tempo.';
+
+  @override
+  String get docsHoursSetupTitle => 'Defina sua disponibilidade';
+
+  @override
+  String get docsHoursSetupSubtitle => 'Quando você está disponível para trabalhar';
+
+  @override
+  String get docsHoursIntroTitle => 'Horários de trabalho';
+
+  @override
+  String get docsHoursIntroContent => 'Os clientes podem reservar apenas durante os horários que você marca como disponível. Defina seus horários para cada dia da semana.';
+
+  @override
+  String get docsFlexibleHoursTitle => 'Flexível ou rigoroso?';
+
+  @override
+  String get docsFlexibleHoursContent => 'Você decide. Se quiser horários consistentes, defina-os. Se preferir flexibilidade, pode ajustar diariamente conforme necessário.';
+
+  @override
+  String get docsBlockTimeTip => 'Quando um cliente o reserva, esse tempo é bloqueado em seu calendário. Defina as horas com sabedoria para evitar conflitos.';
+
+  @override
+  String get docsContactCredentialsTitle => 'Informações de contato e credenciais';
+
+  @override
+  String get docsContactCredentialsSubtitle => 'Ajude os clientes a contatá-lo e ganhe confiança';
+
+  @override
+  String get docsCreateProductTitle => 'Vender produtos online';
+
+  @override
+  String get docsCreateProductSubtitle => 'Liste itens para venda e alcance clientes em sua área';
+
+  @override
+  String get docsProductOverviewTitle => 'Primeiros passos na venda de produtos';
+
+  @override
+  String get docsProductOverviewSubtitle => 'Aprenda a listar e vender itens';
+
+  @override
+  String get docsProductWelcomeTitle => 'Bem-vindo à venda de produtos';
+
+  @override
+  String get docsProductWelcomeContent => 'Venda produtos físicos diretamente aos clientes em sua área. De itens artesanais a bens de varejo, você pode alcançar clientes procurando o que oferece.';
+
+  @override
+  String get docsPhoneRequirementTitle => 'Você precisa de um número de telefone verificado';
+
+  @override
+  String get docsPhoneRequirementContent => 'Antes de começar a vender produtos, você deve verificar seu número de telefone. Isso é para comunicação com o cliente e para validar sua identidade.';
+
+  @override
+  String get docsAddPhoneNumberTitle => 'Como adicionar seu número de telefone';
+
+  @override
+  String get docsAddPhoneNumberContent => 'Vá para as configurações do seu perfil e adicione seu número de telefone. Você receberá um código de verificação por SMS para confirmar que é realmente seu número. Isso leva apenas um minuto.';
+
+  @override
+  String get docsWhyPhoneVerifiedTitle => 'Por que verificação de telefone?';
+
+  @override
+  String get docsWhyPhoneVerifiedContent => 'Um número de telefone verificado cria confiança do cliente e nos permite contatá-lo se houver problemas. Também ajuda a prevenir fraudes.';
+
+  @override
+  String get docsPhoneImportant => 'Você não pode listar produtos até ter um número de telefone verificado. Isso é obrigatório para todos os vendedores.';
+
+  @override
+  String get docsProductBasicsTitle => 'Informações básicas do produto';
+
+  @override
+  String get docsProductBasicsSubtitle => 'O que dizer aos clientes sobre seu produto';
+
+  @override
+  String get docsProductNameTitle => 'Nome do produto';
+
+  @override
+  String get docsProductNameContent => 'Digite o nome do seu produto claramente. Os clientes pesquisam por nome do produto, então seja específico. Exemplo: \"Carteira de couro feito à mão - Marrom\" em vez de apenas \"Carteira\".';
+
+  @override
+  String get docsProductDescriptionTitle => 'Descrição do produto';
+
+  @override
+  String get docsProductDescriptionContent => 'Escreva uma descrição detalhada. Diga aos clientes o que é, do que é feito, como usá-lo e por que é bom. Seja honesto sobre a condição (novo, usado, recondicionado).';
+
+  @override
+  String get docsCategorySelectionTitle => 'Escolha uma categoria';
+
+  @override
+  String get docsCategorySelectionContent => 'Selecione a categoria correta. Os clientes procuram por categoria para encontrar itens, então a precisão é importante. Escolha a categoria mais específica disponível.';
+
+  @override
+  String get docsProductConditionTitle => 'Condição do produto';
+
+  @override
+  String get docsProductConditionContent => 'Seja claro sobre a condição: Novo (nunca usado), Como novo (usado uma vez), Bom (desgaste leve), Regular (desgaste visível) ou Conforme apresentado. A honestidade cria confiança.';
+
+  @override
+  String get docsPricingStockTitle => 'Preço e disponibilidade';
+
+  @override
+  String get docsPricingStockSubtitle => 'Defina seu preço e gerencie o inventário';
+
+  @override
+  String get docsPricingTitle => 'Defina seu preço';
+
+  @override
+  String get docsPricingContent => 'Defina um preço justo baseado na condição, valor de mercado e demanda local. Os clientes podem ver itens similares, então a precificação competitiva ajuda.';
+
+  @override
+  String get docsCurrencyTitle => 'Moeda';
+
+  @override
+  String get docsCurrencyContent => 'Os preços são mostrados na moeda da sua loja. Certifique-se de que a moeda da sua loja está definida corretamente antes de adicionar produtos.';
+
+  @override
+  String get docsStockQuantityTitle => 'Quantidade de estoque';
+
+  @override
+  String get docsStockQuantityContent => 'Digite quantos itens você tem. Quando o estoque acaba, o produto é exibido como indisponível. Atualize isso conforme vende itens.';
+
+  @override
+  String get docsStockTip => 'Mantenha o estoque preciso. Os clientes ficam frustrados se pedirem algo fora de estoque. Atualize regularmente conforme vende.';
+
+  @override
+  String get docsProductPhotosTitle => 'Fotos do produto';
+
+  @override
+  String get docsProductPhotosSubtitle => 'Mostre aos clientes o que estão comprando';
+
+  @override
+  String get docsPhotosImportanceTitle => 'As fotos são o mais importante';
+
+  @override
+  String get docsPhotosImportanceContent => 'Fotos boas são críticas. Os clientes decidem se comprar com base em fotos. Fotos ruins = menos vendas.';
+
+  @override
+  String get docsWhatPhotosTitle => 'O que fotografar';
+
+  @override
+  String get docsWhatPhotosContent => 'Tire fotos que mostrem o produto real:';
+
+  @override
+  String get docsPhotoFull => 'Produto completo de vários ângulos';
+
+  @override
+  String get docsPhotoCloseups => 'Close-ups de detalhes e qualidade';
+
+  @override
+  String get docsPhotoCondition => 'Fotos mostrando condição (se usado)';
+
+  @override
+  String get docsPhotoScale => 'Fotos ao lado de algo para escala (como moeda ou mão)';
+
+  @override
+  String get docsPhotoDamage => 'Fotos de danos ou desgaste (honestidade cria confiança)';
+
+  @override
+  String get docsPhotoTipsTitle => 'Dicas de qualidade de foto';
+
+  @override
+  String get docsPhotoTipsContent => 'Use luz natural. Tire fotos com fundo limpo. Mostre cores com precisão. Não use filtros que mudem a aparência do produto.';
+
+  @override
+  String get docsPhotoCountTitle => 'Quantas fotos?';
+
+  @override
+  String get docsPhotoCountContent => 'Carregue pelo menos 3 fotos claras. Mais fotos ajudam os clientes a entender melhor o produto. Limite a 10 fotos por produto.';
+
+  @override
+  String get docsToolsTitle => 'Ferramentas comerciais';
+
+  @override
+  String get docsToolsSubtitle => 'Recursos poderosos para automatizar, promover e gerenciar seu negócio';
+
+  @override
+  String get docsToolsOverviewTitle => 'Visão geral das ferramentas';
+
+  @override
+  String get docsToolsOverviewSubtitle => 'O que cada ferramenta faz e como usá-la';
+
+  @override
+  String get docsToolsWelcomeTitle => 'Bem-vindo às ferramentas comerciais';
+
+  @override
+  String get docsToolsWelcomeContent => 'A aba Ferramentas tem 8 recursos poderosos para ajudá-lo a automatizar, promover e gerenciar seu negócio de forma mais eficaz. Cada ferramenta resolve um problema comercial específico.';
+
+  @override
+  String get docsToolsListTitle => 'Ferramentas disponíveis';
+
+  @override
+  String get docsToolsListContent => 'Você tem acesso a essas 8 ferramentas:';
+
+  @override
+  String get docsToolsReminders => 'Lembretes automatizados - Enviar lembretes aos clientes';
+
+  @override
+  String get docsToolsPromotions => 'Gerenciador de promoções - Criar e gerenciar descontos';
+
+  @override
+  String get docsToolsExport => 'Exportar relatórios - Baixar seus dados comerciais';
+
+  @override
+  String get docsToolsPayment => 'Configurações de pagamento - Configure como você recebe pagamentos';
+
+  @override
+  String get docsToolsHours => 'Horário comercial - Defina seu cronograma de trabalho';
+
+  @override
+  String get docsToolsServices => 'Gerenciamento de serviços - Adicione e edite seus serviços';
+
+  @override
+  String get docsToolsLoyalty => 'Programa de fidelidade - Recompense clientes leais';
+
+  @override
+  String get docsToolsBroadcasts => 'Transmissões - Enviar mensagens para seus clientes';
+
+  @override
+  String get docsRemindersTitle => '1. Lembretes automatizados';
+
+  @override
+  String get docsRemindersSubtitle => 'Enviar lembretes automáticos aos clientes';
+
+  @override
+  String get docsReminderPurposeTitle => 'O que faz';
+
+  @override
+  String get docsReminderPurposeContent => 'Enviar automaticamente mensagens de lembrete aos clientes antes de suas reservas. Reduz ausências e mantém os clientes informados.';
+
+  @override
+  String get docsReminderBenefitsTitle => 'Benefícios';
+
+  @override
+  String get docsReminderBenefitsContent => 'Lembretes automatizados ajudam você a:';
+
+  @override
+  String get docsReminderBenefitNoShow => 'Reduzir ausências - clientes têm menos probabilidade de esquecer';
+
+  @override
+  String get docsReminderBenefitExperience => 'Melhorar a experiência do cliente - eles sabem quando chegar';
+
+  @override
+  String get docsReminderBenefitTime => 'Economizar tempo - sem necessidade de ligar ou enviar mensagens manualmente';
+
+  @override
+  String get docsReminderBenefitReliability => 'Aumentar confiabilidade - lembretes saem automaticamente';
+
+  @override
+  String get docsReminderSetupTitle => 'Como configurar';
+
+  @override
+  String get docsReminderSetupContent => 'Clique em \"Configurar lembretes automatizados\" para definir o tempo: enviar lembretes 24 horas antes, 2 horas antes ou na manhã do compromisso.';
+
+  @override
+  String get docsReminderImpact => 'Lojas que usam lembretes automatizados veem 20-30% menos ausências. Isso afeta diretamente sua receita.';
+
+  @override
+  String get docsPromosTitle => '2. Gerenciador de promoções';
+
+  @override
+  String get docsPromosSubtitle => 'Criar ofertas especiais e descontos';
+
+  @override
+  String get docsPromosPurposeTitle => 'O que faz';
+
+  @override
+  String get docsPromosPurposeContent => 'Crie promoções e descontos por tempo limitado. Ofereça porcentagem de desconto, valor fixo de desconto ou complementos gratuitos para atrair mais clientes.';
+
+  @override
+  String get docsPromosExamplesTitle => 'Ideias de promoção';
+
+  @override
+  String get docsPromosExamplesContent => 'Você pode criar promoções como:';
+
+  @override
+  String get docsPromosExample1 => '20% de desconto em cortes de cabelo nas segundas';
+
+  @override
+  String get docsPromosExample2 => 'Óleo de massagem grátis com qualquer reserva de massagem';
+
+  @override
+  String get docsPromosExample3 => '50 de desconto em um pacote de serviço completo';
+
+  @override
+  String get docsPromosExample4 => 'Cliente pela primeira vez: 30% de desconto';
+
+  @override
+  String get docsPromosExample5 => 'Bônus de fidelidade: 5o serviço com metade do preço';
+
+  @override
+  String get docsPromosStrategyTitle => 'Estratégia de promoção';
+
+  @override
+  String get docsPromosStrategyContent => 'Use promoções durante períodos lentos para aumentar reservas. Rastreie quais promoções funcionam melhor através de sua análise.';
+
+  @override
+  String get docsExportTitle => '3. Exportar relatórios';
+
+  @override
+  String get docsExportSubtitle => 'Baixe seus dados para análise';
+
+  @override
+  String get docsExportPurposeTitle => 'O que faz';
+
+  @override
+  String get docsExportPurposeContent => 'Baixe relatórios detalhados de seus dados comerciais em formato de planilha. Analise reservas, receita, clientes e mais.';
+
+  @override
+  String get docsExportTypesTitle => 'Relatórios disponíveis';
+
+  @override
+  String get docsExportTypesContent => 'Você pode exportar:';
+
+  @override
+  String get docsExportBookings => 'Relatórios de reserva - todas as reservas com detalhes';
+
+  @override
+  String get docsExportRevenue => 'Relatórios de receita - lucros por intervalo de datas';
+
+  @override
+  String get docsExportCustomers => 'Relatórios de clientes - sua lista de clientes';
+
+  @override
+  String get docsExportServices => 'Relatórios de serviços - desempenho por serviço';
+
+  @override
+  String get docsExportWorkers => 'Relatórios de funcionários - métricas de desempenho da equipe';
+
+  @override
+  String get docsExportUsesTitle => 'Por que exportar dados?';
+
+  @override
+  String get docsExportUsesContent => 'Use dados exportados no Excel para análise personalizada, manutenção de registros, fins fiscais ou para compartilhar com contador.';
+
+  @override
+  String get docsTimeSlotsTitle => 'Intervalos de tempo explicados';
+
+  @override
+  String get docsTimeSlotsSubtitle => 'Entenda como funcionam os horários de reserva';
+
+  @override
+  String get docsTimeSlotsOverviewTitle => 'O que são intervalos de tempo?';
+
+  @override
+  String get docsTimeSlotsOverviewSubtitle => 'Aprenda como o sistema de agendamento funciona';
+
+  @override
+  String get docsTimeSlotsWelcomeTitle => 'Bem-vindo aos intervalos de tempo';
+
+  @override
+  String get docsTimeSlotsWelcomeContent => 'Intervalos de tempo são os horários disponíveis em que os clientes podem reservar seus serviços. Compreender como funcionam ajuda a gerenciar seu cronograma de forma eficiente.';
+
+  @override
+  String get docsTimeSlotsBasicsTitle => 'Noções básicas de intervalos de tempo';
+
+  @override
+  String get docsTimeSlotsBasicsContent => 'Assim é como funcionam os intervalos de tempo:';
+
+  @override
+  String get docsTimeSlotsPoint1 => 'Cada serviço tem uma duração (quanto tempo leva)';
+
+  @override
+  String get docsTimeSlotsPoint2 => 'Você define suas horas disponíveis (quando trabalha)';
+
+  @override
+  String get docsTimeSlotsPoint3 => 'O sistema cria intervalos de tempo com base na duração do serviço';
+
+  @override
+  String get docsTimeSlotsPoint4 => 'Os clientes só podem reservar intervalos disponíveis';
+
+  @override
+  String get docsTimeSlotsExampleTitle => 'Exemplo: Criando intervalos de tempo';
+
+  @override
+  String get docsTimeSlotsExampleContent => 'Se você oferecer um corte de cabelo de 30 minutos e trabalhar de 9h às 17h:\n• 9:00 - 9:30 (Intervalo 1)\n• 9:30 - 10:00 (Intervalo 2)\n• 10:00 - 10:30 (Intervalo 3)\n...e assim por todo o dia';
+
+  @override
+  String get docsTimeSlotsOverlapTitle => 'E se os serviços se sobrepuserem?';
+
+  @override
+  String get docsTimeSlotsOverlapContent => 'Se você tiver vários funcionários, cada pessoa tem seu próprio cronograma. Se trabalhar sozinho, apenas um cliente pode reservar por vez — o sistema bloqueia automaticamente horários conflitantes.';
+
+  @override
+  String get docsTimeSlotsGapTitle => 'Definindo lacunas entre serviços';
+
+  @override
+  String get docsTimeSlotsGapContent => 'Você pode definir tempo de buffer entre reservas. Exemplo: 15 minutos de intervalo após cada corte de cabelo para limpeza. Isso reduz os intervalos disponíveis, mas lhe dá tempo para respirar.';
+
+  @override
+  String get docsTimeSlotsGroupTitle => 'Reservas em grupo e intervalos de tempo';
+
+  @override
+  String get docsTimeSlotsGroupContent => 'Para reservas em grupo, o sistema encontra horários que funcionam para TODAS as pessoas do grupo. Isso torna mais difícil encontrar intervalos disponíveis, mas garante que todos sejam atendidos juntos.';
+
+  @override
+  String get docsTimeSlotsBlockingTitle => 'Tempo de bloqueio';
+
+  @override
+  String get docsTimeSlotsBlockingContent => 'Você pode bloquear manualmente o tempo para almoço, pausas ou compromissos pessoais. O tempo bloqueado não aparecerá como disponível para os clientes.';
+
+  @override
+  String get docsTimeSlotsUtilizationTitle => 'Maximizando seus intervalos de tempo';
+
+  @override
+  String get docsTimeSlotsUtilizationContent => 'Dicas para usar seus intervalos de forma eficiente:\n• Combine a duração do serviço com a realidade (não subestime)\n• Defina lacunas realistas entre serviços\n• Use tempo de buffer estrategicamente\n• Revise e ajuste com base no feedback do cliente';
+
+  @override
+  String get docsGettingStartedWhatIsNanoembryo_title => 'What is Aura In?';
+
+  @override
+  String get docsGettingStartedWhatIsNanoembryo_subtitle => 'Understand the platform';
+
+  @override
+  String get docsGettingStartedWhatIsNanoembryo_welcomeIntroTitle => 'Welcome to Aura In';
+
+  @override
+  String get docsGettingStartedWhatIsNanoembryo_welcomeIntroContent => 'Aura In is a mobile marketplace connecting service professionals with customers. Whether you offer haircuts, massages, freelance services, or sell products, this platform helps you grow your business.';
+
+  @override
+  String get docsGettingStartedWhatIsNanoembryo_whoUsesAppTitle => 'Who Uses Aura In?';
+
+  @override
+  String get docsGettingStartedWhatIsNanoembryo_whoUsesAppContent => 'Two types of users power the platform:';
+
+  @override
+  String get docsGettingStartedWhatIsNanoembryo_whoUsesAppBullet1 => 'Service Providers - Salons, spas, barbers, freelancers who offer services';
+
+  @override
+  String get docsGettingStartedWhatIsNanoembryo_whoUsesAppBullet2 => 'Customers - People searching for and booking services in their area';
+
+  @override
+  String get docsGettingStartedWhatIsNanoembryo_whoUsesAppBullet3 => 'Product Sellers - Shops selling retail products or handmade items';
+
+  @override
+  String get docsGettingStartedWhatIsNanoembryo_howItWorksTitle => 'How It Works';
+
+  @override
+  String get docsGettingStartedWhatIsNanoembryo_howItWorksContent => 'Service providers create a profile, list their services with pricing, and accept bookings from customers. Customers search by location, browse services, and book appointments. Everything is managed through the app.';
+
+  @override
+  String get docsGettingStartedThreeUserTypes_title => 'Three Ways to Use Aura In';
+
+  @override
+  String get docsGettingStartedThreeUserTypes_subtitle => 'Choose your role';
+
+  @override
+  String get docsGettingStartedThreeUserTypes_optionCustomerTitle => 'Option 1: Browse & Book Services (Customer)';
+
+  @override
+  String get docsGettingStartedThreeUserTypes_optionCustomerContent => 'Search for salons, massage therapists, barbers, or freelancers near you. View their services, pricing, and availability. Book appointments directly through the app and pay securely.';
+
+  @override
+  String get docsGettingStartedThreeUserTypes_guestBookingTitle => 'Guest Booking (No App Download Needed)';
+
+  @override
+  String get docsGettingStartedThreeUserTypes_guestBookingContent => 'Don\'t want to download the app? Service providers can share a booking link - you can book and pay directly through that link without creating an account. Your booking details and receipt will be sent to your WhatsApp.';
+
+  @override
+  String get docsGettingStartedThreeUserTypes_optionProviderTitle => 'Option 2: Offer Services (Shop Owner or Freelancer)';
+
+  @override
+  String get docsGettingStartedThreeUserTypes_optionProviderContent => 'Create a shop or freelancer profile, list your services with pricing and duration, set your working hours, and manage bookings. Get paid for every service booked.';
+
+  @override
+  String get docsGettingStartedThreeUserTypes_optionSellerTitle => 'Option 3: Sell Products (Product Seller)';
+
+  @override
+  String get docsGettingStartedThreeUserTypes_optionSellerContent => 'If you make handmade items or sell products, you can list them for sale. Customers browse and purchase directly from your shop.';
+
+  @override
+  String get docsGettingStartedKeyFeatures_title => 'Platform Features';
+
+  @override
+  String get docsGettingStartedKeyFeatures_subtitle => 'What you can do';
+
+  @override
+  String get docsGettingStartedKeyFeatures_featuresOverviewTitle => 'Core Platform Features';
+
+  @override
+  String get docsGettingStartedKeyFeatures_featuresOverviewContent => 'Aura In includes everything you need to run a service business:';
+
+  @override
+  String get docsGettingStartedKeyFeatures_featuresOverviewBullet1 => 'Booking System - Customers book services, you manage calendar';
+
+  @override
+  String get docsGettingStartedKeyFeatures_featuresOverviewBullet2 => 'Secure Payments - Accept payments via Paystack or Stripe';
+
+  @override
+  String get docsGettingStartedKeyFeatures_featuresOverviewBullet3 => 'Real-time Chat - Communicate with customers before/after bookings';
+
+  @override
+  String get docsGettingStartedKeyFeatures_featuresOverviewBullet4 => 'Location-based Search - Customers find you by location using Google Maps';
+
+  @override
+  String get docsGettingStartedKeyFeatures_featuresOverviewBullet5 => 'Business Dashboard - Analytics, revenue tracking, client management';
+
+  @override
+  String get docsGettingStartedKeyFeatures_featuresOverviewBullet6 => 'Team Management - Add staff members and assign them to services';
+
+  @override
+  String get docsGettingStartedKeyFeatures_featuresOverviewBullet7 => 'Automated Reminders - Send appointment reminders to reduce no-shows';
+
+  @override
+  String get docsGettingStartedKeyFeatures_featuresOverviewBullet8 => 'Promotions & Loyalty - Run discounts and reward repeat customers';
+
+  @override
+  String get docsGettingStartedKeyFeatures_featuresOverviewBullet9 => 'Product Selling - List items for sale if you offer products';
+
+  @override
+  String get docsGettingStartedKeyFeatures_featuresOverviewBullet10 => 'Reviews & Ratings - Build trust through customer feedback';
+
+  @override
+  String get docsGettingStartedForCustomers_title => 'For Customers';
+
+  @override
+  String get docsGettingStartedForCustomers_subtitle => 'How to find and book services';
+
+  @override
+  String get docsGettingStartedForCustomers_customerStartTitle => 'Getting Started as a Customer';
+
+  @override
+  String get docsGettingStartedForCustomers_customerStartContent => 'Create an account, set your location, and start searching for services. You can view service providers near you, read reviews, check pricing, and book appointments.';
+
+  @override
+  String get docsGettingStartedForCustomers_customerFeaturesTitle => 'Customer Capabilities';
+
+  @override
+  String get docsGettingStartedForCustomers_customerFeaturesContent => 'As a customer, you can:';
+
+  @override
+  String get docsGettingStartedForCustomers_customerFeaturesBullet1 => 'Search services by location (using Google Maps)';
+
+  @override
+  String get docsGettingStartedForCustomers_customerFeaturesBullet2 => 'Filter by type of service, price range, or ratings';
+
+  @override
+  String get docsGettingStartedForCustomers_customerFeaturesBullet3 => 'View detailed service provider profiles and reviews';
+
+  @override
+  String get docsGettingStartedForCustomers_customerFeaturesBullet4 => 'Book appointments and select preferred staff member';
+
+  @override
+  String get docsGettingStartedForCustomers_customerFeaturesBullet5 => 'Chat with providers before booking';
+
+  @override
+  String get docsGettingStartedForCustomers_customerFeaturesBullet6 => 'Pay securely through the app';
+
+  @override
+  String get docsGettingStartedForCustomers_customerFeaturesBullet7 => 'Receive appointment reminders';
+
+  @override
+  String get docsGettingStartedForCustomers_customerFeaturesBullet8 => 'Rate and review services after completion';
+
+  @override
+  String get docsGettingStartedFaq1Q => 'What is Aura In?';
+
+  @override
+  String get docsGettingStartedFaq1A => 'Aura In is a mobile marketplace for service-based businesses. Customers find and book services (haircuts, massages, etc.), service providers manage bookings and revenue, and product sellers list items for sale.';
+
+  @override
+  String get docsGettingStartedFaq2Q => 'Do I need to pay to use the app?';
+
+  @override
+  String get docsGettingStartedFaq2A => 'The app is free to download and use. Service providers only pay a small commission when customers pay for services. Payment processors (Paystack/Stripe) take a fee.';
+
+  @override
+  String get docsGettingStartedFaq3Q => 'What is the difference between Shop Owner and Freelancer?';
+
+  @override
+  String get docsGettingStartedFaq3A => 'Shop owners have a fixed location with a team of workers. Freelancers work independently and can travel to clients. Choose based on your business model.';
+
+  @override
+  String get docsGettingStartedFaq4Q => 'How do I get paid?';
+
+  @override
+  String get docsGettingStartedFaq4A => 'When customers pay for services, money goes to your wallet. You can withdraw to your bank account using Paystack (Africa) or Stripe (Global).';
+
+  @override
+  String get docsGettingStartedFaq5Q => 'Is my payment information secure?';
+
+  @override
+  String get docsGettingStartedFaq5A => 'Yes. Aura In uses Paystack and Stripe, industry-leading payment processors with bank-level security. We never see your payment details.';
+
+  @override
+  String get docsCreateShopShopOverview_title => 'Getting Started with Your Shop';
+
+  @override
+  String get docsCreateShopShopOverview_subtitle => 'Learn the basics of creating your business profile';
+
+  @override
+  String get docsCreateShopShopOverview_welcomeIntroTitle => 'Welcome to Your Shop Dashboard';
+
+  @override
+  String get docsCreateShopShopOverview_welcomeIntroContent => 'Creating a shop on Aura In takes just a few minutes. You\'ll add your business information, set your services and working hours, and you\'re ready to accept bookings from customers.';
+
+  @override
+  String get docsCreateShopShopOverview_setupStepsOverviewTitle => 'What You\'ll Set Up';
+
+  @override
+  String get docsCreateShopShopOverview_setupStepsOverviewContent => 'Here\'s what you\'ll do when creating your shop:';
+
+  @override
+  String get docsCreateShopShopOverview_setupStepsOverviewBullet1 => 'Add your shop name and logo';
+
+  @override
+  String get docsCreateShopShopOverview_setupStepsOverviewBullet2 => 'Write a brief description of your business';
+
+  @override
+  String get docsCreateShopShopOverview_setupStepsOverviewBullet3 => 'Choose your shop type (salon, barber, spa, etc.)';
+
+  @override
+  String get docsCreateShopShopOverview_setupStepsOverviewBullet4 => 'Set your location and service address';
+
+  @override
+  String get docsCreateShopShopOverview_setupStepsOverviewBullet5 => 'Add your working hours';
+
+  @override
+  String get docsCreateShopShopOverview_setupStepsOverviewBullet6 => 'Create services you offer with pricing';
+
+  @override
+  String get docsCreateShopShopOverview_setupStepsOverviewBullet7 => 'Add contact information';
+
+  @override
+  String get docsCreateShopShopOverview_setupStepsOverviewBullet8 => 'Upload photos and documents';
+
+  @override
+  String get docsCreateShopShopOverview_saveProgressTipContent => 'Your work is saved automatically as you fill in the form. You can come back anytime to continue editing or publish when ready.';
+
+  @override
+  String get docsCreateShopBasicInfo_title => 'Basic Shop Information';
+
+  @override
+  String get docsCreateShopBasicInfo_subtitle => 'Tell customers who you are';
+
+  @override
+  String get docsCreateShopBasicInfo_logoSectionTitle => 'Add Your Shop Logo';
+
+  @override
+  String get docsCreateShopBasicInfo_logoSectionContent => 'Your logo is the first thing customers see. It should clearly represent your business. Use a square image (e.g., 500x500 pixels) for best results.';
+
+  @override
+  String get docsCreateShopBasicInfo_shopNameTitle => 'Shop Name';
+
+  @override
+  String get docsCreateShopBasicInfo_shopNameContent => 'Enter your business name exactly as you want customers to see it. Be clear and professional. Example: \"Marie\'s Hair Studio\" or \"City Barbershop\"';
+
+  @override
+  String get docsCreateShopBasicInfo_shopTypeTitle => 'Choose Your Shop Type';
+
+  @override
+  String get docsCreateShopBasicInfo_shopTypeContent => 'Select the type of business you run. This helps customers find you in search. Available types include:';
+
+  @override
+  String get docsCreateShopBasicInfo_shopTypeBullet1 => 'Hair Salon - for haircuts, coloring, styling';
+
+  @override
+  String get docsCreateShopBasicInfo_shopTypeBullet2 => 'Barber Shop - for men\'s haircuts and grooming';
+
+  @override
+  String get docsCreateShopBasicInfo_shopTypeBullet3 => 'Spa - for massages, facials, wellness services';
+
+  @override
+  String get docsCreateShopBasicInfo_shopTypeBullet4 => 'Beauty Services - makeup, nails, and other beauty treatments';
+
+  @override
+  String get docsCreateShopBasicInfo_shopTypeBullet5 => 'Other Services - for businesses not listed above';
+
+  @override
+  String get docsCreateShopBasicInfo_descriptionTitle => 'Shop Description';
+
+  @override
+  String get docsCreateShopBasicInfo_descriptionContent => 'Write a short description about your shop (100-200 words). Tell customers what makes you special. Example: \"We specialize in natural hair care and modern styling for all hair types. Family-friendly environment with professional stylists.\"';
+
+  @override
+  String get docsCreateShopBasicInfo_termsInfoTitle => 'Terms & Conditions';
+
+  @override
+  String get docsCreateShopBasicInfo_termsInfoContent => 'Add any important rules customers should know. Examples: cancellation policy, age restrictions, deposit requirements, dress code, or health restrictions.';
+
+  @override
+  String get docsCreateShopLocationSetup_title => 'Location & Hours';
+
+  @override
+  String get docsCreateShopLocationSetup_subtitle => 'Where customers can find you and when you work';
+
+  @override
+  String get docsCreateShopLocationSetup_locationIntroTitle => 'Set Your Location';
+
+  @override
+  String get docsCreateShopLocationSetup_locationIntroContent => 'Customers need to know where to find you. You can either:';
+
+  @override
+  String get docsCreateShopLocationSetup_locationIntroBullet1 => 'Pin your location on the map (drag the marker)';
+
+  @override
+  String get docsCreateShopLocationSetup_locationIntroBullet2 => 'Search for your address in the search box';
+
+  @override
+  String get docsCreateShopLocationSetup_locationIntroBullet3 => 'Enter your street address manually';
+
+  @override
+  String get docsCreateShopLocationSetup_locationAccuracyContent => 'Make sure your location is accurate. Customers use it to find you and calculate travel time.';
+
+  @override
+  String get docsCreateShopLocationSetup_workingHoursTitle => 'Set Your Working Hours';
+
+  @override
+  String get docsCreateShopLocationSetup_workingHoursContent => 'Customers can only book times when you\'re open. Set your hours for each day of the week.';
+
+  @override
+  String get docsCreateShopLocationSetup_hoursExampleTitle => 'Example Hours';
+
+  @override
+  String get docsCreateShopLocationSetup_hoursExampleContent => 'Monday - Friday: 9:00 AM to 6:00 PM\nSaturday: 9:00 AM to 5:00 PM\nSunday: Closed';
+
+  @override
+  String get docsCreateShopLocationSetup_hoursTipContent => 'You can set different hours for different days, or mark any day as closed when you\'re not working.';
+
+  @override
+  String get docsCreateShopServicesSetup_title => 'Services & Pricing';
+
+  @override
+  String get docsCreateShopServicesSetup_subtitle => 'Tell customers what you offer and how much it costs';
+
+  @override
+  String get docsCreateShopServicesSetup_servicesIntroTitle => 'Add Your Services';
+
+  @override
+  String get docsCreateShopServicesSetup_servicesIntroContent => 'Each service is something customers can book and pay for. Examples: \"Haircut\", \"Hair Color\", \"Massage\", \"Facial Treatment\".';
+
+  @override
+  String get docsCreateShopServicesSetup_serviceDetailsTitle => 'For Each Service, Add:';
+
+  @override
+  String get docsCreateShopServicesSetup_serviceDetailsContent => 'When you create a service, you need to provide:';
+
+  @override
+  String get docsCreateShopServicesSetup_serviceDetailsBullet1 => 'Service name - what you\'re offering (e.g., \"Haircut\")';
+
+  @override
+  String get docsCreateShopServicesSetup_serviceDetailsBullet2 => 'Description - brief details about what\'s included';
+
+  @override
+  String get docsCreateShopServicesSetup_serviceDetailsBullet3 => 'Price - how much the service costs';
+
+  @override
+  String get docsCreateShopServicesSetup_serviceDetailsBullet4 => 'Duration - how long it takes (e.g., 30 minutes, 1 hour)';
+
+  @override
+  String get docsCreateShopServicesSetup_serviceDetailsBullet5 => 'Category - what type of service it is';
+
+  @override
+  String get docsCreateShopServicesSetup_pricingTipTitle => 'Pricing Tip';
+
+  @override
+  String get docsCreateShopServicesSetup_pricingTipContent => 'Be clear with your prices. You can offer different service tiers (e.g., \"Basic Haircut\" vs \"Premium Haircut\") at different prices.';
+
+  @override
+  String get docsCreateShopServicesSetup_durationImportantContent => 'Set the duration accurately. Customers book based on this time, and staff need to know how long to reserve.';
+
+  @override
+  String get docsCreateShopFaq1Q => 'How long does it take to create a shop?';
+
+  @override
+  String get docsCreateShopFaq1A => 'Most businesses can set up a shop in 5-15 minutes. You just need your business name, location, at least one service, and working hours.';
+
+  @override
+  String get docsCreateShopFaq2Q => 'What do I need to start?';
+
+  @override
+  String get docsCreateShopFaq2A => 'You need: your business name, location address, shop type, at least one service with pricing, and your working hours. A logo and photos are optional but recommended.';
+
+  @override
+  String get docsCreateShopFaq3Q => 'Can I change things after publishing?';
+
+  @override
+  String get docsCreateShopFaq3A => 'Yes! You can edit everything after your shop is live. Go to \"My Shops\", click on your shop, and click \"Edit\". All changes take effect immediately.';
+
+  @override
+  String get docsCreateShopFaq4Q => 'Do I need team members to start?';
+
+  @override
+  String get docsCreateShopFaq4A => 'No. If you\'re a solo business, you can start immediately. You can add team members anytime from your shop settings.';
+
+  @override
+  String get docsFreelancerFreelancerOverview_title => 'Getting Started as a Freelancer';
+
+  @override
+  String get docsFreelancerFreelancerOverview_subtitle => 'Learn how to set up your profile and start taking clients';
+
+  @override
+  String get docsFreelancerFreelancerOverview_freelancerWelcomeTitle => 'Welcome to Freelancing';
+
+  @override
+  String get docsFreelancerFreelancerOverview_freelancerWelcomeContent => 'As a freelancer on Aura In, you offer services directly to customers in your area. Unlike a traditional shop, you work from your own location and can travel to meet clients. Set up your profile in just a few minutes and start accepting bookings.';
+
+  @override
+  String get docsFreelancerFreelancerOverview_freelancerVsShopTitle => 'Freelancer vs Shop: What\'s the Difference?';
+
+  @override
+  String get docsFreelancerFreelancerOverview_freelancerVsShopContent => 'Here\'s how freelancing works:';
+
+  @override
+  String get docsFreelancerFreelancerOverview_freelancerVsShopBullet1 => 'You work independently - no fixed storefront required';
+
+  @override
+  String get docsFreelancerFreelancerOverview_freelancerVsShopBullet2 => 'You can travel to clients within your chosen radius';
+
+  @override
+  String get docsFreelancerFreelancerOverview_freelancerVsShopBullet3 => 'You set your own hours and availability';
+
+  @override
+  String get docsFreelancerFreelancerOverview_freelancerVsShopBullet4 => 'You manage your own schedule and clients';
+
+  @override
+  String get docsFreelancerFreelancerOverview_freelancerVsShopBullet5 => 'Customers book you directly for services';
+
+  @override
+  String get docsFreelancerFreelancerOverview_freelancerRequirementsTitle => 'What You\'ll Need';
+
+  @override
+  String get docsFreelancerFreelancerOverview_freelancerRequirementsContent => 'To start as a freelancer, you need: your name, a profession type (hairdresser, massage therapist, etc.), location, travel radius, services, and your working hours. A professional photo helps customers trust you.';
+
+  @override
+  String get docsFreelancerProfileSetup_title => 'Create Your Profile';
+
+  @override
+  String get docsFreelancerProfileSetup_subtitle => 'Tell customers who you are';
+
+  @override
+  String get docsFreelancerProfileSetup_profilePhotoTitle => 'Add Your Profile Photo';
+
+  @override
+  String get docsFreelancerProfileSetup_profilePhotoContent => 'A professional headshot or portrait builds trust with customers. Use a clear, well-lit photo of yourself. Customers want to know who they\'re booking with.';
+
+  @override
+  String get docsFreelancerProfileSetup_yourNameTitle => 'Your Name';
+
+  @override
+  String get docsFreelancerProfileSetup_yourNameContent => 'Enter your full name exactly as you want customers to see it. Be professional and clear.';
+
+  @override
+  String get docsFreelancerProfileSetup_professionTypeTitle => 'Choose Your Profession';
+
+  @override
+  String get docsFreelancerProfileSetup_professionTypeContent => 'Select what you do. Examples: Hairdresser, Massage Therapist, Makeup Artist, Barber, Esthetician, or other specialized services.';
+
+  @override
+  String get docsFreelancerProfileSetup_bioDescriptionTitle => 'Write Your Bio';
+
+  @override
+  String get docsFreelancerProfileSetup_bioDescriptionContent => 'Write a short description about yourself and your experience (50-150 words). Tell customers what makes you unique. Example: \"I specialize in natural hair care with 5 years of experience. Certified in color and styling.\"';
+
+  @override
+  String get docsFreelancerProfileSetup_termsGuidelinesTitle => 'Add Your Guidelines';
+
+  @override
+  String get docsFreelancerProfileSetup_termsGuidelinesContent => 'Share any important rules or policies. Examples: age restrictions, cancellation policy, health requirements, or preparation instructions.';
+
+  @override
+  String get docsFreelancerServiceArea_title => 'Set Your Service Area';
+
+  @override
+  String get docsFreelancerServiceArea_subtitle => 'Define where you work';
+
+  @override
+  String get docsFreelancerServiceArea_baseLocationTitle => 'Set Your Base Location';
+
+  @override
+  String get docsFreelancerServiceArea_baseLocationContent => 'This is where you normally work from. Customers within your travel radius can book you. You can either pin on the map or search for your address.';
+
+  @override
+  String get docsFreelancerServiceArea_travelRadiusTitle => 'Travel Radius';
+
+  @override
+  String get docsFreelancerServiceArea_travelRadiusContent => 'How far are you willing to travel to meet clients? Set this in kilometers. Example: \"5 km radius\" means clients up to 5 km from your location can book you.';
+
+  @override
+  String get docsFreelancerServiceArea_mobileVsFixedTitle => 'Mobile or Fixed Location?';
+
+  @override
+  String get docsFreelancerServiceArea_mobileVsFixedContent => 'Choose whether you travel to clients or meet them at one location. If you\'re mobile, customers can request you at their home or office.';
+
+  @override
+  String get docsFreelancerServiceArea_serviceAddressTipContent => 'Customers will see your travel radius when searching. Be accurate so they know if you can serve their area.';
+
+  @override
+  String get docsFreelancerFaq1Q => 'What\'s the difference between a freelancer and a shop owner?';
+
+  @override
+  String get docsFreelancerFaq1A => 'A freelancer works independently, often traveling to clients. A shop owner has a fixed location. Freelancers are more flexible, shops are more established.';
+
+  @override
+  String get docsFreelancerFaq2Q => 'How do customers find me?';
+
+  @override
+  String get docsFreelancerFaq2A => 'Your profile appears in customer searches based on your location, profession, and services. A good photo and portfolio help you get found more.';
+
+  @override
+  String get docsFreelancerFaq3Q => 'Can I work for multiple platforms?';
+
+  @override
+  String get docsFreelancerFaq3A => 'Yes! You can set up profiles on multiple platforms. Just make sure your availability matches across all platforms.';
+
+  @override
+  String get docsFreelancerFaq4Q => 'How do payments work?';
+
+  @override
+  String get docsFreelancerFaq4A => 'Customers pay through the app. You receive payment to your account after the service is completed.';
+
+  @override
+  String get docsFreelancerFaq5Q => 'What if I need to cancel a booking?';
+
+  @override
+  String get docsFreelancerFaq5A => 'You can cancel before the booking time. Contact support if you need to reschedule. Be fair to customers - frequent cancellations hurt your rating.';
 }
