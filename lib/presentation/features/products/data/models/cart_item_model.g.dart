@@ -17,6 +17,7 @@ CartItemModel _$CartItemModelFromJson(Map<String, dynamic> json) =>
       shopName: json['shopName'] as String,
       currencySymbol: json['currencySymbol'] as String?,
       currencyCode: json['currencyCode'] as String?,
+      stockQuantity: (json['stockQuantity'] as num?)?.toInt() ?? 999,
     );
 
 Map<String, dynamic> _$CartItemModelToJson(CartItemModel instance) =>
@@ -30,4 +31,5 @@ Map<String, dynamic> _$CartItemModelToJson(CartItemModel instance) =>
       'shopName': instance.shopName,
       'currencySymbol': instance.currencySymbol,
       'currencyCode': instance.currencyCode,
+      'stockQuantity': instance.stockQuantity,
     };

@@ -1,5 +1,6 @@
 // lib/core/widgets/profile_info_row.dart
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_image_container.dart';
 
 /// A versatile row widget for displaying informational items with multiple interaction patterns.
 ///
@@ -170,6 +171,8 @@ class InfoRowWidget extends StatelessWidget {
   /// or when using alternative visual separation methods.
   final bool showDivider;
   final double titleFontSize;
+  final double subTitleFontSize;
+
   final Color? titleFontColor;
 
   // NEW: Add support for toggle items
@@ -189,11 +192,12 @@ class InfoRowWidget extends StatelessWidget {
   /// Required when [isToggleItem] is `true`. Represents the current state
   /// of the toggle (checked/unchecked, on/off).
   final bool? toggleValue;
-
+  final bool? isNotAvatarImage;
   final int? titleMaxLines;
   final int? subTitleMaxLines;
 
   final double? circularRadius;
+  final Widget? bottomWidget;
 
   /// Callback function triggered when the toggle switch changes state.
   ///
@@ -233,7 +237,10 @@ class InfoRowWidget extends StatelessWidget {
     this.subTitleMaxLines,
     this.circularRadius,
     this.titleFontSize = 14,
+    this.subTitleFontSize = 12,
     this.titleFontColor,
+    this.isNotAvatarImage = false,
+    this.bottomWidget,
   }) : assert(
          // Either icon or imageUrl must be provided for visual identity
          icon != null || imageUrl != null,
@@ -301,15 +308,16 @@ class InfoRowWidget extends StatelessWidget {
                     style:
                         subtitleStyle ??
                         textTheme.bodySmall?.copyWith(
+                          fontSize: subTitleFontSize.sp,
                           color: colorScheme.onBackground.withOpacity(
                             OpacityTokens.medium,
                           ),
-                          fontSize: 11.sp,
                         ),
                     maxLines: subTitleMaxLines ?? 3,
                     overflow: TextOverflow.ellipsis,
                   ),
-
+if(bottomWidget != null)
+                bottomWidget!,
                 // Optional divider below content
                 if (showDivider) AppDivider(),
               ],
@@ -376,14 +384,25 @@ class InfoRowWidget extends StatelessWidget {
     final icoColor = iconColor ?? colorScheme.primary;
     final bgColor = backgroundColor ?? colorScheme.primary.withOpacity(0.1);
     final size = iconSize ?? (showAvatar ? 20.h : 24.h);
+    final notAvatarImage = isNotAvatarImage ?? false;
 
     return imageUrl != null
-        ? ProfileAvatar(
-          avatarUrl: imageUrl ?? '',
-          currentUserId: '',
-          size: avatarRadius ?? 45.h,
-          enableHero: false,
-        )
+        ? notAvatarImage
+            ? SizedBox(
+              width: avatarRadius ?? 45.h,
+              height: avatarRadius ?? 45.h,
+              child: ShopImageContainer(
+                imageUrl: imageUrl ?? '',
+                isPreview: false,
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+            )
+            : ProfileAvatar(
+              avatarUrl: imageUrl ?? '',
+              currentUserId: '',
+              size: avatarRadius ?? 45.h,
+              enableHero: false,
+            )
         : IconAvatar(
           icon: icon ?? Icons.person,
           iconColor: icoColor,

@@ -1,4 +1,5 @@
 // lib/features/shops/presentation/screens/shop_details_screen.dart
+import 'package:nano_embryo/presentation/features/profile/widgets/profile_buys_tab.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/client/service_selection_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/screens/shop_details_content.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_loading_schimmer.dart';
@@ -91,7 +92,10 @@ class _ShopDetailsScreenState extends ConsumerState<ShopDetailsScreen>
                     icon: null,
                     content: Material(
                       color: colorScheme.background,
-                      child: Container(),
+                      child: ProfileBuysTab(
+                        profileUserId: widget.shopId,
+                        isCurrentUser: false,
+                      ),
                     ),
                   ),
                   AppTabItem(

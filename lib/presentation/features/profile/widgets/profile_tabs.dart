@@ -36,12 +36,13 @@ List<AppTabItem> buildProfileTabs(
     AppTabItem(
       label: labels.profileTabsBuys,
       icon: null,
-      content: isLogin
-          ? const SizedBox.shrink()
-          : ProfileBuysTab(
-              profileUserId: profileUserId,
-              isCurrentUser: isCurrentUser,
-            ),
+      content:
+          isLogin
+              ? const SizedBox.shrink()
+              : ProfileBuysTab(
+                profileUserId: profileUserId,
+                isCurrentUser: isCurrentUser,
+              ),
     ),
     AppTabItem(
       label: labels.profileTabsSaves,

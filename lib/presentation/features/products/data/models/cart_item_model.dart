@@ -14,6 +14,10 @@ class CartItemModel extends Equatable {
   final String shopName;
   final String? currencySymbol;
   final String? currencyCode;
+  // Persisted so the cart stepper can cap quantity at available stock.
+  // Defaults to 999 so carts saved before this field existed still load cleanly.
+  @JsonKey(defaultValue: 999)
+  final int stockQuantity;
 
   const CartItemModel({
     required this.productId,
@@ -25,6 +29,7 @@ class CartItemModel extends Equatable {
     required this.shopName,
     this.currencySymbol,
     this.currencyCode,
+    this.stockQuantity = 999,
   });
 
   double get subtotal => price * quantity;
@@ -44,6 +49,7 @@ class CartItemModel extends Equatable {
     String? shopName,
     String? currencySymbol,
     String? currencyCode,
+    int? stockQuantity,
   }) {
     return CartItemModel(
       productId: productId ?? this.productId,
@@ -55,6 +61,7 @@ class CartItemModel extends Equatable {
       shopName: shopName ?? this.shopName,
       currencySymbol: currencySymbol ?? this.currencySymbol,
       currencyCode: currencyCode ?? this.currencyCode,
+      stockQuantity: stockQuantity ?? this.stockQuantity,
     );
   }
 
@@ -69,5 +76,6 @@ class CartItemModel extends Equatable {
     shopName,
     currencySymbol,
     currencyCode,
+    stockQuantity,
   ];
 }

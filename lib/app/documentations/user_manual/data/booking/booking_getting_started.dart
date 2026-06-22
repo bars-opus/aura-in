@@ -31,430 +31,403 @@ class BookingGettingStartedDocs implements DocumentationModule {
   IconData get icon => Icons.calendar_month;
 
   @override
-  List<ManualSection> getSections(BuildContext context) => [
+  List<ManualSection> getSections(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return [
     ManualSection(
       id: 'booking_introduction',
-      title: 'Welcome to the Booking System',
-      subtitle:
-          'Everything you need to know about booking services, whether you\'re a client or a shop owner.',
+      title: loc.docsBookingStartedBookingIntro_title,
+      subtitle: loc.docsBookingStartedBookingIntro_subtitle,
       icon: Icons.auto_awesome,
       category: 'Booking Guide',
       order: 1,
       contents: [
         ManualContent(
           id: 'what_is_booking',
-          title: 'What is the Booking System?',
-          content:
-              'The booking system is your gateway to scheduling services at your favorite shops. Whether you need a haircut, beard trim, braiding, or any other service, the system makes it easy to book appointments at your convenience.',
+          title: loc.docsBookingStartedBookingIntro_whatIsBooking_title,
+          content: loc.docsBookingStartedBookingIntro_whatIsBooking_content,
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'who_its_for',
-          title: 'Who is this guide for?',
-          content: 'This guide is designed for two types of users:',
+          title: loc.docsBookingStartedBookingIntro_whoItsFor_title,
+          content: loc.docsBookingStartedBookingIntro_whoItsFor_content,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Clients:** People who want to book services at shops',
-            '**Guest Bookers:** People who want to book via a link without creating an account',
-            '**Shop Owners:** People who manage shops, services, and workers',
+            loc.docsBookingStartedBookingIntro_whoItsFor_bullet1,
+            loc.docsBookingStartedBookingIntro_whoItsFor_bullet2,
+            loc.docsBookingStartedBookingIntro_whoItsFor_bullet3,
           ],
         ),
         ManualContent(
           id: 'guest_booking_intro',
-          title: 'New: Book Without Downloading the App',
-          content:
-              'No account? No problem! If a shop owner shares a booking link with you, you can book directly without downloading the app. Your receipt is sent to WhatsApp.',
+          title: loc.docsBookingStartedBookingIntro_guestBookingIntro_title,
+          content: loc.docsBookingStartedBookingIntro_guestBookingIntro_content,
           numberPrefix: '2b',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'welcome_note',
           title: '',
-          content:
-              'No technical knowledge needed! This guide uses simple language and real examples to help you understand everything.',
+          content: loc.docsBookingStartedBookingIntro_welcomeNote_content,
           type: ManualContentType.tip,
         ),
       ],
     ),
     ManualSection(
       id: 'creating_account',
-      title: 'Creating Your Account (Or Booking as Guest)',
-      subtitle: 'Get started in minutes - with or without an account',
+      title: loc.docsBookingStartedCreatingAccount_title,
+      subtitle: loc.docsBookingStartedCreatingAccount_subtitle,
       icon: Icons.person_add,
       category: 'Getting Started',
       order: 2,
       contents: [
         ManualContent(
           id: 'two_ways_to_book',
-          title: 'Two Ways to Book',
-          content: 'You can book in two ways:',
+          title: loc.docsBookingStartedCreatingAccount_twoWaysToBook_title,
+          content: loc.docsBookingStartedCreatingAccount_twoWaysToBook_content,
           numberPrefix: '1',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**With Account:** Download app, create account, book anytime',
-            '**As Guest:** Use booking link, no app needed, receipt via WhatsApp',
+            loc.docsBookingStartedCreatingAccount_twoWaysToBook_bullet1,
+            loc.docsBookingStartedCreatingAccount_twoWaysToBook_bullet2,
           ],
         ),
         ManualContent(
           id: 'account_steps',
-          title: 'How to Create an Account',
-          content: 'Follow these simple steps to create your account:',
+          title: loc.docsBookingStartedCreatingAccount_accountSteps_title,
+          content: loc.docsBookingStartedCreatingAccount_accountSteps_content,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            'Download the app from App Store or Google Play',
-            'Tap "Sign Up" on the welcome screen',
-            'Enter your email address and create a password',
-            'Add your name and profile picture (optional)',
-            'Verify your email address',
-            'You\'re ready to start booking!',
+            loc.docsBookingStartedCreatingAccount_accountSteps_bullet1,
+            loc.docsBookingStartedCreatingAccount_accountSteps_bullet2,
+            loc.docsBookingStartedCreatingAccount_accountSteps_bullet3,
+            loc.docsBookingStartedCreatingAccount_accountSteps_bullet4,
+            loc.docsBookingStartedCreatingAccount_accountSteps_bullet5,
+            loc.docsBookingStartedCreatingAccount_accountSteps_bullet6,
           ],
         ),
         ManualContent(
           id: 'account_types',
-          title: 'Account Types',
-          content: 'There are two types of accounts:',
+          title: loc.docsBookingStartedCreatingAccount_accountTypes_title,
+          content: loc.docsBookingStartedCreatingAccount_accountTypes_content,
           numberPrefix: '3',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Client Account:** For booking services at shops',
-            '**Shop Owner Account:** For managing your own shop (requires approval)',
+            loc.docsBookingStartedCreatingAccount_accountTypes_bullet1,
+            loc.docsBookingStartedCreatingAccount_accountTypes_bullet2,
           ],
         ),
         ManualContent(
           id: 'guest_booking_option',
-          title: 'Booking as a Guest (No Account)',
-          content:
-              'If someone shares a booking link with you, you can book directly without creating an account. Just click the link and follow the steps. Your receipt is sent to your WhatsApp.',
+          title: loc.docsBookingStartedCreatingAccount_guestBookingOption_title,
+          content: loc.docsBookingStartedCreatingAccount_guestBookingOption_content,
           numberPrefix: '4',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'verification_note',
           title: '',
-          content:
-              'You can browse and book without an account using a booking link. Creating an account gives you access to booking history, saved payments, and loyalty rewards.',
+          content: loc.docsBookingStartedCreatingAccount_verificationNote_content,
           type: ManualContentType.important,
         ),
       ],
     ),
     ManualSection(
       id: 'first_booking',
-      title: 'Your First Booking',
-      subtitle: 'A quick walkthrough',
+      title: loc.docsBookingStartedFirstBooking_title,
+      subtitle: loc.docsBookingStartedFirstBooking_subtitle,
       icon: Icons.event_available,
       category: 'Getting Started',
       order: 3,
       contents: [
         ManualContent(
           id: 'booking_steps',
-          title: 'How to make your first booking',
-          content: 'Here\'s what you\'ll do:',
+          title: loc.docsBookingStartedFirstBooking_bookingSteps_title,
+          content: loc.docsBookingStartedFirstBooking_bookingSteps_content,
           numberPrefix: '1',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            'Find a shop you like',
-            'Browse their services',
-            'Select the services you want',
-            'Choose your preferred worker (if available)',
-            'Pick a date and time',
-            'Review and confirm your booking',
+            loc.docsBookingStartedFirstBooking_bookingSteps_bullet1,
+            loc.docsBookingStartedFirstBooking_bookingSteps_bullet2,
+            loc.docsBookingStartedFirstBooking_bookingSteps_bullet3,
+            loc.docsBookingStartedFirstBooking_bookingSteps_bullet4,
+            loc.docsBookingStartedFirstBooking_bookingSteps_bullet5,
+            loc.docsBookingStartedFirstBooking_bookingSteps_bullet6,
           ],
         ),
         ManualContent(
           id: 'what_happens_next',
-          title: 'What happens after you book?',
-          content: 'Once you confirm your booking:',
+          title: loc.docsBookingStartedFirstBooking_whatHappensNext_title,
+          content: loc.docsBookingStartedFirstBooking_whatHappensNext_content,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            'You\'ll get an instant confirmation',
-            'The booking appears in "My Bookings"',
-            'You\'ll receive a reminder before your appointment',
-            'The shop gets notified of your booking',
-            'You can reschedule or cancel if plans change',
+            loc.docsBookingStartedFirstBooking_whatHappensNext_bullet1,
+            loc.docsBookingStartedFirstBooking_whatHappensNext_bullet2,
+            loc.docsBookingStartedFirstBooking_whatHappensNext_bullet3,
+            loc.docsBookingStartedFirstBooking_whatHappensNext_bullet4,
+            loc.docsBookingStartedFirstBooking_whatHappensNext_bullet5,
           ],
         ),
         ManualContent(
           id: 'payment_process',
-          title: 'How Payment Works',
-          content: 'When you book a service, here\'s how payment works:',
+          title: loc.docsBookingStartedFirstBooking_paymentProcess_title,
+          content: loc.docsBookingStartedFirstBooking_paymentProcess_content,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**30% Deposit Required:** To secure your booking, you pay 30% of the total service cost upfront',
-            '**Platform Fee:** A small fixed fee (e.g., GHS 2) is added to help maintain the platform',
-            '**Non-Refundable:** Deposit and fee are non-refundable if you cancel or don\'t show up',
-            '**Remaining 70%:** Paid after service - either in cash or via app',
-            '**Secure Payment:** All payments are processed securely through our payment partners',
+            loc.docsBookingStartedFirstBooking_paymentProcess_bullet1,
+            loc.docsBookingStartedFirstBooking_paymentProcess_bullet2,
+            loc.docsBookingStartedFirstBooking_paymentProcess_bullet3,
+            loc.docsBookingStartedFirstBooking_paymentProcess_bullet4,
+            loc.docsBookingStartedFirstBooking_paymentProcess_bullet5,
           ],
         ),
 
         ManualContent(
           id: 'remaining_payment_options',
-          title: 'Flexible Payment for Remaining Balance',
-          content: 'After your service, you have options for paying the remaining 70%:',
+          title: loc.docsBookingStartedFirstBooking_remainingPaymentOptions_title,
+          content: loc.docsBookingStartedFirstBooking_remainingPaymentOptions_content,
           numberPrefix: '2b',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Pay in Cash:** Hand cash directly to worker or shop counter',
-            '**Pay via App:** Use card, mobile money, or digital payment through the app',
-            '**You choose:** Either option is available at the time of service',
+            loc.docsBookingStartedFirstBooking_remainingPaymentOptions_bullet1,
+            loc.docsBookingStartedFirstBooking_remainingPaymentOptions_bullet2,
+            loc.docsBookingStartedFirstBooking_remainingPaymentOptions_bullet3,
           ],
         ),
 
         ManualContent(
           id: 'deposit_note',
           title: '',
-          content:
-              'The 30% deposit protects both you and the shop. It ensures your slot is reserved exclusively for you, and compensates the worker if you cancel last minute. The platform fee helps us maintain secure payments and customer support.',
+          content: loc.docsBookingStartedFirstBooking_depositNote_content,
           type: ManualContentType.important,
         ),
         ManualContent(
           id: 'booking_tip',
           title: '',
-          content:
-              'Pro tip: Book at least 24 hours in advance for the best selection of time slots, especially for popular services.',
+          content: loc.docsBookingStartedFirstBooking_bookingTip_content,
           type: ManualContentType.tip,
         ),
       ],
     ),
     ManualSection(
       id: 'navigation',
-      title: 'Finding Your Way Around',
-      subtitle: 'Key screens and what they do',
+      title: loc.docsBookingStartedNavigation_title,
+      subtitle: loc.docsBookingStartedNavigation_subtitle,
       icon: Icons.map,
       category: 'Getting Started',
       order: 4,
       contents: [
         ManualContent(
           id: 'main_screens',
-          title: 'Main Screens',
-          content: 'The app has several key screens to help you navigate:',
+          title: loc.docsBookingStartedNavigation_mainScreens_title,
+          content: loc.docsBookingStartedNavigation_mainScreens_content,
           numberPrefix: '1',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Home:** Discover shops and services near you',
-            '**Search:** Find specific shops or services',
-            '**My Bookings:** View and manage your appointments',
-            '**Profile:** Your account settings and preferences',
-            '**Favorites:** Save shops you love for quick access',
+            loc.docsBookingStartedNavigation_mainScreens_bullet1,
+            loc.docsBookingStartedNavigation_mainScreens_bullet2,
+            loc.docsBookingStartedNavigation_mainScreens_bullet3,
+            loc.docsBookingStartedNavigation_mainScreens_bullet4,
+            loc.docsBookingStartedNavigation_mainScreens_bullet5,
           ],
         ),
         ManualContent(
           id: 'booking_flow',
-          title: 'The Booking Flow',
-          content: 'When you start booking, you\'ll go through these steps:',
+          title: loc.docsBookingStartedNavigation_bookingFlow_title,
+          content: loc.docsBookingStartedNavigation_bookingFlow_content,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Services:** Choose what you want',
-            '**Workers:** Pick who you want (if applicable)',
-            '**Time:** Select your preferred date and time',
-            '**Confirm:** Review and finalize your booking',
+            loc.docsBookingStartedNavigation_bookingFlow_bullet1,
+            loc.docsBookingStartedNavigation_bookingFlow_bullet2,
+            loc.docsBookingStartedNavigation_bookingFlow_bullet3,
+            loc.docsBookingStartedNavigation_bookingFlow_bullet4,
           ],
         ),
         ManualContent(
           id: 'navigation_tip',
           title: '',
-          content:
-              'You can always go back to previous steps using the back button. Your selections are saved as you move through the flow.',
+          content: loc.docsBookingStartedNavigation_navigationTip_content,
           type: ManualContentType.tip,
         ),
       ],
     ),
     ManualSection(
       id: 'booking_basics',
-      title: 'Booking Basics',
-      subtitle: 'Key concepts explained simply',
+      title: loc.docsBookingStartedBasics_title,
+      subtitle: loc.docsBookingStartedBasics_subtitle,
       icon: Icons.school,
       category: 'Getting Started',
       order: 5,
       contents: [
         ManualContent(
           id: 'key_concepts',
-          title: 'Important Terms to Know',
-          content: 'Here are some terms you\'ll encounter:',
+          title: loc.docsBookingStartedBasics_keyTerms_title,
+          content: loc.docsBookingStartedBasics_keyTerms_content,
           numberPrefix: '1',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Service:** What you want done (haircut, braids, etc.)',
-            '**Worker:** The person who performs the service',
-            '**Slot:** A specific date and time for your appointment',
-            '**Group Booking:** Booking for multiple people at once',
-            '**Buffer Time:** Clean-up time between appointments (you won\'t see this)',
+            loc.docsBookingStartedBasics_keyTerms_bullet1,
+            loc.docsBookingStartedBasics_keyTerms_bullet2,
+            loc.docsBookingStartedBasics_keyTerms_bullet3,
+            loc.docsBookingStartedBasics_keyTerms_bullet4,
+            loc.docsBookingStartedBasics_keyTerms_bullet5,
           ],
         ),
         ManualContent(
           id: 'what_you_need',
-          title: 'What You Need Before Booking',
-          content: 'Before you start, have this information ready:',
+          title: loc.docsBookingStartedBasics_whatYouNeed_title,
+          content: loc.docsBookingStartedBasics_whatYouNeed_content,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            'The service you want',
-            'Preferred date and time (flexibility helps!)',
-            'Number of people (if booking for a group)',
-            'Worker preference (if you have one)',
+            loc.docsBookingStartedBasics_whatYouNeed_bullet1,
+            loc.docsBookingStartedBasics_whatYouNeed_bullet2,
+            loc.docsBookingStartedBasics_whatYouNeed_bullet3,
+            loc.docsBookingStartedBasics_whatYouNeed_bullet4,
           ],
         ),
         ManualContent(
           id: 'deposit_explained',
-          title: 'Understanding the Deposit',
-          content: 'Here\'s a real example of how the deposit works:',
+          title: loc.docsBookingStartedBasics_depositExplained_title,
+          content: loc.docsBookingStartedBasics_depositExplained_content,
           numberPrefix: '3',
           type: ManualContentType.text,
         ),
 
         ManualContent(
           id: 'deposit_example',
-          title: 'Example',
-          content:
-              '**Sarah books a haircut that costs GHS 100.**\n'
-              '• At booking: She pays GHS 30 (30% deposit)\n'
-              '• After service: She pays GHS 70 (remaining balance)\n'
-              '• Total paid: GHS 100\n\n'
-              '**If Sarah cancels:** She loses the GHS 30 deposit, but isn\'t charged the remaining GHS 70.\n\n'
-              '**If Sarah doesn\'t show up:** Same as cancellation - the GHS 30 deposit is kept.',
+          title: loc.docsBookingStartedBasics_depositExample_title,
+          content: loc.docsBookingStartedBasics_depositExample_content,
           type: ManualContentType.text,
         ),
 
         ManualContent(
           id: 'deposit_tip',
           title: '',
-          content:
-              'The deposit is applied toward your total bill. You\'re not paying extra - you\'re just paying part of it upfront to secure your spot.',
+          content: loc.docsBookingStartedBasics_depositTip_content,
           type: ManualContentType.tip,
         ),
 
         ManualContent(
           id: 'basics_important',
           title: '',
-          content:
-              'All times shown in the app are in your local timezone. No need to worry about timezone conversions!',
+          content: loc.docsBookingStartedBasics_basicsImportant_content,
           type: ManualContentType.important,
         ),
       ],
     ),
-  ];
+    ];
+  }
 
   @override
   List<FAQModel> getFAQs(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return [
       FAQModel(
         id: 'faq_gs_no_account',
-        question: 'Can I book without an account?',
-        answer:
-            'You can browse shops and services without an account, but you\'ll need to sign up to actually book appointments. This helps us keep track of your bookings and send you reminders.',
+        question: loc.docsBookingStartedFaq1Q,
+        answer: loc.docsBookingStartedFaq1A,
         category: 'Getting Started',
         order: 1,
       ),
       FAQModel(
         id: 'faq_gs_cost',
-        question: 'Does it cost anything to use the booking system?',
-        answer:
-            'The booking system is completely free for clients. You only pay for the services you book. Shop owners pay a small commission on each booking.',
+        question: loc.docsBookingStartedFaq2Q,
+        answer: loc.docsBookingStartedFaq2A,
         category: 'Getting Started',
         order: 2,
       ),
       FAQModel(
         id: 'faq_gs_multiple_shops',
-        question: 'Can I book at multiple shops at the same time?',
-        answer:
-            'Yes! You can book appointments at different shops. Just make sure the times don\'t overlap if you\'re planning to attend them all yourself.',
+        question: loc.docsBookingStartedFaq3Q,
+        answer: loc.docsBookingStartedFaq3A,
         category: 'Getting Started',
         order: 3,
       ),
       FAQModel(
         id: 'faq_gs_deposit_refund',
-        question: 'Is the deposit refundable if I cancel?',
-        answer:
-            'No, the 30% deposit is non-refundable. This policy helps shops protect their time in case of last-minute cancellations or no-shows. You can cancel up to 24 hours before your appointment to avoid being charged the remaining 70%, but the deposit will not be refunded.',
+        question: loc.docsBookingStartedFaq4Q,
+        answer: loc.docsBookingStartedFaq4A,
         category: 'Getting Started',
         order: 8,
       ),
 
       FAQModel(
         id: 'faq_gs_deposit_amount',
-        question: 'Why 30%? Why not a fixed amount?',
-        answer:
-            'The 30% deposit scales with the cost of your service. For expensive services, the deposit is higher (protecting the shop more), and for cheaper services, it\'s lower (fairer for you). This percentage was chosen as a balanced approach that works for both clients and shops.',
+        question: loc.docsBookingStartedFaq5Q,
+        answer: loc.docsBookingStartedFaq5A,
         category: 'Getting Started',
         order: 9,
       ),
 
       FAQModel(
         id: 'faq_gs_deposit_multiple',
-        question: 'If I book multiple services, do I pay 30% of the total?',
-        answer:
-            'Yes! The 30% deposit is calculated based on the total cost of all services you\'re booking. So if your total is GHS 200, you\'ll pay GHS 60 upfront, and the remaining GHS 140 after your appointment.',
+        question: loc.docsBookingStartedFaq6Q,
+        answer: loc.docsBookingStartedFaq6A,
         category: 'Getting Started',
         order: 10,
       ),
 
       FAQModel(
         id: 'faq_gs_deposit_emergency',
-        question: 'What if I have a genuine emergency?',
-        answer:
-            'We understand that emergencies happen. While the deposit is officially non-refundable, you can contact the shop directly through the app to explain your situation. Some shops may offer credit toward a future booking at their discretion.',
+        question: loc.docsBookingStartedFaq7Q,
+        answer: loc.docsBookingStartedFaq7A,
         category: 'Getting Started',
         order: 11,
       ),
       FAQModel(
         id: 'faq_gs_reminders',
-        question: 'Will I get reminders about my booking?',
-        answer:
-            'Yes! You\'ll receive reminders 24 hours before your appointment and again 1 hour before. You can adjust reminder settings in your profile.',
+        question: loc.docsBookingStartedFaq8Q,
+        answer: loc.docsBookingStartedFaq8A,
         category: 'Getting Started',
         order: 5,
       ),
       FAQModel(
         id: 'faq_gs_payment',
-        question: 'When do I pay for my booking?',
-        answer:
-            'Payment is handled at the time of booking. You can pay using credit card, debit card, or other payment methods available in your region.',
+        question: loc.docsBookingStartedFaq9Q,
+        answer: loc.docsBookingStartedFaq9A,
         category: 'Getting Started',
         order: 6,
       ),
       FAQModel(
         id: 'faq_gs_shop_owner',
-        question: 'I own a shop. How do I get started?',
-        answer:
-            'Great! Create an account and select "Shop Owner" during signup. You\'ll need to provide some information about your shop and wait for approval. Once approved, you can start adding services and workers.',
+        question: loc.docsBookingStartedFaq10Q,
+        answer: loc.docsBookingStartedFaq10A,
         category: 'Getting Started',
         order: 7,
       ),
       FAQModel(
         id: 'faq_gs_guest_booking',
-        question: 'Can I book without creating an account?',
-        answer:
-            'Yes! If a shop owner shares a booking link with you, you can book directly without an account. Just click the link and follow the booking steps. Your receipt is sent to your WhatsApp. You can create an account later if you want to track all your bookings in one place.',
+        question: loc.docsBookingStartedFaq11Q,
+        answer: loc.docsBookingStartedFaq11A,
         category: 'Getting Started',
         order: 12,
       ),
       FAQModel(
         id: 'faq_gs_platform_fee',
-        question: 'What is the platform fee and why do I pay it?',
-        answer:
-            'The platform fee is a small fixed charge (e.g., GHS 2) added to your booking. It helps us maintain the app, process payments securely, provide customer support, and develop new features. Only one platform fee per booking, even for multiple services or people.',
+        question: loc.docsBookingStartedFaq12Q,
+        answer: loc.docsBookingStartedFaq12A,
         category: 'Getting Started',
         order: 13,
       ),
       FAQModel(
         id: 'faq_gs_remaining_payment_options',
-        question: 'Can I pay the remaining 70% in cash?',
-        answer:
-            'Yes! You have flexibility. You can pay the remaining 70% either in cash directly to the shop/worker, or through the app using your preferred payment method. The choice is yours at the time of service.',
+        question: loc.docsBookingStartedFaq13Q,
+        answer: loc.docsBookingStartedFaq13A,
         category: 'Getting Started',
         order: 14,
       ),
       FAQModel(
         id: 'faq_gs_guest_receipt',
-        question: 'As a guest, how do I get my booking details?',
-        answer:
-            'Your booking confirmation and receipt are sent to your WhatsApp number. You\'ll receive appointment reminders and can track everything through WhatsApp without downloading the app.',
+        question: loc.docsBookingStartedFaq14Q,
+        answer: loc.docsBookingStartedFaq14A,
         category: 'Getting Started',
         order: 15,
       ),

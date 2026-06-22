@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nano_embryo/app/theme/app_theme.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/utils/phone_field_widget.dart';
 import 'package:nano_embryo/core/widgets/app_text_form_field.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
+import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/input_sanitizer.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
@@ -71,7 +74,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         _prefsLoaded = true;
       });
     } catch (e, stack) {
-      MarketplaceLogger.warn('checkout prefs load failed', error: e, stack: stack);
+      MarketplaceLogger.warn(
+        'checkout prefs load failed',
+        error: e,
+        stack: stack,
+      );
       if (mounted) setState(() => _prefsLoaded = true);
     }
   }
@@ -82,7 +89,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       await prefs.setString(_kSavedAddress, address);
       await prefs.setString(_kSavedPhone, phone);
     } catch (e, stack) {
-      MarketplaceLogger.warn('checkout prefs save failed', error: e, stack: stack);
+      MarketplaceLogger.warn(
+        'checkout prefs save failed',
+        error: e,
+        stack: stack,
+      );
     }
   }
 
@@ -177,18 +188,32 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
+    final colorScheme = theme.colorScheme;
+
     final isOnline = ref.watch(isOnlineProvider);
 
     return Scaffold(
+      backgroundColor: colorScheme.neutral,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: true,
         title: Text(
           MarketplaceStrings.checkoutTitle,
-          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface.withOpacity(0.8),
+          ),
         ),
       ),
       body:
           cartState.isEmpty
-              ? const Center(child: Text('Cart is empty'))
+              ? const Center(
+                child: EmptyStateWidget(
+                  title: 'Cart is empty',
+                  subtitle: '',
+                  icon: Icons.shopping_cart_checkout,
+                ),
+              )
               : Form(
                 key: _formKey,
                 child: SingleChildScrollView(
@@ -196,201 +221,192 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Order summary
-                      Card(
-                        child: Padding(
-                          padding: EdgeInsets.all(16.w),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Order Summary',
-                                style: textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                semanticsLabel: 'Order summary',
-                              ),
-                              SizedBox(height: 12.h),
-                              ...cartState.items.map(
-                                (item) => Padding(
-                                  padding: EdgeInsets.only(bottom: 8.h),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          '${item.quantity}x ${item.productName}',
-                                          style: textTheme.bodyMedium,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      Text(
-                                        Currency.formatWithSymbol(item.subtotal, item.currencySymbol),
-                                        style: textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Divider(height: 24.h),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Total',
-                                    style: textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    Currency.formatWithSymbol(cartState.totalAmount, cartState.currencySymbol),
-                                    style: textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: theme.colorScheme.primary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 24.h),
-
-                      // Delivery address
+                      Gap(Spacing.lg),
                       Text(
-                        'Delivery Information',
+                        'Order Summary',
                         style: textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
+                          color: colorScheme.onBackground,
                         ),
+                        semanticsLabel: 'Order summary',
                       ),
-                      SizedBox(height: 12.h),
-
-                      AppTextFormField(
-                        controller: _addressController,
-                        label: 'Delivery Address',
-                        hintText: 'Enter your full address',
-                        maxLines: 3,
-                        maxLength: InputSanitizer.maxDeliveryAddress,
-                        validator: InputSanitizer.requiredLength(
-                          InputSanitizer.maxDeliveryAddress,
-                          fieldName: 'Delivery address',
-                        ),
-                      ),
-                      SizedBox(height: 16.h),
-
-                      // Same phone widget as AddContactModal — reports E.164.
-                      // Keyed on _prefsLoaded so it rebuilds with the saved
-                      // initial value once device prefs resolve.
-                      PhoneFieldWidget(
-                        key: ValueKey('checkout_phone_$_prefsLoaded'),
-                        initialValue: _initialPhone,
-                        onChanged: (e164) => setState(() => _e164Phone = e164),
-                      ),
-                      SizedBox(height: 16.h),
-
-                      AppTextFormField(
-                        controller: _notesController,
-                        label: 'Order Notes (Optional)',
-                        hintText: 'Special instructions for delivery',
-                        maxLines: 2,
-                        maxLength: InputSanitizer.maxOrderNotes,
-                        validator: InputSanitizer.optionalLength(
-                          InputSanitizer.maxOrderNotes,
-                          fieldName: 'Order notes',
-                        ),
-                      ),
-
-                      SizedBox(height: 24.h),
-
-                      // Payment info (COD)
+                      Gap(Spacing.sm),
+                      // Order summary
                       Container(
-                        padding: EdgeInsets.all(12.w),
+                        padding: EdgeInsets.all(16.w),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primaryContainer
-                              .withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(
+                            width: 0.5,
+                            color: colorScheme.outline.withValues(alpha: 0.3),
+                          ),
+                          borderRadius: BorderRadius.circular(20.r),
                         ),
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.payments_outlined,
-                              color: theme.colorScheme.primary,
-                            ),
-                            SizedBox(width: 12.w),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    MarketplaceStrings.codTitle,
-                                    style: textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w600,
+                            Gap(Spacing.md),
+                            ...cartState.items.map(
+                              (item) => Padding(
+                                padding: EdgeInsets.only(bottom: 8.h),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        '${item.quantity}x ${item.productName}',
+                                        style: textTheme.bodyMedium?.copyWith(
+                                          color: colorScheme.onBackground,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    MarketplaceStrings.codSubtitle,
-                                    style: textTheme.bodySmall,
-                                  ),
-                                ],
+                                    Text(
+                                      Currency.formatWithSymbol(
+                                        item.subtotal,
+                                        item.currencySymbol,
+                                      ),
+                                      style: textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        color: colorScheme.onBackground,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
+                            ),
+                            AppDivider(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Total',
+                                  style: textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.onBackground,
+                                  ),
+                                ),
+                                Text(
+                                  Currency.formatWithSymbol(
+                                    cartState.totalAmount,
+                                    cartState.currencySymbol,
+                                  ),
+                                  style: textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
 
-                      SizedBox(height: 24.h),
+                      Gap(Spacing.xxl),
 
-                      // Offline banner — blocks Place Order with a clear reason.
-                      if (!isOnline)
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12.w, vertical: 8.h),
-                          margin: EdgeInsets.only(bottom: 12.h),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.errorContainer,
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.wifi_off,
-                                  size: 18.w,
-                                  color: theme.colorScheme.onErrorContainer),
-                              SizedBox(width: 8.w),
-                              Expanded(
-                                child: Text(
-                                  MarketplaceStrings.youreOffline,
-                                  style: textTheme.bodySmall?.copyWith(
-                                    color:
-                                        theme.colorScheme.onErrorContainer,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                      // Delivery address
+                      Text(
+                        'Delivery Information',
+                        style: textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onBackground.withOpacity(.5),
                         ),
+                      ),
+                      Gap(Spacing.sm),
 
-                      // Place order button
+                      CardInkWell(
+                        margin: const EdgeInsets.all(0),
+                        child: Column(
+                          children: [
+                            AppTextFormField(
+                              controller: _addressController,
+                              label: 'Delivery Address',
+                              hintText: 'Enter your full address',
+                              maxLines: 3,
+                              maxLength: InputSanitizer.maxDeliveryAddress,
+                              validator: InputSanitizer.requiredLength(
+                                InputSanitizer.maxDeliveryAddress,
+                                fieldName: 'Delivery address',
+                              ),
+                            ),
+
+                            // Same phone widget as AddContactModal — reports E.164.
+                            // Keyed on _prefsLoaded so it rebuilds with the saved
+                            // initial value once device prefs resolve.
+                            Gap(Spacing.md),
+                            PhoneFieldWidget(
+                              key: ValueKey('checkout_phone_$_prefsLoaded'),
+                              initialValue: _initialPhone,
+                              onChanged:
+                                  (e164) => setState(() => _e164Phone = e164),
+                            ),
+                            Gap(Spacing.md),
+                            AppTextFormField(
+                              controller: _notesController,
+                              label: 'Order Notes (Optional)',
+                              hintText: 'Special instructions for delivery',
+                              maxLines: 2,
+                              maxLength: InputSanitizer.maxOrderNotes,
+                              validator: InputSanitizer.optionalLength(
+                                InputSanitizer.maxOrderNotes,
+                                fieldName: 'Order notes',
+                              ),
+                            ),
+
+                            // Payment info (COD)
+                          ],
+                        ),
+                      ),
+                      Gap(Spacing.md),
+
                       Semantics(
                         button: true,
                         label: MarketplaceStrings.placeOrder,
                         enabled: !_isPlacingOrder && isOnline,
                         child: AppButton(
-                          label: _isPlacingOrder
-                              ? MarketplaceStrings.placingOrder
-                              : MarketplaceStrings.placeOrder,
-                          onPressed: (_isPlacingOrder || !isOnline)
-                              ? null
-                              : _placeOrder,
+                          elevation: 0,
+                          label:
+                              _isPlacingOrder
+                                  ? MarketplaceStrings.placingOrder
+                                  : MarketplaceStrings.placeOrder,
+                          onPressed:
+                              (_isPlacingOrder || !isOnline)
+                                  ? null
+                                  : _placeOrder,
+
+                          size: ButtonSize.small,
                           width: double.infinity,
+                          padding: Spacing.horizontalMd,
+                          height: 40.h,
                         ),
                       ),
+                      Gap(Spacing.sm),
+                      SemanticContainerWidget(
+                        content: MarketplaceStrings.codSubtitle,
+                        icon: Icons.payments_outlined,
+                        title: MarketplaceStrings.codTitle,
+                        backgroundColor: colorScheme.primary.withOpacity(0.1),
+                        borderColor: colorScheme.primary,
+                        iconColor: colorScheme.primary,
+                        textTheme: theme.textTheme,
+                      ),
+
+                      Gap(Spacing.md),
+
+                      // Offline banner — blocks Place Order with a clear reason.
+                      if (!isOnline)
+                        SemanticContainerWidget(
+                          content: 'Connect to the internet and try again',
+                          icon: Icons.wifi_off,
+                          title: MarketplaceStrings.youreOffline,
+                          backgroundColor: colorScheme.error.withOpacity(0.1),
+                          borderColor: colorScheme.error,
+                          iconColor: colorScheme.error,
+                          textTheme: theme.textTheme,
+                        ),
+
+                      // Place order button
+                      Gap(Spacing.xxl),
                     ],
                   ),
                 ),

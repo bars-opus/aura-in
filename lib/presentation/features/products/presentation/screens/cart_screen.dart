@@ -1,13 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/cart_item_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
-
+import 'package:nano_embryo/presentation/features/products/presentation/widgets/qty_stepper.dart';
+import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
 
 class CartScreen extends ConsumerWidget {
   const CartScreen({super.key});
@@ -17,101 +13,97 @@ class CartScreen extends ConsumerWidget {
     final cartState = ref.watch(cartNotifierProvider);
     final cartNotifier = ref.read(cartNotifierProvider.notifier);
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
     return Scaffold(
+      backgroundColor: colorScheme.neutral,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: true,
+        centerTitle: false,
         title: Text(
           MarketplaceStrings.cartTitle,
-          style: textTheme.titleLarge?.copyWith(
+          style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface.withOpacity(0.8),
           ),
         ),
         actions: [
           if (!cartState.isEmpty)
-            TextButton(
-              onPressed: () => _showClearCartDialog(context, cartNotifier),
-              child: Text(
-                'Clear All',
-                style: TextStyle(
-                  color: theme.colorScheme.error,
-                  fontSize: 14.sp,
-                ),
+            Padding(
+              padding: EdgeInsets.only(top: Spacing.md),
+              child: AppTextButton(
+                textColor: colorScheme.error,
+                onPressed: () {
+                  BottomSheetUtils.showDocumentationBottomSheet(
+                    context: context,
+                    maxHeight: 350.h,
+                    widget: ConfirmationDialog(
+                      icon: Icons.delete,
+                      type: ConfirmationType.warning,
+                      title:
+                          'Are you sure you want to remove all items from your cart?',
+                      confirmText: 'Clear All',
+                      message: '',
+                      onConfirm: () {
+                        cartNotifier.clearCart();
+                        Navigator.pop(context);
+                      },
+                    ),
+                  );
+                },
+                text: 'Clear All',
               ),
             ),
         ],
       ),
-      body: cartState.isEmpty
-          ? _buildEmptyCart(context)
-          : Column(
-              children: [
-                if (cartState.error != null)
-                  Container(
-                    width: double.infinity,
-                    color: theme.colorScheme.errorContainer,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 8.h,
+
+      body:
+          cartState.isEmpty
+              ? _buildEmptyCart()
+              : Column(
+                children: [
+                  if (cartState.error != null)
+                    ErrorStateWidget(title: cartState.error!),
+                  // Cart items list
+                  Expanded(
+                    child: ListView.builder(
+                      padding: EdgeInsets.all(16.w),
+                      itemCount: cartState.items.length,
+                      itemBuilder: (context, index) {
+                        final item = cartState.items[index];
+                        return _buildCartItem(
+                          context,
+                          item,
+                          cartNotifier,
+                          theme,
+                        );
+                      },
                     ),
-                    child: Row(
+                  ),
+
+                  // Bottom checkout bar
+                  CardInkWell(
+                    margin: const EdgeInsets.all(0),
+                    child: Column(
                       children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 20.w,
-                          color: theme.colorScheme.onErrorContainer,
-                        ),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: Text(
-                            cartState.error!,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onErrorContainer,
+                        InfoRowWidget(
+                          subtitle: '',
+                          title: '${cartState.itemCount} item(s)',
+                          icon: Icons.memory,
+                          iconSize: 0.0,
+                          avatarRadius: 25.h,
+                          onTap: () {},
+                          disableTrailing: false,
+                          showAvatar: false,
+                          showDivider: false,
+                          showTrailingArrow: false,
+                          trailing: Text(
+                            Currency.formatWithSymbol(
+                              cartState.totalAmount,
+                              cartState.currencySymbol,
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                // Cart items list
-                Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.all(16.w),
-                    itemCount: cartState.items.length,
-                    itemBuilder: (context, index) {
-                      final item = cartState.items[index];
-                      return _buildCartItem(
-                        item,
-                        cartNotifier,
-                        theme,
-                      );
-                    },
-                  ),
-                ),
-                
-                // Bottom checkout bar
-                Container(
-                  padding: EdgeInsets.all(16.w),
-                  decoration: BoxDecoration(
-                    color: theme.scaffoldBackgroundColor,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 8.r,
-                        offset: Offset(0, -2.h),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '${MarketplaceStrings.total}:',
-                            style: textTheme.titleMedium,
-                          ),
-                          Text(
-                            Currency.formatWithSymbol(cartState.totalAmount, cartState.currencySymbol),
                             semanticsLabel:
                                 'Total ${Currency.formatWithSymbol(cartState.totalAmount, cartState.currencySymbol)}',
                             style: textTheme.headlineSmall?.copyWith(
@@ -119,232 +111,101 @@ class CartScreen extends ConsumerWidget {
                               color: theme.colorScheme.primary,
                             ),
                           ),
-                        ],
-                      ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        '${cartState.itemCount} item(s)',
-                        style: textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
-                      ),
-                      SizedBox(height: 16.h),
-                      Semantics(
-                        button: true,
-                        label: MarketplaceStrings.proceedToCheckout,
-                        child: AppButton(
+                        Gap(Spacing.md),
+                        AppButton(
+                          height: 40.h,
                           label: MarketplaceStrings.proceedToCheckout,
                           onPressed: () => context.pushNamed('checkout'),
+                          padding: Spacing.horizontalMd,
+                          size: ButtonSize.small,
                           width: double.infinity,
                         ),
-                      ),
-                    ],
+                        Gap(Spacing.lg.h),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
     );
   }
 
   Widget _buildCartItem(
+    BuildContext context,
     CartItemModel item,
     CartNotifier cartNotifier,
     ThemeData theme,
   ) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4.r,
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Product image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.r),
-            child: Container(
-              width: 80.w,
-              height: 80.w,
-              color: Colors.grey.shade200,
-              child: item.imageUrl != null
-                  ? Image.network(
-                      item.imageUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(
-                          Icons.image_outlined,
-                          size: 32.w,
-                          color: Colors.grey.shade400,
-                        );
-                      },
-                    )
-                  : Icon(
-                      Icons.image_outlined,
-                      size: 32.w,
-                      color: Colors.grey.shade400,
-                    ),
+    return CardInkWell(
+      child: InfoRowWidget(
+        subtitle: '',
+        title: item.productName,
+        isNotAvatarImage: true,
+        icon: Icons.image_outlined,
+        iconSize: 50.0,
+        imageUrl: item.imageUrl,
+        titleFontSize: FontSizeTokens.lg,
+        avatarRadius: 70.h,
+        onTap:
+            () => context.pushNamed(
+              'productDetail',
+              extra: <String, String?>{
+                'productId': item.productId,
+                'coverImageUrl': item.imageUrl ?? '',
+              },
             ),
-          ),
-          SizedBox(width: 12.w),
-          
-          // Product details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.productName,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  item.shopName,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      Currency.formatWithSymbol(item.price, item.currencySymbol),
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.remove, size: 20.w),
-                          onPressed: () {
-                            cartNotifier.updateQuantity(
-                              item.productId,
-                              item.quantity - 1,
-                            );
-                          },
-                          constraints: const BoxConstraints(),
-                          padding: EdgeInsets.all(4.w),
-                        ),
-                        Container(
-                          width: 40.w,
-                          height: 32.h,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${item.quantity}',
-                              style: theme.textTheme.bodyMedium,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.add, size: 20.w),
-                          onPressed: () {
-                            cartNotifier.updateQuantity(
-                              item.productId,
-                              item.quantity + 1,
-                            );
-                          },
-                          constraints: const BoxConstraints(),
-                          padding: EdgeInsets.all(4.w),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+        disableTrailing: false,
+        showAvatar: false,
+        showDivider: false,
+        showTrailingArrow: false,
+        trailing: AppIconButton(
+          icon: Icons.delete_forever,
+          iconColor: Colors.red,
+          onPressed: () {
+            BottomSheetUtils.showDocumentationBottomSheet(
+              context: context,
+              maxHeight: 350.h,
+              widget: ConfirmationDialog(
+                type: ConfirmationType.warning,
+                icon: Icons.delete_forever,
+                title:
+                    'Are you sure you want to remove this item from your cart?',
+                confirmText: 'Remove item',
+                message: '',
+                onConfirm: () {
+                  cartNotifier.removeItem(item.productId);
+                },
+              ),
+            );
+          },
+        ),
+        bottomWidget: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              Currency.formatWithSymbol(item.price, item.currencySymbol),
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.primary,
+              ),
             ),
-          ),
-          
-          // Delete button
-          IconButton(
-            icon: Icon(Icons.delete_outline, size: 20.w),
-            onPressed: () {
-              cartNotifier.removeItem(item.productId);
-            },
-          ),
-        ],
+            QtyStepper(
+              quantity: item.quantity,
+              max: item.stockQuantity,
+              onChanged: (q) => cartNotifier.updateQuantity(item.productId, q),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildEmptyCart(BuildContext context) {
-    final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
-
+  Widget _buildEmptyCart() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.shopping_cart_outlined,
-            size: 80.w,
-            color: theme.colorScheme.primary.withValues(alpha: 0.5),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            MarketplaceStrings.cartEmpty,
-            style: textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            MarketplaceStrings.cartEmptySubtitle,
-            style: textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 24.h),
-          AppButton(
-            label: 'Browse Products',
-            onPressed: () {
-              if (Navigator.canPop(context)) {
-                Navigator.pop(context);
-              }
-            },
-            width: 200.w,
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showClearCartDialog(BuildContext context, CartNotifier cartNotifier) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear Cart'),
-        content: const Text('Are you sure you want to remove all items from your cart?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              cartNotifier.clearCart();
-              Navigator.pop(context);
-            },
-            child: const Text('Clear All', style: TextStyle(color: Colors.red)),
-          ),
-        ],
+      child: EmptyStateWidget(
+        subtitle: MarketplaceStrings.cartEmptySubtitle,
+        title: MarketplaceStrings.cartEmpty,
+        icon: Icons.shopping_cart_outlined,
       ),
     );
   }

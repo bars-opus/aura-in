@@ -12,8 +12,13 @@ import 'package:nano_embryo/presentation/features/shops/query/presentation/widge
 /// to this screen passes `product.id`).
 class ProductDetailScreen extends ConsumerStatefulWidget {
   final String productId;
+  final String coverImageUrl;
 
-  const ProductDetailScreen({super.key, required this.productId});
+  const ProductDetailScreen({
+    super.key,
+    required this.productId,
+    this.coverImageUrl = '',
+  });
 
   @override
   ConsumerState<ProductDetailScreen> createState() =>
@@ -71,7 +76,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
                     label: 'Reviews',
                     icon: null,
                     content: Material(
-                      color: colorScheme.background,
+                      color: colorScheme.neutral,
                       child: ProductReviewsSection(productId: product.id),
                     ),
                   ),
@@ -86,7 +91,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
           tabs: _tabs,
         );
       },
-      loading: () => const ShopDetailsLoadingSchimmer(coverImageUrl: ''),
+      loading:
+          () => ShopDetailsLoadingSchimmer(coverImageUrl: widget.coverImageUrl),
       error: (error, _) => _buildErrorWidget(),
     );
   }
@@ -94,13 +100,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
   Widget _buildErrorWidget() {
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.neutral,
       body: Center(
         child: ErrorStateWidget(
           title: '',
           subtitle: 'Failed to load product details',
-          onPrimaryAction: () =>
-              ref.invalidate(productProvider(widget.productId)),
+          onPrimaryAction:
+              () => ref.invalidate(productProvider(widget.productId)),
         ),
       ),
     );

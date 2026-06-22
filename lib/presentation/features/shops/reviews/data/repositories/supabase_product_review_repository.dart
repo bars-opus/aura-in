@@ -19,12 +19,8 @@ class SupabaseProductReviewRepository implements ProductReviewRepository {
             .select('''
               *,
               profiles!user_id (
-                full_name,
+                display_name,
                 avatar_url
-              ),
-              products!product_id (
-                name,
-                images
               )
             ''')
             .eq('product_id', productId)

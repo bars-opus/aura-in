@@ -405,8 +405,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         break;
 
       case SearchCategory.products:
-        // result.id is the product id (set in UnifiedSearchRepository).
-        context.pushNamed('productDetail', extra: result.id);
+        context.pushNamed('productDetail', extra: <String, String?>{'productId': result.id, 'coverImageUrl': ''});
         break;
       case SearchCategory.all:
         break;

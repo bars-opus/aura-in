@@ -17,6 +17,7 @@ class FilterChipRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       height: 50.h,
       padding: EdgeInsets.symmetric(horizontal: 12.w),
@@ -31,19 +32,43 @@ class FilterChipRow extends StatelessWidget {
               itemBuilder: (context, index) {
                 if (index == 0) {
                   // "All" chip
-                  return FilterChip(
-                    label: Text('All'),
+                  return AppFilterChip(
+                    label: 'All',
                     selected: selectedCategory == null,
                     onSelected: (_) => onCategorySelected(null),
+                    backgroundColor: colorScheme.background,
+                    labelColor: colorScheme.onBackground,
+                    borderWidth: 0.1,
+
+                    // fontSize: ,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Spacing.sm.w,
+                      vertical: Spacing.xs.h,
+                    ),
                   );
                 }
 
                 final category = ProductCategory.values[index - 1];
-                return FilterChip(
-                  label: Text(category.displayName),
+                return AppFilterChip(
+                  label: category.displayName,
                   selected: selectedCategory == category.name,
                   onSelected: (_) => onCategorySelected(category.name),
+                  backgroundColor: colorScheme.background,
+                  labelColor: colorScheme.onBackground,
+                  borderWidth: 0.1,
+
+                  // fontSize: ,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Spacing.sm.w,
+                    vertical: Spacing.xs.h,
+                  ),
                 );
+
+                // FilterChip(
+                //   label: Text(category.displayName),
+                //   selected: selectedCategory == category.name,
+                //   onSelected: (_) => onCategorySelected(category.name),
+                // );
               },
             ),
           ),
@@ -51,18 +76,7 @@ class FilterChipRow extends StatelessWidget {
           SizedBox(width: 8.w),
 
           // Filter button
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-            child: IconButton(
-              icon: Icon(Icons.filter_list, size: 20.w),
-              onPressed: onFilterPressed,
-              padding: EdgeInsets.all(8.w),
-              constraints: const BoxConstraints(),
-            ),
-          ),
+          AppIconButton(icon: Icons.filter_list, onPressed: onFilterPressed),
         ],
       ),
     );

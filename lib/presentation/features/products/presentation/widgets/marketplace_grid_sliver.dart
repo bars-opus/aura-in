@@ -33,8 +33,7 @@ class MarketplaceGridSliver extends ConsumerWidget {
     // Error with nothing to show.
     if (state.error != null && state.items.isEmpty) {
       return SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.only(top: Spacing.xl),
+        child: CardInkWell(
           child: ErrorStateWidget(
             subtitle: state.error!,
             title: MarketplaceStrings.failedToLoad,
@@ -47,8 +46,7 @@ class MarketplaceGridSliver extends ConsumerWidget {
     // Empty after a successful fetch.
     if (state.items.isEmpty) {
       return SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.only(top: Spacing.xl),
+        child: CardInkWell(
           child: EmptyStateWidget(
             subtitle: loc.discoverMarketplaceSubtitle,
             title: loc.discoverMarketplaceTitle,
@@ -58,7 +56,9 @@ class MarketplaceGridSliver extends ConsumerWidget {
       );
     }
 
-    return SliverPadding(
+    return 
+    
+    SliverPadding(
       padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, Spacing.md.h),
       sliver: SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -67,22 +67,26 @@ class MarketplaceGridSliver extends ConsumerWidget {
           mainAxisSpacing: 12.h,
           childAspectRatio: 0.75,
         ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            // Kick off the next page as the user nears the end of the grid.
-            if (state.hasMore && index >= state.items.length - 4) {
-              WidgetsBinding.instance.addPostFrameCallback(
-                (_) => notifier.loadNext(),
-              );
-            }
-            final product = state.items[index];
-            return ProductGridItem(
-              product: product,
-              onTap: () => context.pushNamed('productDetail', extra: product.id),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          // Kick off the next page as the user nears the end of the grid.
+          if (state.hasMore && index >= state.items.length - 4) {
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => notifier.loadNext(),
             );
-          },
-          childCount: state.items.length,
-        ),
+          }
+          final product = state.items[index];
+          return ProductGridItem(
+            product: product,
+            onTap:
+                () => context.pushNamed(
+                  'productDetail',
+                  extra: <String, String?>{
+                    'productId': product.id,
+                    'coverImageUrl': product.images.firstOrNull ?? '',
+                  },
+                ),
+          );
+        }, childCount: state.items.length),
       ),
     );
   }

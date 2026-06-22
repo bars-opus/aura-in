@@ -86,7 +86,7 @@ class ProfileBuysTab extends ConsumerWidget {
                 );
               } else {
                 // Visitor: view + buy.
-                context.pushNamed('productDetail', extra: product.id);
+                context.pushNamed('productDetail', extra: <String, String?>{'productId': product.id, 'coverImageUrl': product.images.firstOrNull ?? ''});
               }
             },
           );

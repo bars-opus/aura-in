@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:flutter/scheduler.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_image_container.dart';
 
 class ShopImagePageview extends StatefulWidget {
   final List<String> shopImageUrls;
@@ -97,31 +96,7 @@ class _ShopImagePageviewState extends State<ShopImagePageview> {
   }
 
   Widget _buildImageContainer(String imageUrl) {
-    if (widget.isPreview) {
-      return Image.file(
-        File(imageUrl),
-        fit: BoxFit.cover,
-        width: double.infinity,
-        errorBuilder: (_, __, ___) => _buildPlaceholder(),
-      );
-    } else {
-      return Image.network(
-        imageUrl,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        errorBuilder: (_, __, ___) => _buildPlaceholder(),
-      );
-    }
-  }
-
-  Widget _buildPlaceholder() {
-    return Center(
-      child: Icon(
-        Icons.image_not_supported_rounded,
-        color: Colors.grey.shade500,
-        size: 50.h,
-      ),
-    );
+    return ShopImageContainer(imageUrl: imageUrl, isPreview: widget.isPreview);
   }
 
   @override

@@ -175,8 +175,6 @@ class RouteNames {
   static const String feedbackHistory = '/feedback/history';
   static const String adminVerificationQueue = '/adminVerificationQueue';
 
-
-
   // static const String bookingDetailScreen = '/bookingDetailScreen';
 }
 
@@ -493,10 +491,7 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
       GoRoute(
         path: RouteNames.more,
         name: 'more',
-        builder:
-            (context, state) => const MoreScreen(
-             
-            ),
+        builder: (context, state) => const MoreScreen(),
       ),
 
       GoRoute(
@@ -706,11 +701,12 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
       GoRoute(
         path: RouteNames.manageServices,
         name: 'manageServices',
-        builder: (context, state) => ManageServicesScreen(
-          shopId: '',
-          freelancerMode:
-              state.uri.queryParameters['freelancerMode'] == 'true',
-        ),
+        builder:
+            (context, state) => ManageServicesScreen(
+              shopId: '',
+              freelancerMode:
+                  state.uri.queryParameters['freelancerMode'] == 'true',
+            ),
       ),
       GoRoute(
         path: RouteNames.setHours,
@@ -1017,9 +1013,28 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
       GoRoute(
         path: RouteNames.productDetail,
         name: 'productDetail',
-        builder:
-            (context, state) =>
-                ProductDetailScreen(productId: state.extra as String? ?? ''),
+        //  builder:
+        //         (context, state) {
+        //           final params = state.extra as Map<String, String>;
+        //           return OrderDetailScreen(
+        //             orderId: params['orderId'] ?? '',
+        //             shopId: params['shopId'] ?? '',
+        //           );
+        //         },
+        builder: (context, state) {
+              final extra = state.extra;
+              if (extra is Map<String, String?>) {
+                return ProductDetailScreen(
+                  productId: extra['productId'] ?? '',
+                  coverImageUrl: extra['coverImageUrl'] ?? '',
+                );
+              }
+              // Legacy callers that still pass a bare String.
+              return ProductDetailScreen(
+                productId: extra as String? ?? '',
+                coverImageUrl: '',
+              );
+            },
       ),
       GoRoute(
         path: RouteNames.cart,
@@ -1095,10 +1110,10 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
       ),
 
       GoRoute(
-  path:  RouteNames.featureSurvey,
-  name: 'featureSurvey',
-  builder: (context, state) => const FeatureSurveyScreen(),
-),
+        path: RouteNames.featureSurvey,
+        name: 'featureSurvey',
+        builder: (context, state) => const FeatureSurveyScreen(),
+      ),
       GoRoute(
         path: RouteNames.feedback,
         name: 'feedback',

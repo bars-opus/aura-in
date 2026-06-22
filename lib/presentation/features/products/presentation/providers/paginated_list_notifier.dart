@@ -97,7 +97,11 @@ abstract class PagedListNotifier<T> extends StateNotifier<PagedListState<T>> {
     } on MarketplaceException catch (e) {
       state = state.copyWith(isRefreshing: false, error: e.message);
     } catch (e, stack) {
-      MarketplaceLogger.error('PagedList refresh failed', error: e, stack: stack);
+      MarketplaceLogger.error(
+        'PagedList refresh failed',
+        error: e,
+        stack: stack,
+      );
       state = state.copyWith(isRefreshing: false, error: 'Failed to refresh');
     }
   }

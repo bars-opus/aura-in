@@ -42,6 +42,8 @@ NotificationConfig buildNanoEmbryoNotificationConfig() {
         value: 'new_shop_nearby',
         priority: 5,
       ),
+      'order_placed': NotificationType(value: 'order_placed', priority: 8),
+      'out_of_stock': NotificationType(value: 'out_of_stock', priority: 9),
     },
     templates: {
       'booking_confirmation_shop': NotificationTemplate(
@@ -103,6 +105,14 @@ NotificationConfig buildNanoEmbryoNotificationConfig() {
               RouteNames.shopOrderDetail,
               extra: {'orderId': orderId, 'shopId': shopId},
             );
+          } else {
+            GoRouter.of(context).go(RouteNames.home);
+          }
+
+        case 'out_of_stock':
+          // Deep-link to the seller's product list so they can restock.
+          if (shopId != null && shopId.isNotEmpty) {
+            GoRouter.of(context).push(RouteNames.shopProducts, extra: shopId);
           } else {
             GoRouter.of(context).go(RouteNames.home);
           }

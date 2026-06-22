@@ -2,11 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/screens/shop_creation.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/edit_shop_provider.dart';
-import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_creation_provider.dart';
-import 'package:nano_embryo/presentation/features/shops/creation/providers/shop_media_provider.dart';
 
 class EditShopScreen extends ConsumerStatefulWidget {
   final String shopId;

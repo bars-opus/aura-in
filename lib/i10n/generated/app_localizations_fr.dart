@@ -4798,4 +4798,391 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get docsFreelancerFaq5A => 'You can cancel before the booking time. Contact support if you need to reschedule. Be fair to customers - frequent cancellations hurt your rating.';
+
+  @override
+  String get docsBookingStartedBookingIntro_title => 'Welcome to the Booking System';
+
+  @override
+  String get docsBookingStartedBookingIntro_subtitle => 'Everything you need to know about booking services, whether you\'re a client or a shop owner.';
+
+  @override
+  String get docsBookingStartedBookingIntro_whatIsBooking_title => 'What is the Booking System?';
+
+  @override
+  String get docsBookingStartedBookingIntro_whatIsBooking_content => 'The booking system is your gateway to scheduling services at your favorite shops. Whether you need a haircut, beard trim, braiding, or any other service, the system makes it easy to book appointments at your convenience.';
+
+  @override
+  String get docsBookingStartedBookingIntro_whoItsFor_title => 'Who is this guide for?';
+
+  @override
+  String get docsBookingStartedBookingIntro_whoItsFor_content => 'This guide is designed for two types of users:';
+
+  @override
+  String get docsBookingStartedBookingIntro_whoItsFor_bullet1 => 'Clients: People who want to book services at shops';
+
+  @override
+  String get docsBookingStartedBookingIntro_whoItsFor_bullet2 => 'Guest Bookers: People who want to book via a link without creating an account';
+
+  @override
+  String get docsBookingStartedBookingIntro_whoItsFor_bullet3 => 'Shop Owners: People who manage shops, services, and workers';
+
+  @override
+  String get docsBookingStartedBookingIntro_guestBookingIntro_title => 'New: Book Without Downloading the App';
+
+  @override
+  String get docsBookingStartedBookingIntro_guestBookingIntro_content => 'No account? No problem! If a shop owner shares a booking link with you, you can book directly without downloading the app. Your receipt is sent to WhatsApp.';
+
+  @override
+  String get docsBookingStartedBookingIntro_welcomeNote_content => 'No technical knowledge needed! This guide uses simple language and real examples to help you understand everything.';
+
+  @override
+  String get docsBookingStartedCreatingAccount_title => 'Creating Your Account (Or Booking as Guest)';
+
+  @override
+  String get docsBookingStartedCreatingAccount_subtitle => 'Get started in minutes - with or without an account';
+
+  @override
+  String get docsBookingStartedCreatingAccount_twoWaysToBook_title => 'Two Ways to Book';
+
+  @override
+  String get docsBookingStartedCreatingAccount_twoWaysToBook_content => 'You can book in two ways:';
+
+  @override
+  String get docsBookingStartedCreatingAccount_twoWaysToBook_bullet1 => 'With Account: Download app, create account, book anytime';
+
+  @override
+  String get docsBookingStartedCreatingAccount_twoWaysToBook_bullet2 => 'As Guest: Use booking link, no app needed, receipt via WhatsApp';
+
+  @override
+  String get docsBookingStartedCreatingAccount_accountSteps_title => 'How to Create an Account';
+
+  @override
+  String get docsBookingStartedCreatingAccount_accountSteps_content => 'Follow these simple steps to create your account:';
+
+  @override
+  String get docsBookingStartedCreatingAccount_accountSteps_bullet1 => 'Download the app from App Store or Google Play';
+
+  @override
+  String get docsBookingStartedCreatingAccount_accountSteps_bullet2 => 'Tap \"Sign Up\" on the welcome screen';
+
+  @override
+  String get docsBookingStartedCreatingAccount_accountSteps_bullet3 => 'Enter your email address and create a password';
+
+  @override
+  String get docsBookingStartedCreatingAccount_accountSteps_bullet4 => 'Add your name and profile picture (optional)';
+
+  @override
+  String get docsBookingStartedCreatingAccount_accountSteps_bullet5 => 'Verify your email address';
+
+  @override
+  String get docsBookingStartedCreatingAccount_accountSteps_bullet6 => 'You\'re ready to start booking!';
+
+  @override
+  String get docsBookingStartedCreatingAccount_accountTypes_title => 'Account Types';
+
+  @override
+  String get docsBookingStartedCreatingAccount_accountTypes_content => 'There are two types of accounts:';
+
+  @override
+  String get docsBookingStartedCreatingAccount_accountTypes_bullet1 => 'Client Account: For booking services at shops';
+
+  @override
+  String get docsBookingStartedCreatingAccount_accountTypes_bullet2 => 'Shop Owner Account: For managing your own shop (requires approval)';
+
+  @override
+  String get docsBookingStartedCreatingAccount_guestBookingOption_title => 'Booking as a Guest (No Account)';
+
+  @override
+  String get docsBookingStartedCreatingAccount_guestBookingOption_content => 'If someone shares a booking link with you, you can book directly without creating an account. Just click the link and follow the steps. Your receipt is sent to your WhatsApp.';
+
+  @override
+  String get docsBookingStartedCreatingAccount_verificationNote_content => 'You can browse and book without an account using a booking link. Creating an account gives you access to booking history, saved payments, and loyalty rewards.';
+
+  @override
+  String get docsBookingStartedFirstBooking_title => 'Your First Booking';
+
+  @override
+  String get docsBookingStartedFirstBooking_subtitle => 'A quick walkthrough';
+
+  @override
+  String get docsBookingStartedFirstBooking_bookingSteps_title => 'How to make your first booking';
+
+  @override
+  String get docsBookingStartedFirstBooking_bookingSteps_content => 'Here\'s what you\'ll do:';
+
+  @override
+  String get docsBookingStartedFirstBooking_bookingSteps_bullet1 => 'Find a shop you like';
+
+  @override
+  String get docsBookingStartedFirstBooking_bookingSteps_bullet2 => 'Browse their services';
+
+  @override
+  String get docsBookingStartedFirstBooking_bookingSteps_bullet3 => 'Select the services you want';
+
+  @override
+  String get docsBookingStartedFirstBooking_bookingSteps_bullet4 => 'Choose your preferred worker (if available)';
+
+  @override
+  String get docsBookingStartedFirstBooking_bookingSteps_bullet5 => 'Pick a date and time';
+
+  @override
+  String get docsBookingStartedFirstBooking_bookingSteps_bullet6 => 'Review and confirm your booking';
+
+  @override
+  String get docsBookingStartedFirstBooking_whatHappensNext_title => 'What happens after you book?';
+
+  @override
+  String get docsBookingStartedFirstBooking_whatHappensNext_content => 'Once you confirm your booking:';
+
+  @override
+  String get docsBookingStartedFirstBooking_whatHappensNext_bullet1 => 'You\'ll get an instant confirmation';
+
+  @override
+  String get docsBookingStartedFirstBooking_whatHappensNext_bullet2 => 'The booking appears in \"My Bookings\"';
+
+  @override
+  String get docsBookingStartedFirstBooking_whatHappensNext_bullet3 => 'You\'ll receive a reminder before your appointment';
+
+  @override
+  String get docsBookingStartedFirstBooking_whatHappensNext_bullet4 => 'The shop gets notified of your booking';
+
+  @override
+  String get docsBookingStartedFirstBooking_whatHappensNext_bullet5 => 'You can reschedule or cancel if plans change';
+
+  @override
+  String get docsBookingStartedFirstBooking_paymentProcess_title => 'How Payment Works';
+
+  @override
+  String get docsBookingStartedFirstBooking_paymentProcess_content => 'When you book a service, here\'s how payment works:';
+
+  @override
+  String get docsBookingStartedFirstBooking_paymentProcess_bullet1 => '30% Deposit Required: To secure your booking, you pay 30% of the total service cost upfront';
+
+  @override
+  String get docsBookingStartedFirstBooking_paymentProcess_bullet2 => 'Platform Fee: A small fixed fee (e.g., GHS 2) is added to help maintain the platform';
+
+  @override
+  String get docsBookingStartedFirstBooking_paymentProcess_bullet3 => 'Non-Refundable: Deposit and fee are non-refundable if you cancel or don\'t show up';
+
+  @override
+  String get docsBookingStartedFirstBooking_paymentProcess_bullet4 => 'Remaining 70%: Paid after service - either in cash or via app';
+
+  @override
+  String get docsBookingStartedFirstBooking_paymentProcess_bullet5 => 'Secure Payment: All payments are processed securely through our payment partners';
+
+  @override
+  String get docsBookingStartedFirstBooking_remainingPaymentOptions_title => 'Flexible Payment for Remaining Balance';
+
+  @override
+  String get docsBookingStartedFirstBooking_remainingPaymentOptions_content => 'After your service, you have options for paying the remaining 70%:';
+
+  @override
+  String get docsBookingStartedFirstBooking_remainingPaymentOptions_bullet1 => 'Pay in Cash: Hand cash directly to worker or shop counter';
+
+  @override
+  String get docsBookingStartedFirstBooking_remainingPaymentOptions_bullet2 => 'Pay via App: Use card, mobile money, or digital payment through the app';
+
+  @override
+  String get docsBookingStartedFirstBooking_remainingPaymentOptions_bullet3 => 'You choose: Either option is available at the time of service';
+
+  @override
+  String get docsBookingStartedFirstBooking_depositNote_content => 'The 30% deposit protects both you and the shop. It ensures your slot is reserved exclusively for you, and compensates the worker if you cancel last minute. The platform fee helps us maintain secure payments and customer support.';
+
+  @override
+  String get docsBookingStartedFirstBooking_bookingTip_content => 'Pro tip: Book at least 24 hours in advance for the best selection of time slots, especially for popular services.';
+
+  @override
+  String get docsBookingStartedNavigation_title => 'Finding Your Way Around';
+
+  @override
+  String get docsBookingStartedNavigation_subtitle => 'Key screens and what they do';
+
+  @override
+  String get docsBookingStartedNavigation_mainScreens_title => 'Main Screens';
+
+  @override
+  String get docsBookingStartedNavigation_mainScreens_content => 'The app has several key screens to help you navigate:';
+
+  @override
+  String get docsBookingStartedNavigation_mainScreens_bullet1 => 'Home: Discover shops and services near you';
+
+  @override
+  String get docsBookingStartedNavigation_mainScreens_bullet2 => 'Search: Find specific shops or services';
+
+  @override
+  String get docsBookingStartedNavigation_mainScreens_bullet3 => 'My Bookings: View and manage your appointments';
+
+  @override
+  String get docsBookingStartedNavigation_mainScreens_bullet4 => 'Profile: Your account settings and preferences';
+
+  @override
+  String get docsBookingStartedNavigation_mainScreens_bullet5 => 'Favorites: Save shops you love for quick access';
+
+  @override
+  String get docsBookingStartedNavigation_bookingFlow_title => 'The Booking Flow';
+
+  @override
+  String get docsBookingStartedNavigation_bookingFlow_content => 'When you start booking, you\'ll go through these steps:';
+
+  @override
+  String get docsBookingStartedNavigation_bookingFlow_bullet1 => 'Services: Choose what you want';
+
+  @override
+  String get docsBookingStartedNavigation_bookingFlow_bullet2 => 'Workers: Pick who you want (if applicable)';
+
+  @override
+  String get docsBookingStartedNavigation_bookingFlow_bullet3 => 'Time: Select your preferred date and time';
+
+  @override
+  String get docsBookingStartedNavigation_bookingFlow_bullet4 => 'Confirm: Review and finalize your booking';
+
+  @override
+  String get docsBookingStartedNavigation_navigationTip_content => 'You can always go back to previous steps using the back button. Your selections are saved as you move through the flow.';
+
+  @override
+  String get docsBookingStartedBasics_title => 'Booking Basics';
+
+  @override
+  String get docsBookingStartedBasics_subtitle => 'Key concepts explained simply';
+
+  @override
+  String get docsBookingStartedBasics_keyTerms_title => 'Important Terms to Know';
+
+  @override
+  String get docsBookingStartedBasics_keyTerms_content => 'Here are some terms you\'ll encounter:';
+
+  @override
+  String get docsBookingStartedBasics_keyTerms_bullet1 => 'Service: What you want done (haircut, braids, etc.)';
+
+  @override
+  String get docsBookingStartedBasics_keyTerms_bullet2 => 'Worker: The person who performs the service';
+
+  @override
+  String get docsBookingStartedBasics_keyTerms_bullet3 => 'Slot: A specific date and time for your appointment';
+
+  @override
+  String get docsBookingStartedBasics_keyTerms_bullet4 => 'Group Booking: Booking for multiple people at once';
+
+  @override
+  String get docsBookingStartedBasics_keyTerms_bullet5 => 'Buffer Time: Clean-up time between appointments (you won\'t see this)';
+
+  @override
+  String get docsBookingStartedBasics_whatYouNeed_title => 'What You Need Before Booking';
+
+  @override
+  String get docsBookingStartedBasics_whatYouNeed_content => 'Before you start, have this information ready:';
+
+  @override
+  String get docsBookingStartedBasics_whatYouNeed_bullet1 => 'The service you want';
+
+  @override
+  String get docsBookingStartedBasics_whatYouNeed_bullet2 => 'Preferred date and time (flexibility helps!)';
+
+  @override
+  String get docsBookingStartedBasics_whatYouNeed_bullet3 => 'Number of people (if booking for a group)';
+
+  @override
+  String get docsBookingStartedBasics_whatYouNeed_bullet4 => 'Worker preference (if you have one)';
+
+  @override
+  String get docsBookingStartedBasics_depositExplained_title => 'Understanding the Deposit';
+
+  @override
+  String get docsBookingStartedBasics_depositExplained_content => 'Here\'s a real example of how the deposit works:';
+
+  @override
+  String get docsBookingStartedBasics_depositExample_title => 'Example';
+
+  @override
+  String get docsBookingStartedBasics_depositExample_content => 'Sarah books a haircut that costs GHS 100.\n• At booking: She pays GHS 30 (30% deposit)\n• After service: She pays GHS 70 (remaining balance)\n• Total paid: GHS 100\n\nIf Sarah cancels: She loses the GHS 30 deposit, but isn\'t charged the remaining GHS 70.\n\nIf Sarah doesn\'t show up: Same as cancellation - the GHS 30 deposit is kept.';
+
+  @override
+  String get docsBookingStartedBasics_depositTip_content => 'The deposit is applied toward your total bill. You\'re not paying extra - you\'re just paying part of it upfront to secure your spot.';
+
+  @override
+  String get docsBookingStartedBasics_basicsImportant_content => 'All times shown in the app are in your local timezone. No need to worry about timezone conversions!';
+
+  @override
+  String get docsBookingStartedFaq1Q => 'Can I book without an account?';
+
+  @override
+  String get docsBookingStartedFaq1A => 'You can browse shops and services without an account, but you\'ll need to sign up to actually book appointments. This helps us keep track of your bookings and send you reminders.';
+
+  @override
+  String get docsBookingStartedFaq2Q => 'Does it cost anything to use the booking system?';
+
+  @override
+  String get docsBookingStartedFaq2A => 'The booking system is completely free for clients. You only pay for the services you book. Shop owners pay a small commission on each booking.';
+
+  @override
+  String get docsBookingStartedFaq3Q => 'Can I book at multiple shops at the same time?';
+
+  @override
+  String get docsBookingStartedFaq3A => 'Yes! You can book appointments at different shops. Just make sure the times don\'t overlap if you\'re planning to attend them all yourself.';
+
+  @override
+  String get docsBookingStartedFaq4Q => 'Is the deposit refundable if I cancel?';
+
+  @override
+  String get docsBookingStartedFaq4A => 'No, the 30% deposit is non-refundable. This policy helps shops protect their time in case of last-minute cancellations or no-shows. You can cancel up to 24 hours before your appointment to avoid being charged the remaining 70%, but the deposit will not be refunded.';
+
+  @override
+  String get docsBookingStartedFaq5Q => 'Why 30%? Why not a fixed amount?';
+
+  @override
+  String get docsBookingStartedFaq5A => 'The 30% deposit scales with the cost of your service. For expensive services, the deposit is higher (protecting the shop more), and for cheaper services, it\'s lower (fairer for you). This percentage was chosen as a balanced approach that works for both clients and shops.';
+
+  @override
+  String get docsBookingStartedFaq6Q => 'If I book multiple services, do I pay 30% of the total?';
+
+  @override
+  String get docsBookingStartedFaq6A => 'Yes! The 30% deposit is calculated based on the total cost of all services you\'re booking. So if your total is GHS 200, you\'ll pay GHS 60 upfront, and the remaining GHS 140 after your appointment.';
+
+  @override
+  String get docsBookingStartedFaq7Q => 'What if I have a genuine emergency?';
+
+  @override
+  String get docsBookingStartedFaq7A => 'We understand that emergencies happen. While the deposit is officially non-refundable, you can contact the shop directly through the app to explain your situation. Some shops may offer credit toward a future booking at their discretion.';
+
+  @override
+  String get docsBookingStartedFaq8Q => 'Will I get reminders about my booking?';
+
+  @override
+  String get docsBookingStartedFaq8A => 'Yes! You\'ll receive reminders 24 hours before your appointment and again 1 hour before. You can adjust reminder settings in your profile.';
+
+  @override
+  String get docsBookingStartedFaq9Q => 'When do I pay for my booking?';
+
+  @override
+  String get docsBookingStartedFaq9A => 'Payment is handled at the time of booking. You can pay using credit card, debit card, or other payment methods available in your region.';
+
+  @override
+  String get docsBookingStartedFaq10Q => 'I own a shop. How do I get started?';
+
+  @override
+  String get docsBookingStartedFaq10A => 'Great! Create an account and select \"Shop Owner\" during signup. You\'ll need to provide some information about your shop and wait for approval. Once approved, you can start adding services and workers.';
+
+  @override
+  String get docsBookingStartedFaq11Q => 'Can I book without creating an account?';
+
+  @override
+  String get docsBookingStartedFaq11A => 'Yes! If a shop owner shares a booking link with you, you can book directly without an account. Just click the link and follow the booking steps. Your receipt is sent to your WhatsApp. You can create an account later if you want to track all your bookings in one place.';
+
+  @override
+  String get docsBookingStartedFaq12Q => 'What is the platform fee and why do I pay it?';
+
+  @override
+  String get docsBookingStartedFaq12A => 'The platform fee is a small fixed charge (e.g., GHS 2) added to your booking. It helps us maintain the app, process payments securely, provide customer support, and develop new features. Only one platform fee per booking, even for multiple services or people.';
+
+  @override
+  String get docsBookingStartedFaq13Q => 'Can I pay the remaining 70% in cash?';
+
+  @override
+  String get docsBookingStartedFaq13A => 'Yes! You have flexibility. You can pay the remaining 70% either in cash directly to the shop/worker, or through the app using your preferred payment method. The choice is yours at the time of service.';
+
+  @override
+  String get docsBookingStartedFaq14Q => 'As a guest, how do I get my booking details?';
+
+  @override
+  String get docsBookingStartedFaq14A => 'Your booking confirmation and receipt are sent to your WhatsApp number. You\'ll receive appointment reminders and can track everything through WhatsApp without downloading the app.';
 }

@@ -6,12 +6,14 @@ class ShopCardSubDetails extends StatelessWidget {
   final String clientWorks;
   final String distance;
   final bool showIcon;
+  final bool isProduct;
   const ShopCardSubDetails({
     super.key,
     required this.ratings,
     required this.clientWorks,
     required this.distance,
     this.showIcon = true,
+    this.isProduct = false,
   });
 
   @override
@@ -65,7 +67,7 @@ class ShopCardSubDetails extends StatelessWidget {
         _rowTexts(
           context,
           clientWorks,
-          'Client works',
+          isProduct ? "total order" : 'Client works',
           Icons.handshake_outlined,
         ),
 

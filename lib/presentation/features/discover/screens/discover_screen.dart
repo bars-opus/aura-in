@@ -166,6 +166,8 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
                   // LuxuryLevelChips. marketplaceProductsPagedProvider watches
                   // marketplaceFilterProvider and auto-reloads on category change.
                   if (selectedType == ProviderType.buy)
+
+                  
                     FilterChipRow(
                       selectedCategory:
                           ref.watch(marketplaceFilterProvider).category,

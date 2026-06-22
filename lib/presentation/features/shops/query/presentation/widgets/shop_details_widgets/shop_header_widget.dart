@@ -109,6 +109,7 @@ class ShopHeaderWidget extends ConsumerWidget {
         ),
         Gap(Spacing.md.h),
         ShopCardSubDetails(
+          isProduct: true,
           ratings:
               averageRating == null
                   ? ''

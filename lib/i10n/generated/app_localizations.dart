@@ -9294,6 +9294,780 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can cancel before the booking time. Contact support if you need to reschedule. Be fair to customers - frequent cancellations hurt your rating.'**
   String get docsFreelancerFaq5A;
+
+  /// No description provided for @docsBookingStartedBookingIntro_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to the Booking System'**
+  String get docsBookingStartedBookingIntro_title;
+
+  /// No description provided for @docsBookingStartedBookingIntro_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything you need to know about booking services, whether you\'re a client or a shop owner.'**
+  String get docsBookingStartedBookingIntro_subtitle;
+
+  /// No description provided for @docsBookingStartedBookingIntro_whatIsBooking_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What is the Booking System?'**
+  String get docsBookingStartedBookingIntro_whatIsBooking_title;
+
+  /// No description provided for @docsBookingStartedBookingIntro_whatIsBooking_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The booking system is your gateway to scheduling services at your favorite shops. Whether you need a haircut, beard trim, braiding, or any other service, the system makes it easy to book appointments at your convenience.'**
+  String get docsBookingStartedBookingIntro_whatIsBooking_content;
+
+  /// No description provided for @docsBookingStartedBookingIntro_whoItsFor_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is this guide for?'**
+  String get docsBookingStartedBookingIntro_whoItsFor_title;
+
+  /// No description provided for @docsBookingStartedBookingIntro_whoItsFor_content.
+  ///
+  /// In en, this message translates to:
+  /// **'This guide is designed for two types of users:'**
+  String get docsBookingStartedBookingIntro_whoItsFor_content;
+
+  /// No description provided for @docsBookingStartedBookingIntro_whoItsFor_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Clients: People who want to book services at shops'**
+  String get docsBookingStartedBookingIntro_whoItsFor_bullet1;
+
+  /// No description provided for @docsBookingStartedBookingIntro_whoItsFor_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest Bookers: People who want to book via a link without creating an account'**
+  String get docsBookingStartedBookingIntro_whoItsFor_bullet2;
+
+  /// No description provided for @docsBookingStartedBookingIntro_whoItsFor_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop Owners: People who manage shops, services, and workers'**
+  String get docsBookingStartedBookingIntro_whoItsFor_bullet3;
+
+  /// No description provided for @docsBookingStartedBookingIntro_guestBookingIntro_title.
+  ///
+  /// In en, this message translates to:
+  /// **'New: Book Without Downloading the App'**
+  String get docsBookingStartedBookingIntro_guestBookingIntro_title;
+
+  /// No description provided for @docsBookingStartedBookingIntro_guestBookingIntro_content.
+  ///
+  /// In en, this message translates to:
+  /// **'No account? No problem! If a shop owner shares a booking link with you, you can book directly without downloading the app. Your receipt is sent to WhatsApp.'**
+  String get docsBookingStartedBookingIntro_guestBookingIntro_content;
+
+  /// No description provided for @docsBookingStartedBookingIntro_welcomeNote_content.
+  ///
+  /// In en, this message translates to:
+  /// **'No technical knowledge needed! This guide uses simple language and real examples to help you understand everything.'**
+  String get docsBookingStartedBookingIntro_welcomeNote_content;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating Your Account (Or Booking as Guest)'**
+  String get docsBookingStartedCreatingAccount_title;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started in minutes - with or without an account'**
+  String get docsBookingStartedCreatingAccount_subtitle;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_twoWaysToBook_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Two Ways to Book'**
+  String get docsBookingStartedCreatingAccount_twoWaysToBook_title;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_twoWaysToBook_content.
+  ///
+  /// In en, this message translates to:
+  /// **'You can book in two ways:'**
+  String get docsBookingStartedCreatingAccount_twoWaysToBook_content;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_twoWaysToBook_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'With Account: Download app, create account, book anytime'**
+  String get docsBookingStartedCreatingAccount_twoWaysToBook_bullet1;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_twoWaysToBook_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'As Guest: Use booking link, no app needed, receipt via WhatsApp'**
+  String get docsBookingStartedCreatingAccount_twoWaysToBook_bullet2;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_accountSteps_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Create an Account'**
+  String get docsBookingStartedCreatingAccount_accountSteps_title;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_accountSteps_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow these simple steps to create your account:'**
+  String get docsBookingStartedCreatingAccount_accountSteps_content;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_accountSteps_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the app from App Store or Google Play'**
+  String get docsBookingStartedCreatingAccount_accountSteps_bullet1;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_accountSteps_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \"Sign Up\" on the welcome screen'**
+  String get docsBookingStartedCreatingAccount_accountSteps_bullet2;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_accountSteps_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address and create a password'**
+  String get docsBookingStartedCreatingAccount_accountSteps_bullet3;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_accountSteps_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your name and profile picture (optional)'**
+  String get docsBookingStartedCreatingAccount_accountSteps_bullet4;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_accountSteps_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email address'**
+  String get docsBookingStartedCreatingAccount_accountSteps_bullet5;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_accountSteps_bullet6.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re ready to start booking!'**
+  String get docsBookingStartedCreatingAccount_accountSteps_bullet6;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_accountTypes_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Types'**
+  String get docsBookingStartedCreatingAccount_accountTypes_title;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_accountTypes_content.
+  ///
+  /// In en, this message translates to:
+  /// **'There are two types of accounts:'**
+  String get docsBookingStartedCreatingAccount_accountTypes_content;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_accountTypes_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Client Account: For booking services at shops'**
+  String get docsBookingStartedCreatingAccount_accountTypes_bullet1;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_accountTypes_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop Owner Account: For managing your own shop (requires approval)'**
+  String get docsBookingStartedCreatingAccount_accountTypes_bullet2;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_guestBookingOption_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking as a Guest (No Account)'**
+  String get docsBookingStartedCreatingAccount_guestBookingOption_title;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_guestBookingOption_content.
+  ///
+  /// In en, this message translates to:
+  /// **'If someone shares a booking link with you, you can book directly without creating an account. Just click the link and follow the steps. Your receipt is sent to your WhatsApp.'**
+  String get docsBookingStartedCreatingAccount_guestBookingOption_content;
+
+  /// No description provided for @docsBookingStartedCreatingAccount_verificationNote_content.
+  ///
+  /// In en, this message translates to:
+  /// **'You can browse and book without an account using a booking link. Creating an account gives you access to booking history, saved payments, and loyalty rewards.'**
+  String get docsBookingStartedCreatingAccount_verificationNote_content;
+
+  /// No description provided for @docsBookingStartedFirstBooking_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your First Booking'**
+  String get docsBookingStartedFirstBooking_title;
+
+  /// No description provided for @docsBookingStartedFirstBooking_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A quick walkthrough'**
+  String get docsBookingStartedFirstBooking_subtitle;
+
+  /// No description provided for @docsBookingStartedFirstBooking_bookingSteps_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How to make your first booking'**
+  String get docsBookingStartedFirstBooking_bookingSteps_title;
+
+  /// No description provided for @docsBookingStartedFirstBooking_bookingSteps_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Here\'s what you\'ll do:'**
+  String get docsBookingStartedFirstBooking_bookingSteps_content;
+
+  /// No description provided for @docsBookingStartedFirstBooking_bookingSteps_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a shop you like'**
+  String get docsBookingStartedFirstBooking_bookingSteps_bullet1;
+
+  /// No description provided for @docsBookingStartedFirstBooking_bookingSteps_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse their services'**
+  String get docsBookingStartedFirstBooking_bookingSteps_bullet2;
+
+  /// No description provided for @docsBookingStartedFirstBooking_bookingSteps_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the services you want'**
+  String get docsBookingStartedFirstBooking_bookingSteps_bullet3;
+
+  /// No description provided for @docsBookingStartedFirstBooking_bookingSteps_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your preferred worker (if available)'**
+  String get docsBookingStartedFirstBooking_bookingSteps_bullet4;
+
+  /// No description provided for @docsBookingStartedFirstBooking_bookingSteps_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date and time'**
+  String get docsBookingStartedFirstBooking_bookingSteps_bullet5;
+
+  /// No description provided for @docsBookingStartedFirstBooking_bookingSteps_bullet6.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and confirm your booking'**
+  String get docsBookingStartedFirstBooking_bookingSteps_bullet6;
+
+  /// No description provided for @docsBookingStartedFirstBooking_whatHappensNext_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What happens after you book?'**
+  String get docsBookingStartedFirstBooking_whatHappensNext_title;
+
+  /// No description provided for @docsBookingStartedFirstBooking_whatHappensNext_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Once you confirm your booking:'**
+  String get docsBookingStartedFirstBooking_whatHappensNext_content;
+
+  /// No description provided for @docsBookingStartedFirstBooking_whatHappensNext_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll get an instant confirmation'**
+  String get docsBookingStartedFirstBooking_whatHappensNext_bullet1;
+
+  /// No description provided for @docsBookingStartedFirstBooking_whatHappensNext_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'The booking appears in \"My Bookings\"'**
+  String get docsBookingStartedFirstBooking_whatHappensNext_bullet2;
+
+  /// No description provided for @docsBookingStartedFirstBooking_whatHappensNext_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll receive a reminder before your appointment'**
+  String get docsBookingStartedFirstBooking_whatHappensNext_bullet3;
+
+  /// No description provided for @docsBookingStartedFirstBooking_whatHappensNext_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop gets notified of your booking'**
+  String get docsBookingStartedFirstBooking_whatHappensNext_bullet4;
+
+  /// No description provided for @docsBookingStartedFirstBooking_whatHappensNext_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'You can reschedule or cancel if plans change'**
+  String get docsBookingStartedFirstBooking_whatHappensNext_bullet5;
+
+  /// No description provided for @docsBookingStartedFirstBooking_paymentProcess_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How Payment Works'**
+  String get docsBookingStartedFirstBooking_paymentProcess_title;
+
+  /// No description provided for @docsBookingStartedFirstBooking_paymentProcess_content.
+  ///
+  /// In en, this message translates to:
+  /// **'When you book a service, here\'s how payment works:'**
+  String get docsBookingStartedFirstBooking_paymentProcess_content;
+
+  /// No description provided for @docsBookingStartedFirstBooking_paymentProcess_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'30% Deposit Required: To secure your booking, you pay 30% of the total service cost upfront'**
+  String get docsBookingStartedFirstBooking_paymentProcess_bullet1;
+
+  /// No description provided for @docsBookingStartedFirstBooking_paymentProcess_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Fee: A small fixed fee (e.g., GHS 2) is added to help maintain the platform'**
+  String get docsBookingStartedFirstBooking_paymentProcess_bullet2;
+
+  /// No description provided for @docsBookingStartedFirstBooking_paymentProcess_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Non-Refundable: Deposit and fee are non-refundable if you cancel or don\'t show up'**
+  String get docsBookingStartedFirstBooking_paymentProcess_bullet3;
+
+  /// No description provided for @docsBookingStartedFirstBooking_paymentProcess_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining 70%: Paid after service - either in cash or via app'**
+  String get docsBookingStartedFirstBooking_paymentProcess_bullet4;
+
+  /// No description provided for @docsBookingStartedFirstBooking_paymentProcess_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure Payment: All payments are processed securely through our payment partners'**
+  String get docsBookingStartedFirstBooking_paymentProcess_bullet5;
+
+  /// No description provided for @docsBookingStartedFirstBooking_remainingPaymentOptions_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Flexible Payment for Remaining Balance'**
+  String get docsBookingStartedFirstBooking_remainingPaymentOptions_title;
+
+  /// No description provided for @docsBookingStartedFirstBooking_remainingPaymentOptions_content.
+  ///
+  /// In en, this message translates to:
+  /// **'After your service, you have options for paying the remaining 70%:'**
+  String get docsBookingStartedFirstBooking_remainingPaymentOptions_content;
+
+  /// No description provided for @docsBookingStartedFirstBooking_remainingPaymentOptions_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay in Cash: Hand cash directly to worker or shop counter'**
+  String get docsBookingStartedFirstBooking_remainingPaymentOptions_bullet1;
+
+  /// No description provided for @docsBookingStartedFirstBooking_remainingPaymentOptions_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay via App: Use card, mobile money, or digital payment through the app'**
+  String get docsBookingStartedFirstBooking_remainingPaymentOptions_bullet2;
+
+  /// No description provided for @docsBookingStartedFirstBooking_remainingPaymentOptions_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'You choose: Either option is available at the time of service'**
+  String get docsBookingStartedFirstBooking_remainingPaymentOptions_bullet3;
+
+  /// No description provided for @docsBookingStartedFirstBooking_depositNote_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The 30% deposit protects both you and the shop. It ensures your slot is reserved exclusively for you, and compensates the worker if you cancel last minute. The platform fee helps us maintain secure payments and customer support.'**
+  String get docsBookingStartedFirstBooking_depositNote_content;
+
+  /// No description provided for @docsBookingStartedFirstBooking_bookingTip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro tip: Book at least 24 hours in advance for the best selection of time slots, especially for popular services.'**
+  String get docsBookingStartedFirstBooking_bookingTip_content;
+
+  /// No description provided for @docsBookingStartedNavigation_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding Your Way Around'**
+  String get docsBookingStartedNavigation_title;
+
+  /// No description provided for @docsBookingStartedNavigation_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Key screens and what they do'**
+  String get docsBookingStartedNavigation_subtitle;
+
+  /// No description provided for @docsBookingStartedNavigation_mainScreens_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Main Screens'**
+  String get docsBookingStartedNavigation_mainScreens_title;
+
+  /// No description provided for @docsBookingStartedNavigation_mainScreens_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The app has several key screens to help you navigate:'**
+  String get docsBookingStartedNavigation_mainScreens_content;
+
+  /// No description provided for @docsBookingStartedNavigation_mainScreens_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Home: Discover shops and services near you'**
+  String get docsBookingStartedNavigation_mainScreens_bullet1;
+
+  /// No description provided for @docsBookingStartedNavigation_mainScreens_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Search: Find specific shops or services'**
+  String get docsBookingStartedNavigation_mainScreens_bullet2;
+
+  /// No description provided for @docsBookingStartedNavigation_mainScreens_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'My Bookings: View and manage your appointments'**
+  String get docsBookingStartedNavigation_mainScreens_bullet3;
+
+  /// No description provided for @docsBookingStartedNavigation_mainScreens_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile: Your account settings and preferences'**
+  String get docsBookingStartedNavigation_mainScreens_bullet4;
+
+  /// No description provided for @docsBookingStartedNavigation_mainScreens_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites: Save shops you love for quick access'**
+  String get docsBookingStartedNavigation_mainScreens_bullet5;
+
+  /// No description provided for @docsBookingStartedNavigation_bookingFlow_title.
+  ///
+  /// In en, this message translates to:
+  /// **'The Booking Flow'**
+  String get docsBookingStartedNavigation_bookingFlow_title;
+
+  /// No description provided for @docsBookingStartedNavigation_bookingFlow_content.
+  ///
+  /// In en, this message translates to:
+  /// **'When you start booking, you\'ll go through these steps:'**
+  String get docsBookingStartedNavigation_bookingFlow_content;
+
+  /// No description provided for @docsBookingStartedNavigation_bookingFlow_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Services: Choose what you want'**
+  String get docsBookingStartedNavigation_bookingFlow_bullet1;
+
+  /// No description provided for @docsBookingStartedNavigation_bookingFlow_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Workers: Pick who you want (if applicable)'**
+  String get docsBookingStartedNavigation_bookingFlow_bullet2;
+
+  /// No description provided for @docsBookingStartedNavigation_bookingFlow_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Time: Select your preferred date and time'**
+  String get docsBookingStartedNavigation_bookingFlow_bullet3;
+
+  /// No description provided for @docsBookingStartedNavigation_bookingFlow_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm: Review and finalize your booking'**
+  String get docsBookingStartedNavigation_bookingFlow_bullet4;
+
+  /// No description provided for @docsBookingStartedNavigation_navigationTip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'You can always go back to previous steps using the back button. Your selections are saved as you move through the flow.'**
+  String get docsBookingStartedNavigation_navigationTip_content;
+
+  /// No description provided for @docsBookingStartedBasics_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking Basics'**
+  String get docsBookingStartedBasics_title;
+
+  /// No description provided for @docsBookingStartedBasics_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Key concepts explained simply'**
+  String get docsBookingStartedBasics_subtitle;
+
+  /// No description provided for @docsBookingStartedBasics_keyTerms_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Important Terms to Know'**
+  String get docsBookingStartedBasics_keyTerms_title;
+
+  /// No description provided for @docsBookingStartedBasics_keyTerms_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Here are some terms you\'ll encounter:'**
+  String get docsBookingStartedBasics_keyTerms_content;
+
+  /// No description provided for @docsBookingStartedBasics_keyTerms_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Service: What you want done (haircut, braids, etc.)'**
+  String get docsBookingStartedBasics_keyTerms_bullet1;
+
+  /// No description provided for @docsBookingStartedBasics_keyTerms_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Worker: The person who performs the service'**
+  String get docsBookingStartedBasics_keyTerms_bullet2;
+
+  /// No description provided for @docsBookingStartedBasics_keyTerms_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Slot: A specific date and time for your appointment'**
+  String get docsBookingStartedBasics_keyTerms_bullet3;
+
+  /// No description provided for @docsBookingStartedBasics_keyTerms_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Booking: Booking for multiple people at once'**
+  String get docsBookingStartedBasics_keyTerms_bullet4;
+
+  /// No description provided for @docsBookingStartedBasics_keyTerms_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'Buffer Time: Clean-up time between appointments (you won\'t see this)'**
+  String get docsBookingStartedBasics_keyTerms_bullet5;
+
+  /// No description provided for @docsBookingStartedBasics_whatYouNeed_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What You Need Before Booking'**
+  String get docsBookingStartedBasics_whatYouNeed_title;
+
+  /// No description provided for @docsBookingStartedBasics_whatYouNeed_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you start, have this information ready:'**
+  String get docsBookingStartedBasics_whatYouNeed_content;
+
+  /// No description provided for @docsBookingStartedBasics_whatYouNeed_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'The service you want'**
+  String get docsBookingStartedBasics_whatYouNeed_bullet1;
+
+  /// No description provided for @docsBookingStartedBasics_whatYouNeed_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferred date and time (flexibility helps!)'**
+  String get docsBookingStartedBasics_whatYouNeed_bullet2;
+
+  /// No description provided for @docsBookingStartedBasics_whatYouNeed_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of people (if booking for a group)'**
+  String get docsBookingStartedBasics_whatYouNeed_bullet3;
+
+  /// No description provided for @docsBookingStartedBasics_whatYouNeed_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Worker preference (if you have one)'**
+  String get docsBookingStartedBasics_whatYouNeed_bullet4;
+
+  /// No description provided for @docsBookingStartedBasics_depositExplained_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Understanding the Deposit'**
+  String get docsBookingStartedBasics_depositExplained_title;
+
+  /// No description provided for @docsBookingStartedBasics_depositExplained_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Here\'s a real example of how the deposit works:'**
+  String get docsBookingStartedBasics_depositExplained_content;
+
+  /// No description provided for @docsBookingStartedBasics_depositExample_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example'**
+  String get docsBookingStartedBasics_depositExample_title;
+
+  /// No description provided for @docsBookingStartedBasics_depositExample_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Sarah books a haircut that costs GHS 100.\n• At booking: She pays GHS 30 (30% deposit)\n• After service: She pays GHS 70 (remaining balance)\n• Total paid: GHS 100\n\nIf Sarah cancels: She loses the GHS 30 deposit, but isn\'t charged the remaining GHS 70.\n\nIf Sarah doesn\'t show up: Same as cancellation - the GHS 30 deposit is kept.'**
+  String get docsBookingStartedBasics_depositExample_content;
+
+  /// No description provided for @docsBookingStartedBasics_depositTip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The deposit is applied toward your total bill. You\'re not paying extra - you\'re just paying part of it upfront to secure your spot.'**
+  String get docsBookingStartedBasics_depositTip_content;
+
+  /// No description provided for @docsBookingStartedBasics_basicsImportant_content.
+  ///
+  /// In en, this message translates to:
+  /// **'All times shown in the app are in your local timezone. No need to worry about timezone conversions!'**
+  String get docsBookingStartedBasics_basicsImportant_content;
+
+  /// No description provided for @docsBookingStartedFaq1Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I book without an account?'**
+  String get docsBookingStartedFaq1Q;
+
+  /// No description provided for @docsBookingStartedFaq1A.
+  ///
+  /// In en, this message translates to:
+  /// **'You can browse shops and services without an account, but you\'ll need to sign up to actually book appointments. This helps us keep track of your bookings and send you reminders.'**
+  String get docsBookingStartedFaq1A;
+
+  /// No description provided for @docsBookingStartedFaq2Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Does it cost anything to use the booking system?'**
+  String get docsBookingStartedFaq2Q;
+
+  /// No description provided for @docsBookingStartedFaq2A.
+  ///
+  /// In en, this message translates to:
+  /// **'The booking system is completely free for clients. You only pay for the services you book. Shop owners pay a small commission on each booking.'**
+  String get docsBookingStartedFaq2A;
+
+  /// No description provided for @docsBookingStartedFaq3Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I book at multiple shops at the same time?'**
+  String get docsBookingStartedFaq3Q;
+
+  /// No description provided for @docsBookingStartedFaq3A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! You can book appointments at different shops. Just make sure the times don\'t overlap if you\'re planning to attend them all yourself.'**
+  String get docsBookingStartedFaq3A;
+
+  /// No description provided for @docsBookingStartedFaq4Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Is the deposit refundable if I cancel?'**
+  String get docsBookingStartedFaq4Q;
+
+  /// No description provided for @docsBookingStartedFaq4A.
+  ///
+  /// In en, this message translates to:
+  /// **'No, the 30% deposit is non-refundable. This policy helps shops protect their time in case of last-minute cancellations or no-shows. You can cancel up to 24 hours before your appointment to avoid being charged the remaining 70%, but the deposit will not be refunded.'**
+  String get docsBookingStartedFaq4A;
+
+  /// No description provided for @docsBookingStartedFaq5Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Why 30%? Why not a fixed amount?'**
+  String get docsBookingStartedFaq5Q;
+
+  /// No description provided for @docsBookingStartedFaq5A.
+  ///
+  /// In en, this message translates to:
+  /// **'The 30% deposit scales with the cost of your service. For expensive services, the deposit is higher (protecting the shop more), and for cheaper services, it\'s lower (fairer for you). This percentage was chosen as a balanced approach that works for both clients and shops.'**
+  String get docsBookingStartedFaq5A;
+
+  /// No description provided for @docsBookingStartedFaq6Q.
+  ///
+  /// In en, this message translates to:
+  /// **'If I book multiple services, do I pay 30% of the total?'**
+  String get docsBookingStartedFaq6Q;
+
+  /// No description provided for @docsBookingStartedFaq6A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! The 30% deposit is calculated based on the total cost of all services you\'re booking. So if your total is GHS 200, you\'ll pay GHS 60 upfront, and the remaining GHS 140 after your appointment.'**
+  String get docsBookingStartedFaq6A;
+
+  /// No description provided for @docsBookingStartedFaq7Q.
+  ///
+  /// In en, this message translates to:
+  /// **'What if I have a genuine emergency?'**
+  String get docsBookingStartedFaq7Q;
+
+  /// No description provided for @docsBookingStartedFaq7A.
+  ///
+  /// In en, this message translates to:
+  /// **'We understand that emergencies happen. While the deposit is officially non-refundable, you can contact the shop directly through the app to explain your situation. Some shops may offer credit toward a future booking at their discretion.'**
+  String get docsBookingStartedFaq7A;
+
+  /// No description provided for @docsBookingStartedFaq8Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Will I get reminders about my booking?'**
+  String get docsBookingStartedFaq8Q;
+
+  /// No description provided for @docsBookingStartedFaq8A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! You\'ll receive reminders 24 hours before your appointment and again 1 hour before. You can adjust reminder settings in your profile.'**
+  String get docsBookingStartedFaq8A;
+
+  /// No description provided for @docsBookingStartedFaq9Q.
+  ///
+  /// In en, this message translates to:
+  /// **'When do I pay for my booking?'**
+  String get docsBookingStartedFaq9Q;
+
+  /// No description provided for @docsBookingStartedFaq9A.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment is handled at the time of booking. You can pay using credit card, debit card, or other payment methods available in your region.'**
+  String get docsBookingStartedFaq9A;
+
+  /// No description provided for @docsBookingStartedFaq10Q.
+  ///
+  /// In en, this message translates to:
+  /// **'I own a shop. How do I get started?'**
+  String get docsBookingStartedFaq10Q;
+
+  /// No description provided for @docsBookingStartedFaq10A.
+  ///
+  /// In en, this message translates to:
+  /// **'Great! Create an account and select \"Shop Owner\" during signup. You\'ll need to provide some information about your shop and wait for approval. Once approved, you can start adding services and workers.'**
+  String get docsBookingStartedFaq10A;
+
+  /// No description provided for @docsBookingStartedFaq11Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I book without creating an account?'**
+  String get docsBookingStartedFaq11Q;
+
+  /// No description provided for @docsBookingStartedFaq11A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! If a shop owner shares a booking link with you, you can book directly without an account. Just click the link and follow the booking steps. Your receipt is sent to your WhatsApp. You can create an account later if you want to track all your bookings in one place.'**
+  String get docsBookingStartedFaq11A;
+
+  /// No description provided for @docsBookingStartedFaq12Q.
+  ///
+  /// In en, this message translates to:
+  /// **'What is the platform fee and why do I pay it?'**
+  String get docsBookingStartedFaq12Q;
+
+  /// No description provided for @docsBookingStartedFaq12A.
+  ///
+  /// In en, this message translates to:
+  /// **'The platform fee is a small fixed charge (e.g., GHS 2) added to your booking. It helps us maintain the app, process payments securely, provide customer support, and develop new features. Only one platform fee per booking, even for multiple services or people.'**
+  String get docsBookingStartedFaq12A;
+
+  /// No description provided for @docsBookingStartedFaq13Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I pay the remaining 70% in cash?'**
+  String get docsBookingStartedFaq13Q;
+
+  /// No description provided for @docsBookingStartedFaq13A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! You have flexibility. You can pay the remaining 70% either in cash directly to the shop/worker, or through the app using your preferred payment method. The choice is yours at the time of service.'**
+  String get docsBookingStartedFaq13A;
+
+  /// No description provided for @docsBookingStartedFaq14Q.
+  ///
+  /// In en, this message translates to:
+  /// **'As a guest, how do I get my booking details?'**
+  String get docsBookingStartedFaq14Q;
+
+  /// No description provided for @docsBookingStartedFaq14A.
+  ///
+  /// In en, this message translates to:
+  /// **'Your booking confirmation and receipt are sent to your WhatsApp number. You\'ll receive appointment reminders and can track everything through WhatsApp without downloading the app.'**
+  String get docsBookingStartedFaq14A;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

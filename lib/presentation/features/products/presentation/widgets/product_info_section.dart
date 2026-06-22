@@ -19,62 +19,67 @@ class ProductInfoSection extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
 
     return Material(
-      color: colorScheme.background,
+      color: colorScheme.neutral,
       child: ListView(
         padding: EdgeInsets.all(Spacing.md.w),
         children: [
           // Seller identity (shop or product-seller account). Tappable.
-          _SellerHeader(
-            shopId: product.shopId,
-            fallbackName: product.shopName,
-            fallbackVerified: product.shopVerified ?? false,
-          ),
           Gap(Spacing.md.h),
-
-          Text(
-            product.name,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Gap(Spacing.sm.h),
-
-          Text(
-            product.formattedPrice,
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: colorScheme.primary,
-            ),
-          ),
-          Gap(Spacing.md.h),
-
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Chip(
-                label: Text(
-                  ProductCategory.fromString(product.category).displayName,
-                ),
-                backgroundColor: colorScheme.primaryContainer,
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      MiniContainerIndicator(
+                        color: colorScheme.primary,
+                        text: product.category,
+                        fontSize: FontSizeTokens.lg,
+                      ),
+                      Gap(Spacing.sm.w),
+                      if (product.stockQuantity > 0)
+                        Text(
+                          '${product.stockQuantity} in stock',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                        )
+                      else
+                        Text(
+                          'Out of stock',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.error,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ),
-              Gap(Spacing.sm.w),
-              if (product.stockQuantity > 0)
-                Text(
-                  '${product.stockQuantity} in stock',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                )
-              else
-                Text(
-                  'Out of stock',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.error,
-                    fontWeight: FontWeight.w600,
-                  ),
+              Gap(Spacing.md.w),
+              Text(
+                product.formattedPrice,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
                 ),
+              ),
             ],
           ),
-          Gap(Spacing.md.h),
+
+          Gap(Spacing.lg.h),
+          AppDivider(),
+          Gap(Spacing.lg.h),
 
           if (product.description != null &&
               product.description!.isNotEmpty) ...[
@@ -82,11 +87,26 @@ class ProductInfoSection extends ConsumerWidget {
               'Description',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
               ),
             ),
             Gap(Spacing.sm.h),
-            Text(product.description!, style: theme.textTheme.bodyMedium),
+            Text(
+              product.description!,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface,
+              ),
+            ),
           ],
+          Gap(Spacing.lg.h),
+          CardInkWell(
+            child: _SellerHeader(
+              shopId: product.shopId,
+              fallbackName: product.shopName,
+              fallbackVerified: product.shopVerified ?? false,
+              totalOrdersCount: product.totalOrdersCount,
+            ),
+          ),
         ],
       ),
     );
@@ -101,11 +121,13 @@ class _SellerHeader extends ConsumerWidget {
   final String shopId;
   final String? fallbackName;
   final bool fallbackVerified;
+  final int totalOrdersCount;
 
   const _SellerHeader({
     required this.shopId,
     required this.fallbackName,
     required this.fallbackVerified,
+    required this.totalOrdersCount,
   });
 
   @override
@@ -113,28 +135,29 @@ class _SellerHeader extends ConsumerWidget {
     final shopAsync = ref.watch(shopByIdProvider(shopId));
 
     Widget headerFromDto(ShopDetailsDTO shop) => GestureDetector(
-          onTap: () => context.pushNamed(
+      onTap:
+          () => context.pushNamed(
             'shopDetailsScreen',
             extra: <String, String?>{
               'shopId': shop.id,
               'coverImageUrl': shop.shopLogoUrl ?? '',
             },
           ),
-          child: ShopHeaderWidget(
-            name: shop.shopName,
-            luxuryLevel: shop.luxuryLevel ?? '',
-            logoUrl: shop.shopLogoUrl ?? '',
-            verified: shop.verified,
-            shopType: shop.shopType ?? '',
-            latitude: shop.latitude,
-            longitude: shop.longitude,
-            averageRating: shop.averageRating,
-            numberClientsWorked: shop.numberClientsWorked,
-            overview: shop.overview,
-            id: shop.id,
-            isShop: true,
-          ),
-        );
+      child: ShopHeaderWidget(
+        name: shop.shopName,
+        luxuryLevel: shop.luxuryLevel ?? '',
+        logoUrl: shop.shopLogoUrl ?? '',
+        verified: shop.verified,
+        shopType: shop.shopType ?? '',
+        latitude: shop.latitude,
+        longitude: shop.longitude,
+        averageRating: shop.averageRating,
+        numberClientsWorked: totalOrdersCount,
+        overview: shop.overview,
+        id: shop.id,
+        isShop: true,
+      ),
+    );
 
     return shopAsync.when(
       data: (shop) => shop == null ? _fallback() : headerFromDto(shop),
@@ -144,9 +167,10 @@ class _SellerHeader extends ConsumerWidget {
   }
 
   Widget _fallback() {
-    final name = (fallbackName == null || fallbackName!.isEmpty)
-        ? 'Seller'
-        : fallbackName!;
+    final name =
+        (fallbackName == null || fallbackName!.isEmpty)
+            ? 'Seller'
+            : fallbackName!;
     return Builder(
       builder: (context) {
         final textTheme = Theme.of(context).textTheme;

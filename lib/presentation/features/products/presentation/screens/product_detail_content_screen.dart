@@ -11,6 +11,7 @@ import 'package:nano_embryo/presentation/features/products/data/utils/marketplac
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/widgets/qty_stepper.dart';
 import 'package:nano_embryo/presentation/features/profile/widgets/tab_bar_delegate.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_image_pageview.dart';
 
@@ -42,6 +43,8 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
   ProductModel get _product => widget.product;
 
   Future<void> _addToCart() async {
+    final colorScheme = Theme.of(context).colorScheme;
+
     final product = _product;
     if (_isAddingToCart) return;
 
@@ -61,7 +64,8 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
     setState(() => _isAddingToCart = true);
 
     try {
-      final shopName = product.shopName ??
+      final shopName =
+          product.shopName ??
           (await ref.read(shopNameByIdProvider(product.shopId).future));
 
       final item = CartItemModel(
@@ -74,12 +78,16 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
         shopName: shopName ?? 'Unknown shop',
         currencySymbol: product.shopCurrencySymbol,
         currencyCode: product.shopCurrencyCode,
+        stockQuantity: product.stockQuantity,
       );
 
       await ref.read(cartNotifierProvider.notifier).addItem(item);
 
       if (!mounted) return;
-      context.showSuccessSnackbar(MarketplaceStrings.addedToCart);
+      context.showSuccessSnackbar(
+        backgroundColor: colorScheme.success,
+        MarketplaceStrings.addedToCart,
+      );
     } on MultiShopCartException catch (_) {
       if (!mounted) return;
       final confirmed = await _confirmReplaceCart();
@@ -114,8 +122,9 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
   }
 
   Future<bool?> _confirmReplaceCart() => showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
+    context: context,
+    builder:
+        (ctx) => AlertDialog(
           title: const Text(MarketplaceStrings.replaceCartTitle),
           content: const Text(MarketplaceStrings.replaceCartBody),
           actions: [
@@ -129,7 +138,7 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
             ),
           ],
         ),
-      );
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +146,8 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
     final product = _product;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: colorScheme.neutral,
+
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
@@ -148,7 +158,8 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                 child: AppIconButton(
                   onPressed: () => Navigator.pop(context),
                   backgroundColor: colorScheme.surface.withValues(alpha: .6),
-                  icon: Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+                  icon:
+                      Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
                 ),
               ),
               flexibleSpace: FlexibleSpaceBar(
@@ -170,7 +181,9 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
         body: TabBarView(
           controller: widget.tabController,
           children:
-              widget.tabs.map((tab) => tab.content ?? const SizedBox()).toList(),
+              widget.tabs
+                  .map((tab) => tab.content ?? const SizedBox())
+                  .toList(),
         ),
       ),
       bottomNavigationBar: _buildAddToCartBar(context, product),
@@ -199,7 +212,7 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
           children: [
             // Quantity stepper (hidden when out of stock / inactive).
             if (!disabled || _isAddingToCart) ...[
-              _QtyStepper(
+              QtyStepper(
                 quantity: _quantity,
                 max: product.stockQuantity,
                 onChanged: (q) => setState(() => _quantity = q),
@@ -213,6 +226,7 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                 enabled: !disabled,
                 child: AppButton(
                   elevation: 0,
+                  padding: Spacing.allSm,
                   label: _buttonLabel(product),
                   onPressed: disabled ? null : _addToCart,
                   size: ButtonSize.small,
@@ -224,50 +238,6 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// Compact +/- quantity stepper, capped at [max] available stock.
-class _QtyStepper extends StatelessWidget {
-  final int quantity;
-  final int max;
-  final ValueChanged<int> onChanged;
-
-  const _QtyStepper({
-    required this.quantity,
-    required this.max,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(8.r),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.remove),
-            onPressed: quantity > 1 ? () => onChanged(quantity - 1) : null,
-          ),
-          Text(
-            '$quantity',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          IconButton(
-            visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.add),
-            // Cap at available stock.
-            onPressed: quantity < max ? () => onChanged(quantity + 1) : null,
-          ),
-        ],
       ),
     );
   }

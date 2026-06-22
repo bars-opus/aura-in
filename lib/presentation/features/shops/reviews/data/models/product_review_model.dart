@@ -57,7 +57,7 @@ class ProductReview extends Equatable {
       updatedAt: DateTime.parse(json['updated_at'] as String),
       userName:
           json['profiles'] != null
-              ? json['profiles']['full_name'] as String?
+              ? json['profiles']['display_name'] as String?
               : null,
       userAvatar:
           json['profiles'] != null
