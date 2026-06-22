@@ -9,7 +9,7 @@ import 'package:nano_embryo/app/documentations/user_manual/data/booking/time_slo
 import 'package:nano_embryo/app/documentations/user_manual/data/dash_board_docs.dart';
 import 'package:nano_embryo/app/documentations/user_manual/data/getting_started_docs.dart';
 import 'package:nano_embryo/app/documentations/user_manual/data/testing_docs.dart';
-import 'package:nano_embryo/app/documentations/user_manual/data/ui_components_docs.dart';
+import 'package:nano_embryo/app/documentations/user_manual/data/create_shop_docs.dart';
 import 'package:nano_embryo/app/documentations/user_manual/models/documentation_model.dart';
 
 // lib/core/documentation/documentation_registry.dart
@@ -22,6 +22,7 @@ class DocumentationRegistry {
   // Initialize with default modules
   static void initialize() {
     // Register all your modules here
+    registerModule(CreateShopDocs());
     registerModule(BookingGettingStartedDocs());
     registerModule(HowToBookServicesDocs());
     registerModule(GroupBookingsDocs());
@@ -33,7 +34,6 @@ class DocumentationRegistry {
     registerModule(DashboardDocs());
     registerModule(GettingStartedDocs());
     registerModule(TestingDocs());
-    registerModule(UIComponentsDocs());
 
     // Add more as needed
   }
@@ -46,6 +46,8 @@ class DocumentationRegistry {
   // ✅ 2. Get module by ID
   static DocumentationModule? getById(String id) => _idMap[id];
 
+  static CreateShopDocs get createShop =>
+      getById('create_shop') as CreateShopDocs;
   static BookingGettingStartedDocs get bookingGettingStarted =>
       getById('bookingGettingStarted') as BookingGettingStartedDocs;
   static HowToBookServicesDocs get howToBookServices =>
@@ -65,8 +67,6 @@ class DocumentationRegistry {
   static GettingStartedDocs get gettingStarted =>
       getById('gettingStarted') as GettingStartedDocs;
   static TestingDocs get testing => getById('testing') as TestingDocs;
-  static UIComponentsDocs get uiComponents =>
-      getById('uiComponents') as UIComponentsDocs;
   // static AuthenticationDocs get authentication =>
   // getById('authentication') as AuthenticationDocs;
 
