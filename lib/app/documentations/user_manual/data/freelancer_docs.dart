@@ -320,17 +320,33 @@ class FreelancerDocs implements DocumentationModule {
         ),
         ManualContent(
           id: 'certifications',
-          title: 'Upload Certifications',
+          title: 'Upload Certifications & Credentials',
           content:
               'Upload documents that build trust: licenses, certifications, insurance, training certificates. Customers love to see proof of your qualifications.',
           numberPrefix: '3',
           type: ManualContentType.text,
         ),
         ManualContent(
+          id: 'certification_examples',
+          title: 'Example Documents to Upload',
+          content:
+              'Professional licenses, training certificates, industry certifications, liability insurance, health permits, or any credentials that prove your expertise.',
+          numberPrefix: '4',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
+          id: 'document_verification',
+          title: 'Documents Are Verified',
+          content:
+              'All documents you upload will be reviewed and verified by our team. Only upload legitimate, real documents. Fake or fraudulent documents will be rejected and could result in your profile being suspended.',
+          numberPrefix: '5',
+          type: ManualContentType.important,
+        ),
+        ManualContent(
           id: 'credentials_impact',
           title: '',
           content:
-              'Freelancers with certifications and social proof get more bookings. Take time to showcase your expertise.',
+              'Freelancers with verified certifications and credentials get significantly more bookings. Customers want to book someone they can trust. Real credentials prove your expertise.',
           type: ManualContentType.important,
         ),
       ],

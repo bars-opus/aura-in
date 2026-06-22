@@ -330,10 +330,18 @@ class CreateShopDocs implements DocumentationModule {
           type: ManualContentType.text,
         ),
         ManualContent(
+          id: 'document_verification',
+          title: 'Documents Are Verified',
+          content:
+              'All documents you upload will be reviewed and verified by our team. Only upload legitimate, real documents. Fake or fraudulent documents will be rejected and could result in your shop being suspended.',
+          numberPrefix: '6',
+          type: ManualContentType.important,
+        ),
+        ManualContent(
           id: 'media_impact',
           title: '',
           content:
-              'Shops with quality photos get significantly more bookings. Customers need to trust what they\'ll experience. Good photos of your actual shop build that confidence.',
+              'Shops with quality photos and verified documents get significantly more bookings. Customers need to trust what they\'ll experience. Good photos and legitimate credentials build that confidence.',
           type: ManualContentType.important,
         ),
       ],
