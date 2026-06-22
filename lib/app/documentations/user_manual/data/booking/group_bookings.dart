@@ -78,7 +78,7 @@ class GroupBookingsDocs implements DocumentationModule {
           id: 'group_tip',
           title: '',
           content:
-              'Group bookings are perfect for families! You can book for yourself and your children in one go, choosing different workers for each person.',
+              'Group bookings are perfect for families! You can book for yourself and your children in one go, choosing different workers for each person. No account needed? Use a booking link shared by the shop!',
           type: ManualContentType.tip,
         ),
       ],
@@ -206,8 +206,9 @@ class GroupBookingsDocs implements DocumentationModule {
           type: ManualContentType.bulletList,
           bulletPoints: [
             '**30% deposit:** Calculated on the TOTAL cost of all services',
-            '**Platform fee:** One fee for the entire group booking',
-            '**Remaining 70%:** Paid after all services are complete (cash or app)',
+            '**Platform fee:** Small fixed fee (e.g., GHS 2) - charged ONCE for entire group',
+            '**Remaining 70%:** Paid after all services are complete',
+            '**Payment options:** Cash, card, mobile money, or app payment',
           ],
         ),
         ManualContent(
@@ -215,9 +216,11 @@ class GroupBookingsDocs implements DocumentationModule {
           title: 'Payment Example',
           content:
               '**Family booking total: GHS 400**\n'
-              '• Deposit at booking: GHS 120 (30% of GHS 400) + GHS 2 fee = GHS 122\n'
-              '• Remaining after service: GHS 280 (pay in cash or via app)\n'
-              '• Total to shop: GHS 400 + GHS 2 platform fee',
+              '• Deposit at booking: GHS 120 (30% of GHS 400)\n'
+              '• Platform fee: GHS 2 (charged once for entire group)\n'
+              '• **Total to pay now: GHS 122**\n'
+              '• Remaining after service: GHS 280\n'
+              '• **Payment after:** Cash to worker/shop OR via app (your choice)',
           type: ManualContentType.text,
         ),
         ManualContent(
@@ -409,8 +412,22 @@ class GroupBookingsDocs implements DocumentationModule {
           id: 'group_payment_important',
           title: '',
           content:
-              'The platform fee is charged once per group booking, not per person. You save on fees by booking as a group!',
+              'The platform fee is charged once per group booking, not per person. You save on fees by booking as a group! For example: 4 separate bookings = GHS 8 in fees, but 1 group booking = GHS 2 fee. You save GHS 6!',
           type: ManualContentType.important,
+        ),
+        ManualContent(
+          id: 'group_payment_flexibility',
+          title: 'Flexible Payment After Service',
+          content:
+              'After your group service, paying the remaining 70% is flexible:',
+          numberPrefix: '3',
+          type: ManualContentType.bulletList,
+          bulletPoints: [
+            '**One person pays all:** Pay total in cash or via app',
+            '**Split the payment:** Each person pays their share in cash',
+            '**Mix methods:** Some people use cash, others use app',
+            '**Individual app payments:** Each person can pay their portion through the app',
+          ],
         ),
       ],
     ),
@@ -572,6 +589,22 @@ class GroupBookingsDocs implements DocumentationModule {
             'Yes, you can reschedule the entire group booking up to 24 hours before the appointment. The deposit transfers to the new time. If only some people need to reschedule, contact the shop.',
         category: 'Group Bookings',
         order: 12,
+      ),
+      FAQModel(
+        id: 'faq_group_guest_booking',
+        question: 'Can we book as a group without an account?',
+        answer:
+            'Yes! If the shop shares a group booking link, everyone can use it without downloading the app or creating accounts. The booking confirmation and receipt details are sent to your WhatsApp.',
+        category: 'Group Bookings',
+        order: 13,
+      ),
+      FAQModel(
+        id: 'faq_group_remaining_cash',
+        question: 'Do we all have to pay in cash or can we use the app?',
+        answer:
+            'You have full flexibility! You can pay the remaining 70% in cash (to the shop/worker), via the app individually, or any combination. Some people can pay cash while others use the app for their portion.',
+        category: 'Group Bookings',
+        order: 14,
       ),
     ];
   }
