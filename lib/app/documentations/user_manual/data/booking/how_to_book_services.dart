@@ -28,26 +28,45 @@ class HowToBookServicesDocs implements DocumentationModule {
     ManualSection(
       id: 'booking_overview',
       title: 'Booking at a Glance',
-      subtitle: 'The booking process in 5 simple steps',
+      subtitle: 'The booking process in simple steps',
       icon: Icons.timeline,
       category: 'Booking Guide',
       order: 1,
       contents: [
         ManualContent(
+          id: 'two_booking_ways',
+          title: 'Two Ways to Book',
+          content: 'You can book in two ways:',
+          numberPrefix: '1',
+          type: ManualContentType.bulletList,
+          bulletPoints: [
+            '**With App Account:** Download app, create account, book anytime',
+            '**As Guest:** Use booking link, no app needed, receipt via WhatsApp',
+          ],
+        ),
+        ManualContent(
           id: 'booking_steps_overview',
-          title: 'Your Booking Journey',
+          title: 'Your Booking Journey (With Account)',
           content:
               'Booking a service takes just a few minutes. Here\'s what you\'ll do:',
-          numberPrefix: '1',
+          numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
             '**Step 1:** Find a shop and browse services',
             '**Step 2:** Select your services and quantities',
             '**Step 3:** Choose your preferred worker (if available)',
             '**Step 4:** Pick a date and time',
-            '**Step 5:** Pay 30% deposit + small processing fee to confirm',
+            '**Step 5:** Pay 30% deposit + small fee to confirm',
             '**Step 6:** After service, pay remaining 70% in cash or via app',
           ],
+        ),
+        ManualContent(
+          id: 'guest_booking_note',
+          title: 'Guest Booking (No App)',
+          content:
+              'Don\'t have the app? If a shop shares a booking link with you, follow the same steps above but without needing to create an account. Your confirmation and receipt go to your WhatsApp.',
+          numberPrefix: '3',
+          type: ManualContentType.text,
         ),
         ManualContent(
           id: 'booking_time_note',
@@ -554,6 +573,14 @@ class HowToBookServicesDocs implements DocumentationModule {
             'The platform fee is charged **per booking**, not per service. So whether you book one service or multiple services together, you pay the platform fee only once.',
         category: 'Payment',
         order: 14,
+      ),
+      FAQModel(
+        id: 'faq_book_guest_booking',
+        question: 'Can I book without creating an account?',
+        answer:
+            'Yes! If a shop shares a booking link with you, you can book directly without an account or downloading the app. Follow the same booking steps, and your confirmation and receipt are sent to your WhatsApp.',
+        category: 'Booking Process',
+        order: 15,
       ),
     ];
   }
