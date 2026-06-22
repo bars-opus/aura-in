@@ -8,7 +8,7 @@ import 'package:nano_embryo/app/documentations/user_manual/data/booking/payment_
 import 'package:nano_embryo/app/documentations/user_manual/data/booking/time_slots_explained.dart';
 import 'package:nano_embryo/app/documentations/user_manual/data/dash_board_docs.dart';
 import 'package:nano_embryo/app/documentations/user_manual/data/getting_started_docs.dart';
-import 'package:nano_embryo/app/documentations/user_manual/data/testing_docs.dart';
+import 'package:nano_embryo/app/documentations/user_manual/data/create_product_docs.dart';
 import 'package:nano_embryo/app/documentations/user_manual/data/create_shop_docs.dart';
 import 'package:nano_embryo/app/documentations/user_manual/models/documentation_model.dart';
 
@@ -24,6 +24,7 @@ class DocumentationRegistry {
     // Register all your modules here
     registerModule(CreateShopDocs());
     registerModule(FreelancerDocs());
+    registerModule(CreateProductDocs());
     registerModule(BookingGettingStartedDocs());
     registerModule(HowToBookServicesDocs());
     registerModule(GroupBookingsDocs());
@@ -33,7 +34,6 @@ class DocumentationRegistry {
 
     registerModule(DashboardDocs());
     registerModule(GettingStartedDocs());
-    registerModule(TestingDocs());
 
     // Add more as needed
   }
@@ -50,6 +50,8 @@ class DocumentationRegistry {
       getById('create_shop') as CreateShopDocs;
   static FreelancerDocs get freelancer =>
       getById('become_freelancer') as FreelancerDocs;
+  static CreateProductDocs get createProduct =>
+      getById('sell_products') as CreateProductDocs;
   static BookingGettingStartedDocs get bookingGettingStarted =>
       getById('bookingGettingStarted') as BookingGettingStartedDocs;
   static HowToBookServicesDocs get howToBookServices =>
@@ -66,7 +68,6 @@ class DocumentationRegistry {
   static DashboardDocs get dashboard => getById('dashboard') as DashboardDocs;
   static GettingStartedDocs get gettingStarted =>
       getById('gettingStarted') as GettingStartedDocs;
-  static TestingDocs get testing => getById('testing') as TestingDocs;
   // static AuthenticationDocs get authentication =>
   // getById('authentication') as AuthenticationDocs;
 
