@@ -1,5 +1,6 @@
 // lib/features/documentation/data/docs/booking_docs/how_to_book_services.dart
 import 'package:flutter/material.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 import 'package:nano_embryo/app/documentations/user_manual/models/documentation_model.dart'
     show DocumentationModule;
 import 'package:nano_embryo/app/documentations/user_manual/models/faq_model.dart';
@@ -11,14 +12,19 @@ class HowToBookServicesDocs implements DocumentationModule {
   int get order => 2;
 
   @override
-  String getTitle(BuildContext context) => 'How to Book Services';
+  String getTitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsHowToBookTitle;
+  }
 
   @override
   String get id => 'howToBookServices';
 
   @override
-  String getSubtitle(BuildContext context) =>
-      'A step-by-step guide to booking your appointments';
+  String getSubtitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsHowToBookSubtitle;
+  }
 
   @override
   IconData get icon => Icons.event_note;
