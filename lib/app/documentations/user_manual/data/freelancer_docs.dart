@@ -336,11 +336,11 @@ class FreelancerDocs implements DocumentationModule {
       ],
     ),
 
-    // Section 8: Portfolio
+    // Section 8: Portfolio & Photos
     ManualSection(
       id: 'portfolio_setup',
-      title: 'Show Your Work',
-      subtitle: 'Upload photos of your best work',
+      title: 'Photos of Your Work & Yourself',
+      subtitle: 'Help customers know who to expect and what to expect',
       icon: Icons.photo,
       category: 'Freelancer Setup',
       order: 8,
@@ -349,36 +349,45 @@ class FreelancerDocs implements DocumentationModule {
           id: 'portfolio_importance',
           title: 'Why Photos Matter',
           content:
-              'High-quality photos of your work help customers see your style and skill level. It\'s the best way to attract clients who want your specific style.',
+              'Photos help customers know exactly what to expect when they book you. Customers want to see who you are and what quality of work they\'ll receive.',
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'what_to_upload',
           title: 'What to Upload',
-          content: 'Show your best work:',
+          content: 'Show customers what they\'ll experience:',
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            'Before and after photos of services',
-            'Different styles you can do',
-            'Close-up photos of quality work',
-            'Real client photos (with permission)',
+            'Photos of yourself - your appearance and how you present yourself',
+            'Your work space - where you work (if mobile, photos of your setup)',
+            'Before and after photos of services you provide',
+            'Different styles or variations of work you do',
+            'Close-up photos showing the quality and detail of your work',
           ],
+        ),
+        ManualContent(
+          id: 'photo_authenticity',
+          title: 'Be Authentic & Clear',
+          content:
+              'Use real, recent photos. Customers expect the person in photos to match who shows up. They\'ll be disappointed if photos don\'t match reality.',
+          numberPrefix: '3',
+          type: ManualContentType.text,
         ),
         ManualContent(
           id: 'photo_quality',
           title: 'Photo Quality Tips',
           content:
-              'Use clear, well-lit photos. Show real work, not pictures from the internet. Customers want to see what they\'re actually getting.',
-          numberPrefix: '3',
+              'Use clear, well-lit photos. Good lighting makes a huge difference. Show real examples of your work at its best.',
+          numberPrefix: '4',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'portfolio_impact',
           title: '',
           content:
-              'Freelancers with a strong portfolio get 3-5x more bookings. Invest time in quality photos.',
+              'Freelancers with quality photos get 3-5x more bookings. Customers want confidence in who they\'re booking - good photos build that trust.',
           type: ManualContentType.important,
         ),
       ],

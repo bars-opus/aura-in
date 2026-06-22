@@ -277,46 +277,63 @@ class CreateShopDocs implements DocumentationModule {
     ManualSection(
       id: 'media_setup',
       title: 'Photos & Documents',
-      subtitle: 'Show your work and share important info',
+      subtitle: 'Help customers know what to expect when they visit',
       icon: Icons.photo,
       category: 'Shop Setup',
       order: 6,
       contents: [
         ManualContent(
           id: 'photos_intro',
-          title: 'Upload Shop Photos',
+          title: 'Why Shop Photos Matter',
           content:
-              'High-quality photos help customers get excited about your business. Include photos of:',
+              'Photos give customers a clear picture of your shop before they visit. They want to know what the space looks like, how clean it is, and what atmosphere to expect.',
           numberPrefix: '1',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
+          id: 'photos_what_to_upload',
+          title: 'What Photos to Upload',
+          content:
+              'Show customers what your shop actually looks like:',
+          numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            'Your shop interior',
-            'Your staff at work',
-            'Before and after examples of your work',
-            'Your reception area or waiting area',
+            'Your shop interior - the main service area where customers will be',
+            'Your reception or waiting area - where customers first arrive',
+            'Your staff at work - real people doing services',
+            'Before and after examples of quality work you do',
+            'Different stations or service areas in your shop',
           ],
         ),
         ManualContent(
-          id: 'photo_tips',
-          title: 'Photo Tips',
+          id: 'photo_authenticity',
+          title: 'Be Authentic & Honest',
           content:
-              'Use clear, well-lit photos. Avoid blurry or dark images. Show real work, not just pictures from the internet.',
-          numberPrefix: '2',
+              'Use real photos of your actual shop. Customers will visit and see exactly what you showed them. Use real photos, not stock images.',
+          numberPrefix: '3',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
+          id: 'photo_tips',
+          title: 'Photo Quality Tips',
+          content:
+              'Use clear, well-lit photos with good lighting. Clean, bright photos look more professional. Show your shop in its best condition.',
+          numberPrefix: '4',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'documents',
-          title: 'Upload Documents',
+          title: 'Upload Documents & Certifications',
           content:
-              'You can upload important documents like certifications, licenses, or health permits. Customers can view these to build trust.',
-          numberPrefix: '3',
+              'You can upload important documents like business licenses, certifications, or health permits. Customers view these to build trust and confidence in your business.',
+          numberPrefix: '5',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'media_impact',
           title: '',
           content:
-              'Shops with photos get more bookings. Take time to upload quality images of your work and space.',
+              'Shops with quality photos get significantly more bookings. Customers need to trust what they\'ll experience. Good photos of your actual shop build that confidence.',
           type: ManualContentType.important,
         ),
       ],
