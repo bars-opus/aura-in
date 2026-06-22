@@ -7255,4 +7255,259 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get docsTimeSlotsExplainedFaq_workers_A => 'Yes, different workers may have different availability. If you change workers, the system will show times when that worker is free. You may need to adjust your time.';
+
+  @override
+  String get docsCreateProductOverview_title => 'Getting Started Selling Products';
+
+  @override
+  String get docsCreateProductOverview_subtitle => 'Learn how to list and sell items';
+
+  @override
+  String get docsCreateProductOverview_productWelcomeTitle => 'Welcome to Product Selling';
+
+  @override
+  String get docsCreateProductOverview_productWelcomeContent => 'Sell physical products directly to customers in your area. From handmade items to retail goods, you can reach customers looking for what you offer.';
+
+  @override
+  String get docsCreateProductOverview_phoneRequirementTitle => 'You Need a Verified Phone Number';
+
+  @override
+  String get docsCreateProductOverview_phoneRequirementContent => 'Before you can start selling products, you must verify your phone number. This is for customer communication and to validate your identity.';
+
+  @override
+  String get docsCreateProductOverview_addPhoneNumberTitle => 'How to Add Your Phone Number';
+
+  @override
+  String get docsCreateProductOverview_addPhoneNumberContent => 'Go to your profile settings and add your phone number. You\'ll receive a verification code via SMS to confirm it\'s really your number. This takes just a minute.';
+
+  @override
+  String get docsCreateProductOverview_whyPhoneVerifiedTitle => 'Why Phone Verification?';
+
+  @override
+  String get docsCreateProductOverview_whyPhoneVerifiedContent => 'A verified phone number builds customer trust and allows us to contact you if there are issues. It also helps prevent fraud.';
+
+  @override
+  String get docsCreateProductOverview_phoneImportantContent => 'You cannot list products until you have a verified phone number. This is required for all sellers.';
+
+  @override
+  String get docsCreateProductBasics_title => 'Basic Product Information';
+
+  @override
+  String get docsCreateProductBasics_subtitle => 'What to tell customers about your product';
+
+  @override
+  String get docsCreateProductBasics_productNameTitle => 'Product Name';
+
+  @override
+  String get docsCreateProductBasics_productNameContent => 'Enter your product name clearly. Customers search by product name, so be specific. Example: \"Handmade Leather Wallet - Brown\" instead of just \"Wallet\".';
+
+  @override
+  String get docsCreateProductBasics_productDescriptionTitle => 'Product Description';
+
+  @override
+  String get docsCreateProductBasics_productDescriptionContent => 'Write a detailed description. Tell customers what it is, what it\'s made of, how to use it, and why it\'s good. Be honest about condition (new, used, refurbished).';
+
+  @override
+  String get docsCreateProductBasics_categorySelectionTitle => 'Choose a Category';
+
+  @override
+  String get docsCreateProductBasics_categorySelectionContent => 'Select the right category. Customers browse by category to find items, so accuracy matters. Pick the most specific category available.';
+
+  @override
+  String get docsCreateProductBasics_productConditionTitle => 'Product Condition';
+
+  @override
+  String get docsCreateProductBasics_productConditionContent => 'Be clear about condition: New (never used), Like New (used once), Good (light wear), Fair (visible wear), or As-Is. Honesty builds trust.';
+
+  @override
+  String get docsCreateProductPricingStock_title => 'Price & Availability';
+
+  @override
+  String get docsCreateProductPricingStock_subtitle => 'Set your price and manage inventory';
+
+  @override
+  String get docsCreateProductPricingStock_pricingTitle => 'Set Your Price';
+
+  @override
+  String get docsCreateProductPricingStock_pricingContent => 'Set a fair price based on condition, market value, and local demand. Customers can see similar items, so competitive pricing helps.';
+
+  @override
+  String get docsCreateProductPricingStock_currencyTitle => 'Currency';
+
+  @override
+  String get docsCreateProductPricingStock_currencyContent => 'Prices are shown in your shop\'s currency. Make sure your shop currency is set correctly before adding products.';
+
+  @override
+  String get docsCreateProductPricingStock_stockQuantityTitle => 'Stock Quantity';
+
+  @override
+  String get docsCreateProductPricingStock_stockQuantityContent => 'Enter how many items you have. When stock runs out, the product shows as unavailable. Update this as you sell items.';
+
+  @override
+  String get docsCreateProductPricingStock_stockTipContent => 'Keep stock accurate. Customers get frustrated if they order something out of stock. Update regularly as you sell.';
+
+  @override
+  String get docsCreateProductPhotos_title => 'Product Photos';
+
+  @override
+  String get docsCreateProductPhotos_subtitle => 'Show customers what they\'re buying';
+
+  @override
+  String get docsCreateProductPhotos_photosImportanceTitle => 'Photos Matter Most';
+
+  @override
+  String get docsCreateProductPhotos_photosImportanceContent => 'Good photos are critical. Customers decide whether to buy based on photos. Poor photos = fewer sales.';
+
+  @override
+  String get docsCreateProductPhotos_whatPhotosTitle => 'What to Photograph';
+
+  @override
+  String get docsCreateProductPhotos_whatPhotosContent => 'Take photos that show the real product:';
+
+  @override
+  String get docsCreateProductPhotos_whatPhotosBullet1 => 'Full product from multiple angles';
+
+  @override
+  String get docsCreateProductPhotos_whatPhotosBullet2 => 'Close-ups of details and quality';
+
+  @override
+  String get docsCreateProductPhotos_whatPhotosBullet3 => 'Photos showing condition (if used)';
+
+  @override
+  String get docsCreateProductPhotos_whatPhotosBullet4 => 'Photos next to something for scale (like a coin or hand)';
+
+  @override
+  String get docsCreateProductPhotos_whatPhotosBullet5 => 'Photos of any damage or wear (honesty builds trust)';
+
+  @override
+  String get docsCreateProductPhotos_photoTipsTitle => 'Photo Quality Tips';
+
+  @override
+  String get docsCreateProductPhotos_photoTipsContent => 'Use natural light. Take photos on a clean background. Show colors accurately. Don\'t use filters that change how the product looks.';
+
+  @override
+  String get docsCreateProductPhotos_photoCountTitle => 'Upload Multiple Photos';
+
+  @override
+  String get docsCreateProductPhotos_photoCountContent => 'Upload at least 3-5 photos. The first photo is most important - make it clear and appealing. Customers scroll through all photos.';
+
+  @override
+  String get docsCreateProductPhotos_photoHonestyContent => 'Honest photos = happy customers. Show exactly what customers will receive, including any flaws.';
+
+  @override
+  String get docsCreateProductStatus_title => 'List Your Product';
+
+  @override
+  String get docsCreateProductStatus_subtitle => 'Make your product visible to customers';
+
+  @override
+  String get docsCreateProductStatus_activeProductTitle => 'Make Your Product Active';
+
+  @override
+  String get docsCreateProductStatus_activeProductContent => 'Before customers can see your product, you must mark it as \"Active\". Inactive products are hidden from search.';
+
+  @override
+  String get docsCreateProductStatus_whenToActivateTitle => 'When to Activate';
+
+  @override
+  String get docsCreateProductStatus_whenToActivateContent => 'Only activate when you have: product name, description, price, photos, and correct stock. If you\'re not ready to sell, keep it inactive.';
+
+  @override
+  String get docsCreateProductStatus_pauseListingTitle => 'Pause a Listing';
+
+  @override
+  String get docsCreateProductStatus_pauseListingContent => 'If stock runs out or you need to pause, mark it inactive. Customers won\'t see it, but you can reactivate it anytime.';
+
+  @override
+  String get docsCreateProductStatus_activeTipContent => 'Only active products with photos and good descriptions get bookmarks and purchases. Make your listings complete before activating.';
+
+  @override
+  String get docsCreateProductFaq_title => 'Common Questions';
+
+  @override
+  String get docsCreateProductFaq_subtitle => 'Get help with selling products';
+
+  @override
+  String get docsCreateProductFaq_howLongTitle => 'How long until my product sells?';
+
+  @override
+  String get docsCreateProductFaq_howLongContent => 'It depends on your price, photos, and demand. Good photos + competitive price = faster sales.';
+
+  @override
+  String get docsCreateProductFaq_paymentTitle => 'How do I get paid?';
+
+  @override
+  String get docsCreateProductFaq_paymentContent => 'When a customer buys, payment goes to your account. You\'ll receive the amount (minus any platform fees) after the transaction completes.';
+
+  @override
+  String get docsCreateProductFaq_shippingTitle => 'Do I have to ship?';
+
+  @override
+  String get docsCreateProductFaq_shippingContent => 'That depends on your shop settings. You can choose local delivery or shipping. Customers see shipping options before buying.';
+
+  @override
+  String get docsCreateProductFaq_editAfterTitle => 'Can I edit after listing?';
+
+  @override
+  String get docsCreateProductFaq_editAfterContent => 'Yes! You can edit price, description, photos, and stock anytime. Changes take effect immediately.';
+
+  @override
+  String get docsCreateProductFaq_reviewsTitle => 'Do products get reviews?';
+
+  @override
+  String get docsCreateProductFaq_reviewsContent => 'Yes. Customers rate products and leave reviews after purchase. Good reviews help future customers trust you.';
+
+  @override
+  String get docsCreateProductFaqModel_question1 => 'Do I need a phone number to sell products?';
+
+  @override
+  String get docsCreateProductFaqModel_answer1 => 'Yes. You must verify a phone number before you can list products. This is for customer communication and security.';
+
+  @override
+  String get docsCreateProductFaqModel_category1 => 'Getting Started';
+
+  @override
+  String get docsCreateProductFaqModel_question2 => 'What makes a good product listing?';
+
+  @override
+  String get docsCreateProductFaqModel_answer2 => 'Good photos, accurate description, honest condition info, fair pricing, and correct stock quantity. Great photos are the most important.';
+
+  @override
+  String get docsCreateProductFaqModel_category2 => 'Setup';
+
+  @override
+  String get docsCreateProductFaqModel_question3 => 'Can I sell both products and services?';
+
+  @override
+  String get docsCreateProductFaqModel_answer3 => 'Yes! You can run a shop with services, a shop with products, or both. Set up your shop to offer what you want.';
+
+  @override
+  String get docsCreateProductFaqModel_category3 => 'Setup';
+
+  @override
+  String get docsCreateProductFaqModel_question4 => 'How do I remove a product?';
+
+  @override
+  String get docsCreateProductFaqModel_answer4 => 'Mark it as inactive to hide it from customers. If you want to delete it completely, contact support.';
+
+  @override
+  String get docsCreateProductFaqModel_category4 => 'Management';
+
+  @override
+  String get docsCreateProductFaqModel_question5 => 'What if someone buys but I\'m out of stock?';
+
+  @override
+  String get docsCreateProductFaqModel_answer5 => 'Keep your stock accurate to prevent this. If it happens, contact the customer immediately to cancel or offer alternatives.';
+
+  @override
+  String get docsCreateProductFaqModel_category5 => 'Management';
+
+  @override
+  String get docsCreateProductFaqModel_question6 => 'Can customers return products?';
+
+  @override
+  String get docsCreateProductFaqModel_answer6 => 'That\'s up to your shop policy. You can set return policies in your shop settings. Be clear so customers know before buying.';
+
+  @override
+  String get docsCreateProductFaqModel_category6 => 'Management';
 }

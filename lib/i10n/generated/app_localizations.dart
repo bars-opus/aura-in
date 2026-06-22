@@ -7522,13 +7522,13 @@ abstract class AppLocalizations {
   /// No description provided for @docsCreateProductTitle.
   ///
   /// In en, this message translates to:
-  /// **'Sell Products Online'**
+  /// **'Sell Products'**
   String get docsCreateProductTitle;
 
   /// No description provided for @docsCreateProductSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'List items for sale and reach customers in your area'**
+  /// **'Learn how to sell physical products to customers'**
   String get docsCreateProductSubtitle;
 
   /// No description provided for @docsProductOverviewTitle.
@@ -14208,6 +14208,516 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yes, different workers may have different availability. If you change workers, the system will show times when that worker is free. You may need to adjust your time.'**
   String get docsTimeSlotsExplainedFaq_workers_A;
+
+  /// No description provided for @docsCreateProductOverview_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting Started Selling Products'**
+  String get docsCreateProductOverview_title;
+
+  /// No description provided for @docsCreateProductOverview_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn how to list and sell items'**
+  String get docsCreateProductOverview_subtitle;
+
+  /// No description provided for @docsCreateProductOverview_productWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Product Selling'**
+  String get docsCreateProductOverview_productWelcomeTitle;
+
+  /// No description provided for @docsCreateProductOverview_productWelcomeContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell physical products directly to customers in your area. From handmade items to retail goods, you can reach customers looking for what you offer.'**
+  String get docsCreateProductOverview_productWelcomeContent;
+
+  /// No description provided for @docsCreateProductOverview_phoneRequirementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You Need a Verified Phone Number'**
+  String get docsCreateProductOverview_phoneRequirementTitle;
+
+  /// No description provided for @docsCreateProductOverview_phoneRequirementContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you can start selling products, you must verify your phone number. This is for customer communication and to validate your identity.'**
+  String get docsCreateProductOverview_phoneRequirementContent;
+
+  /// No description provided for @docsCreateProductOverview_addPhoneNumberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Add Your Phone Number'**
+  String get docsCreateProductOverview_addPhoneNumberTitle;
+
+  /// No description provided for @docsCreateProductOverview_addPhoneNumberContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to your profile settings and add your phone number. You\'ll receive a verification code via SMS to confirm it\'s really your number. This takes just a minute.'**
+  String get docsCreateProductOverview_addPhoneNumberContent;
+
+  /// No description provided for @docsCreateProductOverview_whyPhoneVerifiedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why Phone Verification?'**
+  String get docsCreateProductOverview_whyPhoneVerifiedTitle;
+
+  /// No description provided for @docsCreateProductOverview_whyPhoneVerifiedContent.
+  ///
+  /// In en, this message translates to:
+  /// **'A verified phone number builds customer trust and allows us to contact you if there are issues. It also helps prevent fraud.'**
+  String get docsCreateProductOverview_whyPhoneVerifiedContent;
+
+  /// No description provided for @docsCreateProductOverview_phoneImportantContent.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot list products until you have a verified phone number. This is required for all sellers.'**
+  String get docsCreateProductOverview_phoneImportantContent;
+
+  /// No description provided for @docsCreateProductBasics_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic Product Information'**
+  String get docsCreateProductBasics_title;
+
+  /// No description provided for @docsCreateProductBasics_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What to tell customers about your product'**
+  String get docsCreateProductBasics_subtitle;
+
+  /// No description provided for @docsCreateProductBasics_productNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Name'**
+  String get docsCreateProductBasics_productNameTitle;
+
+  /// No description provided for @docsCreateProductBasics_productNameContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your product name clearly. Customers search by product name, so be specific. Example: \"Handmade Leather Wallet - Brown\" instead of just \"Wallet\".'**
+  String get docsCreateProductBasics_productNameContent;
+
+  /// No description provided for @docsCreateProductBasics_productDescriptionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Description'**
+  String get docsCreateProductBasics_productDescriptionTitle;
+
+  /// No description provided for @docsCreateProductBasics_productDescriptionContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a detailed description. Tell customers what it is, what it\'s made of, how to use it, and why it\'s good. Be honest about condition (new, used, refurbished).'**
+  String get docsCreateProductBasics_productDescriptionContent;
+
+  /// No description provided for @docsCreateProductBasics_categorySelectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a Category'**
+  String get docsCreateProductBasics_categorySelectionTitle;
+
+  /// No description provided for @docsCreateProductBasics_categorySelectionContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the right category. Customers browse by category to find items, so accuracy matters. Pick the most specific category available.'**
+  String get docsCreateProductBasics_categorySelectionContent;
+
+  /// No description provided for @docsCreateProductBasics_productConditionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Condition'**
+  String get docsCreateProductBasics_productConditionTitle;
+
+  /// No description provided for @docsCreateProductBasics_productConditionContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Be clear about condition: New (never used), Like New (used once), Good (light wear), Fair (visible wear), or As-Is. Honesty builds trust.'**
+  String get docsCreateProductBasics_productConditionContent;
+
+  /// No description provided for @docsCreateProductPricingStock_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Price & Availability'**
+  String get docsCreateProductPricingStock_title;
+
+  /// No description provided for @docsCreateProductPricingStock_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your price and manage inventory'**
+  String get docsCreateProductPricingStock_subtitle;
+
+  /// No description provided for @docsCreateProductPricingStock_pricingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Your Price'**
+  String get docsCreateProductPricingStock_pricingTitle;
+
+  /// No description provided for @docsCreateProductPricingStock_pricingContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a fair price based on condition, market value, and local demand. Customers can see similar items, so competitive pricing helps.'**
+  String get docsCreateProductPricingStock_pricingContent;
+
+  /// No description provided for @docsCreateProductPricingStock_currencyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get docsCreateProductPricingStock_currencyTitle;
+
+  /// No description provided for @docsCreateProductPricingStock_currencyContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Prices are shown in your shop\'s currency. Make sure your shop currency is set correctly before adding products.'**
+  String get docsCreateProductPricingStock_currencyContent;
+
+  /// No description provided for @docsCreateProductPricingStock_stockQuantityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock Quantity'**
+  String get docsCreateProductPricingStock_stockQuantityTitle;
+
+  /// No description provided for @docsCreateProductPricingStock_stockQuantityContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter how many items you have. When stock runs out, the product shows as unavailable. Update this as you sell items.'**
+  String get docsCreateProductPricingStock_stockQuantityContent;
+
+  /// No description provided for @docsCreateProductPricingStock_stockTipContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep stock accurate. Customers get frustrated if they order something out of stock. Update regularly as you sell.'**
+  String get docsCreateProductPricingStock_stockTipContent;
+
+  /// No description provided for @docsCreateProductPhotos_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Photos'**
+  String get docsCreateProductPhotos_title;
+
+  /// No description provided for @docsCreateProductPhotos_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show customers what they\'re buying'**
+  String get docsCreateProductPhotos_subtitle;
+
+  /// No description provided for @docsCreateProductPhotos_photosImportanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos Matter Most'**
+  String get docsCreateProductPhotos_photosImportanceTitle;
+
+  /// No description provided for @docsCreateProductPhotos_photosImportanceContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Good photos are critical. Customers decide whether to buy based on photos. Poor photos = fewer sales.'**
+  String get docsCreateProductPhotos_photosImportanceContent;
+
+  /// No description provided for @docsCreateProductPhotos_whatPhotosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What to Photograph'**
+  String get docsCreateProductPhotos_whatPhotosTitle;
+
+  /// No description provided for @docsCreateProductPhotos_whatPhotosContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photos that show the real product:'**
+  String get docsCreateProductPhotos_whatPhotosContent;
+
+  /// No description provided for @docsCreateProductPhotos_whatPhotosBullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Full product from multiple angles'**
+  String get docsCreateProductPhotos_whatPhotosBullet1;
+
+  /// No description provided for @docsCreateProductPhotos_whatPhotosBullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Close-ups of details and quality'**
+  String get docsCreateProductPhotos_whatPhotosBullet2;
+
+  /// No description provided for @docsCreateProductPhotos_whatPhotosBullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos showing condition (if used)'**
+  String get docsCreateProductPhotos_whatPhotosBullet3;
+
+  /// No description provided for @docsCreateProductPhotos_whatPhotosBullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos next to something for scale (like a coin or hand)'**
+  String get docsCreateProductPhotos_whatPhotosBullet4;
+
+  /// No description provided for @docsCreateProductPhotos_whatPhotosBullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos of any damage or wear (honesty builds trust)'**
+  String get docsCreateProductPhotos_whatPhotosBullet5;
+
+  /// No description provided for @docsCreateProductPhotos_photoTipsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo Quality Tips'**
+  String get docsCreateProductPhotos_photoTipsTitle;
+
+  /// No description provided for @docsCreateProductPhotos_photoTipsContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Use natural light. Take photos on a clean background. Show colors accurately. Don\'t use filters that change how the product looks.'**
+  String get docsCreateProductPhotos_photoTipsContent;
+
+  /// No description provided for @docsCreateProductPhotos_photoCountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload Multiple Photos'**
+  String get docsCreateProductPhotos_photoCountTitle;
+
+  /// No description provided for @docsCreateProductPhotos_photoCountContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload at least 3-5 photos. The first photo is most important - make it clear and appealing. Customers scroll through all photos.'**
+  String get docsCreateProductPhotos_photoCountContent;
+
+  /// No description provided for @docsCreateProductPhotos_photoHonestyContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Honest photos = happy customers. Show exactly what customers will receive, including any flaws.'**
+  String get docsCreateProductPhotos_photoHonestyContent;
+
+  /// No description provided for @docsCreateProductStatus_title.
+  ///
+  /// In en, this message translates to:
+  /// **'List Your Product'**
+  String get docsCreateProductStatus_title;
+
+  /// No description provided for @docsCreateProductStatus_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Make your product visible to customers'**
+  String get docsCreateProductStatus_subtitle;
+
+  /// No description provided for @docsCreateProductStatus_activeProductTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Make Your Product Active'**
+  String get docsCreateProductStatus_activeProductTitle;
+
+  /// No description provided for @docsCreateProductStatus_activeProductContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Before customers can see your product, you must mark it as \"Active\". Inactive products are hidden from search.'**
+  String get docsCreateProductStatus_activeProductContent;
+
+  /// No description provided for @docsCreateProductStatus_whenToActivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When to Activate'**
+  String get docsCreateProductStatus_whenToActivateTitle;
+
+  /// No description provided for @docsCreateProductStatus_whenToActivateContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Only activate when you have: product name, description, price, photos, and correct stock. If you\'re not ready to sell, keep it inactive.'**
+  String get docsCreateProductStatus_whenToActivateContent;
+
+  /// No description provided for @docsCreateProductStatus_pauseListingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause a Listing'**
+  String get docsCreateProductStatus_pauseListingTitle;
+
+  /// No description provided for @docsCreateProductStatus_pauseListingContent.
+  ///
+  /// In en, this message translates to:
+  /// **'If stock runs out or you need to pause, mark it inactive. Customers won\'t see it, but you can reactivate it anytime.'**
+  String get docsCreateProductStatus_pauseListingContent;
+
+  /// No description provided for @docsCreateProductStatus_activeTipContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Only active products with photos and good descriptions get bookmarks and purchases. Make your listings complete before activating.'**
+  String get docsCreateProductStatus_activeTipContent;
+
+  /// No description provided for @docsCreateProductFaq_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Common Questions'**
+  String get docsCreateProductFaq_title;
+
+  /// No description provided for @docsCreateProductFaq_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get help with selling products'**
+  String get docsCreateProductFaq_subtitle;
+
+  /// No description provided for @docsCreateProductFaq_howLongTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How long until my product sells?'**
+  String get docsCreateProductFaq_howLongTitle;
+
+  /// No description provided for @docsCreateProductFaq_howLongContent.
+  ///
+  /// In en, this message translates to:
+  /// **'It depends on your price, photos, and demand. Good photos + competitive price = faster sales.'**
+  String get docsCreateProductFaq_howLongContent;
+
+  /// No description provided for @docsCreateProductFaq_paymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I get paid?'**
+  String get docsCreateProductFaq_paymentTitle;
+
+  /// No description provided for @docsCreateProductFaq_paymentContent.
+  ///
+  /// In en, this message translates to:
+  /// **'When a customer buys, payment goes to your account. You\'ll receive the amount (minus any platform fees) after the transaction completes.'**
+  String get docsCreateProductFaq_paymentContent;
+
+  /// No description provided for @docsCreateProductFaq_shippingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Do I have to ship?'**
+  String get docsCreateProductFaq_shippingTitle;
+
+  /// No description provided for @docsCreateProductFaq_shippingContent.
+  ///
+  /// In en, this message translates to:
+  /// **'That depends on your shop settings. You can choose local delivery or shipping. Customers see shipping options before buying.'**
+  String get docsCreateProductFaq_shippingContent;
+
+  /// No description provided for @docsCreateProductFaq_editAfterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I edit after listing?'**
+  String get docsCreateProductFaq_editAfterTitle;
+
+  /// No description provided for @docsCreateProductFaq_editAfterContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! You can edit price, description, photos, and stock anytime. Changes take effect immediately.'**
+  String get docsCreateProductFaq_editAfterContent;
+
+  /// No description provided for @docsCreateProductFaq_reviewsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Do products get reviews?'**
+  String get docsCreateProductFaq_reviewsTitle;
+
+  /// No description provided for @docsCreateProductFaq_reviewsContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. Customers rate products and leave reviews after purchase. Good reviews help future customers trust you.'**
+  String get docsCreateProductFaq_reviewsContent;
+
+  /// No description provided for @docsCreateProductFaqModel_question1.
+  ///
+  /// In en, this message translates to:
+  /// **'Do I need a phone number to sell products?'**
+  String get docsCreateProductFaqModel_question1;
+
+  /// No description provided for @docsCreateProductFaqModel_answer1.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. You must verify a phone number before you can list products. This is for customer communication and security.'**
+  String get docsCreateProductFaqModel_answer1;
+
+  /// No description provided for @docsCreateProductFaqModel_category1.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting Started'**
+  String get docsCreateProductFaqModel_category1;
+
+  /// No description provided for @docsCreateProductFaqModel_question2.
+  ///
+  /// In en, this message translates to:
+  /// **'What makes a good product listing?'**
+  String get docsCreateProductFaqModel_question2;
+
+  /// No description provided for @docsCreateProductFaqModel_answer2.
+  ///
+  /// In en, this message translates to:
+  /// **'Good photos, accurate description, honest condition info, fair pricing, and correct stock quantity. Great photos are the most important.'**
+  String get docsCreateProductFaqModel_answer2;
+
+  /// No description provided for @docsCreateProductFaqModel_category2.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup'**
+  String get docsCreateProductFaqModel_category2;
+
+  /// No description provided for @docsCreateProductFaqModel_question3.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I sell both products and services?'**
+  String get docsCreateProductFaqModel_question3;
+
+  /// No description provided for @docsCreateProductFaqModel_answer3.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! You can run a shop with services, a shop with products, or both. Set up your shop to offer what you want.'**
+  String get docsCreateProductFaqModel_answer3;
+
+  /// No description provided for @docsCreateProductFaqModel_category3.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup'**
+  String get docsCreateProductFaqModel_category3;
+
+  /// No description provided for @docsCreateProductFaqModel_question4.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I remove a product?'**
+  String get docsCreateProductFaqModel_question4;
+
+  /// No description provided for @docsCreateProductFaqModel_answer4.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark it as inactive to hide it from customers. If you want to delete it completely, contact support.'**
+  String get docsCreateProductFaqModel_answer4;
+
+  /// No description provided for @docsCreateProductFaqModel_category4.
+  ///
+  /// In en, this message translates to:
+  /// **'Management'**
+  String get docsCreateProductFaqModel_category4;
+
+  /// No description provided for @docsCreateProductFaqModel_question5.
+  ///
+  /// In en, this message translates to:
+  /// **'What if someone buys but I\'m out of stock?'**
+  String get docsCreateProductFaqModel_question5;
+
+  /// No description provided for @docsCreateProductFaqModel_answer5.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your stock accurate to prevent this. If it happens, contact the customer immediately to cancel or offer alternatives.'**
+  String get docsCreateProductFaqModel_answer5;
+
+  /// No description provided for @docsCreateProductFaqModel_category5.
+  ///
+  /// In en, this message translates to:
+  /// **'Management'**
+  String get docsCreateProductFaqModel_category5;
+
+  /// No description provided for @docsCreateProductFaqModel_question6.
+  ///
+  /// In en, this message translates to:
+  /// **'Can customers return products?'**
+  String get docsCreateProductFaqModel_question6;
+
+  /// No description provided for @docsCreateProductFaqModel_answer6.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s up to your shop policy. You can set return policies in your shop settings. Be clear so customers know before buying.'**
+  String get docsCreateProductFaqModel_answer6;
+
+  /// No description provided for @docsCreateProductFaqModel_category6.
+  ///
+  /// In en, this message translates to:
+  /// **'Management'**
+  String get docsCreateProductFaqModel_category6;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
