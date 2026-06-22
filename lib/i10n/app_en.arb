@@ -1,9 +1,7 @@
 {
   "@@locale": "en",
-  
   "appName": "Nano Embryo",
   "appDescription": "Your innovative app",
-  
   "commonContinue": "Continue",
   "commonCancel": "Cancel",
   "commonSave": "Save",
@@ -14,13 +12,11 @@
   "commonAccept": "Accept",
   "commonReject": "Reject",
   "introGetStarted": "Get Started",
-  
   "actionsBlock": "Block user",
   "actionsReport": "Report user",
   "actionsSend": "Send to chat",
   "actionsShare": "Share",
   "actionsCopy": "Copy link",
-  
   "appInfoVersion": "Version",
   "appInfoReleased": "Released",
   "appInfoPackageName": "Package Name",
@@ -42,7 +38,6 @@
       }
     }
   },
-
   "introTitle": "Welcome to {appName}",
   "@introTitle": {
     "description": "Intro screen title with app name placeholder",
@@ -59,14 +54,11 @@
   "introFeature2Description": "Discover pre-built components and screens for rapid development",
   "introFeature3Title": "Get Started Quickly",
   "introFeature3Description": "Jumpstart your project with zero-config setup and best practices",
-  "introGetStarted": "Get Started",
-  
   "appleSignIn": "Sign in with Apple",
   "googleSignIn": "Sign in with Google",
   "appleRegister": "Continue with Apple",
   "googleRegister": "Continue with Google",
   "emailAndPassword": "Enter email and password",
-
   "signInTitle": "Sign in",
   "createAccount": "Create account",
   "legalConsentPart1": "Kindly read the ",
@@ -81,7 +73,6 @@
       }
     }
   },
-  
   "emailTitle": "Email",
   "passwordTitle": "Password",
   "loginEmailLabel": "Email address",
@@ -91,7 +82,6 @@
   "loginForgotPasswordPart1": "Have you forgotten your password? ",
   "loginForgotPasswordPart2": "Tap here",
   "loginForgotPasswordPart3": " to reset your password?",
-
   "commonConfirmPasswordLabel": "Confirm Password",
   "commonConfirmPasswordHint": "Please confirm your password",
   "commonPasswordsDoNotMatch": "Passwords do not match",
@@ -111,7 +101,6 @@
   "commonSomethingWentWrong": "Something went wrong. Please try again.",
   "commonEnterEmailAndRetry": "Please enter your email address and try again",
   "commonLearnMore": "Learn more",
-
   "authSignUpVerificationSent": "Verification email sent! Please check your inbox.",
   "authSignUpFailed": "Sign-up failed: {error}",
   "@authSignUpFailed": {
@@ -123,12 +112,10 @@
       }
     }
   },
-
   "authForgotPasswordTitle": "Forgot your password?",
   "authForgotPasswordSubtitle": "Enter your email and we'll send you a link to reset your password.",
   "authSendResetLink": "Send reset link",
   "authBackToSignIn": "Back to sign in",
-
   "authUsernameScreenTitle": "Choose your username",
   "authUsernameScreenSubtitle": "This is how others will see you. You can change it later.",
   "authUsernameLabel": "Username",
@@ -158,15 +145,12 @@
   "authUsernameCheckError": "Unable to check username availability. Please try again.",
   "authUsernameSaveError": "Could not save your username. Please try again.",
   "authUsernameSavedSuccess": "Username saved successfully!",
-
   "authUpdatePasswordTitle": "Create new password",
   "authUpdatePasswordButton": "Update password",
   "authUpdatePasswordSuccess": "Password updated successfully. Please sign in again.",
-
   "authPasswordResetSentTitle": "Check your email",
   "authPasswordResetSentBody": "We sent a password reset link to",
   "authPasswordResetSentNote": "Tap the link in the email to set a new password. The link expires in 1 hour.",
-
   "authGuestHello": "Hello!",
   "authGuestOverview": "You are browsing {appName} as a guest. Log in or create an account to start managing your shop — it takes less than 5 seconds. We have a variety of tools to help grow your business, all free of charge.",
   "@authGuestOverview": {
@@ -178,7 +162,6 @@
       }
     }
   },
-
   "authIntroTitle": "Welcome to\n{appName}",
   "@authIntroTitle": {
     "description": "Main title on the intro screen with app name",
@@ -191,7 +174,6 @@
   },
   "authIntroSubtitle": "Welcome to the platform we built for you. Enjoy and have fun — the best is waiting.",
   "authReadLegalities": "Read legalities",
-
   "authPasswordRequired": "Please enter your password",
   "authCreatingAccount": "Creating account...",
   "authAccountCreatedSuccess": "Account created successfully!",
@@ -227,7 +209,6 @@
       }
     }
   },
-
   "authVerifyEmailTitle": "Check your email",
   "authVerifyEmailSubtitle": "We sent a confirmation link to",
   "authVerifyEmailNote": "Tap the link in the email to verify your account and continue.",
@@ -244,13 +225,11 @@
       }
     }
   },
-
   "currencySelectorPlaceholder": "Select currency",
   "currencySelectorNoSelected": "No currency selected",
   "currencySelectorTitle": "Select Currency",
   "currencySelectorSearchHint": "Search by currency, code, or flag...",
   "currencySelectorNoResults": "No currencies found",
-
   "discoverScreenTitle": "Discover",
   "discoverSearchHint": "Search...",
   "discoverAllShopsRegion": "All shops in your region",
@@ -260,103 +239,75 @@
   "discoverBrowseProducts": "Browse products",
   "discoverMyOrders": "My orders",
   "discoverCartTooltip": "Cart",
-
   "homeScheduleTabLabel": "Schedule",
   "homeDashboardTabLabel": "Dashboard",
   "homeMapTabLabel": "Map",
-
   "validationRequired": "This field is required",
   "validationEmailInvalid": "Please enter a valid email address",
   "validationPasswordLength": "Password must be at least {minLength} characters",
   "validationPasswordUppercase": "Password must include at least one uppercase letter",
-  
   "loggingInIndicatorText": "Logging in...",
   "loginSuccessful": "Login successful!\nWelcome back",
   "errorLoginFailed": "Login failed. Please check your credentials",
   "errorNetwork": "Network error. Please check your connection",
-  
   "homeTitle": "Home",
   "profileTitle": "Profile",
   "chatTitle": "Chat",
-
-
   "editProfileNameFieldTitle": "Name",
   "editProfileNameFieldLabel": "Full name",
   "editProfileUserFieldNameTitle": "Username",
   "editProfileUsernameFieldLabel": "@username",
   "editProfileBioFieldTitle": "Bio",
   "editProfileBioFieldLabel": "Tell us about yourself",
-
-  "editProfileScreenTitle": "Edit profile\n",
+  "editProfileScreenTitle": "Edit profile",
   "editProfileSettingTitle": "Account Settings",
   "editProfileSettingSubtitle": "Manage your account",
   "editProfileScreenEditShopTitle": "Edit Shop",
   "editProfileScreenEditShopSubtitle": "Change your shop information",
-
   "editProfileScreenCreateFreelancerTitle": "Create freelancer profile",
   "editProfileScreenCreateFreelancerSubtitle": "Set up your work profile so clients can find and book you.",
   "editProfileScreenCreateShopTitle": "Create shop",
   "editProfileScreenCreateShopSubtitle": "Set up your shop so clients can find and book your services.",
   "editProfileScreenSellProductTitle": "Sell a product",
   "editProfileScreenSellProductSubtitle": "Sell your beauty products like pomades, shampoos, hairbrushes and more.",
-
   "languageScreenSubtitle": "Choose your preferred language for the app interface.\nThis will not affect your device settings.",
   "languageScreeUseDeviceLang": "Use Device Language.",
   "languageScreeUseDeviceLangNote": "This will reset to match your device system language.",
-
   "settingsScreenTitle": "Settings",
-  
   "accountSectionTitle": "Account",
   "accountSectionSubtitle": "",
-  
   "profileItemTitle": "Profile",
   "profileItemSubtitle": "Manage your personal data",
-  
   "locationItemTitle": "Change Location",
   "locationItemSubtitle": "Change your current city",
-  
   "saveItemTitle": "Saved Contents",
   "saveItemSubtitle": "Contents you have saved",
-  
   "notificationsItemTitle": "Notifications",
   "notificationsItemSubtitle": "Manage push and email notifications",
-  
   "blockedItemTitle": "Blocked Accounts",
   "blockedItemSubtitle": "Accounts you have blocked",
-  
   "qrCodeItemTitle": "Share QR Code",
   "qrCodeItemSubtitle": "Share your account QR code",
-  
   "shareProfileItemTitle": "Share Profile",
   "shareProfileItemSubtitle": "Share your profile with friends",
-  
   "appSettingsSectionTitle": "App Settings",
   "appSettingsSectionSubtitle": "Customize your experience",
-  
   "themeItemTitle": "Theme",
   "themeItemSubtitle": "Light, Dark, or System",
-  
   "languageItemTitle": "Language",
   "languageItemSubtitle": "Change app language",
-  
   "biometricItemTitle": "Biometric Login",
   "biometricItemSubtitle": "Use Face ID or Touch ID",
-  
   "supportSectionTitle": "Support",
   "supportSectionSubtitle": "",
-  
   "guideItemTitle": "User Guide",
   "guideItemSubtitle": "Documentation and tutorials",
-  
   "helpItemTitle": "Contact Support",
   "helpItemSubtitle": "Get help with the app",
-  
   "feedbackItemTitle": "Send Feedback",
   "feedbackItemSubtitle": "Share your thoughts",
-  
   "rateItemTitle": "Rate the App",
   "rateItemSubtitle": "Leave a review",
-  
   "appInfoItemTitle": "About {appName}",
   "@appInfoItemTitle": {
     "description": "About app title with dynamic app name",
@@ -368,28 +319,20 @@
     }
   },
   "appInfoItemSubtitle": "Technical information",
-  
   "legalSectionTitle": "Legal",
   "legalSectionSubtitle": "",
-  
   "termsItemTitle": "Terms, Privacy & Policies",
   "termsItemSubtitle": "Read our terms",
-  
   "licensesItemTitle": "Open Source Licenses",
   "licensesItemSubtitle": "Third-party libraries and licenses",
-  
   "accountActionsSectionTitle": "Account Actions",
   "accountActionsSectionSubtitle": "",
-
   "updatePasswordItemTitle": "Update password",
   "updatePasswordItemSubtitle": "Change your current account password",
-  
   "deactivateItemTitle": "Deactivate",
   "deactivateItemSubtitle": "Temporarily hide and deactivate your account",
-  
   "deleteItemTitle": "Delete Account",
   "deleteItemSubtitle": "Request permanent account deletion",
-  
   "logoutItemTitle": "Log Out",
   "logoutItemSubtitle": "Sign out of your account",
   "logoutConfirmTitle": "Are you sure you want to log out?",
@@ -405,7 +348,6 @@
       }
     }
   },
-
   "accountDeactivateTitle": "Deactivate account",
   "accountDeleteTitle": "Delete account",
   "accountRestoreTitle": "Restore account",
@@ -508,9 +450,7 @@
       }
     }
   },
-
   "loadingDefaultMessage": "Loading...",
-
   "emptyStateNoDataTitle": "No {dataType} yet",
   "@emptyStateNoDataTitle": {
     "description": "Title shown when no data of a specific type is available",
@@ -521,18 +461,16 @@
       }
     }
   },
-  
   "emptyStateNoDataSubtitle": "When {dataType} becomes available, they will appear here.",
   "@emptyStateNoDataSubtitle": {
     "description": "Subtitle explaining when data will appear",
     "placeholders": {
       "dataType": {
-        "type": "String", 
+        "type": "String",
         "example": "users"
       }
     }
   },
-  
   "emptyStateNoResultsTitle": "No results found",
   "emptyStateNoResultsSubtitle": "Try adjusting your search or filters to find {dataType}.",
   "@emptyStateNoResultsSubtitle": {
@@ -544,32 +482,23 @@
       }
     }
   },
-  
   "emptyStateNoInternetTitle": "No internet connection",
   "emptyStateNoInternetSubtitle": "Check your connection and try again.",
-  
   "emptyStateNoFavoritesTitle": "No favorites yet",
   "emptyStateNoFavoritesSubtitle": "Start adding items to your favorites list.",
-  
   "emptyStateNoMessagesTitle": "No messages",
   "emptyStateNoMessagesSubtitle": "Start a conversation to see messages here.",
-  
   "emptyStateRefresh": "Refresh",
   "emptyStateClearFilters": "Clear filters",
   "emptyStateRetry": "Try again",
   "emptyStateExplore": "Explore",
   "emptyStateStartChat": "Start chat",
-  
-  
   "errorNetworkTitle": "Connection Error",
   "errorNetworkSubtitle": "Unable to connect to the server. Check your internet connection.",
-  
   "errorServerTitle": "Server Error",
   "errorServerSubtitle": "Something went wrong on our end. Please try again later.",
-  
   "errorClientTitle": "Request Error",
   "errorClientSubtitle": "There was a problem with your request. Please check and try again.",
-  
   "errorParsingTitle": "Data Error",
   "errorParsingSubtitle": "Unable to process the {dataType}. This might be a temporary issue.",
   "@errorParsingSubtitle": {
@@ -581,7 +510,6 @@
       }
     }
   },
-  
   "errorPermissionTitle": "Access Denied",
   "errorPermissionSubtitle": "You don't have permission to access this {dataType}.",
   "@errorPermissionSubtitle": {
@@ -593,7 +521,6 @@
       }
     }
   },
-  
   "errorGenericTitle": "Something went wrong",
   "errorGenericSubtitle": "An unexpected error occurred while loading {dataType}. Please try again.",
   "@errorGenericSubtitle": {
@@ -605,7 +532,6 @@
       }
     }
   },
-  
   "errorRetry": "Try again",
   "errorCheckSettings": "Check settings",
   "errorReport": "Report issue",
@@ -613,8 +539,6 @@
   "errorRefresh": "Refresh",
   "errorRequestAccess": "Request access",
   "errorContactSupport": "Contact support",
-  
-  
   "dataTypeUsers": "users",
   "dataTypeUser": "user",
   "dataTypeProducts": "products",
@@ -629,52 +553,33 @@
   "dataTypeContent": "content",
   "dataTypeItems": "items",
   "dataTypeItem": "item",
-
-
-
-
-
-
-
   "eulaTitle": "End User License Agreement",
   "eulaContent": "This End User License Agreement (\"EULA\") is a legal agreement between you and Bars Opus, Ltd. for {appName}.\n\nBy installing, accessing, or using {appName}, you agree to be bound by the terms of this EULA. {appName} is licensed, not sold, to you for use only under the terms of this license. Bars Opus, Ltd. reserves all rights not expressly granted to you in this EULA.\n\nYou may not modify, reverse engineer, decompile, or disassemble {appName}. This license is valid until terminated by you or Bars Opus, Ltd. Your rights under this license will terminate automatically without notice if you fail to comply with any term(s).\n\nAll intellectual property rights in and to {appName} are owned by Bars Opus, Ltd. This EULA is governed by the laws of England and Wales.\n\nFor questions about this EULA, please contact: {supportEmail}.",
   "eulaFooter": "By agreeing, you acknowledge that you have read and understood this End User License Agreement.",
-  
   "privacyPolicyTitle": "Privacy Policy",
   "privacyPolicyContent": "This Privacy Policy explains how Bars Opus, Ltd. (\"we\", \"us\", \"our\") collects, uses, and protects your information when you use {appName}.\n\nWe collect information you provide directly, such as when you create an account, complete your profile, or contact support. We automatically collect certain information about your device and how you use {appName}. We use cookies and similar tracking technologies to track activity and hold certain information.\n\nWe use the information we collect to provide, maintain, and improve {appName}. We may share your information with third-party service providers who perform services on our behalf. We may disclose your information if required by law or to protect our rights and safety.\n\nYou have the right to access, correct, or delete your personal information. We implement appropriate technical and organizational measures to protect your information. We may update this Privacy Policy from time to time. We will notify you of any changes.",
   "privacyPolicyFooter": "{appName} Privacy Policy - Last updated: {currentDate}",
-  
   "termsTitle": "Terms of Service",
   "termsContent": "These Terms of Service (\"Terms\") govern your access to and use of {appName}. By accessing or using {appName}, you agree to be bound by these Terms.\n\nYou must be at least 13 years old to use {appName}. You are responsible for safeguarding your account credentials and for all activities under your account. You may not use {appName} for any illegal or unauthorized purpose.\n\nWe reserve the right to modify, suspend, or discontinue {appName} at any time. All content included in {appName} is the property of Bars Opus, Ltd. or its licensors.\n\nWe may terminate or suspend your access to {appName} immediately if you violate these Terms. These Terms shall be governed by and construed in accordance with the laws of England and Wales.\n\nFor any questions about these Terms, please contact us at {supportEmail}.",
-  
   "dataSharingTitle": "Data Sharing Agreement",
   "dataSharingContent": "This Data Sharing Agreement outlines how your information may be shared when you use {appName} social features.\n\nWhen you connect with friends on {appName}, certain activity data may be visible to them. Shared activity data may include workout duration, calories burned, exercise minutes, and achievement badges. Your profile information (display name and profile picture) is visible to friends you connect with.\n\nYour email address and contact information remain private and are never shared with other users. You control what data is shared through your {appName} privacy settings. You can revoke sharing permissions at any time in the app settings.\n\nData shared with friends is encrypted during transmission and storage. We retain shared data only as long as necessary to provide the sharing functionality. Third-party integrations may have their own data sharing practices, which we recommend reviewing.",
   "dataSharingFooter": "Data sharing in {appName} helps create a supportive community while respecting your privacy choices.",
-  
   "dashboardTitle": "Dashboard",
   "dashboardSubtitle": "Manage your shop activities efficiently",
-
   "dashboardSectionTitle": "Dashboard",
   "dashboardSectionSubtitle": "Overview of your shop's performance and key metrics",
-
   "dashboardPayoutTitle": "Request Payout",
   "dashboardPayoutContent": "Shop owners can request weekly payouts. Navigate to the Earnings section, review your balance, and submit a payout request. Funds typically process within 3-5 business days.",
-  
   "dashboardAnalyticsTitle": "Analytics Dashboard",
   "dashboardAnalyticsContent": "Track your shop's performance with real-time analytics. Monitor sales trends, customer engagement, and inventory levels through interactive charts and reports.",
-  
   "dashboardScreenshotTitle": "Dashboard Overview",
   "dashboardScreenshotContent": "The main dashboard provides a comprehensive view of your shop's key metrics, recent activities, and quick access to essential features.",
-  
   "categoryFeatures": "Features",
   "categoryDashboard": "Dashboard",
-  
   "faqDashboard1Question": "When can I request a payout?",
   "faqDashboard1Answer": "You can request your payout once a week, every Saturday. The weekly cutoff is Friday at 11:59 PM. Payouts are processed within 3-5 business days.",
- 
   "faqDashboard2Question": "Where do I request my payout?",
   "faqDashboard2Answer": "Navigate to your dashboard and click on the 'Earnings' section. From there, you'll see your current balance and a 'Request Payout' button. Follow the prompts to complete your request.",
-  
   "@eulaContent": {
     "description": "EULA content with app name and support email placeholders",
     "placeholders": {
@@ -751,7 +656,6 @@
       }
     }
   },
-
   "profileScreenCantChatWithYourself": "You can't chat with yourself",
   "profileScreenStartingConversation": "Starting conversation...",
   "profileScreenNoActiveSession": "No active session — please log in again.",
@@ -761,20 +665,16 @@
   "profileScreenNoBioYet": "No bio yet",
   "profileScreenErrorLoadingProfileBody": "Unable to load profile. Check your internet and try again.",
   "profileScreenLoadingNotifications": "Loading...",
-
   "profileHeaderBookingsStatLabel": "Bookings",
   "profileHeaderOrdersStatLabel": "Orders",
   "profileHeaderEditProfileButton": "Edit profile",
   "profileHeaderMessageButton": "Message",
-
   "editableProfileAvatarTakePhoto": "Take a photo",
   "editableProfileAvatarChooseGallery": "Choose from gallery",
-
   "editProfileScreenAccountTypeLabel": "Account Type",
   "editProfileScreenAccountTypeSubtitle": "Select how you want to use this app. This determines what features are available to you.",
   "editProfileScreenUpdatingAccountType": "Updating account type...",
   "editProfileScreenPleaseLogIn": "Please log in",
-  "editProfileScreenTitle": "Edit profile",
   "editProfileScreenNameLabel": "Name",
   "editProfileScreenNameHint": "Enter your name",
   "editProfileScreenUsernameLabel": "Username",
@@ -782,11 +682,9 @@
   "editProfileScreenBioLabel": "Bio",
   "editProfileScreenBioHint": "Tell something about yourself",
   "editProfileScreenEditWorkProfileTitle": "Edit work profile",
-
   "profileTabsAppointments": "Appointments",
   "profileTabsBuys": "Buys",
   "profileTabsSaves": "Saves",
-
   "searchScreenSearchHint": "Search shops, professionals, products...",
   "searchScreenNoResultsFound": "No results found",
   "searchScreenNoResultsCategory": "No {category} found",
@@ -810,13 +708,10 @@
     }
   },
   "searchScreenSomethingWentWrong": "Something went wrong",
-
   "searchAppBarSearchHint": "Search...",
-
   "searchSuggestionsHint": "Search for shops, professionals for home service, or hair products to buy",
   "searchSuggestionsRecentSearches": "Recent Searches",
   "searchSuggestionsClearAll": "Clear All",
-
   "searchEmptyStateNoResults": "No results found",
   "searchEmptyStateCouldNotFind": "We couldn't find anything for \"{query}\"",
   "@searchEmptyStateCouldNotFind": {
@@ -829,10 +724,8 @@
     }
   },
   "searchEmptyStateTryThese": "Try these instead:",
-
   "searchResultsShopsHeader": "Shops",
   "searchResultsSeeAll": "See all",
-
   "searchResultsTitle": "{category} Results",
   "@searchResultsTitle": {
     "description": "Category results screen title",
@@ -855,7 +748,6 @@
   },
   "searchResultsTryDifferent": "Try different keywords or remove filters",
   "searchResultsSomethingWentWrong": "Something went wrong",
-
   "nearYouShopsTitle": "Near You\nwithin {km}km",
   "@nearYouShopsTitle": {
     "description": "Title for nearby shops section showing distance radius",
@@ -897,10 +789,8 @@
       }
     }
   },
-
   "premiumShopsScreenTitle": "Premium Shops",
   "premiumShopsEmpty": "No premium shops found",
-
   "premiumShopsHorizontalTitle": "Premium shops\nfor premium looks",
   "premiumShopsHorizontalBody": "Handpicked high‑end salons and spas offering luxury experiences. These shops are classified as Luxury or Ultra‑Luxury based on their services, pricing, and customer reviews. Perfect when you're looking for that extra touch of elegance.",
   "premiumShopsHorizontalEmptyNoFilter": "No premium shops available",
@@ -915,7 +805,6 @@
     }
   },
   "premiumShopsHorizontalEmptySubtitle": "Shops would be shown here once they become available",
-
   "topRatedShopsHorizontalTitle": "Top Rated",
   "topRatedShopsHorizontalTitleWithLocation": "Top Rated \nin {location}",
   "@topRatedShopsHorizontalTitleWithLocation": {
@@ -940,18 +829,14 @@
     }
   },
   "topRatedShopsHorizontalEmptySubtitle": "Shops would be shown here once they become available",
-
   "topRatedShopsScreenTitle": "Top Rated Shops",
   "topRatedShopsEmpty": "No top rated shops found",
-
   "nearYouFreelancersScreenTitle": "Freelancers near you",
   "nearYouFreelancersEmpty": "No freelancers found nearby",
   "nearYouFreelancersEmptySubtitle": "Try expanding your search area or change location",
-
   "topRatedFreelancersScreenTitle": "Top rated freelancers",
   "topRatedFreelancersEmpty": "No top rated freelancers found",
   "topRatedFreelancersEmptySubtitle": "Try adjusting your search area",
-
   "topRatedFreelancersHorizontalTitle": "Top Rated \nin {location}",
   "@topRatedFreelancersHorizontalTitle": {
     "description": "Top rated freelancers title with location",
@@ -963,7 +848,6 @@
     }
   },
   "topRatedFreelancersHorizontalBody": "Handpicked high‑end professionals offering luxury experiences. These freelancers are classified as top rated based on their work quality, pricing, and customer reviews. Perfect when you're looking for that extra touch of excellence.",
-
   "nearYouFreelancersHorizontalTitle": "Freelancers Near You in {location}",
   "@nearYouFreelancersHorizontalTitle": {
     "description": "Freelancers near you title with location",
@@ -977,16 +861,12 @@
   "nearYouFreelancersHorizontalBody": "Skilled professionals located near you. These freelancers are available for quick bookings and offer convenient, local service. Perfect when you're looking for reliability and proximity.",
   "nearYouFreelancersHorizontalEmpty": "No top rated freelancers available",
   "nearYouFreelancersHorizontalEmptySubtitle": "Freelancers would be shown here once they become available",
-
   "shopNoLocationSetTitle": "Set your location to discover",
   "shopNoLocationSetContent": "Set your location to discover premium and top rated shops near you.",
-
   "providerTypeShops": "Shops",
   "providerTypeFreelancers": "Freelancers",
   "providerTypeBuy": "Buy",
-
   "luxuryLevelChipsAll": "All",
-
   "searchRadiusSliderTitle": "Explore radius",
   "searchRadiusSliderSubtitle": "Showing results within {km}km of your location",
   "@searchRadiusSliderSubtitle": {
@@ -998,7 +878,6 @@
       }
     }
   },
-
   "validationPasswordMaxLength": "Password must be at most {max} characters",
   "@validationPasswordMaxLength": {
     "description": "Validation error for maximum password length",
@@ -1068,7 +947,6 @@
   "validationSSNInvalid": "Invalid SSN",
   "validationEmailTooLong": "Email is too long (max 254 characters)",
   "validationEmailLocalPartTooLong": "Local part of email is too long",
-
   "categoriesAll": "All",
   "categoriesSalon": "Salons",
   "categoriesBarbershop": "Barbershops",
@@ -1079,38 +957,31 @@
   "categoriesMassage": "Massage",
   "categoriesMakeup": "Makeup",
   "categoriesSkincare": "Skincare",
-
   "luxuryLevelModerate": "Moderate",
   "luxuryLevelLuxury": "Luxury",
   "luxuryLevelUltraLuxury": "Ultra Luxury",
-
   "dashboardTabRevenue": "Revenue",
   "dashboardTabAnalytics": "Analytics",
   "dashboardTabInsights": "Insights",
   "dashboardTabTools": "Tools",
   "dashboardTabClients": "Clients",
   "dashboardTabStaff": "Staff",
-  "dashboardTitle": "Dashboard",
-
   "walletRecentTransactions": "Recent Transactions",
   "walletLoadError": "We couldn't load your wallet right now.",
   "walletTransactionLoadError": "Couldn't load recent transactions.",
   "walletPaymentProcessing": "Kindly wait for the payment to finish processing and return to your app to complete your booking.",
-
   "analyticsRevenue": "Revenue",
   "analyticsServices": "Services",
   "analyticsWorkers": "Workers",
   "analyticsLoadError": "Failed to load analytics",
   "analyticsEmpty": "No data available for analytics.",
   "analyticsEmptySubtitle": "Booking and revenue statistics would appear here",
-
   "insightsReports": "Reports",
   "insightsSeeAll": "See All",
   "insightsLoadError": "Couldn't load reports. Pull to refresh.",
   "insightsNoAlerts": "All good! No alerts",
   "insightsHeatmapError": "Couldn't load the booking heatmap right now.",
   "insightsNoHeatmapData": "No heatmap data available",
-
   "toolsAdminTools": "Admin Tools",
   "toolsConfigure": "Configure →",
   "toolsManage": "Manage →",
@@ -1122,7 +993,6 @@
   "toolsLoadingDetails": "Loading shop details…",
   "toolsBusinessHours": "Business Hours",
   "toolsServiceManagement": "Service Management",
-
   "clientsSearchHint": "Search by name...",
   "clientsLoadError": "Failed to load clients",
   "clientsNotFound": "No Clients Match",
@@ -1138,13 +1008,11 @@
     }
   },
   "clientsEmptySubtitle": "Clients will appear here when they make their first booking.",
-
   "walletLabel": "Wallet",
   "walletAvailableBalance": "Available Balance",
   "walletWithdrawFunds": "Withdraw Funds",
   "walletTotalEarned": "Total Earned",
   "walletTotalWithdrawn": "Total Withdrawn",
-
   "transactionDepositReceived": "Deposit Received",
   "transactionServicePayment": "Service Payment",
   "transactionWithdrawal": "Withdrawal",
@@ -1153,7 +1021,6 @@
   "transactionAdjustment": "Adjustment",
   "transactionToday": "Today",
   "transactionYesterday": "Yesterday",
-
   "withdrawalTitle": "Withdraw",
   "withdrawalInfo": "Withdrawals are processed immediately and sent to your connected account. A {fee}% fee (min {currency} {minFee}) applies.",
   "@withdrawalInfo": {
@@ -1249,7 +1116,6 @@
   "withdrawalRequestButton": "Request Withdrawal",
   "withdrawalNoPaymentMethod": "No payment method connected",
   "withdrawalSuccess": "Withdrawal request submitted successfully!",
-
   "deadLetterTitle": "Withdrawal needs review",
   "deadLetterSingle": "{currency} {amount} stuck — tap for details",
   "@deadLetterSingle": {
@@ -1285,10 +1151,8 @@
   },
   "deadLetterReason": "Reason:",
   "deadLetterContactSupport": "Contact support",
-
   "paymentSetupTitle": "Complete payout setup",
   "paymentSetupContent": "Connect your payout account to start withdrawing money from your wallet. This could be your mobile money number or your bank account.",
-
   "calendarErrorLoading": "Error loading calendar",
   "calendarErrorLoadingBookings": "Error loading bookings",
   "calendarNoAppointmentsDay": "No appointments for this day",
@@ -1332,7 +1196,6 @@
       }
     }
   },
-
   "reviewsScreenTitle": "Reviews for {shopName}",
   "@reviewsScreenTitle": {
     "description": "App bar title for shop reviews screen",
@@ -1360,7 +1223,6 @@
       }
     }
   },
-
   "bookingServiceAddress": "Service Address",
   "bookingFindingAvailableTimes": "Finding available times...",
   "bookingErrorLoadingWorkers": "Error loading workers: {error}",
@@ -1409,16 +1271,13 @@
       }
     }
   },
-
   "scheduleTitle": "Schedule",
   "scheduleTabDaily": "Daily",
   "scheduleTabMonthly": "Monthly",
-
   "toolsLoyaltyRule": "Loyalty rule",
   "@toolsLoyaltyRule": {
     "description": "Tools tab card label for the loyalty rule editor (Phase 13)."
   },
-
   "loyaltyTitle": "Loyalty rule",
   "loyaltyRewardHeader": "Reward every Nth completed booking",
   "loyaltyRewardSubheader": "Clients never see their progress. The discount auto-applies on the qualifying booking as a surprise reward.",
@@ -1435,7 +1294,6 @@
   "loyaltyRetry": "Retry",
   "loyaltySave": "Save",
   "loyaltySavedSnackbar": "Loyalty rule saved",
-
   "promoFieldPerClientMaxLabel": "Per-client redemption limit",
   "promoFieldPerClientMaxHint": "Times one client can use this code",
   "promoFieldMinAmountLabel": "Minimum booking amount (Optional)",
@@ -1448,14 +1306,12 @@
   "promoFieldArchivedSubtitle": "Archived promotions are hidden from clients and frees up the code text for re-use.",
   "promoValidationPerClientMin": "Must be at least 1",
   "promoValidationMinAmountNonNegative": "Must be 0 or higher",
-
   "promoListShowSystemCodes": "Show system codes",
   "promoListHideSystemCodes": "Hide system codes",
   "promoSourceOwner": "Owner",
   "promoSourceLoyalty": "Loyalty",
   "promoSourceRecovery": "Recovery",
   "promoSourceAutoGeneratedReadOnly": "auto-generated · read-only",
-
   "broadcastsTitle": "Broadcasts",
   "broadcastsToolsCardLabel": "Broadcasts",
   "broadcastsEmptyTitle": "No broadcasts yet",
@@ -1463,7 +1319,6 @@
   "broadcastsFabTooltip": "New broadcast",
   "broadcastsLoadFailed": "We couldn't load your broadcasts.",
   "broadcastsRetry": "Retry",
-
   "broadcastCreateTitle": "New broadcast",
   "broadcastSubjectLabel": "Subject",
   "broadcastSubjectHelper": "Shown as the push notification title.",
@@ -1499,35 +1354,34 @@
   "broadcastConfirmCancel": "Cancel",
   "broadcastConfirmSend": "Send",
   "broadcastSentToast": "Sent to {count} people.",
-
   "broadcastStatusPending": "Pending",
   "broadcastStatusDelivering": "Sending",
   "broadcastStatusDelivered": "Sent",
   "broadcastStatusFailed": "Failed",
   "broadcastDeliveringTooltip": "WhatsApp template approval is pending. This usually resolves within 24h.",
-
   "broadcastAudienceLabelShort": "Audience: {audience}",
   "broadcastPromoLabelShort": "Promo attached: {id}",
   "broadcastRecipientsLabel": "Recipients: {count}",
   "broadcastDeliveredLabel": "Delivered: {when}",
   "broadcastStatusLabel": "Status: {status}",
   "broadcastDetailClose": "Close",
-
   "broadcastRateLimitMessage": "You've already sent a broadcast today. Try again tomorrow.",
   "broadcastInFlightMessage": "Another broadcast is being processed. Please wait a moment.",
   "broadcastInvalidAudienceMessage": "Please pick a valid audience and (if 'By service') a service.",
   "broadcastPromoInvalidMessage": "This code is no longer valid. Pick another or remove the code.",
   "broadcastCapExceededMessage": "This audience is larger than the 1000-recipient cap. Try a narrower audience.",
   "broadcastSaveFailedMessage": "Could not send broadcast. Please try again.",
-
   "pricingChipDiscount": "Discount",
   "pricingChipSurcharge": "Surcharge",
-
   "pricingOverridesTitle": "Pricing rules",
   "pricingOverridesEmptyTitle": "No rules yet",
   "pricingOverridesEmptyBody": "Add a time-based discount or surcharge for {serviceName}.",
   "@pricingOverridesEmptyBody": {
-    "placeholders": {"serviceName": {"type": "String"}}
+    "placeholders": {
+      "serviceName": {
+        "type": "String"
+      }
+    }
   },
   "pricingOverridesEmptyCta": "Create rule",
   "pricingOverridesNewCta": "New rule",
@@ -1537,7 +1391,11 @@
   "pricingOverrideArchiveConfirmTitle": "Archive rule?",
   "pricingOverrideArchiveConfirmBody": "\"{name}\" will stop applying to new bookings. Existing bookings keep the price they were confirmed at.",
   "@pricingOverrideArchiveConfirmBody": {
-    "placeholders": {"name": {"type": "String"}}
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "pricingOverrideArchiveConfirmCancel": "Cancel",
   "pricingOverrideArchiveConfirmArchive": "Archive",
@@ -1547,7 +1405,6 @@
   "pricingOverrideRowEdit": "Edit",
   "pricingOverrideRowArchive": "Archive",
   "pricingOverrideAllWeek": "All week",
-
   "pricingOverrideFormTitleNew": "New rule",
   "pricingOverrideFormTitleEdit": "Edit rule",
   "pricingOverrideFormName": "Name",
@@ -1578,25 +1435,41 @@
   "pricingOverrideFormPreviewLabel": "Preview",
   "pricingOverrideFormPreviewPrompt": "Base {base} · enter a value to see the effective price.",
   "@pricingOverrideFormPreviewPrompt": {
-    "placeholders": {"base": {"type": "String"}}
+    "placeholders": {
+      "base": {
+        "type": "String"
+      }
+    }
   },
   "pricingOverrideFormPreviewDiscount": "(saved {delta} vs {base} base)",
   "@pricingOverrideFormPreviewDiscount": {
     "placeholders": {
-      "delta": {"type": "String"},
-      "base": {"type": "String"}
+      "delta": {
+        "type": "String"
+      },
+      "base": {
+        "type": "String"
+      }
     }
   },
   "pricingOverrideFormPreviewSurcharge": "(+{delta} vs {base} base)",
   "@pricingOverrideFormPreviewSurcharge": {
     "placeholders": {
-      "delta": {"type": "String"},
-      "base": {"type": "String"}
+      "delta": {
+        "type": "String"
+      },
+      "base": {
+        "type": "String"
+      }
     }
   },
   "pricingOverrideFormSoftWarnPercent": "This is a +{value}% surcharge. Double-check before saving.",
   "@pricingOverrideFormSoftWarnPercent": {
-    "placeholders": {"value": {"type": "String"}}
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
   },
   "pricingOverrideFormSoftWarnFixed": "This surcharge is more than 5× the base price. Double-check before saving.",
   "pricingOverrideFormSaveNew": "Create rule",
@@ -1607,7 +1480,6 @@
   "pricingOverrideFormDiscardConfirm": "Discard",
   "pricingOverrideCreatedToast": "Rule created",
   "pricingOverrideUpdatedToast": "Rule updated",
-
   "pricingOverrideErrorWindow": "The end time must be after the start time.",
   "pricingOverrideErrorDay": "Please pick a valid day of the week.",
   "pricingOverrideErrorAdjustment": "Please re-check the discount amount.",
@@ -1615,7 +1487,6 @@
   "pricingOverrideErrorCap": "You've reached the 50-rule limit on this service. Archive an old rule to free a slot.",
   "pricingOverrideErrorNotFound": "We couldn't find that pricing rule.",
   "pricingOverrideErrorSaveFailed": "We couldn't save the rule. Please try again.",
-
   "pricingOverrideDayMonday": "Monday",
   "pricingOverrideDayTuesday": "Tuesday",
   "pricingOverrideDayWednesday": "Wednesday",
@@ -1630,7 +1501,6 @@
   "pricingOverrideDayShortFri": "Fri",
   "pricingOverrideDayShortSat": "Sat",
   "pricingOverrideDayShortSun": "Sun",
-
   "dailyReportTitle": "Today's report",
   "dailyReportHistoryTitle": "Past reports",
   "dailyReportNotificationTitle": "Today's report is ready",
@@ -1653,11 +1523,19 @@
   "dailyReportTomorrowTitle": "Tomorrow",
   "dailyReportTomorrowFirstBookingAt": "First booking at {time}",
   "@dailyReportTomorrowFirstBookingAt": {
-    "placeholders": {"time": {"type": "String"}}
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   },
   "dailyReportTomorrowCount": "{count} bookings",
   "@dailyReportTomorrowCount": {
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "dailyReportTomorrowGroupFlag": "Includes group bookings",
   "dailyReportTomorrowEmpty": "No bookings tomorrow.",
@@ -1674,5 +1552,71 @@
   "dailyReportEmptyTitle": "No report yet",
   "dailyReportEmptyBody": "No bookings recorded for this date. Tap Re-generate to build an empty report.",
   "dailyReportHistoryEmpty": "No past reports yet.",
-  "dailyReportErrorGeneric": "We couldn't build the report. Please try again."
+  "dailyReportErrorGeneric": "We couldn't build the report. Please try again.",
+  "docsGettingStartedTitle": "Welcome to Aura In",
+  "docsGettingStartedSubtitle": "The marketplace platform for service-based businesses",
+  "docsGettingStartedWhatIsTitle": "What is Aura In?",
+  "docsGettingStartedWhatIsSubtitle": "Understand the platform",
+  "docsGettingStartedWelcomeIntroContent": "Aura In is a mobile marketplace connecting service professionals with customers. Whether you offer haircuts, massages, freelance services, or sell products, this platform helps you grow your business.",
+  "docsGettingStartedWhoUsesTitle": "Who Uses Aura In?",
+  "docsGettingStartedWhoUsesContent": "Two types of users power the platform:",
+  "docsGettingStartedWhoUsesProviders": "Service Providers - Salons, spas, barbers, freelancers who offer services",
+  "docsGettingStartedWhoUsesCustomers": "Customers - People searching for and booking services in their area",
+  "docsGettingStartedWhoUsesSellers": "Product Sellers - Shops selling retail products or handmade items",
+  "docsGettingStartedHowItWorksTitle": "How It Works",
+  "docsGettingStartedHowItWorksContent": "Service providers create a profile, list their services with pricing, and accept bookings from customers. Customers search by location, browse services, and book appointments. Everything is managed through the app.",
+  "docsGettingStartedThreeWaysTitle": "Three Ways to Use Aura In",
+  "docsGettingStartedThreeWaysSubtitle": "Choose your role",
+  "docsGettingStartedOption1Title": "Option 1: Browse & Book Services (Customer)",
+  "docsGettingStartedOption1Content": "Search for salons, massage therapists, barbers, or freelancers near you. View their services, pricing, and availability. Book appointments directly through the app and pay securely.",
+  "docsGettingStartedGuestBookingTitle": "Guest Booking (No App Download Needed)",
+  "docsGettingStartedGuestBookingContent": "Don't want to download the app? Service providers can share a booking link - you can book and pay directly through that link without creating an account. Your booking details and receipt will be sent to your WhatsApp.",
+  "docsGettingStartedOption2Title": "Option 2: Offer Services (Shop Owner or Freelancer)",
+  "docsGettingStartedOption2Content": "Create a shop or freelancer profile, list your services with pricing and duration, set your working hours, and manage bookings. Get paid for every service booked.",
+  "docsGettingStartedOption3Title": "Option 3: Sell Products (Product Seller)",
+  "docsGettingStartedOption3Content": "If you make handmade items or retail products, you can list them for sale. Customers browse and purchase directly from your shop.",
+  "docsGettingStartedBookingPaymentTitle": "Booking & Payment System",
+  "docsGettingStartedBookingPaymentSubtitle": "How service booking and payment work",
+  "docsGettingStartedBookingOverviewContent": "Customers book appointments with service providers. Payments are handled securely through the app using Paystack (Africa) or Stripe (Global).",
+  "docsGettingStartedDepositPaymentTitle": "Deposit Payment (30%)",
+  "docsGettingStartedDepositPaymentContent": "When booking a service, customers pay 30% upfront as a deposit to secure the time slot. This confirms the booking is real and reserved.",
+  "docsGettingStartedPlatformFeeTitle": "Platform Fee",
+  "docsGettingStartedPlatformFeeContent": "A small platform fee (2%) is added to help us maintain the platform and provide support. This is calculated on the total booking amount.",
+  "docsGettingStartedRemainingPaymentTitle": "Remaining Payment (70%)",
+  "docsGettingStartedRemainingPaymentContent": "The remaining 70% can be paid either: (1) in cash when the service is completed, or (2) online through the app before the appointment.",
+  "docsGettingStartedGuestBookingPaymentTitle": "Guest Booking Payment",
+  "docsGettingStartedGuestBookingPaymentContent": "No app download needed! Customers receive a booking link from the service provider. They pay 30% to secure the slot, and their receipt is sent to WhatsApp.",
+  "docsGettingStartedProductOrderingTitle": "Product Ordering & Delivery",
+  "docsGettingStartedProductOrderingSubtitle": "How product sales work",
+  "docsGettingStartedProductOverviewContent": "Customers browse products, add items to cart, and checkout. Products are delivered to the customer's location.",
+  "docsGettingStartedCODPaymentTitle": "Cash on Delivery (COD)",
+  "docsGettingStartedCODPaymentContent": "For product orders, payment is handled as Cash on Delivery. Customers pay the seller when they receive the items - no upfront payment needed.",
+  "docsGettingStartedShareYourProfileTitle": "Share Your Profile",
+  "docsGettingStartedShareYourProfileSubtitle": "Make it easy for customers to find you",
+  "docsGettingStartedShareLinkContent": "As a service provider, you get a unique booking link. Share it on WhatsApp, social media, or email. Customers can book services without downloading the app.",
+  "docsGettingStartedCustomURLTitle": "Custom URL (Optional)",
+  "docsGettingStartedCustomURLContent": "You can customize your booking link slug (e.g., aura.in/glamour-salon instead of aura.in/abc123). Makes it easier to share and remember.",
+  "docsGettingStartedGetHelpTitle": "Get Help",
+  "docsGettingStartedGetHelpSubtitle": "Where to find answers",
+  "docsGettingStartedHelpDocumentationContent": "This app has comprehensive documentation for every feature. When you need help, check the relevant guide - there's one for your role and the feature you're using.",
+  "docsGettingStartedFAQ1Question": "What is Aura In?",
+  "docsGettingStartedFAQ1Answer": "Aura In is a mobile marketplace for service-based businesses. Customers find and book services (haircuts, massages, etc.), service providers manage bookings and revenue, and product sellers list items for sale.",
+  "docsGettingStartedFAQ2Question": "Do I need to pay to use the app?",
+  "docsGettingStartedFAQ2Answer": "The app is free to download and use. Service providers only pay a small commission when customers pay for services. Payment processors (Paystack/Stripe) take a fee.",
+  "docsGettingStartedFAQ3Question": "What is the difference between Shop Owner and Freelancer?",
+  "docsGettingStartedFAQ3Answer": "Shop owners have a fixed location with a team of workers. Freelancers work independently and can travel to clients. Choose based on your business model.",
+  "docsGettingStartedFAQ4Question": "How do I get paid?",
+  "docsGettingStartedFAQ4Answer": "When customers pay for services, money goes to your wallet. You can withdraw to your bank account using Paystack (Africa) or Stripe (Global).",
+  "docsGettingStartedFAQ5Question": "Is my payment information secure?",
+  "docsGettingStartedFAQ5Answer": "Yes. Aura In uses Paystack and Stripe, industry-leading payment processors with bank-level security. We never see your payment details.",
+  "docsGettingStartedFAQ6Question": "How do I know if service providers near me are trustworthy?",
+  "docsGettingStartedFAQ6Answer": "Every service provider has ratings and reviews from customers who have booked with them. Read reviews before booking. High ratings mean consistent, quality service.",
+  "docsGettingStartedFAQ7Question": "Can I book without downloading the app?",
+  "docsGettingStartedFAQ7Answer": "Yes! Service providers share a unique booking link. You can book directly through that link without downloading the app. Your receipt will be sent to WhatsApp.",
+  "docsGettingStartedFAQ8Question": "How much do I pay upfront for bookings?",
+  "docsGettingStartedFAQ8Answer": "You pay 30% of the service total upfront to secure the booking slot (plus a 2% platform fee). The remaining 70% can be paid in cash or online before/at the service.",
+  "docsGettingStartedFAQ9Question": "How do I pay for products?",
+  "docsGettingStartedFAQ9Answer": "Products use Cash on Delivery (COD). You pay the seller when you receive the items. This lets you check quality before paying and works well for local deliveries.",
+  "docsGettingStartedFAQ10Question": "Why the 2% platform fee?",
+  "docsGettingStartedFAQ10Answer": "The platform fee helps us maintain Aura In, provide payment processing, customer support, and continuously improve features for both customers and service providers."
 }

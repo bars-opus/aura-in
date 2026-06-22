@@ -1,9 +1,7 @@
 {
   "@@locale": "es",
-  
   "appName": "Nano Embryo",
   "appDescription": "Tu aplicación innovadora",
-  
   "commonContinue": "Continuar",
   "commonCancel": "Cancelar",
   "commonSave": "Guardar",
@@ -14,13 +12,11 @@
   "commonAccept": "Aceptar",
   "commonReject": "Rechazar",
   "introGetStarted": "Comenzar",
-  
   "actionsBlock": "Bloquear usuario",
   "actionsReport": "Reportar usuario",
   "actionsSend": "Enviar al chat",
   "actionsShare": "Compartir",
   "actionsCopy": "Copiar enlace",
-  
   "appInfoVersion": "Versión",
   "appInfoReleased": "Publicado",
   "appInfoPackageName": "Nombre del Paquete",
@@ -42,7 +38,6 @@
       }
     }
   },
-
   "introTitle": "Bienvenido a {appName}",
   "@introTitle": {
     "description": "Título de pantalla de introducción con marcador de nombre de app",
@@ -59,14 +54,11 @@
   "introFeature2Description": "Descubre componentes y pantallas preconstruidos para desarrollo rápido",
   "introFeature3Title": "Comienza Rápidamente",
   "introFeature3Description": "Inicia tu proyecto con configuración cero y mejores prácticas",
-  "introGetStarted": "Comenzar",
-
   "appleSignIn": "Iniciar sesión con Apple",
   "googleSignIn": "Iniciar sesión con Google",
   "appleRegister": "Registrarse con Apple",
   "googleRegister": "Registrarse con Google",
   "emailAndPassword": "Ingresar correo y contraseña",
-  
   "signInTitle": "Iniciar sesión",
   "createAccount": "Crear cuenta",
   "legalConsentPart1": "Por favor, lea los ",
@@ -81,7 +73,6 @@
       }
     }
   },
-  
   "emailTitle": "Correo electrónico",
   "passwordTitle": "Contraseña",
   "loginEmailLabel": "Dirección de correo electrónico",
@@ -91,7 +82,6 @@
   "loginForgotPasswordPart1": "¿Has olvidado tu contraseña? ",
   "loginForgotPasswordPart2": "Toca aquí",
   "loginForgotPasswordPart3": " para restablecer tu contraseña?",
-
   "commonConfirmPasswordLabel": "Confirmar contraseña",
   "commonConfirmPasswordHint": "Por favor, confirma tu contraseña",
   "commonPasswordsDoNotMatch": "Las contraseñas no coinciden",
@@ -111,7 +101,6 @@
   "commonSomethingWentWrong": "Algo salió mal. Por favor, inténtalo de nuevo.",
   "commonEnterEmailAndRetry": "Por favor, introduce tu dirección de correo electrónico e inténtalo de nuevo",
   "commonLearnMore": "Aprende más",
-
   "authSignUpVerificationSent": "¡Correo de verificación enviado! Por favor, revisa tu bandeja de entrada.",
   "authSignUpFailed": "Registro fallido: {error}",
   "@authSignUpFailed": {
@@ -123,12 +112,10 @@
       }
     }
   },
-
   "authForgotPasswordTitle": "¿Olvidaste tu contraseña?",
   "authForgotPasswordSubtitle": "Introduce tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.",
   "authSendResetLink": "Enviar enlace de restablecimiento",
   "authBackToSignIn": "Volver al inicio de sesión",
-
   "authUsernameScreenTitle": "Elige tu nombre de usuario",
   "authUsernameScreenSubtitle": "Así es como te ven otros. Puedes cambiarlo más tarde.",
   "authUsernameLabel": "Nombre de usuario",
@@ -158,15 +145,12 @@
   "authUsernameCheckError": "No se pudo comprobar la disponibilidad. Por favor, inténtalo de nuevo.",
   "authUsernameSaveError": "No se pudo guardar tu nombre de usuario. Por favor, inténtalo de nuevo.",
   "authUsernameSavedSuccess": "¡Nombre de usuario guardado exitosamente!",
-
   "authUpdatePasswordTitle": "Crear nueva contraseña",
   "authUpdatePasswordButton": "Actualizar contraseña",
   "authUpdatePasswordSuccess": "Contraseña actualizada exitosamente. Por favor, inicia sesión de nuevo.",
-
   "authPasswordResetSentTitle": "Revisa tu correo electrónico",
   "authPasswordResetSentBody": "Enviamos un enlace para restablecer tu contraseña a",
   "authPasswordResetSentNote": "Toca el enlace en el correo electrónico para establecer una nueva contraseña. El enlace expira en 1 hora.",
-
   "authGuestHello": "¡Hola!",
   "authGuestOverview": "Estás navegando {appName} como invitado. Inicia sesión o crea una cuenta para comenzar a gestionar tu tienda – te tomará menos de 5 segundos. Tenemos una variedad de herramientas para ayudarte a hacer crecer tu negocio, todo de forma gratuita.",
   "@authGuestOverview": {
@@ -178,7 +162,6 @@
       }
     }
   },
-
   "authIntroTitle": "Bienvenido a\n{appName}",
   "@authIntroTitle": {
     "description": "Título principal en la pantalla de introducción con el nombre de la aplicación",
@@ -191,7 +174,6 @@
   },
   "authIntroSubtitle": "Bienvenido a la plataforma que creamos para ti. Disfruta y diviértete – lo mejor está esperándote.",
   "authReadLegalities": "Leer avisos legales",
-
   "authPasswordRequired": "Por favor, introduce tu contraseña",
   "authCreatingAccount": "Creando cuenta...",
   "authAccountCreatedSuccess": "¡Cuenta creada exitosamente!",
@@ -227,7 +209,6 @@
       }
     }
   },
-
   "authVerifyEmailTitle": "Revisa tu correo electrónico",
   "authVerifyEmailSubtitle": "Enviamos un enlace de confirmación a",
   "authVerifyEmailNote": "Toca el enlace en el correo para verificar tu cuenta y continuar.",
@@ -244,13 +225,11 @@
       }
     }
   },
-
   "currencySelectorPlaceholder": "Seleccionar moneda",
   "currencySelectorNoSelected": "Ninguna moneda seleccionada",
   "currencySelectorTitle": "Seleccionar moneda",
   "currencySelectorSearchHint": "Buscar por moneda, código o bandera...",
   "currencySelectorNoResults": "No se encontraron monedas",
-
   "discoverScreenTitle": "Descubrir",
   "discoverSearchHint": "Buscar...",
   "discoverAllShopsRegion": "Todas las tiendas en tu región",
@@ -260,100 +239,71 @@
   "discoverBrowseProducts": "Explorar productos",
   "discoverMyOrders": "Mis pedidos",
   "discoverCartTooltip": "Carrito",
-
   "homeScheduleTabLabel": "Horario",
   "homeDashboardTabLabel": "Panel",
   "homeMapTabLabel": "Mapa",
-
   "validationRequired": "Este campo es obligatorio",
   "validationEmailInvalid": "Por favor, introduce una dirección de correo electrónico válida",
   "validationPasswordLength": "La contraseña debe tener al menos {minLength} caracteres",
   "validationPasswordUppercase": "La contraseña debe incluir al menos una letra mayúscula",
-  
   "loggingInIndicatorText": "Iniciando sesión...",
   "loginSuccessful": "¡Inicio de sesión exitoso!\nBienvenido de nuevo",
   "errorLoginFailed": "Error al iniciar sesión. Por favor, verifica tus credenciales",
   "errorNetwork": "Error de red. Por favor, verifica tu conexión",
-  
   "homeTitle": "Inicio",
   "profileTitle": "Perfil",
   "chatTitle": "Chat",
-
   "editProfileNameFieldTitle": "Nombre",
   "editProfileNameFieldLabel": "Nombre completo",
   "editProfileUserFieldNameTitle": "Nombre de usuario",
   "editProfileUsernameFieldLabel": "@nombredeusuario",
   "editProfileBioFieldTitle": "Biografía",
   "editProfileBioFieldLabel": "Cuéntanos sobre ti",
-  
   "editProfileScreenTitle": "Editar perfil",
   "editProfileSettingTitle": "Configuración de cuenta",
   "editProfileSettingSubtitle": "Administra tu cuenta",
   "editProfileScreenEditShopTitle": "Editar Tienda",
   "editProfileScreenEditShopSubtitle": "Cambia la información de tu tienda",
-
   "languageScreenSubtitle": "Elige tu idioma preferido para la interfaz de la app. Esto no afectará la configuración de tu dispositivo.",
   "languageScreeUseDeviceLang": "Usar Idioma del Dispositivo.",
   "languageScreeUseDeviceLangNote": "Esto se restablecerá para que coincida con el idioma del sistema de tu dispositivo.",
   "languageScreenUseDeviceLang": "Usar Idioma del Dispositivo",
   "languageScreenUseDeviceLangNote": "Esto se restablecerá para que coincida con el idioma del sistema de tu dispositivo.",
-    
-
-
-
   "settingsScreenTitle": "Configuración",
-  
   "accountSectionTitle": "Cuenta",
   "accountSectionSubtitle": "",
-  
   "profileItemTitle": "Perfil",
   "profileItemSubtitle": "Administra tus datos personales",
-  
   "locationItemTitle": "Cambiar Ubicación",
   "locationItemSubtitle": "Cambia tu ciudad actual",
-  
   "saveItemTitle": "Contenidos Guardados",
   "saveItemSubtitle": "Contenidos que has guardado",
-  
   "notificationsItemTitle": "Notificaciones",
   "notificationsItemSubtitle": "Gestiona notificaciones push y por correo",
-  
   "blockedItemTitle": "Cuentas Bloqueadas",
   "blockedItemSubtitle": "Cuentas que has bloqueado",
-  
   "qrCodeItemTitle": "Compartir Código QR",
   "qrCodeItemSubtitle": "Comparte tu código QR de cuenta",
-  
   "shareProfileItemTitle": "Compartir Perfil",
   "shareProfileItemSubtitle": "Comparte tu perfil con amigos",
-  
   "appSettingsSectionTitle": "Configuración de la App",
   "appSettingsSectionSubtitle": "Personaliza tu experiencia",
-  
   "themeItemTitle": "Tema",
   "themeItemSubtitle": "Claro, Oscuro o Sistema",
-  
   "languageItemTitle": "Idioma",
   "languageItemSubtitle": "Cambia el idioma de la app",
-  
   "biometricItemTitle": "Inicio Biométrico",
   "biometricItemSubtitle": "Usa Face ID o Touch ID",
-  
   "supportSectionTitle": "Soporte",
   "supportSectionSubtitle": "",
-  
   "guideItemTitle": "Guía de Usuario",
   "guideItemSubtitle": "Documentación y tutoriales",
-  
   "helpItemTitle": "Contactar Soporte",
   "helpItemSubtitle": "Obtén ayuda con la app",
-  
   "feedbackItemTitle": "Enviar Comentarios",
   "feedbackItemSubtitle": "Comparte tus pensamientos",
-  
   "rateItemTitle": "Calificar la App",
   "rateItemSubtitle": "Deja una reseña",
-  
   "appInfoItemTitle": "Acerca de {appName}",
   "@appInfoItemTitle": {
     "description": "Título Acerca de la aplicación con nombre dinámico de la app",
@@ -365,28 +315,20 @@
     }
   },
   "appInfoItemSubtitle": "Información técnica",
-  
   "legalSectionTitle": "Legal",
   "legalSectionSubtitle": "",
-  
   "termsItemTitle": "Términos, Privacidad y Políticas",
   "termsItemSubtitle": "Lee nuestros términos",
-  
   "licensesItemTitle": "Licencias de Código Abierto",
   "licensesItemSubtitle": "Bibliotecas y licencias de terceros",
-  
   "accountActionsSectionTitle": "Acciones de Cuenta",
   "accountActionsSectionSubtitle": "",
-
   "updatePasswordItemTitle": "Actualizar contraseña",
   "updatePasswordItemSubtitle": "Cambia la contraseña actual de tu cuenta",
-  
   "deactivateItemTitle": "Desactivar",
   "deactivateItemSubtitle": "Oculta y desactiva tu cuenta temporalmente",
-  
   "deleteItemTitle": "Eliminar Cuenta",
   "deleteItemSubtitle": "Solicita la eliminación permanente de tu cuenta",
-  
   "logoutItemTitle": "Cerrar Sesión",
   "logoutItemSubtitle": "Cierra sesión en tu cuenta",
   "logoutConfirmTitle": "¿Seguro que quieres cerrar sesión?",
@@ -394,7 +336,6 @@
   "logoutConfirmButton": "Cerrar sesión",
   "logoutSuccessMessage": "Sesión cerrada correctamente",
   "logoutFailedMessage": "Error al cerrar sesión: {error}",
-
   "accountDeactivateTitle": "Desactivar cuenta",
   "accountDeleteTitle": "Eliminar cuenta",
   "accountRestoreTitle": "Restaurar cuenta",
@@ -433,9 +374,7 @@
   "accountBlockerActiveOrders": "{count} pedido(s) activo(s)",
   "accountBlockerOwnedShopActiveOrders": "{count} pedido(s) activo(s) de tienda",
   "accountBlockerActiveWithdrawals": "{count} retiro(s) pendiente(s)",
-
   "loadingDefaultMessage": "Cargando...",
-
   "emptyStateNoDataTitle": "No hay {dataType} aún",
   "@emptyStateNoDataTitle": {
     "description": "Título mostrado cuando no hay datos de un tipo específico disponible",
@@ -446,18 +385,16 @@
       }
     }
   },
-  
   "emptyStateNoDataSubtitle": "Cuando {dataType} esté disponible, aparecerán aquí.",
   "@emptyStateNoDataSubtitle": {
     "description": "Subtítulo que explica cuándo aparecerán los datos",
     "placeholders": {
       "dataType": {
-        "type": "String", 
+        "type": "String",
         "example": "usuarios"
       }
     }
   },
-  
   "emptyStateNoResultsTitle": "No se encontraron resultados",
   "emptyStateNoResultsSubtitle": "Intenta ajustar tu búsqueda o filtros para encontrar {dataType}.",
   "@emptyStateNoResultsSubtitle": {
@@ -469,32 +406,23 @@
       }
     }
   },
-  
   "emptyStateNoInternetTitle": "Sin conexión a internet",
   "emptyStateNoInternetSubtitle": "Verifica tu conexión e intenta de nuevo.",
-  
   "emptyStateNoFavoritesTitle": "No hay favoritos aún",
   "emptyStateNoFavoritesSubtitle": "Comienza agregando elementos a tu lista de favoritos.",
-  
   "emptyStateNoMessagesTitle": "No hay mensajes",
   "emptyStateNoMessagesSubtitle": "Inicia una conversación para ver mensajes aquí.",
-  
   "emptyStateRefresh": "Actualizar",
   "emptyStateClearFilters": "Limpiar filtros",
   "emptyStateRetry": "Reintentar",
   "emptyStateExplore": "Explorar",
   "emptyStateStartChat": "Iniciar chat",
-  
-  
   "errorNetworkTitle": "Error de conexión",
   "errorNetworkSubtitle": "No se pudo conectar al servidor. Verifica tu conexión a internet.",
-  
   "errorServerTitle": "Error del servidor",
   "errorServerSubtitle": "Algo salió mal de nuestro lado. Por favor, intenta más tarde.",
-  
   "errorClientTitle": "Error en la solicitud",
   "errorClientSubtitle": "Hubo un problema con tu solicitud. Por favor, verifica e intenta de nuevo.",
-  
   "errorParsingTitle": "Error de datos",
   "errorParsingSubtitle": "No se pudo procesar el/la {dataType}. Esto podría ser un problema temporal.",
   "@errorParsingSubtitle": {
@@ -506,7 +434,6 @@
       }
     }
   },
-  
   "errorPermissionTitle": "Acceso denegado",
   "errorPermissionSubtitle": "No tienes permiso para acceder a este/esta {dataType}.",
   "@errorPermissionSubtitle": {
@@ -518,7 +445,6 @@
       }
     }
   },
-  
   "errorGenericTitle": "Algo salió mal",
   "errorGenericSubtitle": "Ocurrió un error inesperado al cargar {dataType}. Por favor, intenta de nuevo.",
   "@errorGenericSubtitle": {
@@ -530,7 +456,6 @@
       }
     }
   },
-  
   "errorRetry": "Reintentar",
   "errorCheckSettings": "Verificar configuración",
   "errorReport": "Reportar problema",
@@ -538,8 +463,6 @@
   "errorRefresh": "Actualizar",
   "errorRequestAccess": "Solicitar acceso",
   "errorContactSupport": "Contactar soporte",
-  
-
   "dataTypeUsers": "usuarios",
   "dataTypeUser": "usuario",
   "dataTypeProducts": "productos",
@@ -554,26 +477,17 @@
   "dataTypeContent": "contenido",
   "dataTypeItems": "elementos",
   "dataTypeItem": "elemento",
-
-
-
-
-
   "eulaTitle": "Acuerdo de Licencia de Usuario Final",
   "eulaContent": "Este Acuerdo de Licencia de Usuario Final (\"EULA\") es un acuerdo legal entre usted y Bars Opus, Ltd. para {appName}.\n\nAl instalar, acceder o usar {appName}, usted acepta estar sujeto a los términos de este EULA. {appName} está licenciado, no vendido, para su uso solo bajo los términos de esta licencia. Bars Opus, Ltd. se reserva todos los derechos no expresamente otorgados a usted en este EULA.\n\nNo puede modificar, realizar ingeniería inversa, descompilar o desensamblar {appName}. Esta licencia es válida hasta que sea terminada por usted o Bars Opus, Ltd. Sus derechos bajo esta licencia terminarán automáticamente sin previo aviso si incumple cualquier término.\n\nTodos los derechos de propiedad intelectual sobre {appName} son propiedad de Bars Opus, Ltd. Este EULA se rige por las leyes de Inglaterra y Gales.\n\nPara preguntas sobre este EULA, por favor contacte: {supportEmail}.",
   "eulaFooter": "Al aceptar, usted reconoce que ha leído y comprendido este Acuerdo de Licencia de Usuario Final.",
-  
   "privacyPolicyTitle": "Política de Privacidad",
   "privacyPolicyContent": "Esta Política de Privacidad explica cómo Bars Opus, Ltd. (\"nosotros\", \"nuestro\") recopila, utiliza y protege su información cuando usa {appName}.\n\nRecopilamos información que usted proporciona directamente, como cuando crea una cuenta, completa su perfil o contacta al soporte. Recopilamos automáticamente cierta información sobre su dispositivo y cómo usa {appName}. Usamos cookies y tecnologías de seguimiento similares para rastrear la actividad y almacenar cierta información.\n\nUsamos la información que recopilamos para proporcionar, mantener y mejorar {appName}. Podemos compartir su información con proveedores de servicios de terceros que realizan servicios en nuestro nombre. Podemos divulgar su información si lo requiere la ley o para proteger nuestros derechos y seguridad.\n\nUsted tiene derecho a acceder, corregir o eliminar su información personal. Implementamos medidas técnicas y organizativas apropiadas para proteger su información. Podemos actualizar esta Política de Privacidad de vez en cuando. Le notificaremos cualquier cambio.",
   "privacyPolicyFooter": "Política de Privacidad de {appName} - Última actualización: {currentDate}",
-  
   "termsTitle": "Términos de Servicio",
   "termsContent": "Estos Términos de Servicio (\"Términos\") rigen su acceso y uso de {appName}. Al acceder o usar {appName}, usted acepta estar sujeto a estos Términos.\n\nDebe tener al menos 13 años para usar {appName}. Usted es responsable de proteger sus credenciales de cuenta y de todas las actividades bajo su cuenta. No puede usar {appName} para ningún propósito ilegal o no autorizado.\n\nNos reservamos el derecho de modificar, suspender o descontinuar {appName} en cualquier momento. Todo el contenido incluido en {appName} es propiedad de Bars Opus, Ltd. o sus licenciantes.\n\nPodemos terminar o suspender su acceso a {appName} inmediatamente si viola estos Términos. Estos Términos se regirán e interpretarán de acuerdo con las leyes de Inglaterra y Gales.\n\nPara cualquier pregunta sobre estos Términos, por favor contáctenos en {supportEmail}.",
-  
   "dataSharingTitle": "Acuerdo de Compartición de Datos",
   "dataSharingContent": "Este Acuerdo de Compartición de Datos describe cómo se puede compartir su información cuando usa las funciones sociales de {appName}.\n\nCuando se conecta con amigos en {appName}, ciertos datos de actividad pueden ser visibles para ellos. Los datos de actividad compartidos pueden incluir duración del entrenamiento, calorías quemadas, minutos de ejercicio y insignias de logros. Su información de perfil (nombre para mostrar y foto de perfil) es visible para los amigos con los que se conecta.\n\nSu dirección de correo electrónico e información de contacto permanecen privadas y nunca se comparten con otros usuarios. Usted controla qué datos se comparten a través de su configuración de privacidad de {appName}. Puede revocar los permisos de compartición en cualquier momento en la configuración de la aplicación.\n\nLos datos compartidos con amigos se cifran durante la transmisión y el almacenamiento. Conservamos los datos compartidos solo el tiempo necesario para proporcionar la funcionalidad de compartición. Las integraciones de terceros pueden tener sus propias prácticas de compartición de datos, que recomendamos revisar.",
   "dataSharingFooter": "La compartición de datos en {appName} ayuda a crear una comunidad de apoyo mientras respeta sus elecciones de privacidad.",
-  
   "dashboardTitle": "Panel de Control",
   "dashboardSubtitle": "Gestiona las actividades de tu tienda de manera eficiente",
   "dashboardSectionTitle": "Panel de Control",
@@ -584,15 +498,12 @@
   "dashboardAnalyticsContent": "Rastrea el rendimiento de tu tienda con análisis en tiempo real. Monitorea tendencias de ventas, compromiso del cliente y niveles de inventario a través de gráficos interactivos e informes.",
   "dashboardScreenshotTitle": "Vista General del Panel",
   "dashboardScreenshotContent": "El panel principal proporciona una vista integral de las métricas clave de tu tienda, actividades recientes y acceso rápido a funciones esenciales.",
-  
   "categoryFeatures": "Características",
   "categoryDashboard": "Panel de Control",
-  
   "faqDashboard1Question": "¿Cuándo puedo solicitar un pago?",
   "faqDashboard1Answer": "Puedes solicitar tu pago una vez a la semana, cada sábado. El corte semanal es el viernes a las 11:59 PM. Los pagos se procesan en 3-5 días hábiles.",
   "faqDashboard2Question": "¿Dónde solicito mi pago?",
   "faqDashboard2Answer": "Navega a tu panel de control y haz clic en la sección 'Ganancias'. Desde allí, verás tu saldo actual y un botón 'Solicitar Pago'. Sigue las indicaciones para completar tu solicitud.",
-  
   "@eulaContent": {
     "description": "Contenido del EULA con marcadores de nombre de app y email de soporte",
     "placeholders": {
@@ -669,7 +580,6 @@
       }
     }
   },
-
   "profileScreenCantChatWithYourself": "No puedes chatear contigo mismo",
   "profileScreenStartingConversation": "Iniciando conversación...",
   "profileScreenNoActiveSession": "No hay sesión activa — por favor inicie sesión de nuevo.",
@@ -679,20 +589,16 @@
   "profileScreenNoBioYet": "Sin biografía aún",
   "profileScreenErrorLoadingProfileBody": "No se pudo cargar el perfil. Verifique su conexión a internet e intente de nuevo.",
   "profileScreenLoadingNotifications": "Cargando...",
-
   "profileHeaderBookingsStatLabel": "Reservas",
   "profileHeaderOrdersStatLabel": "Pedidos",
   "profileHeaderEditProfileButton": "Editar perfil",
   "profileHeaderMessageButton": "Mensaje",
-
   "editableProfileAvatarTakePhoto": "Tomar una foto",
   "editableProfileAvatarChooseGallery": "Elegir de la galería",
-
   "editProfileScreenAccountTypeLabel": "Tipo de cuenta",
   "editProfileScreenAccountTypeSubtitle": "Selecciona cómo deseas usar esta aplicación. Esto determina qué características están disponibles para ti.",
   "editProfileScreenUpdatingAccountType": "Actualizando tipo de cuenta...",
   "editProfileScreenPleaseLogIn": "Por favor inicie sesión",
-  "editProfileScreenTitle": "Editar perfil",
   "editProfileScreenNameLabel": "Nombre",
   "editProfileScreenNameHint": "Ingrese su nombre",
   "editProfileScreenUsernameLabel": "Nombre de usuario",
@@ -700,35 +606,27 @@
   "editProfileScreenBioLabel": "Biografía",
   "editProfileScreenBioHint": "Cuéntanos algo sobre ti",
   "editProfileScreenEditWorkProfileTitle": "Editar perfil de trabajo",
-
   "profileTabsAppointments": "Citas",
   "profileTabsBuys": "Compras",
   "profileTabsSaves": "Guardados",
-
   "searchScreenSearchHint": "Busca tiendas, profesionales, productos...",
   "searchScreenNoResultsFound": "No se encontraron resultados",
   "searchScreenNoResultsCategory": "No se encontraron {category}",
   "searchScreenSearchedFor": "Se buscó: \"{query}\"",
   "searchScreenSomethingWentWrong": "Algo salió mal",
-
   "searchAppBarSearchHint": "Buscar...",
-
   "searchSuggestionsHint": "Busca tiendas, profesionales de servicios a domicilio o productos de cabello para comprar",
   "searchSuggestionsRecentSearches": "Búsquedas recientes",
   "searchSuggestionsClearAll": "Borrar todo",
-
   "searchEmptyStateNoResults": "No se encontraron resultados",
   "searchEmptyStateCouldNotFind": "No pudimos encontrar nada para \"{query}\"",
   "searchEmptyStateTryThese": "Intenta con estos:",
-
   "searchResultsShopsHeader": "Tiendas",
   "searchResultsSeeAll": "Ver todos",
-
   "searchResultsTitle": "Resultados de {category}",
   "searchResultsSearchingFor": "Buscando \"{query}\"",
   "searchResultsTryDifferent": "Intenta con palabras clave diferentes o elimina filtros",
   "searchResultsSomethingWentWrong": "Algo salió mal",
-
   "nearYouShopsTitle": "Cerca de ti\ndenro de {km}km",
   "@nearYouShopsTitle": {
     "description": "Title for nearby shops section showing distance radius",
@@ -770,10 +668,8 @@
       }
     }
   },
-
   "premiumShopsScreenTitle": "Tiendas Premium",
   "premiumShopsEmpty": "No se encontraron tiendas premium",
-
   "premiumShopsHorizontalTitle": "Tiendas Premium\npara looks premium",
   "premiumShopsHorizontalBody": "Salones y spas de lujo cuidadosamente seleccionados que ofrecen experiencias lujosas. Estas tiendas se clasifican como Lujo o Ultra Lujo según sus servicios, precios y reseñas de clientes. Perfecto cuando buscas ese toque extra de elegancia.",
   "premiumShopsHorizontalEmptyNoFilter": "No hay tiendas premium disponibles",
@@ -788,7 +684,6 @@
     }
   },
   "premiumShopsHorizontalEmptySubtitle": "Las tiendas se mostrarían aquí una vez que estén disponibles",
-
   "topRatedShopsHorizontalTitle": "Mejor valoradas",
   "topRatedShopsHorizontalTitleWithLocation": "Mejor valoradas \nen {location}",
   "@topRatedShopsHorizontalTitleWithLocation": {
@@ -813,18 +708,14 @@
     }
   },
   "topRatedShopsHorizontalEmptySubtitle": "Las tiendas se mostrarían aquí una vez que estén disponibles",
-
   "topRatedShopsScreenTitle": "Tiendas Mejor Valoradas",
   "topRatedShopsEmpty": "No se encontraron tiendas mejor valoradas",
-
   "nearYouFreelancersScreenTitle": "Freelancers cerca de ti",
   "nearYouFreelancersEmpty": "No se encontraron freelancers cercanos",
   "nearYouFreelancersEmptySubtitle": "Intenta expandir tu área de búsqueda o cambia tu ubicación",
-
   "topRatedFreelancersScreenTitle": "Freelancers mejor valorados",
   "topRatedFreelancersEmpty": "No se encontraron freelancers mejor valorados",
   "topRatedFreelancersEmptySubtitle": "Intenta ajustar tu área de búsqueda",
-
   "topRatedFreelancersHorizontalTitle": "Mejor valorados \nen {location}",
   "@topRatedFreelancersHorizontalTitle": {
     "description": "Top rated freelancers title with location",
@@ -836,7 +727,6 @@
     }
   },
   "topRatedFreelancersHorizontalBody": "Profesionales de alta calidad cuidadosamente seleccionados que ofrecen experiencias lujosas. Estos freelancers se clasifican como mejor valorados según la calidad de su trabajo, precios y reseñas de clientes. Perfecto para ese toque extra de excelencia.",
-
   "nearYouFreelancersHorizontalTitle": "Freelancers Cerca de Ti en {location}",
   "@nearYouFreelancersHorizontalTitle": {
     "description": "Freelancers near you title with location",
@@ -850,16 +740,12 @@
   "nearYouFreelancersHorizontalBody": "Profesionales calificados ubicados cerca de ti. Estos freelancers están disponibles para reservas rápidas y ofrecen servicio local conveniente. Perfecto cuando buscas confiabilidad y proximidad.",
   "nearYouFreelancersHorizontalEmpty": "No hay freelancers mejor valorados disponibles",
   "nearYouFreelancersHorizontalEmptySubtitle": "Los freelancers se mostrarían aquí una vez que estén disponibles",
-
   "shopNoLocationSetTitle": "Establece tu ubicación para descubrir",
   "shopNoLocationSetContent": "Establece tu ubicación para descubrir tiendas premium y mejor valoradas cerca de ti.",
-
   "providerTypeShops": "Tiendas",
   "providerTypeFreelancers": "Freelancers",
   "providerTypeBuy": "Comprar",
-
   "luxuryLevelChipsAll": "Todas",
-
   "searchRadiusSliderTitle": "Radio de exploración",
   "searchRadiusSliderSubtitle": "Mostrando resultados dentro de {km}km de tu ubicación",
   "@searchRadiusSliderSubtitle": {
@@ -871,7 +757,6 @@
       }
     }
   },
-
   "validationPasswordMaxLength": "La contraseña debe tener como máximo {max} caracteres",
   "@validationPasswordMaxLength": {
     "description": "Validation error for maximum password length",
@@ -941,7 +826,6 @@
   "validationSSNInvalid": "SSN inválido",
   "validationEmailTooLong": "El correo electrónico es demasiado largo (máx. 254 caracteres)",
   "validationEmailLocalPartTooLong": "La parte local del correo electrónico es demasiado larga",
-
   "categoriesAll": "Todos",
   "categoriesSalon": "Salones",
   "categoriesBarbershop": "Barberías",
@@ -952,38 +836,31 @@
   "categoriesMassage": "Masaje",
   "categoriesMakeup": "Maquillaje",
   "categoriesSkincare": "Cuidado de la Piel",
-
   "luxuryLevelModerate": "Moderado",
   "luxuryLevelLuxury": "Lujo",
   "luxuryLevelUltraLuxury": "Ultra Lujo",
-
   "dashboardTabRevenue": "Ingresos",
   "dashboardTabAnalytics": "Análisis",
   "dashboardTabInsights": "Perspectivas",
   "dashboardTabTools": "Herramientas",
   "dashboardTabClients": "Clientes",
   "dashboardTabStaff": "Personal",
-  "dashboardTitle": "Panel de Control",
-
   "walletRecentTransactions": "Transacciones Recientes",
   "walletLoadError": "No pudimos cargar tu billetera en este momento.",
   "walletTransactionLoadError": "No se pudieron cargar las transacciones recientes.",
   "walletPaymentProcessing": "Por favor espera a que el pago se procese y regresa a tu aplicación para completar tu reserva.",
-
   "analyticsRevenue": "Ingresos",
   "analyticsServices": "Servicios",
   "analyticsWorkers": "Trabajadores",
   "analyticsLoadError": "No se pudieron cargar los análisis",
   "analyticsEmpty": "Sin datos disponibles para análisis.",
   "analyticsEmptySubtitle": "Las estadísticas de reservas e ingresos aparecerían aquí",
-
   "insightsReports": "Reportes",
   "insightsSeeAll": "Ver Todo",
   "insightsLoadError": "No se pudieron cargar los reportes. Tira hacia abajo para actualizar.",
   "insightsNoAlerts": "¡Todo bien! Sin alertas",
   "insightsHeatmapError": "No se pudo cargar el mapa de calor de reservas.",
   "insightsNoHeatmapData": "Sin datos de mapa de calor disponibles",
-
   "toolsAdminTools": "Herramientas de Administración",
   "toolsConfigure": "Configurar →",
   "toolsManage": "Administrar →",
@@ -995,7 +872,6 @@
   "toolsLoadingDetails": "Cargando detalles de la tienda…",
   "toolsBusinessHours": "Horario de Atención",
   "toolsServiceManagement": "Gestión de Servicios",
-
   "clientsSearchHint": "Buscar por nombre...",
   "clientsLoadError": "No se pudieron cargar los clientes",
   "clientsNotFound": "No hay Clientes Coincidentes",
@@ -1011,13 +887,11 @@
     }
   },
   "clientsEmptySubtitle": "Los clientes aparecerán aquí cuando realicen su primera reserva.",
-
   "walletLabel": "Cartera",
   "walletAvailableBalance": "Saldo Disponible",
   "walletWithdrawFunds": "Retirar Fondos",
   "walletTotalEarned": "Total Ganado",
   "walletTotalWithdrawn": "Total Retirado",
-
   "transactionDepositReceived": "Depósito Recibido",
   "transactionServicePayment": "Pago de Servicio",
   "transactionWithdrawal": "Retiro",
@@ -1026,7 +900,6 @@
   "transactionAdjustment": "Ajuste",
   "transactionToday": "Hoy",
   "transactionYesterday": "Ayer",
-
   "withdrawalTitle": "Retirar",
   "withdrawalInfo": "Los retiros se procesan inmediatamente y se envían a tu cuenta conectada. Se aplica una comisión de {fee}% (mín {currency} {minFee}).",
   "@withdrawalInfo": {
@@ -1122,7 +995,6 @@
   "withdrawalRequestButton": "Solicitar Retiro",
   "withdrawalNoPaymentMethod": "Ningún método de pago conectado",
   "withdrawalSuccess": "¡Solicitud de retiro enviada exitosamente!",
-
   "deadLetterTitle": "Retiro necesita revisión",
   "deadLetterSingle": "{currency} {amount} atascado — toca para detalles",
   "@deadLetterSingle": {
@@ -1158,10 +1030,8 @@
   },
   "deadLetterReason": "Razón:",
   "deadLetterContactSupport": "Contactar soporte",
-
   "paymentSetupTitle": "Completar configuración de pagos",
   "paymentSetupContent": "Conecta tu cuenta de pagos para comenzar a retirar dinero de tu cartera. Esto podría ser tu número de teléfono móvil o tu cuenta bancaria.",
-
   "calendarErrorLoading": "Error al cargar el calendario",
   "calendarErrorLoadingBookings": "Error al cargar las reservas",
   "calendarNoAppointmentsDay": "Sin citas para este día",
@@ -1205,7 +1075,6 @@
       }
     }
   },
-
   "reviewsScreenTitle": "Reseñas para {shopName}",
   "@reviewsScreenTitle": {
     "description": "App bar title for shop reviews screen",
@@ -1233,7 +1102,6 @@
       }
     }
   },
-
   "bookingServiceAddress": "Dirección de servicio",
   "bookingFindingAvailableTimes": "Buscando horarios disponibles...",
   "bookingErrorLoadingWorkers": "Error al cargar trabajadores: {error}",
@@ -1282,8 +1150,73 @@
       }
     }
   },
-
   "scheduleTitle": "Cronograma",
   "scheduleTabDaily": "Diario",
-  "scheduleTabMonthly": "Mensual"
+  "scheduleTabMonthly": "Mensual",
+  "docsGettingStartedTitle": "Bienvenido a Aura In",
+  "docsGettingStartedSubtitle": "La plataforma de mercado para negocios basados en servicios",
+  "docsGettingStartedWhatIsTitle": "¿Qué es Aura In?",
+  "docsGettingStartedWhatIsSubtitle": "Entender la plataforma",
+  "docsGettingStartedWelcomeIntroContent": "Aura In es un mercado móvil que conecta profesionales de servicios con clientes. Ya sea que ofrezca cortes de cabello, masajes, servicios independientes o venda productos, esta plataforma ayuda a que su negocio crezca.",
+  "docsGettingStartedWhoUsesTitle": "¿Quién usa Aura In?",
+  "docsGettingStartedWhoUsesContent": "Dos tipos de usuarios impulsan la plataforma:",
+  "docsGettingStartedWhoUsesProviders": "Proveedores de servicios - Salones, spas, barberos, freelancers que ofrecen servicios",
+  "docsGettingStartedWhoUsesCustomers": "Clientes - Personas que buscan y reservan servicios en su área",
+  "docsGettingStartedWhoUsesSellers": "Vendedores de productos - Tiendas que venden productos minoristas o artículos hechos a mano",
+  "docsGettingStartedHowItWorksTitle": "Cómo funciona",
+  "docsGettingStartedHowItWorksContent": "Los proveedores de servicios crean un perfil, enumeran sus servicios con precios y aceptan reservas de clientes. Los clientes buscan por ubicación, exploran servicios y reservan citas. Todo se gestiona a través de la aplicación.",
+  "docsGettingStartedThreeWaysTitle": "Tres formas de usar Aura In",
+  "docsGettingStartedThreeWaysSubtitle": "Elige tu rol",
+  "docsGettingStartedOption1Title": "Opción 1: Explorar y reservar servicios (Cliente)",
+  "docsGettingStartedOption1Content": "Busque salones, masajistas, barberos o freelancers cerca de usted. Vea sus servicios, precios y disponibilidad. Reserve citas directamente a través de la aplicación y pague de forma segura.",
+  "docsGettingStartedGuestBookingTitle": "Reserva de invitado (sin necesidad de descargar la aplicación)",
+  "docsGettingStartedGuestBookingContent": "¿No desea descargar la aplicación? Los proveedores de servicios pueden compartir un enlace de reserva - puede reservar y pagar directamente a través de ese enlace sin crear una cuenta. Sus detalles de reserva y recibo se enviarán a WhatsApp.",
+  "docsGettingStartedOption2Title": "Opción 2: Ofrecer servicios (Propietario de tienda o Freelancer)",
+  "docsGettingStartedOption2Content": "Cree un perfil de tienda o freelancer, enumere sus servicios con precios y duración, establezca sus horas de trabajo y administre reservas. Gane dinero con cada servicio reservado.",
+  "docsGettingStartedOption3Title": "Opción 3: Vender productos (Vendedor de productos)",
+  "docsGettingStartedOption3Content": "Si fabrica artículos hechos a mano o vende productos minoristas, puede enumerarlos para la venta. Los clientes exploran y compran directamente de su tienda.",
+  "docsGettingStartedBookingPaymentTitle": "Sistema de reserva y pago",
+  "docsGettingStartedBookingPaymentSubtitle": "Cómo funcionan las reservas de servicios y los pagos",
+  "docsGettingStartedBookingOverviewContent": "Los clientes reservan citas con proveedores de servicios. Los pagos se procesan de forma segura a través de la aplicación mediante Paystack (África) o Stripe (Global).",
+  "docsGettingStartedDepositPaymentTitle": "Depósito (30%)",
+  "docsGettingStartedDepositPaymentContent": "Al reservar un servicio, los clientes pagan el 30% por adelantado como depósito para asegurar la ranura horaria. Esto confirma que la reserva es real y está reservada.",
+  "docsGettingStartedPlatformFeeTitle": "Tarifa de plataforma",
+  "docsGettingStartedPlatformFeeContent": "Se agrega una pequeña tarifa de plataforma (2%) para ayudarnos a mantener la plataforma y proporcionar soporte. Se calcula sobre el monto total de la reserva.",
+  "docsGettingStartedRemainingPaymentTitle": "Pago restante (70%)",
+  "docsGettingStartedRemainingPaymentContent": "El 70% restante se puede pagar de cualquiera de dos formas: (1) en efectivo cuando se complete el servicio, o (2) en línea a través de la aplicación antes de la cita.",
+  "docsGettingStartedGuestBookingPaymentTitle": "Pago de reserva de invitado",
+  "docsGettingStartedGuestBookingPaymentContent": "¡Sin necesidad de descargar la aplicación! Los clientes reciben un enlace de reserva del proveedor de servicios. Pagan el 30% para asegurar la ranura, y su recibo se envía a WhatsApp.",
+  "docsGettingStartedProductOrderingTitle": "Pedido y entrega de productos",
+  "docsGettingStartedProductOrderingSubtitle": "Cómo funciona la venta de productos",
+  "docsGettingStartedProductOverviewContent": "Los clientes exploran productos, agregan artículos al carrito y completan el proceso de pago. Los productos se entregan en la ubicación del cliente.",
+  "docsGettingStartedCODPaymentTitle": "Pago contra entrega (COD)",
+  "docsGettingStartedCODPaymentContent": "Para pedidos de productos, el pago se maneja como pago contra entrega. Los clientes pagan al vendedor cuando reciben los artículos, sin pago por adelantado.",
+  "docsGettingStartedShareYourProfileTitle": "Compartir su perfil",
+  "docsGettingStartedShareYourProfileSubtitle": "Facilite que los clientes lo encuentren",
+  "docsGettingStartedShareLinkContent": "Como proveedor de servicios, obtiene un enlace de reserva único. Compártalo en WhatsApp, redes sociales o correo electrónico. Los clientes pueden reservar servicios sin descargar la aplicación.",
+  "docsGettingStartedCustomURLTitle": "URL personalizada (opcional)",
+  "docsGettingStartedCustomURLContent": "Puede personalizar el slug de su enlace de reserva (por ejemplo, aura.in/glamour-salon en lugar de aura.in/abc123). Facilita compartir y recordar.",
+  "docsGettingStartedGetHelpTitle": "Obtener ayuda",
+  "docsGettingStartedGetHelpSubtitle": "Dónde encontrar respuestas",
+  "docsGettingStartedHelpDocumentationContent": "Esta aplicación tiene documentación completa para cada función. Cuando necesite ayuda, consulte la guía relevante: hay una para su rol y la función que está utilizando.",
+  "docsGettingStartedFAQ1Question": "¿Qué es Aura In?",
+  "docsGettingStartedFAQ1Answer": "Aura In es un mercado móvil para negocios basados en servicios. Los clientes encuentran y reservan servicios (cortes de cabello, masajes, etc.), los proveedores de servicios administran reservas e ingresos, y los vendedores de productos enumeran artículos para la venta.",
+  "docsGettingStartedFAQ2Question": "¿Necesito pagar para usar la aplicación?",
+  "docsGettingStartedFAQ2Answer": "La aplicación es gratuita para descargar y usar. Los proveedores de servicios solo pagan una pequeña comisión cuando los clientes pagan por servicios. Los procesadores de pago (Paystack/Stripe) cobran una tarifa.",
+  "docsGettingStartedFAQ3Question": "¿Cuál es la diferencia entre propietario de tienda y freelancer?",
+  "docsGettingStartedFAQ3Answer": "Los propietarios de tiendas tienen una ubicación fija con un equipo de trabajadores. Los freelancers trabajan de forma independiente y pueden viajar a los clientes. Elija según su modelo de negocio.",
+  "docsGettingStartedFAQ4Question": "¿Cómo me pagan?",
+  "docsGettingStartedFAQ4Answer": "Cuando los clientes pagan por servicios, el dinero va a su billetera. Puede retirar a su cuenta bancaria usando Paystack (África) o Stripe (Global).",
+  "docsGettingStartedFAQ5Question": "¿Mi información de pago es segura?",
+  "docsGettingStartedFAQ5Answer": "Sí. Aura In utiliza Paystack y Stripe, procesadores de pago líderes con seguridad de nivel bancario. Nunca vemos sus datos de pago.",
+  "docsGettingStartedFAQ6Question": "¿Cómo sé si los proveedores de servicios cerca de mí son confiables?",
+  "docsGettingStartedFAQ6Answer": "Cada proveedor de servicios tiene calificaciones y reseñas de clientes que han reservado con ellos. Lea las reseñas antes de reservar. Las calificaciones altas significan servicio consistente y de calidad.",
+  "docsGettingStartedFAQ7Question": "¿Puedo reservar sin descargar la aplicación?",
+  "docsGettingStartedFAQ7Answer": "¡Sí! Los proveedores de servicios comparten un enlace de reserva único. Puede reservar directamente a través de ese enlace sin descargar la aplicación. Su recibo se enviará a WhatsApp.",
+  "docsGettingStartedFAQ8Question": "¿Cuánto pago por adelantado para las reservas?",
+  "docsGettingStartedFAQ8Answer": "Paga el 30% del total del servicio por adelantado para asegurar la ranura de reserva (más una tarifa de plataforma del 2%). El 70% restante se puede pagar en efectivo o en línea antes/en el servicio.",
+  "docsGettingStartedFAQ9Question": "¿Cómo pago por productos?",
+  "docsGettingStartedFAQ9Answer": "Los productos utilizan el pago contra entrega (COD). Usted paga al vendedor cuando recibe los artículos. Esto le permite verificar la calidad antes de pagar y funciona bien para entregas locales.",
+  "docsGettingStartedFAQ10Question": "¿Por qué la tarifa de plataforma del 2%?",
+  "docsGettingStartedFAQ10Answer": "La tarifa de plataforma nos ayuda a mantener Aura In, procesar pagos, proporcionar soporte al cliente y mejorar continuamente las funciones para clientes y proveedores de servicios."
 }

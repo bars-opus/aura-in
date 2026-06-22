@@ -5,14 +5,19 @@ class GettingStartedDocs implements DocumentationModule {
   int get order => 1;
 
   @override
-  String getTitle(BuildContext context) => 'Welcome to Aura In';
+  String getTitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsGettingStartedTitle;
+  }
 
   @override
   String get id => 'getting_started';
 
   @override
-  String getSubtitle(BuildContext context) =>
-      'The marketplace platform for service-based businesses';
+  String getSubtitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsGettingStartedSubtitle;
+  }
 
   @override
   IconData get icon => Icons.rocket_launch;
