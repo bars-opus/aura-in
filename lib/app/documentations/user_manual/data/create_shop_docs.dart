@@ -32,7 +32,7 @@ class CreateShopDocs implements DocumentationModule {
           id: 'welcome_intro',
           title: 'Welcome to Your Shop Dashboard',
           content:
-              'Creating a shop on NanoEmbryo takes just a few minutes. You\'ll add your business information, set your services and working hours, and you\'re ready to accept bookings from customers.',
+              'Creating a shop on Aura In takes just a few minutes. You\'ll add your business information, set your services and working hours, and you\'re ready to accept bookings from customers.',
           numberPrefix: '1',
           type: ManualContentType.text,
         ),

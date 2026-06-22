@@ -5,7 +5,7 @@ class GettingStartedDocs implements DocumentationModule {
   int get order => 1;
 
   @override
-  String getTitle(BuildContext context) => 'Welcome to NanoEmbryo';
+  String getTitle(BuildContext context) => 'Welcome to Aura In';
 
   @override
   String get id => 'getting_started';
@@ -19,10 +19,10 @@ class GettingStartedDocs implements DocumentationModule {
 
   @override
   List<ManualSection> getSections(BuildContext context) => [
-    // Section 1: What is NanoEmbryo?
+    // Section 1: What is Aura In?
     ManualSection(
       id: 'what_is_nanoembryo',
-      title: 'What is NanoEmbryo?',
+      title: 'What is Aura In?',
       subtitle: 'Understand the platform',
       icon: Icons.info_outline,
       category: 'Introduction',
@@ -30,15 +30,15 @@ class GettingStartedDocs implements DocumentationModule {
       contents: [
         ManualContent(
           id: 'welcome_intro',
-          title: 'Welcome to NanoEmbryo',
+          title: 'Welcome to Aura In',
           content:
-              'NanoEmbryo is a mobile marketplace connecting service professionals with customers. Whether you offer haircuts, massages, freelance services, or sell products, this platform helps you grow your business.',
+              'Aura In is a mobile marketplace connecting service professionals with customers. Whether you offer haircuts, massages, freelance services, or sell products, this platform helps you grow your business.',
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'who_uses_app',
-          title: 'Who Uses NanoEmbryo?',
+          title: 'Who Uses Aura In?',
           content: 'Two types of users power the platform:',
           numberPrefix: '2',
           type: ManualContentType.bulletList,
@@ -59,10 +59,10 @@ class GettingStartedDocs implements DocumentationModule {
       ],
     ),
 
-    // Section 2: Three Ways to Use NanoEmbryo
+    // Section 2: Three Ways to Use Aura In
     ManualSection(
       id: 'three_user_types',
-      title: 'Three Ways to Use NanoEmbryo',
+      title: 'Three Ways to Use Aura In',
       subtitle: 'Choose your role',
       icon: Icons.people,
       category: 'Getting Started',
@@ -107,7 +107,7 @@ class GettingStartedDocs implements DocumentationModule {
         ManualContent(
           id: 'features_overview',
           title: 'Core Platform Features',
-          content: 'NanoEmbryo includes everything you need to run a service business:',
+          content: 'Aura In includes everything you need to run a service business:',
           numberPrefix: '1',
           type: ManualContentType.bulletList,
           bulletPoints: [
@@ -220,7 +220,7 @@ class GettingStartedDocs implements DocumentationModule {
           id: 'seller_start',
           title: 'Getting Started as a Product Seller',
           content:
-              'If you make handmade items or sell products, you can list them on NanoEmbryo. Customers in your area can discover and purchase your products.',
+              'If you make handmade items or sell products, you can list them on Aura In. Customers in your area can discover and purchase your products.',
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
@@ -256,7 +256,7 @@ class GettingStartedDocs implements DocumentationModule {
           id: 'concept_location',
           title: 'Location-Based Discovery',
           content:
-              'NanoEmbryo uses Google Maps to show customers services near them. Freelancers have a travel radius; shops have a fixed location.',
+              'Aura In uses Google Maps to show customers services near them. Freelancers have a travel radius; shops have a fixed location.',
           numberPrefix: '2',
           type: ManualContentType.text,
         ),
@@ -371,9 +371,9 @@ class GettingStartedDocs implements DocumentationModule {
     return [
       FAQModel(
         id: 'faq_getting_started_1',
-        question: 'What is NanoEmbryo?',
+        question: 'What is Aura In?',
         answer:
-            'NanoEmbryo is a mobile marketplace for service-based businesses. Customers find and book services (haircuts, massages, etc.), service providers manage bookings and revenue, and product sellers list items for sale.',
+            'Aura In is a mobile marketplace for service-based businesses. Customers find and book services (haircuts, massages, etc.), service providers manage bookings and revenue, and product sellers list items for sale.',
         category: 'Overview',
         order: 1,
       ),
@@ -405,7 +405,7 @@ class GettingStartedDocs implements DocumentationModule {
         id: 'faq_getting_started_5',
         question: 'Is my payment information secure?',
         answer:
-            'Yes. NanoEmbryo uses Paystack and Stripe, industry-leading payment processors with bank-level security. We never see your payment details.',
+            'Yes. Aura In uses Paystack and Stripe, industry-leading payment processors with bank-level security. We never see your payment details.',
         category: 'Security',
         order: 5,
       ),

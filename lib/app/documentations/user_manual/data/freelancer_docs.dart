@@ -32,7 +32,7 @@ class FreelancerDocs implements DocumentationModule {
           id: 'freelancer_welcome',
           title: 'Welcome to Freelancing',
           content:
-              'As a freelancer on NanoEmbryo, you offer services directly to customers in your area. Unlike a traditional shop, you work from your own location and can travel to meet clients. Set up your profile in just a few minutes and start accepting bookings.',
+              'As a freelancer on Aura In, you offer services directly to customers in your area. Unlike a traditional shop, you work from your own location and can travel to meet clients. Set up your profile in just a few minutes and start accepting bookings.',
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
