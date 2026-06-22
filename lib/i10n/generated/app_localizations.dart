@@ -13542,6 +13542,672 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yes! After booking as a guest, you can create a full account anytime to access your booking history, saved payments, and other features like loyalty rewards.'**
   String get docsPaymentFeesExplainedFaq15A;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeIntro_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Why Two Views?'**
+  String get docsTimeSlotsExplainedTimeIntro_title;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeIntro_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Giving you more control over your booking'**
+  String get docsTimeSlotsExplainedTimeIntro_subtitle;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeIntro_timeIntroText_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Two Ways to See Available Times'**
+  String get docsTimeSlotsExplainedTimeIntro_timeIntroText_title;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeIntro_timeIntroText_content.
+  ///
+  /// In en, this message translates to:
+  /// **'When you select a date for your booking, you\'ll see available time slots. But did you notice you can switch between two different views? Regular View and Combined View show you the same slots in different ways, each useful for different situations.'**
+  String get docsTimeSlotsExplainedTimeIntro_timeIntroText_content;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeIntro_timeSwitch_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Switch Views'**
+  String get docsTimeSlotsExplainedTimeIntro_timeSwitch_title;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeIntro_timeSwitch_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Look for the toggle switch at the top of the time slot screen. It usually says \"Show Combined Slots\". Tap it to switch between views. The toggle only appears when you have multiple services selected.'**
+  String get docsTimeSlotsExplainedTimeIntro_timeSwitch_content;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeIntro_timeImportant_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The toggle switch only appears when you have selected more than one service. For single services, both views would show the same thing, so we keep it simple!'**
+  String get docsTimeSlotsExplainedTimeIntro_timeImportant_content;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular View'**
+  String get docsTimeSlotsExplainedRegularView_title;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See slots for each service separately'**
+  String get docsTimeSlotsExplainedRegularView_subtitle;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_regularExplained_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What is Regular View?'**
+  String get docsTimeSlotsExplainedRegularView_regularExplained_title;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_regularExplained_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular View shows you available time slots for each service **independently**. You\'ll see separate lists of slots for each service you\'ve selected.'**
+  String get docsTimeSlotsExplainedRegularView_regularExplained_content;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_regularExample_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Regular View with 2 Services'**
+  String get docsTimeSlotsExplainedRegularView_regularExample_title;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_regularExample_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**You\'ve selected:**\n• Haircut (1 hour)\n• Beard Trim (30 minutes)\n\n**Regular View shows:**\n━━━━━━━━━━━━━━━━━━━━━━━\n**HAIRCUT SLOTS**\n• 9:00 AM - 10:00 AM\n• 9:30 AM - 10:30 AM\n• 10:00 AM - 11:00 AM\n• 10:30 AM - 11:30 AM\n\n**BEARD TRIM SLOTS**\n• 9:00 AM - 9:30 AM\n• 9:30 AM - 10:00 AM\n• 10:00 AM - 10:30 AM\n• 10:30 AM - 11:00 AM'**
+  String get docsTimeSlotsExplainedRegularView_regularExample_content;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_regularWhen_title.
+  ///
+  /// In en, this message translates to:
+  /// **'When to Use Regular View'**
+  String get docsTimeSlotsExplainedRegularView_regularWhen_title;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_regularWhen_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular View is most useful when:'**
+  String get docsTimeSlotsExplainedRegularView_regularWhen_content;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_regularWhen_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**You haven\'t decided on timing yet** – See all possibilities'**
+  String get docsTimeSlotsExplainedRegularView_regularWhen_bullet1;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_regularWhen_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**You want flexibility** – Mix and match different times'**
+  String get docsTimeSlotsExplainedRegularView_regularWhen_bullet2;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_regularWhen_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**You\'re still choosing workers** – See availability per service'**
+  String get docsTimeSlotsExplainedRegularView_regularWhen_bullet3;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_regularWhen_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Services have very different durations** – Compare options'**
+  String get docsTimeSlotsExplainedRegularView_regularWhen_bullet4;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_regularChallenge_title.
+  ///
+  /// In en, this message translates to:
+  /// **'The Challenge with Regular View'**
+  String get docsTimeSlotsExplainedRegularView_regularChallenge_title;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_regularChallenge_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The challenge with Regular View is that you have to find a time that works for ALL your services. For example, you might pick:\n• Haircut at 9:00 AM\n• Beard Trim at 9:30 AM\n\n**Problem:** These overlap! You can\'t be in two places at once.'**
+  String get docsTimeSlotsExplainedRegularView_regularChallenge_content;
+
+  /// No description provided for @docsTimeSlotsExplainedRegularView_regularTip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Regular View to explore possibilities, then switch to Combined View to find times that actually work together.'**
+  String get docsTimeSlotsExplainedRegularView_regularTip_content;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Combined View'**
+  String get docsTimeSlotsExplainedCombinedView_title;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See only slots where ALL services fit together'**
+  String get docsTimeSlotsExplainedCombinedView_subtitle;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedExplained_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What is Combined View?'**
+  String get docsTimeSlotsExplainedCombinedView_combinedExplained_title;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedExplained_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Combined View does the hard work for you. It shows only time slots where **ALL your selected services can be booked together** in one continuous appointment.'**
+  String get docsTimeSlotsExplainedCombinedView_combinedExplained_content;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedExample_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Combined View with 2 Services'**
+  String get docsTimeSlotsExplainedCombinedView_combinedExample_title;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedExample_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Same services:** Haircut (1 hour) + Beard Trim (30 min)\n\n**Combined View shows:**\n━━━━━━━━━━━━━━━━━━━━━━━\n• 9:00 AM - 10:30 AM (both services)\n• 9:30 AM - 11:00 AM (both services)\n• 10:00 AM - 11:30 AM (both services)\n• 10:30 AM - 12:00 PM (both services)\n\n**Notice:** Each slot is LONGER because it includes BOTH services back-to-back.'**
+  String get docsTimeSlotsExplainedCombinedView_combinedExample_content;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedCalculation_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How Combined Duration is Calculated'**
+  String get docsTimeSlotsExplainedCombinedView_combinedCalculation_title;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedCalculation_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The system adds up:'**
+  String get docsTimeSlotsExplainedCombinedView_combinedCalculation_content;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedCalculation_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Service 1 duration** (e.g., 60 min)'**
+  String get docsTimeSlotsExplainedCombinedView_combinedCalculation_bullet1;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedCalculation_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**+ Service 2 duration** (e.g., 30 min)'**
+  String get docsTimeSlotsExplainedCombinedView_combinedCalculation_bullet2;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedCalculation_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**+ Buffer time** between services (5-10 min for cleanup)'**
+  String get docsTimeSlotsExplainedCombinedView_combinedCalculation_bullet3;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedCalculation_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**= Total appointment time** (e.g., 95-100 min)'**
+  String get docsTimeSlotsExplainedCombinedView_combinedCalculation_bullet4;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedExampleCalc_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example Calculation'**
+  String get docsTimeSlotsExplainedCombinedView_combinedExampleCalc_title;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedExampleCalc_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Haircut (60 min) + Beard Trim (30 min) + Buffer (5 min):**\n• Start: 9:00 AM\n• Haircut: 9:00 - 10:00\n• Buffer: 10:00 - 10:05 (cleanup)\n• Beard Trim: 10:05 - 10:35\n• **End: 10:35 AM**\n• Slot shown: 9:00 AM - 10:35 AM'**
+  String get docsTimeSlotsExplainedCombinedView_combinedExampleCalc_content;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedWhen_title.
+  ///
+  /// In en, this message translates to:
+  /// **'When to Use Combined View'**
+  String get docsTimeSlotsExplainedCombinedView_combinedWhen_title;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedWhen_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Combined View is perfect when:'**
+  String get docsTimeSlotsExplainedCombinedView_combinedWhen_content;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedWhen_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**You\'re ready to book** – See only realistic options'**
+  String get docsTimeSlotsExplainedCombinedView_combinedWhen_bullet1;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedWhen_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**You have multiple services** – Let the system coordinate'**
+  String get docsTimeSlotsExplainedCombinedView_combinedWhen_bullet2;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedWhen_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**You want simplicity** – One slot, one time, all services'**
+  String get docsTimeSlotsExplainedCombinedView_combinedWhen_bullet3;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedWhen_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**You\'re booking for a group** – Ensure everyone is accommodated'**
+  String get docsTimeSlotsExplainedCombinedView_combinedWhen_bullet4;
+
+  /// No description provided for @docsTimeSlotsExplainedCombinedView_combinedBenefit_content.
+  ///
+  /// In en, this message translates to:
+  /// **'With Combined View, you **cannot** accidentally pick overlapping times. Every slot shown guarantees that all your services can be done in that block without conflicts.'**
+  String get docsTimeSlotsExplainedCombinedView_combinedBenefit_content;
+
+  /// No description provided for @docsTimeSlotsExplainedComparison_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular vs Combined – Side by Side'**
+  String get docsTimeSlotsExplainedComparison_title;
+
+  /// No description provided for @docsTimeSlotsExplainedComparison_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See the difference clearly'**
+  String get docsTimeSlotsExplainedComparison_subtitle;
+
+  /// No description provided for @docsTimeSlotsExplainedComparison_comparisonTable_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Comparison'**
+  String get docsTimeSlotsExplainedComparison_comparisonTable_title;
+
+  /// No description provided for @docsTimeSlotsExplainedComparison_comparisonTable_content.
+  ///
+  /// In en, this message translates to:
+  /// **'| Feature | Regular View | Combined View |\n|---------|--------------|---------------|\n| **Shows** | Slots per service | Slots for all services together |\n| **Duration** | Individual service time | Total time for all services |\n| **Risk of overlap** | High – you must check | None – guaranteed to work |\n| **Best for** | Exploring options | Confirming booking |\n| **When to use** | Early in planning | Ready to book |'**
+  String get docsTimeSlotsExplainedComparison_comparisonTable_content;
+
+  /// No description provided for @docsTimeSlotsExplainedComparison_comparisonVisual_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Visual Example – 2 Services'**
+  String get docsTimeSlotsExplainedComparison_comparisonVisual_title;
+
+  /// No description provided for @docsTimeSlotsExplainedComparison_comparisonVisual_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**REGULAR VIEW:**\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nHaircut:    9:00┄┄10:00   9:30┄┄10:30   10:00┄┄11:00\nBeard Trim: 9:00┄┄9:30    9:30┄┄10:00   10:00┄┄10:30\n\n**COMBINED VIEW:**\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nBoth:       9:00┄┄┄┄┄┄┄┄┄┄10:30\n            9:30┄┄┄┄┄┄┄┄┄┄11:00\n            10:00┄┄┄┄┄┄┄┄┄11:30'**
+  String get docsTimeSlotsExplainedComparison_comparisonVisual_content;
+
+  /// No description provided for @docsTimeSlotsExplainedComparison_comparisonExample_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Real Booking Example'**
+  String get docsTimeSlotsExplainedComparison_comparisonExample_title;
+
+  /// No description provided for @docsTimeSlotsExplainedComparison_comparisonExample_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Sarah wants to book Haircut + Beard Trim for her son.**\n\nUsing **Regular View**, she might pick:\n• Haircut at 9:30 AM\n• Beard Trim at 10:00 AM\n❌ These overlap! The worker can\'t do both.\n\nUsing **Combined View**, she sees:\n• 9:30 AM - 10:35 AM ✅ Works perfectly\n• 10:00 AM - 11:05 AM ✅ Also works\n\nCombined View saves her from making a mistake!'**
+  String get docsTimeSlotsExplainedComparison_comparisonExample_content;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Slots for Group Bookings'**
+  String get docsTimeSlotsExplainedGroupTime_title;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works with multiple people'**
+  String get docsTimeSlotsExplainedGroupTime_subtitle;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_groupTimeIntro_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups Make It More Complex'**
+  String get docsTimeSlotsExplainedGroupTime_groupTimeIntro_title;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_groupTimeIntro_content.
+  ///
+  /// In en, this message translates to:
+  /// **'When you\'re booking for multiple people, time slot calculation becomes more interesting. The system considers:'**
+  String get docsTimeSlotsExplainedGroupTime_groupTimeIntro_content;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_groupTimeIntro_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Number of people** (quantity)'**
+  String get docsTimeSlotsExplainedGroupTime_groupTimeIntro_bullet1;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_groupTimeIntro_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Service duration × quantity**'**
+  String get docsTimeSlotsExplainedGroupTime_groupTimeIntro_bullet2;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_groupTimeIntro_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Worker assignments** (same or different workers)'**
+  String get docsTimeSlotsExplainedGroupTime_groupTimeIntro_bullet3;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_groupTimeIntro_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Buffer times** between each person\'s service'**
+  String get docsTimeSlotsExplainedGroupTime_groupTimeIntro_bullet4;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_groupTimeSameWorker_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Same Worker for Everyone'**
+  String get docsTimeSlotsExplainedGroupTime_groupTimeSameWorker_title;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_groupTimeSameWorker_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Family of 3 booking haircuts (45 min each) with the same worker:**\n• Person 1: 9:00 - 9:45\n• Buffer: 9:45 - 9:50\n• Person 2: 9:50 - 10:35\n• Buffer: 10:35 - 10:40\n• Person 3: 10:40 - 11:25\n• **Combined slot: 9:00 AM - 11:25 AM**'**
+  String get docsTimeSlotsExplainedGroupTime_groupTimeSameWorker_content;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_groupTimeDiffWorkers_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Different Workers'**
+  String get docsTimeSlotsExplainedGroupTime_groupTimeDiffWorkers_title;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_groupTimeDiffWorkers_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Same family, but with 3 different workers:**\n• Worker A: Person 1 (9:00 - 9:45)\n• Worker B: Person 2 (9:00 - 9:45) at same time\n• Worker C: Person 3 (9:00 - 9:45) at same time\n• **Combined slot: 9:00 AM - 9:45 AM** (much shorter!)'**
+  String get docsTimeSlotsExplainedGroupTime_groupTimeDiffWorkers_content;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_groupTimeCombined_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Combined View for Groups'**
+  String get docsTimeSlotsExplainedGroupTime_groupTimeCombined_title;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_groupTimeCombined_content.
+  ///
+  /// In en, this message translates to:
+  /// **'When booking for groups, Combined View is **especially valuable**. It shows only time blocks where ALL people can be served, with the correct total duration based on your worker choices.'**
+  String get docsTimeSlotsExplainedGroupTime_groupTimeCombined_content;
+
+  /// No description provided for @docsTimeSlotsExplainedGroupTime_groupTimeTip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'For large groups, choosing different workers can significantly reduce the total time needed. The system shows you the duration based on your worker selections.'**
+  String get docsTimeSlotsExplainedGroupTime_groupTimeTip_content;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Understanding Buffer Time'**
+  String get docsTimeSlotsExplainedBufferTime_title;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why there are gaps between appointments'**
+  String get docsTimeSlotsExplainedBufferTime_subtitle;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_bufferExplained_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What is Buffer Time?'**
+  String get docsTimeSlotsExplainedBufferTime_bufferExplained_title;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_bufferExplained_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Buffer time is a short gap (usually 5-15 minutes) between appointments. You won\'t see it in the slot times, but it\'s there behind the scenes.'**
+  String get docsTimeSlotsExplainedBufferTime_bufferExplained_content;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_bufferPurpose_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Why Buffer Time Matters'**
+  String get docsTimeSlotsExplainedBufferTime_bufferPurpose_title;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_bufferPurpose_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Buffer time gives workers a moment to:'**
+  String get docsTimeSlotsExplainedBufferTime_bufferPurpose_content;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_bufferPurpose_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Clean and sanitize** their workspace'**
+  String get docsTimeSlotsExplainedBufferTime_bufferPurpose_bullet1;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_bufferPurpose_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Prepare tools** for the next client'**
+  String get docsTimeSlotsExplainedBufferTime_bufferPurpose_bullet2;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_bufferPurpose_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Take a quick break** between appointments'**
+  String get docsTimeSlotsExplainedBufferTime_bufferPurpose_bullet3;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_bufferPurpose_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Handle any unexpected delays**'**
+  String get docsTimeSlotsExplainedBufferTime_bufferPurpose_bullet4;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_bufferVisibility_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Do You See Buffer Time?'**
+  String get docsTimeSlotsExplainedBufferTime_bufferVisibility_title;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_bufferVisibility_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**No!** Buffer time is invisible to you. The slot you see (e.g., 9:00 - 10:30) is the time you\'ll be at the shop. The system adds buffer automatically behind the scenes to ensure realistic scheduling.'**
+  String get docsTimeSlotsExplainedBufferTime_bufferVisibility_content;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_bufferExample_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How Buffer Affects Availability'**
+  String get docsTimeSlotsExplainedBufferTime_bufferExample_title;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_bufferExample_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Without buffer:**\n• 9:00 - 10:00 (Service A)\n• 10:00 - 11:00 (Service B) – No time to clean!\n\n**With 5-min buffer (invisible to you):**\n• 9:00 - 10:00 (Service A) – actually ends at 10:05\n• 10:05 - 11:05 (Service B) – starts after cleanup\n\nYou still see \"9:00 - 10:00\" and \"10:05 - 11:05\" as your appointment times.'**
+  String get docsTimeSlotsExplainedBufferTime_bufferExample_content;
+
+  /// No description provided for @docsTimeSlotsExplainedBufferTime_bufferFairness_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Buffer time ensures workers aren\'t rushed and you get their full attention. It\'s a win-win for everyone!'**
+  String get docsTimeSlotsExplainedBufferTime_bufferFairness_content;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeFaq_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Common Time Slot Questions'**
+  String get docsTimeSlotsExplainedTimeFaq_title;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeFaq_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick answers to frequent questions'**
+  String get docsTimeSlotsExplainedTimeFaq_subtitle;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeFaq_timeFaq1_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are some times not available?'**
+  String get docsTimeSlotsExplainedTimeFaq_timeFaq1_title;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeFaq_timeFaq1_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Times may be unavailable because:\n• The worker is already booked\n• The shop is closed (check opening hours)\n• There\'s not enough time before closing\n• The worker has marked themselves unavailable (vacation, break)'**
+  String get docsTimeSlotsExplainedTimeFaq_timeFaq1_content;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeFaq_timeFaq2_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Why do slots start at odd times like 9:05?'**
+  String get docsTimeSlotsExplainedTimeFaq_timeFaq2_title;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeFaq_timeFaq2_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Slots may start at unusual times because of buffer periods. For example, if a 9:00 appointment ends at 10:05 (including buffer), the next slot starts at 10:05.'**
+  String get docsTimeSlotsExplainedTimeFaq_timeFaq2_content;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeFaq_timeFaq3_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I book a slot that\'s shorter than shown?'**
+  String get docsTimeSlotsExplainedTimeFaq_timeFaq3_title;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeFaq_timeFaq3_content.
+  ///
+  /// In en, this message translates to:
+  /// **'No, the slot duration shown is the minimum time needed for your services. You cannot book a shorter slot because there wouldn\'t be enough time.'**
+  String get docsTimeSlotsExplainedTimeFaq_timeFaq3_content;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeFaq_timeFaq4_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What if I need more time than the slot shows?'**
+  String get docsTimeSlotsExplainedTimeFaq_timeFaq4_title;
+
+  /// No description provided for @docsTimeSlotsExplainedTimeFaq_timeFaq4_content.
+  ///
+  /// In en, this message translates to:
+  /// **'If you need extra time (e.g., for a more complex service), contact the shop directly. They may have special arrangements.'**
+  String get docsTimeSlotsExplainedTimeFaq_timeFaq4_content;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_regularVsCombined_Q.
+  ///
+  /// In en, this message translates to:
+  /// **'When should I use Regular vs Combined View?'**
+  String get docsTimeSlotsExplainedFaq_regularVsCombined_Q;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_regularVsCombined_A.
+  ///
+  /// In en, this message translates to:
+  /// **'Use **Regular View** when you\'re exploring options and want to see all possibilities. Switch to **Combined View** when you\'re ready to book and want to see only slots where all your services can be done together without conflicts.'**
+  String get docsTimeSlotsExplainedFaq_regularVsCombined_A;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_combinedNotShowing_Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is Combined View not showing any slots?'**
+  String get docsTimeSlotsExplainedFaq_combinedNotShowing_Q;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_combinedNotShowing_A.
+  ///
+  /// In en, this message translates to:
+  /// **'If Combined View shows no slots, it means there\'s no single time block where all your selected services can be done together. Try:\n• Selecting a different date\n• Reducing the number of services\n• Choosing different workers\n• Being flexible with morning/afternoon times'**
+  String get docsTimeSlotsExplainedFaq_combinedNotShowing_A;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_buffer_Q.
+  ///
+  /// In en, this message translates to:
+  /// **'What is buffer time and why is it needed?'**
+  String get docsTimeSlotsExplainedFaq_buffer_Q;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_buffer_A.
+  ///
+  /// In en, this message translates to:
+  /// **'Buffer time is a short gap (5-15 minutes) between appointments that allows workers to clean their workspace, prepare tools, and take brief breaks. It ensures quality service and a clean environment for every client. You won\'t see it in your appointment time, but it\'s built into the schedule.'**
+  String get docsTimeSlotsExplainedFaq_buffer_A;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_duration_Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How is the total duration calculated?'**
+  String get docsTimeSlotsExplainedFaq_duration_Q;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_duration_A.
+  ///
+  /// In en, this message translates to:
+  /// **'For multiple services, the system adds:\n• Duration of Service A\n• Duration of Service B (and so on)\n• Buffer time between each service\nThe result is your total appointment time.'**
+  String get docsTimeSlotsExplainedFaq_duration_A;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_group_Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How does time work for group bookings?'**
+  String get docsTimeSlotsExplainedFaq_group_Q;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_group_A.
+  ///
+  /// In en, this message translates to:
+  /// **'For groups, total time = (service duration × number of people) + buffer times between people. If you choose different workers who can work in parallel, the total time may be much shorter.'**
+  String get docsTimeSlotsExplainedFaq_group_A;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_amPm_Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Are times shown in my local time?'**
+  String get docsTimeSlotsExplainedFaq_amPm_Q;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_amPm_A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! All times shown in the app are automatically converted to your device\'s local timezone. You don\'t need to worry about timezone conversions.'**
+  String get docsTimeSlotsExplainedFaq_amPm_A;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_lastSlot_Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Why can\'t I book the last slot of the day?'**
+  String get docsTimeSlotsExplainedFaq_lastSlot_Q;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_lastSlot_A.
+  ///
+  /// In en, this message translates to:
+  /// **'The last slot must end before the shop closes, including buffer time. If a service takes 1 hour with 5 min buffer, the last possible start time is 55 minutes before closing.'**
+  String get docsTimeSlotsExplainedFaq_lastSlot_A;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_change_Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I change my time after booking?'**
+  String get docsTimeSlotsExplainedFaq_change_Q;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_change_A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, you can reschedule up to 24 hours before your appointment. Go to \"My Bookings\", find your booking, and tap \"Reschedule\". Available times will be shown.'**
+  String get docsTimeSlotsExplainedFaq_change_A;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_slotDisappeared_Q.
+  ///
+  /// In en, this message translates to:
+  /// **'A slot I wanted disappeared – what happened?'**
+  String get docsTimeSlotsExplainedFaq_slotDisappeared_Q;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_slotDisappeared_A.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone else may have booked it while you were deciding. Slots are reserved only after payment is complete. Try a different time or date.'**
+  String get docsTimeSlotsExplainedFaq_slotDisappeared_A;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_workers_Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Does the time change if I choose a different worker?'**
+  String get docsTimeSlotsExplainedFaq_workers_Q;
+
+  /// No description provided for @docsTimeSlotsExplainedFaq_workers_A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, different workers may have different availability. If you change workers, the system will show times when that worker is free. You may need to adjust your time.'**
+  String get docsTimeSlotsExplainedFaq_workers_A;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
