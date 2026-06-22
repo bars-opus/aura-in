@@ -51,8 +51,17 @@ class BookingGettingStartedDocs implements DocumentationModule {
           type: ManualContentType.bulletList,
           bulletPoints: [
             '**Clients:** People who want to book services at shops',
+            '**Guest Bookers:** People who want to book via a link without creating an account',
             '**Shop Owners:** People who manage shops, services, and workers',
           ],
+        ),
+        ManualContent(
+          id: 'guest_booking_intro',
+          title: 'New: Book Without Downloading the App',
+          content:
+              'No account? No problem! If a shop owner shares a booking link with you, you can book directly without downloading the app. Your receipt is sent to WhatsApp.',
+          numberPrefix: '2b',
+          type: ManualContentType.text,
         ),
         ManualContent(
           id: 'welcome_note',
@@ -65,17 +74,28 @@ class BookingGettingStartedDocs implements DocumentationModule {
     ),
     ManualSection(
       id: 'creating_account',
-      title: 'Creating Your Account',
-      subtitle: 'Get started in minutes',
+      title: 'Creating Your Account (Or Booking as Guest)',
+      subtitle: 'Get started in minutes - with or without an account',
       icon: Icons.person_add,
       category: 'Getting Started',
       order: 2,
       contents: [
         ManualContent(
-          id: 'account_steps',
-          title: 'How to create an account',
-          content: 'Follow these simple steps to create your account:',
+          id: 'two_ways_to_book',
+          title: 'Two Ways to Book',
+          content: 'You can book in two ways:',
           numberPrefix: '1',
+          type: ManualContentType.bulletList,
+          bulletPoints: [
+            '**With Account:** Download app, create account, book anytime',
+            '**As Guest:** Use booking link, no app needed, receipt via WhatsApp',
+          ],
+        ),
+        ManualContent(
+          id: 'account_steps',
+          title: 'How to Create an Account',
+          content: 'Follow these simple steps to create your account:',
+          numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
             'Download the app from App Store or Google Play',
@@ -90,7 +110,7 @@ class BookingGettingStartedDocs implements DocumentationModule {
           id: 'account_types',
           title: 'Account Types',
           content: 'There are two types of accounts:',
-          numberPrefix: '2',
+          numberPrefix: '3',
           type: ManualContentType.bulletList,
           bulletPoints: [
             '**Client Account:** For booking services at shops',
@@ -98,10 +118,18 @@ class BookingGettingStartedDocs implements DocumentationModule {
           ],
         ),
         ManualContent(
+          id: 'guest_booking_option',
+          title: 'Booking as a Guest (No Account)',
+          content:
+              'If someone shares a booking link with you, you can book directly without creating an account. Just click the link and follow the steps. Your receipt is sent to your WhatsApp.',
+          numberPrefix: '4',
+          type: ManualContentType.text,
+        ),
+        ManualContent(
           id: 'verification_note',
           title: '',
           content:
-              'You can browse shops and services without an account, but you\'ll need to sign in to actually book appointments.',
+              'You can browse and book without an account using a booking link. Creating an account gives you access to booking history, saved payments, and loyalty rewards.',
           type: ManualContentType.important,
         ),
       ],
@@ -151,9 +179,23 @@ class BookingGettingStartedDocs implements DocumentationModule {
           type: ManualContentType.bulletList,
           bulletPoints: [
             '**30% Deposit Required:** To secure your booking, you pay 30% of the total service cost upfront',
-            '**Non-Refundable:** This deposit is non-refundable if you cancel or don\'t show up',
-            '**Remaining Balance:** The remaining 70% is paid after your service is completed',
+            '**Platform Fee:** A small fixed fee (e.g., GHS 2) is added to help maintain the platform',
+            '**Non-Refundable:** Deposit and fee are non-refundable if you cancel or don\'t show up',
+            '**Remaining 70%:** Paid after service - either in cash or via app',
             '**Secure Payment:** All payments are processed securely through our payment partners',
+          ],
+        ),
+
+        ManualContent(
+          id: 'remaining_payment_options',
+          title: 'Flexible Payment for Remaining Balance',
+          content: 'After your service, you have options for paying the remaining 70%:',
+          numberPrefix: '2b',
+          type: ManualContentType.bulletList,
+          bulletPoints: [
+            '**Pay in Cash:** Hand cash directly to worker or shop counter',
+            '**Pay via App:** Use card, mobile money, or digital payment through the app',
+            '**You choose:** Either option is available at the time of service',
           ],
         ),
 
@@ -161,7 +203,7 @@ class BookingGettingStartedDocs implements DocumentationModule {
           id: 'deposit_note',
           title: '',
           content:
-              'The 30% deposit protects both you and the shop. It ensures your slot is reserved exclusively for you, and compensates the worker if you cancel last minute.',
+              'The 30% deposit protects both you and the shop. It ensures your slot is reserved exclusively for you, and compensates the worker if you cancel last minute. The platform fee helps us maintain secure payments and customer support.',
           type: ManualContentType.important,
         ),
         ManualContent(
@@ -377,6 +419,38 @@ class BookingGettingStartedDocs implements DocumentationModule {
             'Great! Create an account and select "Shop Owner" during signup. You\'ll need to provide some information about your shop and wait for approval. Once approved, you can start adding services and workers.',
         category: 'Getting Started',
         order: 7,
+      ),
+      FAQModel(
+        id: 'faq_gs_guest_booking',
+        question: 'Can I book without creating an account?',
+        answer:
+            'Yes! If a shop owner shares a booking link with you, you can book directly without an account. Just click the link and follow the booking steps. Your receipt is sent to your WhatsApp. You can create an account later if you want to track all your bookings in one place.',
+        category: 'Getting Started',
+        order: 12,
+      ),
+      FAQModel(
+        id: 'faq_gs_platform_fee',
+        question: 'What is the platform fee and why do I pay it?',
+        answer:
+            'The platform fee is a small fixed charge (e.g., GHS 2) added to your booking. It helps us maintain the app, process payments securely, provide customer support, and develop new features. Only one platform fee per booking, even for multiple services or people.',
+        category: 'Getting Started',
+        order: 13,
+      ),
+      FAQModel(
+        id: 'faq_gs_remaining_payment_options',
+        question: 'Can I pay the remaining 70% in cash?',
+        answer:
+            'Yes! You have flexibility. You can pay the remaining 70% either in cash directly to the shop/worker, or through the app using your preferred payment method. The choice is yours at the time of service.',
+        category: 'Getting Started',
+        order: 14,
+      ),
+      FAQModel(
+        id: 'faq_gs_guest_receipt',
+        question: 'As a guest, how do I get my booking details?',
+        answer:
+            'Your booking confirmation and receipt are sent to your WhatsApp number. You\'ll receive appointment reminders and can track everything through WhatsApp without downloading the app.',
+        category: 'Getting Started',
+        order: 15,
       ),
     ];
   }
