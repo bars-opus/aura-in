@@ -1,18 +1,24 @@
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 
 class ToolsDocs implements DocumentationModule {
   @override
   int get order => 5;
 
   @override
-  String getTitle(BuildContext context) => 'Business Tools';
+  String getTitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsToolsTitle;
+  }
 
   @override
   String get id => 'business_tools';
 
   @override
-  String getSubtitle(BuildContext context) =>
-      'Powerful features to automate, promote, and manage your business';
+  String getSubtitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsToolsSubtitle;
+  }
 
   @override
   IconData get icon => Icons.build;

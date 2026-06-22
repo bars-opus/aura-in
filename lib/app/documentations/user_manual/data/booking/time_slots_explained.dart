@@ -5,6 +5,7 @@ import 'package:nano_embryo/app/documentations/user_manual/models/documentation_
 import 'package:nano_embryo/app/documentations/user_manual/models/faq_model.dart';
 import 'package:nano_embryo/app/documentations/user_manual/models/manual_content.dart';
 import 'package:nano_embryo/app/documentations/user_manual/models/manual_section.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 
 
 class TimeSlotsExplainedDocs implements DocumentationModule {
@@ -12,14 +13,19 @@ class TimeSlotsExplainedDocs implements DocumentationModule {
   int get order => 5;
 
   @override
-  String getTitle(BuildContext context) => 'Understanding Time Slots';
+  String getTitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsTimeSlotsTitle;
+  }
 
   @override
   String get id => 'timeSlotsExplained';
 
   @override
-  String getSubtitle(BuildContext context) =>
-      'Regular vs Combined View – and when to use each';
+  String getSubtitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsTimeSlotsSubtitle;
+  }
 
   @override
   IconData get icon => Icons.access_time;
