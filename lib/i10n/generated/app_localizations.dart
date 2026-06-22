@@ -11304,6 +11304,924 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yes! If a shop shares a booking link with you, you can book directly without an account or downloading the app. Follow the same booking steps, and your confirmation and receipt are sent to your WhatsApp.'**
   String get docsHowBookFaq15A;
+
+  /// No description provided for @docsGroupBookingsIntro_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What Are Group Bookings?'**
+  String get docsGroupBookingsIntro_title;
+
+  /// No description provided for @docsGroupBookingsIntro_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking for family, friends, or groups made simple'**
+  String get docsGroupBookingsIntro_subtitle;
+
+  /// No description provided for @docsGroupBookingsHowTo_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Make a Group Booking'**
+  String get docsGroupBookingsHowTo_title;
+
+  /// No description provided for @docsGroupBookingsHowTo_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step-by-step guide'**
+  String get docsGroupBookingsHowTo_subtitle;
+
+  /// No description provided for @docsGroupBookingsWorker_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Worker Selection for Groups'**
+  String get docsGroupBookingsWorker_title;
+
+  /// No description provided for @docsGroupBookingsWorker_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How workers are assigned'**
+  String get docsGroupBookingsWorker_subtitle;
+
+  /// No description provided for @docsGroupBookingsTime_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Slots for Groups'**
+  String get docsGroupBookingsTime_title;
+
+  /// No description provided for @docsGroupBookingsTime_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How appointment times work for groups'**
+  String get docsGroupBookingsTime_subtitle;
+
+  /// No description provided for @docsGroupBookingsPayment_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment for Group Bookings'**
+  String get docsGroupBookingsPayment_title;
+
+  /// No description provided for @docsGroupBookingsPayment_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How deposits and fees work'**
+  String get docsGroupBookingsPayment_subtitle;
+
+  /// No description provided for @docsGroupBookingsScenarios_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Common Group Scenarios'**
+  String get docsGroupBookingsScenarios_title;
+
+  /// No description provided for @docsGroupBookingsScenarios_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Real examples to help you understand'**
+  String get docsGroupBookingsScenarios_subtitle;
+
+  /// No description provided for @docsGroupBookingsIntro_explained_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking for Multiple People'**
+  String get docsGroupBookingsIntro_explained_title;
+
+  /// No description provided for @docsGroupBookingsIntro_explained_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Group bookings allow you to book services for more than one person at a time. This is perfect for:'**
+  String get docsGroupBookingsIntro_explained_content;
+
+  /// No description provided for @docsGroupBookingsIntro_explained_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Families:** Parents booking haircuts for themselves and their children'**
+  String get docsGroupBookingsIntro_explained_bullet1;
+
+  /// No description provided for @docsGroupBookingsIntro_explained_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Friends:** Group of friends getting services together'**
+  String get docsGroupBookingsIntro_explained_bullet2;
+
+  /// No description provided for @docsGroupBookingsIntro_explained_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Events:** Bridal parties, birthdays, or special occasions'**
+  String get docsGroupBookingsIntro_explained_bullet3;
+
+  /// No description provided for @docsGroupBookingsIntro_explained_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Colleagues:** Team building or work outings'**
+  String get docsGroupBookingsIntro_explained_bullet4;
+
+  /// No description provided for @docsGroupBookingsIntro_example_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Real-Life Example'**
+  String get docsGroupBookingsIntro_example_title;
+
+  /// No description provided for @docsGroupBookingsIntro_example_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**The Mensah Family needs haircuts:**\n• Father: Wants a fade haircut\n• Mother: Wants a trim\n• Son (10): Wants a kids haircut\n• Daughter (8): Wants braids\n\nInstead of making 4 separate bookings, they can book everything together in one go!'**
+  String get docsGroupBookingsIntro_example_content;
+
+  /// No description provided for @docsGroupBookingsIntro_benefits_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Benefits of Group Booking'**
+  String get docsGroupBookingsIntro_benefits_title;
+
+  /// No description provided for @docsGroupBookingsIntro_benefits_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking as a group gives you:'**
+  String get docsGroupBookingsIntro_benefits_content;
+
+  /// No description provided for @docsGroupBookingsIntro_benefits_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**One transaction:** Pay deposits for everyone at once'**
+  String get docsGroupBookingsIntro_benefits_bullet1;
+
+  /// No description provided for @docsGroupBookingsIntro_benefits_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Coordinated timing:** Everyone gets served around the same time'**
+  String get docsGroupBookingsIntro_benefits_bullet2;
+
+  /// No description provided for @docsGroupBookingsIntro_benefits_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Different workers:** Each person can choose their preferred worker'**
+  String get docsGroupBookingsIntro_benefits_bullet3;
+
+  /// No description provided for @docsGroupBookingsIntro_benefits_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Simplified management:** View and manage all bookings together'**
+  String get docsGroupBookingsIntro_benefits_bullet4;
+
+  /// No description provided for @docsGroupBookingsIntro_benefits_bullet5.
+  ///
+  /// In en, this message translates to:
+  /// **'**Better planning:** Shop can prepare for your group'**
+  String get docsGroupBookingsIntro_benefits_bullet5;
+
+  /// No description provided for @docsGroupBookingsIntro_tip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Group bookings are perfect for families! You can book for yourself and your children in one go, choosing different workers for each person. No account needed? Use a booking link shared by the shop!'**
+  String get docsGroupBookingsIntro_tip_content;
+
+  /// No description provided for @docsGroupBookingsHowTo_step1_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1: Select Your Service'**
+  String get docsGroupBookingsHowTo_step1_title;
+
+  /// No description provided for @docsGroupBookingsHowTo_step1_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Start by finding a shop and selecting the service you want. For example, tap on \"Haircut\".'**
+  String get docsGroupBookingsHowTo_step1_content;
+
+  /// No description provided for @docsGroupBookingsHowTo_step2_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2: Choose the Quantity'**
+  String get docsGroupBookingsHowTo_step2_title;
+
+  /// No description provided for @docsGroupBookingsHowTo_step2_content.
+  ///
+  /// In en, this message translates to:
+  /// **'After selecting a service, you\'ll see **+** and **-** buttons. Use these to set how many people need this service:'**
+  String get docsGroupBookingsHowTo_step2_content;
+
+  /// No description provided for @docsGroupBookingsHowTo_step2_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap **+** to increase the number'**
+  String get docsGroupBookingsHowTo_step2_bullet1;
+
+  /// No description provided for @docsGroupBookingsHowTo_step2_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap **-** to decrease'**
+  String get docsGroupBookingsHowTo_step2_bullet2;
+
+  /// No description provided for @docsGroupBookingsHowTo_step2_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'The price updates automatically'**
+  String get docsGroupBookingsHowTo_step2_bullet3;
+
+  /// No description provided for @docsGroupBookingsHowTo_step2_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot exceed the maximum quantity shown'**
+  String get docsGroupBookingsHowTo_step2_bullet4;
+
+  /// No description provided for @docsGroupBookingsHowTo_step2Example_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example'**
+  String get docsGroupBookingsHowTo_step2Example_title;
+
+  /// No description provided for @docsGroupBookingsHowTo_step2Example_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**For a family of 3 needing haircuts:**\n• Select \"Haircut\" service\n• Tap **+** twice (or until quantity shows 3)\n• Total price shows: 3 × GHS 45 = GHS 135'**
+  String get docsGroupBookingsHowTo_step2Example_content;
+
+  /// No description provided for @docsGroupBookingsHowTo_step3_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 3: Repeat for Each Service'**
+  String get docsGroupBookingsHowTo_step3_title;
+
+  /// No description provided for @docsGroupBookingsHowTo_step3_content.
+  ///
+  /// In en, this message translates to:
+  /// **'If your group needs different services (e.g., some want haircuts, others want braids), select each service and set the quantity for each:'**
+  String get docsGroupBookingsHowTo_step3_content;
+
+  /// No description provided for @docsGroupBookingsHowTo_step3_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Select \"Haircut\" → set quantity 2'**
+  String get docsGroupBookingsHowTo_step3_bullet1;
+
+  /// No description provided for @docsGroupBookingsHowTo_step3_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Select \"Braids\" → set quantity 1'**
+  String get docsGroupBookingsHowTo_step3_bullet2;
+
+  /// No description provided for @docsGroupBookingsHowTo_step3_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'The system keeps track of all selections'**
+  String get docsGroupBookingsHowTo_step3_bullet3;
+
+  /// No description provided for @docsGroupBookingsHowTo_step3Example_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Mixed Services'**
+  String get docsGroupBookingsHowTo_step3Example_title;
+
+  /// No description provided for @docsGroupBookingsHowTo_step3Example_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Family of 4 with different needs:**\n• Dad: Haircut (quantity 1)\n• Mom: Trim (quantity 1)\n• Son: Kids Haircut (quantity 1)\n• Daughter: Braids (quantity 1)\n\nTotal: 4 services, but you booked them all in one go!'**
+  String get docsGroupBookingsHowTo_step3Example_content;
+
+  /// No description provided for @docsGroupBookingsHowTo_step4_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 4: Choose Workers for Each Person'**
+  String get docsGroupBookingsHowTo_step4_title;
+
+  /// No description provided for @docsGroupBookingsHowTo_step4_content.
+  ///
+  /// In en, this message translates to:
+  /// **'For services that let you choose workers, you\'ll see a list of people. Tap on each person to assign their worker:'**
+  String get docsGroupBookingsHowTo_step4_content;
+
+  /// No description provided for @docsGroupBookingsHowTo_step4_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Person 1:** Choose John (fade specialist)'**
+  String get docsGroupBookingsHowTo_step4_bullet1;
+
+  /// No description provided for @docsGroupBookingsHowTo_step4_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Person 2:** Choose Sarah (braiding expert)'**
+  String get docsGroupBookingsHowTo_step4_bullet2;
+
+  /// No description provided for @docsGroupBookingsHowTo_step4_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Person 3:** Choose Michael (kids cuts)'**
+  String get docsGroupBookingsHowTo_step4_bullet3;
+
+  /// No description provided for @docsGroupBookingsHowTo_step4_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Person 4:** Choose John (same worker for multiple people)'**
+  String get docsGroupBookingsHowTo_step4_bullet4;
+
+  /// No description provided for @docsGroupBookingsHowTo_step4Example_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Different Workers for Different People'**
+  String get docsGroupBookingsHowTo_step4Example_title;
+
+  /// No description provided for @docsGroupBookingsHowTo_step4Example_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Family of 3 booking haircuts:**\n• Person 1 (Dad): Choose John (fade specialist)\n• Person 2 (Son): Choose Michael (great with kids)\n• Person 3 (Daughter): Choose Sarah (braiding expert)\n\nAll three will be served during your appointment block.'**
+  String get docsGroupBookingsHowTo_step4Example_content;
+
+  /// No description provided for @docsGroupBookingsHowTo_step5_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 5: Pick Your Time'**
+  String get docsGroupBookingsHowTo_step5_title;
+
+  /// No description provided for @docsGroupBookingsHowTo_step5_content.
+  ///
+  /// In en, this message translates to:
+  /// **'When you select a date and time, the system will show slots that can accommodate ALL people in your group:'**
+  String get docsGroupBookingsHowTo_step5_content;
+
+  /// No description provided for @docsGroupBookingsHowTo_step5_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Regular View:** Shows slots for each service separately'**
+  String get docsGroupBookingsHowTo_step5_bullet1;
+
+  /// No description provided for @docsGroupBookingsHowTo_step5_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Combined View:** Shows only slots where everyone can be served together'**
+  String get docsGroupBookingsHowTo_step5_bullet2;
+
+  /// No description provided for @docsGroupBookingsHowTo_step5_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Duration:** The time shown includes all services for all people'**
+  String get docsGroupBookingsHowTo_step5_bullet3;
+
+  /// No description provided for @docsGroupBookingsHowTo_step5Example_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Time Calculation'**
+  String get docsGroupBookingsHowTo_step5Example_title;
+
+  /// No description provided for @docsGroupBookingsHowTo_step5Example_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Family booking:**\n• Haircut (45 min) × 2 people = 90 min\n• Braids (2 hours) × 1 person = 120 min\n• Buffer time between services = 15 min\n• **Total appointment time: 3 hours 45 min**\n\nThe system handles all this automatically!'**
+  String get docsGroupBookingsHowTo_step5Example_content;
+
+  /// No description provided for @docsGroupBookingsHowTo_step6_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 6: Payment'**
+  String get docsGroupBookingsHowTo_step6_title;
+
+  /// No description provided for @docsGroupBookingsHowTo_step6_content.
+  ///
+  /// In en, this message translates to:
+  /// **'For group bookings, you pay:'**
+  String get docsGroupBookingsHowTo_step6_content;
+
+  /// No description provided for @docsGroupBookingsHowTo_step6_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**30% deposit:** Calculated on the TOTAL cost of all services'**
+  String get docsGroupBookingsHowTo_step6_bullet1;
+
+  /// No description provided for @docsGroupBookingsHowTo_step6_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Platform fee:** Small fixed fee (e.g., GHS 2) - charged ONCE for entire group'**
+  String get docsGroupBookingsHowTo_step6_bullet2;
+
+  /// No description provided for @docsGroupBookingsHowTo_step6_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Remaining 70%:** Paid after all services are complete'**
+  String get docsGroupBookingsHowTo_step6_bullet3;
+
+  /// No description provided for @docsGroupBookingsHowTo_step6_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Payment options:** Cash, card, mobile money, or app payment'**
+  String get docsGroupBookingsHowTo_step6_bullet4;
+
+  /// No description provided for @docsGroupBookingsHowTo_step6Example_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Example'**
+  String get docsGroupBookingsHowTo_step6Example_title;
+
+  /// No description provided for @docsGroupBookingsHowTo_step6Example_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Family booking total: GHS 400**\n• Deposit at booking: GHS 120 (30% of GHS 400)\n• Platform fee: GHS 2 (charged once for entire group)\n• **Total to pay now: GHS 122**\n• Remaining after service: GHS 280\n• **Payment after:** Cash to worker/shop OR via app (your choice)'**
+  String get docsGroupBookingsHowTo_step6Example_content;
+
+  /// No description provided for @docsGroupBookingsHowTo_important_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The deposit and platform fee are calculated on the TOTAL group booking, not per person. You pay once for the whole group.'**
+  String get docsGroupBookingsHowTo_important_content;
+
+  /// No description provided for @docsGroupBookingsWorker_intro_title.
+  ///
+  /// In en, this message translates to:
+  /// **'One Worker or Multiple Workers?'**
+  String get docsGroupBookingsWorker_intro_title;
+
+  /// No description provided for @docsGroupBookingsWorker_intro_content.
+  ///
+  /// In en, this message translates to:
+  /// **'When booking for a group, you have flexibility in how workers are assigned:'**
+  String get docsGroupBookingsWorker_intro_content;
+
+  /// No description provided for @docsGroupBookingsWorker_intro_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Same worker for everyone:** If one worker can handle everyone (sequentially)'**
+  String get docsGroupBookingsWorker_intro_bullet1;
+
+  /// No description provided for @docsGroupBookingsWorker_intro_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Different workers:** Each person can have their preferred worker'**
+  String get docsGroupBookingsWorker_intro_bullet2;
+
+  /// No description provided for @docsGroupBookingsWorker_intro_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Mix and match:** Some people share a worker, others have different ones'**
+  String get docsGroupBookingsWorker_intro_bullet3;
+
+  /// No description provided for @docsGroupBookingsWorker_same_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Same Worker for Everyone'**
+  String get docsGroupBookingsWorker_same_title;
+
+  /// No description provided for @docsGroupBookingsWorker_same_content.
+  ///
+  /// In en, this message translates to:
+  /// **'If you choose the same worker for everyone, they will serve each person one after another. The total time is the sum of all services plus buffers.'**
+  String get docsGroupBookingsWorker_same_content;
+
+  /// No description provided for @docsGroupBookingsWorker_different_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Different Workers for Different People'**
+  String get docsGroupBookingsWorker_different_title;
+
+  /// No description provided for @docsGroupBookingsWorker_different_content.
+  ///
+  /// In en, this message translates to:
+  /// **'When you choose different workers, they can work in parallel. This might reduce the total time needed. Example:'**
+  String get docsGroupBookingsWorker_different_content;
+
+  /// No description provided for @docsGroupBookingsWorker_different_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Worker A:** Serves Person 1 (haircut)'**
+  String get docsGroupBookingsWorker_different_bullet1;
+
+  /// No description provided for @docsGroupBookingsWorker_different_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Worker B:** Serves Person 2 (braids) at the same time'**
+  String get docsGroupBookingsWorker_different_bullet2;
+
+  /// No description provided for @docsGroupBookingsWorker_different_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Worker A:** Then serves Person 3 (beard trim)'**
+  String get docsGroupBookingsWorker_different_bullet3;
+
+  /// No description provided for @docsGroupBookingsWorker_different_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Result:** Everyone finishes faster!'**
+  String get docsGroupBookingsWorker_different_bullet4;
+
+  /// No description provided for @docsGroupBookingsWorker_interface_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Assign Workers'**
+  String get docsGroupBookingsWorker_interface_title;
+
+  /// No description provided for @docsGroupBookingsWorker_interface_content.
+  ///
+  /// In en, this message translates to:
+  /// **'In the worker selection screen, you\'ll see each person listed separately:'**
+  String get docsGroupBookingsWorker_interface_content;
+
+  /// No description provided for @docsGroupBookingsWorker_example_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What You\'ll See'**
+  String get docsGroupBookingsWorker_example_title;
+
+  /// No description provided for @docsGroupBookingsWorker_example_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**For a group of 3 booking haircuts:**\n• **Person 1:** [Choose Worker] → John\n• **Person 2:** [Choose Worker] → Michael\n• **Person 3:** [Choose Worker] → John (again)\n\nTap each person to select their worker from the available list.'**
+  String get docsGroupBookingsWorker_example_content;
+
+  /// No description provided for @docsGroupBookingsWorker_tip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'If a worker is already chosen for one person, they remain available for others unless fully booked. The system shows real-time availability.'**
+  String get docsGroupBookingsWorker_tip_content;
+
+  /// No description provided for @docsGroupBookingsTime_calculation_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How Duration is Calculated'**
+  String get docsGroupBookingsTime_calculation_title;
+
+  /// No description provided for @docsGroupBookingsTime_calculation_content.
+  ///
+  /// In en, this message translates to:
+  /// **'For group bookings, the total appointment time is calculated based on:'**
+  String get docsGroupBookingsTime_calculation_content;
+
+  /// No description provided for @docsGroupBookingsTime_calculation_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Service duration × quantity** for each service type'**
+  String get docsGroupBookingsTime_calculation_bullet1;
+
+  /// No description provided for @docsGroupBookingsTime_calculation_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Buffer time** between services (for cleanup)'**
+  String get docsGroupBookingsTime_calculation_bullet2;
+
+  /// No description provided for @docsGroupBookingsTime_calculation_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Parallel work** if multiple workers are assigned'**
+  String get docsGroupBookingsTime_calculation_bullet3;
+
+  /// No description provided for @docsGroupBookingsTime_sequential_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Sequential (Same Worker)'**
+  String get docsGroupBookingsTime_sequential_title;
+
+  /// No description provided for @docsGroupBookingsTime_sequential_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**One worker doing 3 haircuts (45 min each):**\n• Haircut 1: 9:00 - 9:45\n• Buffer: 9:45 - 9:50 (5 min)\n• Haircut 2: 9:50 - 10:35\n• Buffer: 10:35 - 10:40\n• Haircut 3: 10:40 - 11:25\n• **Total: 2 hours 25 min**'**
+  String get docsGroupBookingsTime_sequential_content;
+
+  /// No description provided for @docsGroupBookingsTime_parallel_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Parallel (Different Workers)'**
+  String get docsGroupBookingsTime_parallel_title;
+
+  /// No description provided for @docsGroupBookingsTime_parallel_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Three workers each doing one haircut (45 min each):**\n• Worker A: Person 1 (9:00 - 9:45)\n• Worker B: Person 2 (9:00 - 9:45) at same time\n• Worker C: Person 3 (9:00 - 9:45) at same time\n• **Total: 45 min**'**
+  String get docsGroupBookingsTime_parallel_content;
+
+  /// No description provided for @docsGroupBookingsTime_combined_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Combined View for Groups'**
+  String get docsGroupBookingsTime_combined_title;
+
+  /// No description provided for @docsGroupBookingsTime_combined_content.
+  ///
+  /// In en, this message translates to:
+  /// **'When booking for a group, Combined View is especially useful. It shows only time slots where ALL people in your group can be accommodated together, with the correct total duration.'**
+  String get docsGroupBookingsTime_combined_content;
+
+  /// No description provided for @docsGroupBookingsTime_tip_content.
+  ///
+  /// In en, this message translates to:
+  /// **'If your group is large or has many services, consider booking earlier in the day to ensure enough time before the shop closes.'**
+  String get docsGroupBookingsTime_tip_content;
+
+  /// No description provided for @docsGroupBookingsPayment_deposit_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit Calculation'**
+  String get docsGroupBookingsPayment_deposit_title;
+
+  /// No description provided for @docsGroupBookingsPayment_deposit_content.
+  ///
+  /// In en, this message translates to:
+  /// **'For group bookings, the 30% deposit is calculated on the **total cost of all services for all people**.'**
+  String get docsGroupBookingsPayment_deposit_content;
+
+  /// No description provided for @docsGroupBookingsPayment_deposit_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Total cost:** Sum of all services × quantities'**
+  String get docsGroupBookingsPayment_deposit_bullet1;
+
+  /// No description provided for @docsGroupBookingsPayment_deposit_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Deposit:** 30% of total cost'**
+  String get docsGroupBookingsPayment_deposit_bullet2;
+
+  /// No description provided for @docsGroupBookingsPayment_deposit_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Platform fee:** One fixed fee for the entire group booking'**
+  String get docsGroupBookingsPayment_deposit_bullet3;
+
+  /// No description provided for @docsGroupBookingsPayment_deposit_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Total due now:** Deposit + platform fee'**
+  String get docsGroupBookingsPayment_deposit_bullet4;
+
+  /// No description provided for @docsGroupBookingsPayment_example_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Example'**
+  String get docsGroupBookingsPayment_example_title;
+
+  /// No description provided for @docsGroupBookingsPayment_example_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Family of 4 with total GHS 500:**\n• Deposit (30%): GHS 150\n• Platform fee: GHS 2\n• **Pay now: GHS 152**\n• Pay after: GHS 350 (cash or app)'**
+  String get docsGroupBookingsPayment_example_content;
+
+  /// No description provided for @docsGroupBookingsPayment_cancellation_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancellation for Groups'**
+  String get docsGroupBookingsPayment_cancellation_title;
+
+  /// No description provided for @docsGroupBookingsPayment_cancellation_content.
+  ///
+  /// In en, this message translates to:
+  /// **'If you cancel a group booking:'**
+  String get docsGroupBookingsPayment_cancellation_content;
+
+  /// No description provided for @docsGroupBookingsPayment_cancellation_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**Full group cancellation:** Entire deposit and fee are non-refundable'**
+  String get docsGroupBookingsPayment_cancellation_bullet1;
+
+  /// No description provided for @docsGroupBookingsPayment_cancellation_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Partial cancellation:** If some people can\'t make it, you may lose their portion of the deposit'**
+  String get docsGroupBookingsPayment_cancellation_bullet2;
+
+  /// No description provided for @docsGroupBookingsPayment_cancellation_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Rescheduling:** You can reschedule the whole group (deposit transfers)'**
+  String get docsGroupBookingsPayment_cancellation_bullet3;
+
+  /// No description provided for @docsGroupBookingsPayment_important_content.
+  ///
+  /// In en, this message translates to:
+  /// **'The platform fee is charged once per group booking, not per person. You save on fees by booking as a group! For example: 4 separate bookings = GHS 8 in fees, but 1 group booking = GHS 2 fee. You save GHS 6!'**
+  String get docsGroupBookingsPayment_important_content;
+
+  /// No description provided for @docsGroupBookingsPayment_flexibility_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Flexible Payment After Service'**
+  String get docsGroupBookingsPayment_flexibility_title;
+
+  /// No description provided for @docsGroupBookingsPayment_flexibility_content.
+  ///
+  /// In en, this message translates to:
+  /// **'After your group service, paying the remaining 70% is flexible:'**
+  String get docsGroupBookingsPayment_flexibility_content;
+
+  /// No description provided for @docsGroupBookingsPayment_flexibility_bullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'**One person pays all:** Pay total in cash or via app'**
+  String get docsGroupBookingsPayment_flexibility_bullet1;
+
+  /// No description provided for @docsGroupBookingsPayment_flexibility_bullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'**Split the payment:** Each person pays their share in cash'**
+  String get docsGroupBookingsPayment_flexibility_bullet2;
+
+  /// No description provided for @docsGroupBookingsPayment_flexibility_bullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'**Mix methods:** Some people use cash, others use app'**
+  String get docsGroupBookingsPayment_flexibility_bullet3;
+
+  /// No description provided for @docsGroupBookingsPayment_flexibility_bullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'**Individual app payments:** Each person can pay their portion through the app'**
+  String get docsGroupBookingsPayment_flexibility_bullet4;
+
+  /// No description provided for @docsGroupBookingsScenarios_family_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Scenario 1: Family Haircut Day'**
+  String get docsGroupBookingsScenarios_family_title;
+
+  /// No description provided for @docsGroupBookingsScenarios_family_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**The Mensah family (4 people) needs haircuts:**\n• Dad: Fade haircut (45 min, GHS 40)\n• Mom: Trim (30 min, GHS 35)\n• Son (10): Kids haircut (30 min, GHS 25)\n• Daughter (8): Braids (2 hours, GHS 80)\n\n**What they do:**\n1. Select \"Haircut\" → set quantity 3\n2. Select \"Braids\" → set quantity 1\n3. Choose workers: Dad → John, Son → Michael, Daughter → Sarah\n4. Pick a time that works for everyone\n5. Pay deposit: GHS 54 (30% of GHS 180) + GHS 2 fee = GHS 56\n6. After service, pay remaining GHS 126'**
+  String get docsGroupBookingsScenarios_family_content;
+
+  /// No description provided for @docsGroupBookingsScenarios_friends_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Scenario 2: Friends Day Out'**
+  String get docsGroupBookingsScenarios_friends_title;
+
+  /// No description provided for @docsGroupBookingsScenarios_friends_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Three friends want different services:**\n• Friend 1: Beard trim (30 min, GHS 25)\n• Friend 2: Haircut + Beard (75 min, GHS 65)\n• Friend 3: Full color (2 hours, GHS 120)\n\n**What they do:**\n1. Select each service with quantity 1\n2. Choose their preferred workers\n3. System finds a time that works for all\n4. Pay deposit: GHS 63 (30% of GHS 210) + GHS 2 fee = GHS 65'**
+  String get docsGroupBookingsScenarios_friends_content;
+
+  /// No description provided for @docsGroupBookingsScenarios_bridal_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Scenario 3: Bridal Party'**
+  String get docsGroupBookingsScenarios_bridal_title;
+
+  /// No description provided for @docsGroupBookingsScenarios_bridal_content.
+  ///
+  /// In en, this message translates to:
+  /// **'**Bride + 3 bridesmaids getting ready:**\n• Bride: Hair + Makeup (3 hours, GHS 300)\n• Each bridesmaid: Hair styling (1 hour, GHS 80 each)\n\n**What they do:**\n1. Select Bride services with quantity 1\n2. Select Hair styling with quantity 3\n3. Assign different workers to each person\n4. Book a morning slot to have enough time\n5. Pay deposit: GHS 162 (30% of GHS 540) + GHS 2 fee = GHS 164'**
+  String get docsGroupBookingsScenarios_bridal_content;
+
+  /// No description provided for @docsGroupBookingsFaq1Q.
+  ///
+  /// In en, this message translates to:
+  /// **'What is a group booking?'**
+  String get docsGroupBookingsFaq1Q;
+
+  /// No description provided for @docsGroupBookingsFaq1A.
+  ///
+  /// In en, this message translates to:
+  /// **'A group booking allows you to book services for multiple people at once. Instead of making separate bookings for each person, you can book everything together in one go. This is perfect for families, friends, or any group wanting services together.'**
+  String get docsGroupBookingsFaq1A;
+
+  /// No description provided for @docsGroupBookingsFaq2Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I increase the number of people?'**
+  String get docsGroupBookingsFaq2Q;
+
+  /// No description provided for @docsGroupBookingsFaq2A.
+  ///
+  /// In en, this message translates to:
+  /// **'After selecting a service, look for the **+** and **-** buttons. Tap **+** to increase the quantity (number of people) for that service. The price updates automatically. You cannot exceed the maximum quantity shown for that service.'**
+  String get docsGroupBookingsFaq2A;
+
+  /// No description provided for @docsGroupBookingsFaq3Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can we book different services for different people?'**
+  String get docsGroupBookingsFaq3Q;
+
+  /// No description provided for @docsGroupBookingsFaq3A.
+  ///
+  /// In en, this message translates to:
+  /// **'Absolutely! You can select multiple services and set different quantities for each. For example, you can book 2 haircuts and 1 braid service all in the same booking. The system handles everything together.'**
+  String get docsGroupBookingsFaq3A;
+
+  /// No description provided for @docsGroupBookingsFaq4Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can different people have different workers?'**
+  String get docsGroupBookingsFaq4Q;
+
+  /// No description provided for @docsGroupBookingsFaq4A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! When you book for a group, you\'ll see each person listed separately. You can tap on each person to choose their preferred worker. This is great when different people have different preferences.'**
+  String get docsGroupBookingsFaq4A;
+
+  /// No description provided for @docsGroupBookingsFaq5Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How is payment calculated for groups?'**
+  String get docsGroupBookingsFaq5Q;
+
+  /// No description provided for @docsGroupBookingsFaq5A.
+  ///
+  /// In en, this message translates to:
+  /// **'The 30% deposit is calculated on the TOTAL cost of all services for all people. The platform fee is charged once for the entire group booking (not per person). After service, you pay the remaining 70% total (cash or app).'**
+  String get docsGroupBookingsFaq5A;
+
+  /// No description provided for @docsGroupBookingsFaq6Q.
+  ///
+  /// In en, this message translates to:
+  /// **'What if one person cancels?'**
+  String get docsGroupBookingsFaq6Q;
+
+  /// No description provided for @docsGroupBookingsFaq6A.
+  ///
+  /// In en, this message translates to:
+  /// **'If someone in your group cancels, the deposit for their portion is non-refundable. The rest of the group can still proceed. Contact the shop through the app to adjust the booking.'**
+  String get docsGroupBookingsFaq6A;
+
+  /// No description provided for @docsGroupBookingsFaq7Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How is the total appointment time calculated?'**
+  String get docsGroupBookingsFaq7Q;
+
+  /// No description provided for @docsGroupBookingsFaq7A.
+  ///
+  /// In en, this message translates to:
+  /// **'The system calculates total time based on: service durations × quantities, plus buffer times between services. If you choose different workers who can work in parallel, the total time may be shorter.'**
+  String get docsGroupBookingsFaq7A;
+
+  /// No description provided for @docsGroupBookingsFaq8Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Is there a maximum group size?'**
+  String get docsGroupBookingsFaq8Q;
+
+  /// No description provided for @docsGroupBookingsFaq8A.
+  ///
+  /// In en, this message translates to:
+  /// **'Each service has a maximum quantity limit shown when booking. If you need to book for a very large group, you may need to make multiple bookings or contact the shop directly.'**
+  String get docsGroupBookingsFaq8A;
+
+  /// No description provided for @docsGroupBookingsFaq9Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I book for my children?'**
+  String get docsGroupBookingsFaq9Q;
+
+  /// No description provided for @docsGroupBookingsFaq9A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! Group bookings are perfect for families. You can book for yourself and your children together. Just set the quantity to include everyone. For kids services, look for \"Kids\" options.'**
+  String get docsGroupBookingsFaq9A;
+
+  /// No description provided for @docsGroupBookingsFaq10Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How does check-in work for groups?'**
+  String get docsGroupBookingsFaq10Q;
+
+  /// No description provided for @docsGroupBookingsFaq10A.
+  ///
+  /// In en, this message translates to:
+  /// **'When you arrive, let the shop know you have a group booking. They\'ll check the main booking and direct everyone to their assigned workers. Arrive 10-15 minutes early for large groups.'**
+  String get docsGroupBookingsFaq10A;
+
+  /// No description provided for @docsGroupBookingsFaq11Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can we split the payment?'**
+  String get docsGroupBookingsFaq11Q;
+
+  /// No description provided for @docsGroupBookingsFaq11A.
+  ///
+  /// In en, this message translates to:
+  /// **'The deposit is paid by the person making the booking. After service, you can split the remaining 70% however you like - cash, individual app payments, or one person paying for all.'**
+  String get docsGroupBookingsFaq11A;
+
+  /// No description provided for @docsGroupBookingsFaq12Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can we reschedule a group booking?'**
+  String get docsGroupBookingsFaq12Q;
+
+  /// No description provided for @docsGroupBookingsFaq12A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, you can reschedule the entire group booking up to 24 hours before the appointment. The deposit transfers to the new time. If only some people need to reschedule, contact the shop.'**
+  String get docsGroupBookingsFaq12A;
+
+  /// No description provided for @docsGroupBookingsFaq13Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can we book as a group without an account?'**
+  String get docsGroupBookingsFaq13Q;
+
+  /// No description provided for @docsGroupBookingsFaq13A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! If the shop shares a group booking link, everyone can use it without downloading the app or creating accounts. The booking confirmation and receipt details are sent to your WhatsApp.'**
+  String get docsGroupBookingsFaq13A;
+
+  /// No description provided for @docsGroupBookingsFaq14Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Do we all have to pay in cash or can we use the app?'**
+  String get docsGroupBookingsFaq14Q;
+
+  /// No description provided for @docsGroupBookingsFaq14A.
+  ///
+  /// In en, this message translates to:
+  /// **'You have full flexibility! You can pay the remaining 70% in cash (to the shop/worker), via the app individually, or any combination. Some people can pay cash while others use the app for their portion.'**
+  String get docsGroupBookingsFaq14A;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

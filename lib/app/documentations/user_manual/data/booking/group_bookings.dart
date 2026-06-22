@@ -31,584 +31,470 @@ class GroupBookingsDocs implements DocumentationModule {
   IconData get icon => Icons.group;
 
   @override
-  List<ManualSection> getSections(BuildContext context) => [
+  List<ManualSection> getSections(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return [
     ManualSection(
       id: 'group_intro',
-      title: 'What Are Group Bookings?',
-      subtitle: 'Booking for family, friends, or groups made simple',
+      title: loc.docsGroupBookingsIntro_title,
+      subtitle: loc.docsGroupBookingsIntro_subtitle,
       icon: Icons.group_add,
       category: 'Group Bookings',
       order: 1,
       contents: [
         ManualContent(
           id: 'group_explained',
-          title: 'Booking for Multiple People',
-          content:
-              'Group bookings allow you to book services for more than one person at a time. This is perfect for:',
+          title: loc.docsGroupBookingsIntro_explained_title,
+          content: loc.docsGroupBookingsIntro_explained_content,
           numberPrefix: '1',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Families:** Parents booking haircuts for themselves and their children',
-            '**Friends:** Group of friends getting services together',
-            '**Events:** Bridal parties, birthdays, or special occasions',
-            '**Colleagues:** Team building or work outings',
+            loc.docsGroupBookingsIntro_explained_bullet1,
+            loc.docsGroupBookingsIntro_explained_bullet2,
+            loc.docsGroupBookingsIntro_explained_bullet3,
+            loc.docsGroupBookingsIntro_explained_bullet4,
           ],
         ),
         ManualContent(
           id: 'group_example',
-          title: 'Real-Life Example',
-          content:
-              '**The Mensah Family needs haircuts:**\n'
-              '• Father: Wants a fade haircut\n'
-              '• Mother: Wants a trim\n'
-              '• Son (10): Wants a kids haircut\n'
-              '• Daughter (8): Wants braids\n\n'
-              'Instead of making 4 separate bookings, they can book everything together in one go!',
+          title: loc.docsGroupBookingsIntro_example_title,
+          content: loc.docsGroupBookingsIntro_example_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_benefits',
-          title: 'Benefits of Group Booking',
-          content: 'Booking as a group gives you:',
+          title: loc.docsGroupBookingsIntro_benefits_title,
+          content: loc.docsGroupBookingsIntro_benefits_content,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**One transaction:** Pay deposits for everyone at once',
-            '**Coordinated timing:** Everyone gets served around the same time',
-            '**Different workers:** Each person can choose their preferred worker',
-            '**Simplified management:** View and manage all bookings together',
-            '**Better planning:** Shop can prepare for your group',
+            loc.docsGroupBookingsIntro_benefits_bullet1,
+            loc.docsGroupBookingsIntro_benefits_bullet2,
+            loc.docsGroupBookingsIntro_benefits_bullet3,
+            loc.docsGroupBookingsIntro_benefits_bullet4,
+            loc.docsGroupBookingsIntro_benefits_bullet5,
           ],
         ),
         ManualContent(
           id: 'group_tip',
           title: '',
-          content:
-              'Group bookings are perfect for families! You can book for yourself and your children in one go, choosing different workers for each person. No account needed? Use a booking link shared by the shop!',
+          content: loc.docsGroupBookingsIntro_tip_content,
           type: ManualContentType.tip,
         ),
       ],
     ),
     ManualSection(
       id: 'how_to_group',
-      title: 'How to Make a Group Booking',
-      subtitle: 'Step-by-step guide',
+      title: loc.docsGroupBookingsHowTo_title,
+      subtitle: loc.docsGroupBookingsHowTo_subtitle,
       icon: Icons.layers,
       category: 'Group Bookings',
       order: 2,
       contents: [
         ManualContent(
           id: 'group_step1',
-          title: 'Step 1: Select Your Service',
-          content:
-              'Start by finding a shop and selecting the service you want. For example, tap on "Haircut".',
+          title: loc.docsGroupBookingsHowTo_step1_title,
+          content: loc.docsGroupBookingsHowTo_step1_content,
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_step2',
-          title: 'Step 2: Choose the Quantity',
-          content:
-              'After selecting a service, you\'ll see **+** and **-** buttons. Use these to set how many people need this service:',
+          title: loc.docsGroupBookingsHowTo_step2_title,
+          content: loc.docsGroupBookingsHowTo_step2_content,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            'Tap **+** to increase the number',
-            'Tap **-** to decrease',
-            'The price updates automatically',
-            'You cannot exceed the maximum quantity shown',
+            loc.docsGroupBookingsHowTo_step2_bullet1,
+            loc.docsGroupBookingsHowTo_step2_bullet2,
+            loc.docsGroupBookingsHowTo_step2_bullet3,
+            loc.docsGroupBookingsHowTo_step2_bullet4,
           ],
         ),
         ManualContent(
           id: 'group_step2_example',
-          title: 'Example',
-          content:
-              '**For a family of 3 needing haircuts:**\n'
-              '• Select "Haircut" service\n'
-              '• Tap **+** twice (or until quantity shows 3)\n'
-              '• Total price shows: 3 × GHS 45 = GHS 135',
+          title: loc.docsGroupBookingsHowTo_step2Example_title,
+          content: loc.docsGroupBookingsHowTo_step2Example_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_step3',
-          title: 'Step 3: Repeat for Each Service',
-          content:
-              'If your group needs different services (e.g., some want haircuts, others want braids), select each service and set the quantity for each:',
+          title: loc.docsGroupBookingsHowTo_step3_title,
+          content: loc.docsGroupBookingsHowTo_step3_content,
           numberPrefix: '3',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            'Select "Haircut" → set quantity 2',
-            'Select "Braids" → set quantity 1',
-            'The system keeps track of all selections',
+            loc.docsGroupBookingsHowTo_step3_bullet1,
+            loc.docsGroupBookingsHowTo_step3_bullet2,
+            loc.docsGroupBookingsHowTo_step3_bullet3,
           ],
         ),
         ManualContent(
           id: 'group_step3_example',
-          title: 'Example: Mixed Services',
-          content:
-              '**Family of 4 with different needs:**\n'
-              '• Dad: Haircut (quantity 1)\n'
-              '• Mom: Trim (quantity 1)\n'
-              '• Son: Kids Haircut (quantity 1)\n'
-              '• Daughter: Braids (quantity 1)\n\n'
-              'Total: 4 services, but you booked them all in one go!',
+          title: loc.docsGroupBookingsHowTo_step3Example_title,
+          content: loc.docsGroupBookingsHowTo_step3Example_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_step4',
-          title: 'Step 4: Choose Workers for Each Person',
-          content:
-              'For services that let you choose workers, you\'ll see a list of people. Tap on each person to assign their worker:',
+          title: loc.docsGroupBookingsHowTo_step4_title,
+          content: loc.docsGroupBookingsHowTo_step4_content,
           numberPrefix: '4',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Person 1:** Choose John (fade specialist)',
-            '**Person 2:** Choose Sarah (braiding expert)',
-            '**Person 3:** Choose Michael (kids cuts)',
-            '**Person 4:** Choose John (same worker for multiple people)',
+            loc.docsGroupBookingsHowTo_step4_bullet1,
+            loc.docsGroupBookingsHowTo_step4_bullet2,
+            loc.docsGroupBookingsHowTo_step4_bullet3,
+            loc.docsGroupBookingsHowTo_step4_bullet4,
           ],
         ),
         ManualContent(
           id: 'group_step4_example',
-          title: 'Example: Different Workers for Different People',
-          content:
-              '**Family of 3 booking haircuts:**\n'
-              '• Person 1 (Dad): Choose John (fade specialist)\n'
-              '• Person 2 (Son): Choose Michael (great with kids)\n'
-              '• Person 3 (Daughter): Choose Sarah (braiding expert)\n\n'
-              'All three will be served during your appointment block.',
+          title: loc.docsGroupBookingsHowTo_step4Example_title,
+          content: loc.docsGroupBookingsHowTo_step4Example_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_step5',
-          title: 'Step 5: Pick Your Time',
-          content:
-              'When you select a date and time, the system will show slots that can accommodate ALL people in your group:',
+          title: loc.docsGroupBookingsHowTo_step5_title,
+          content: loc.docsGroupBookingsHowTo_step5_content,
           numberPrefix: '5',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Regular View:** Shows slots for each service separately',
-            '**Combined View:** Shows only slots where everyone can be served together',
-            '**Duration:** The time shown includes all services for all people',
+            loc.docsGroupBookingsHowTo_step5_bullet1,
+            loc.docsGroupBookingsHowTo_step5_bullet2,
+            loc.docsGroupBookingsHowTo_step5_bullet3,
           ],
         ),
         ManualContent(
           id: 'group_step5_example',
-          title: 'Example: Time Calculation',
-          content:
-              '**Family booking:**\n'
-              '• Haircut (45 min) × 2 people = 90 min\n'
-              '• Braids (2 hours) × 1 person = 120 min\n'
-              '• Buffer time between services = 15 min\n'
-              '• **Total appointment time: 3 hours 45 min**\n\n'
-              'The system handles all this automatically!',
+          title: loc.docsGroupBookingsHowTo_step5Example_title,
+          content: loc.docsGroupBookingsHowTo_step5Example_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_step6',
-          title: 'Step 6: Payment',
-          content: 'For group bookings, you pay:',
+          title: loc.docsGroupBookingsHowTo_step6_title,
+          content: loc.docsGroupBookingsHowTo_step6_content,
           numberPrefix: '6',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**30% deposit:** Calculated on the TOTAL cost of all services',
-            '**Platform fee:** Small fixed fee (e.g., GHS 2) - charged ONCE for entire group',
-            '**Remaining 70%:** Paid after all services are complete',
-            '**Payment options:** Cash, card, mobile money, or app payment',
+            loc.docsGroupBookingsHowTo_step6_bullet1,
+            loc.docsGroupBookingsHowTo_step6_bullet2,
+            loc.docsGroupBookingsHowTo_step6_bullet3,
+            loc.docsGroupBookingsHowTo_step6_bullet4,
           ],
         ),
         ManualContent(
           id: 'group_step6_example',
-          title: 'Payment Example',
-          content:
-              '**Family booking total: GHS 400**\n'
-              '• Deposit at booking: GHS 120 (30% of GHS 400)\n'
-              '• Platform fee: GHS 2 (charged once for entire group)\n'
-              '• **Total to pay now: GHS 122**\n'
-              '• Remaining after service: GHS 280\n'
-              '• **Payment after:** Cash to worker/shop OR via app (your choice)',
+          title: loc.docsGroupBookingsHowTo_step6Example_title,
+          content: loc.docsGroupBookingsHowTo_step6Example_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_important',
           title: '',
-          content:
-              'The deposit and platform fee are calculated on the TOTAL group booking, not per person. You pay once for the whole group.',
+          content: loc.docsGroupBookingsHowTo_important_content,
           type: ManualContentType.important,
         ),
       ],
     ),
     ManualSection(
       id: 'group_worker',
-      title: 'Worker Selection for Groups',
-      subtitle: 'How workers are assigned',
+      title: loc.docsGroupBookingsWorker_title,
+      subtitle: loc.docsGroupBookingsWorker_subtitle,
       icon: Icons.people,
       category: 'Group Bookings',
       order: 3,
       contents: [
         ManualContent(
           id: 'group_worker_intro',
-          title: 'One Worker or Multiple Workers?',
-          content:
-              'When booking for a group, you have flexibility in how workers are assigned:',
+          title: loc.docsGroupBookingsWorker_intro_title,
+          content: loc.docsGroupBookingsWorker_intro_content,
           numberPrefix: '1',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Same worker for everyone:** If one worker can handle everyone (sequentially)',
-            '**Different workers:** Each person can have their preferred worker',
-            '**Mix and match:** Some people share a worker, others have different ones',
+            loc.docsGroupBookingsWorker_intro_bullet1,
+            loc.docsGroupBookingsWorker_intro_bullet2,
+            loc.docsGroupBookingsWorker_intro_bullet3,
           ],
         ),
         ManualContent(
           id: 'group_worker_same',
-          title: 'Same Worker for Everyone',
-          content:
-              'If you choose the same worker for everyone, they will serve each person one after another. The total time is the sum of all services plus buffers.',
+          title: loc.docsGroupBookingsWorker_same_title,
+          content: loc.docsGroupBookingsWorker_same_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_worker_different',
-          title: 'Different Workers for Different People',
-          content:
-              'When you choose different workers, they can work in parallel. This might reduce the total time needed. Example:',
+          title: loc.docsGroupBookingsWorker_different_title,
+          content: loc.docsGroupBookingsWorker_different_content,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Worker A:** Serves Person 1 (haircut)',
-            '**Worker B:** Serves Person 2 (braids) at the same time',
-            '**Worker A:** Then serves Person 3 (beard trim)',
-            '**Result:** Everyone finishes faster!',
+            loc.docsGroupBookingsWorker_different_bullet1,
+            loc.docsGroupBookingsWorker_different_bullet2,
+            loc.docsGroupBookingsWorker_different_bullet3,
+            loc.docsGroupBookingsWorker_different_bullet4,
           ],
         ),
         ManualContent(
           id: 'group_worker_interface',
-          title: 'How to Assign Workers',
-          content:
-              'In the worker selection screen, you\'ll see each person listed separately:',
+          title: loc.docsGroupBookingsWorker_interface_title,
+          content: loc.docsGroupBookingsWorker_interface_content,
           numberPrefix: '3',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_worker_example',
-          title: 'What You\'ll See',
-          content:
-              '**For a group of 3 booking haircuts:**\n'
-              '• **Person 1:** [Choose Worker] → John\n'
-              '• **Person 2:** [Choose Worker] → Michael\n'
-              '• **Person 3:** [Choose Worker] → John (again)\n\n'
-              'Tap each person to select their worker from the available list.',
+          title: loc.docsGroupBookingsWorker_example_title,
+          content: loc.docsGroupBookingsWorker_example_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_worker_tip',
           title: '',
-          content:
-              'If a worker is already chosen for one person, they remain available for others unless fully booked. The system shows real-time availability.',
+          content: loc.docsGroupBookingsWorker_tip_content,
           type: ManualContentType.tip,
         ),
       ],
     ),
     ManualSection(
       id: 'group_time',
-      title: 'Time Slots for Groups',
-      subtitle: 'How appointment times work for groups',
+      title: loc.docsGroupBookingsTime_title,
+      subtitle: loc.docsGroupBookingsTime_subtitle,
       icon: Icons.access_time,
       category: 'Group Bookings',
       order: 4,
       contents: [
         ManualContent(
           id: 'group_time_calculation',
-          title: 'How Duration is Calculated',
-          content:
-              'For group bookings, the total appointment time is calculated based on:',
+          title: loc.docsGroupBookingsTime_calculation_title,
+          content: loc.docsGroupBookingsTime_calculation_content,
           numberPrefix: '1',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Service duration × quantity** for each service type',
-            '**Buffer time** between services (for cleanup)',
-            '**Parallel work** if multiple workers are assigned',
+            loc.docsGroupBookingsTime_calculation_bullet1,
+            loc.docsGroupBookingsTime_calculation_bullet2,
+            loc.docsGroupBookingsTime_calculation_bullet3,
           ],
         ),
         ManualContent(
           id: 'group_time_example_sequential',
-          title: 'Example: Sequential (Same Worker)',
-          content:
-              '**One worker doing 3 haircuts (45 min each):**\n'
-              '• Haircut 1: 9:00 - 9:45\n'
-              '• Buffer: 9:45 - 9:50 (5 min)\n'
-              '• Haircut 2: 9:50 - 10:35\n'
-              '• Buffer: 10:35 - 10:40\n'
-              '• Haircut 3: 10:40 - 11:25\n'
-              '• **Total: 2 hours 25 min**',
+          title: loc.docsGroupBookingsTime_sequential_title,
+          content: loc.docsGroupBookingsTime_sequential_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_time_example_parallel',
-          title: 'Example: Parallel (Different Workers)',
-          content:
-              '**Three workers each doing one haircut (45 min each):**\n'
-              '• Worker A: Person 1 (9:00 - 9:45)\n'
-              '• Worker B: Person 2 (9:00 - 9:45) at same time\n'
-              '• Worker C: Person 3 (9:00 - 9:45) at same time\n'
-              '• **Total: 45 min**',
+          title: loc.docsGroupBookingsTime_parallel_title,
+          content: loc.docsGroupBookingsTime_parallel_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_time_combined',
-          title: 'Combined View for Groups',
-          content:
-              'When booking for a group, Combined View is especially useful. It shows only time slots where ALL people in your group can be accommodated together, with the correct total duration.',
+          title: loc.docsGroupBookingsTime_combined_title,
+          content: loc.docsGroupBookingsTime_combined_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_time_tip',
           title: '',
-          content:
-              'If your group is large or has many services, consider booking earlier in the day to ensure enough time before the shop closes.',
+          content: loc.docsGroupBookingsTime_tip_content,
           type: ManualContentType.tip,
         ),
       ],
     ),
     ManualSection(
       id: 'group_payment',
-      title: 'Payment for Group Bookings',
-      subtitle: 'How deposits and fees work',
+      title: loc.docsGroupBookingsPayment_title,
+      subtitle: loc.docsGroupBookingsPayment_subtitle,
       icon: Icons.payment,
       category: 'Group Bookings',
       order: 5,
       contents: [
         ManualContent(
           id: 'group_payment_deposit',
-          title: 'Deposit Calculation',
-          content:
-              'For group bookings, the 30% deposit is calculated on the **total cost of all services for all people**.',
+          title: loc.docsGroupBookingsPayment_deposit_title,
+          content: loc.docsGroupBookingsPayment_deposit_content,
           numberPrefix: '1',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Total cost:** Sum of all services × quantities',
-            '**Deposit:** 30% of total cost',
-            '**Platform fee:** One fixed fee for the entire group booking',
-            '**Total due now:** Deposit + platform fee',
+            loc.docsGroupBookingsPayment_deposit_bullet1,
+            loc.docsGroupBookingsPayment_deposit_bullet2,
+            loc.docsGroupBookingsPayment_deposit_bullet3,
+            loc.docsGroupBookingsPayment_deposit_bullet4,
           ],
         ),
         ManualContent(
           id: 'group_payment_example',
-          title: 'Payment Example',
-          content:
-              '**Family of 4 with total GHS 500:**\n'
-              '• Deposit (30%): GHS 150\n'
-              '• Platform fee: GHS 2\n'
-              '• **Pay now: GHS 152**\n'
-              '• Pay after: GHS 350 (cash or app)',
+          title: loc.docsGroupBookingsPayment_example_title,
+          content: loc.docsGroupBookingsPayment_example_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'group_payment_cancellation',
-          title: 'Cancellation for Groups',
-          content: 'If you cancel a group booking:',
+          title: loc.docsGroupBookingsPayment_cancellation_title,
+          content: loc.docsGroupBookingsPayment_cancellation_content,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**Full group cancellation:** Entire deposit and fee are non-refundable',
-            '**Partial cancellation:** If some people can\'t make it, you may lose their portion of the deposit',
-            '**Rescheduling:** You can reschedule the whole group (deposit transfers)',
+            loc.docsGroupBookingsPayment_cancellation_bullet1,
+            loc.docsGroupBookingsPayment_cancellation_bullet2,
+            loc.docsGroupBookingsPayment_cancellation_bullet3,
           ],
         ),
         ManualContent(
           id: 'group_payment_important',
           title: '',
-          content:
-              'The platform fee is charged once per group booking, not per person. You save on fees by booking as a group! For example: 4 separate bookings = GHS 8 in fees, but 1 group booking = GHS 2 fee. You save GHS 6!',
+          content: loc.docsGroupBookingsPayment_important_content,
           type: ManualContentType.important,
         ),
         ManualContent(
           id: 'group_payment_flexibility',
-          title: 'Flexible Payment After Service',
-          content:
-              'After your group service, paying the remaining 70% is flexible:',
+          title: loc.docsGroupBookingsPayment_flexibility_title,
+          content: loc.docsGroupBookingsPayment_flexibility_content,
           numberPrefix: '3',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '**One person pays all:** Pay total in cash or via app',
-            '**Split the payment:** Each person pays their share in cash',
-            '**Mix methods:** Some people use cash, others use app',
-            '**Individual app payments:** Each person can pay their portion through the app',
+            loc.docsGroupBookingsPayment_flexibility_bullet1,
+            loc.docsGroupBookingsPayment_flexibility_bullet2,
+            loc.docsGroupBookingsPayment_flexibility_bullet3,
+            loc.docsGroupBookingsPayment_flexibility_bullet4,
           ],
         ),
       ],
     ),
     ManualSection(
       id: 'group_scenarios',
-      title: 'Common Group Scenarios',
-      subtitle: 'Real examples to help you understand',
+      title: loc.docsGroupBookingsScenarios_title,
+      subtitle: loc.docsGroupBookingsScenarios_subtitle,
       icon: Icons.format_list_bulleted,
       category: 'Group Bookings',
       order: 6,
       contents: [
         ManualContent(
           id: 'scenario_family',
-          title: 'Scenario 1: Family Haircut Day',
-          content:
-              '**The Mensah family (4 people) needs haircuts:**\n'
-              '• Dad: Fade haircut (45 min, GHS 40)\n'
-              '• Mom: Trim (30 min, GHS 35)\n'
-              '• Son (10): Kids haircut (30 min, GHS 25)\n'
-              '• Daughter (8): Braids (2 hours, GHS 80)\n\n'
-              '**What they do:**\n'
-              '1. Select "Haircut" → set quantity 3\n'
-              '2. Select "Braids" → set quantity 1\n'
-              '3. Choose workers: Dad → John, Son → Michael, Daughter → Sarah\n'
-              '4. Pick a time that works for everyone\n'
-              '5. Pay deposit: GHS 54 (30% of GHS 180) + GHS 2 fee = GHS 56\n'
-              '6. After service, pay remaining GHS 126',
+          title: loc.docsGroupBookingsScenarios_family_title,
+          content: loc.docsGroupBookingsScenarios_family_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'scenario_friends',
-          title: 'Scenario 2: Friends Day Out',
-          content:
-              '**Three friends want different services:**\n'
-              '• Friend 1: Beard trim (30 min, GHS 25)\n'
-              '• Friend 2: Haircut + Beard (75 min, GHS 65)\n'
-              '• Friend 3: Full color (2 hours, GHS 120)\n\n'
-              '**What they do:**\n'
-              '1. Select each service with quantity 1\n'
-              '2. Choose their preferred workers\n'
-              '3. System finds a time that works for all\n'
-              '4. Pay deposit: GHS 63 (30% of GHS 210) + GHS 2 fee = GHS 65',
+          title: loc.docsGroupBookingsScenarios_friends_title,
+          content: loc.docsGroupBookingsScenarios_friends_content,
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'scenario_bridal',
-          title: 'Scenario 3: Bridal Party',
-          content:
-              '**Bride + 3 bridesmaids getting ready:**\n'
-              '• Bride: Hair + Makeup (3 hours, GHS 300)\n'
-              '• Each bridesmaid: Hair styling (1 hour, GHS 80 each)\n\n'
-              '**What they do:**\n'
-              '1. Select Bride services with quantity 1\n'
-              '2. Select Hair styling with quantity 3\n'
-              '3. Assign different workers to each person\n'
-              '4. Book a morning slot to have enough time\n'
-              '5. Pay deposit: GHS 162 (30% of GHS 540) + GHS 2 fee = GHS 164',
+          title: loc.docsGroupBookingsScenarios_bridal_title,
+          content: loc.docsGroupBookingsScenarios_bridal_content,
           type: ManualContentType.text,
         ),
       ],
     ),
-  ];
+    ];
+  }
 
   @override
   List<FAQModel> getFAQs(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return [
       FAQModel(
         id: 'faq_group_what',
-        question: 'What is a group booking?',
-        answer:
-            'A group booking allows you to book services for multiple people at once. Instead of making separate bookings for each person, you can book everything together in one go. This is perfect for families, friends, or any group wanting services together.',
+        question: loc.docsGroupBookingsFaq1Q,
+        answer: loc.docsGroupBookingsFaq1A,
         category: 'Group Bookings',
         order: 1,
       ),
       FAQModel(
         id: 'faq_group_quantity',
-        question: 'How do I increase the number of people?',
-        answer:
-            'After selecting a service, look for the **+** and **-** buttons. Tap **+** to increase the quantity (number of people) for that service. The price updates automatically. You cannot exceed the maximum quantity shown for that service.',
+        question: loc.docsGroupBookingsFaq2Q,
+        answer: loc.docsGroupBookingsFaq2A,
         category: 'Group Bookings',
         order: 2,
       ),
       FAQModel(
         id: 'faq_group_different_services',
-        question: 'Can we book different services for different people?',
-        answer:
-            'Absolutely! You can select multiple services and set different quantities for each. For example, you can book 2 haircuts and 1 braid service all in the same booking. The system handles everything together.',
+        question: loc.docsGroupBookingsFaq3Q,
+        answer: loc.docsGroupBookingsFaq3A,
         category: 'Group Bookings',
         order: 3,
       ),
       FAQModel(
         id: 'faq_group_workers',
-        question: 'Can different people have different workers?',
-        answer:
-            'Yes! When you book for a group, you\'ll see each person listed separately. You can tap on each person to choose their preferred worker. This is great when different people have different preferences.',
+        question: loc.docsGroupBookingsFaq4Q,
+        answer: loc.docsGroupBookingsFaq4A,
         category: 'Group Bookings',
         order: 4,
       ),
       FAQModel(
         id: 'faq_group_payment',
-        question: 'How is payment calculated for groups?',
-        answer:
-            'The 30% deposit is calculated on the TOTAL cost of all services for all people. The platform fee is charged once for the entire group booking (not per person). After service, you pay the remaining 70% total (cash or app).',
+        question: loc.docsGroupBookingsFaq5Q,
+        answer: loc.docsGroupBookingsFaq5A,
         category: 'Group Bookings',
         order: 5,
       ),
       FAQModel(
         id: 'faq_group_cancel',
-        question: 'What if one person cancels?',
-        answer:
-            'If someone in your group cancels, the deposit for their portion is non-refundable. The rest of the group can still proceed. Contact the shop through the app to adjust the booking.',
+        question: loc.docsGroupBookingsFaq6Q,
+        answer: loc.docsGroupBookingsFaq6A,
         category: 'Group Bookings',
         order: 6,
       ),
       FAQModel(
         id: 'faq_group_time',
-        question: 'How is the total appointment time calculated?',
-        answer:
-            'The system calculates total time based on: service durations × quantities, plus buffer times between services. If you choose different workers who can work in parallel, the total time may be shorter.',
+        question: loc.docsGroupBookingsFaq7Q,
+        answer: loc.docsGroupBookingsFaq7A,
         category: 'Group Bookings',
         order: 7,
       ),
       FAQModel(
         id: 'faq_group_max',
-        question: 'Is there a maximum group size?',
-        answer:
-            'Each service has a maximum quantity limit shown when booking. If you need to book for a very large group, you may need to make multiple bookings or contact the shop directly.',
+        question: loc.docsGroupBookingsFaq8Q,
+        answer: loc.docsGroupBookingsFaq8A,
         category: 'Group Bookings',
         order: 8,
       ),
       FAQModel(
         id: 'faq_group_kids',
-        question: 'Can I book for my children?',
-        answer:
-            'Yes! Group bookings are perfect for families. You can book for yourself and your children together. Just set the quantity to include everyone. For kids services, look for "Kids" options.',
+        question: loc.docsGroupBookingsFaq9Q,
+        answer: loc.docsGroupBookingsFaq9A,
         category: 'Group Bookings',
         order: 9,
       ),
       FAQModel(
         id: 'faq_group_check_in',
-        question: 'How does check-in work for groups?',
-        answer:
-            'When you arrive, let the shop know you have a group booking. They\'ll check the main booking and direct everyone to their assigned workers. Arrive 10-15 minutes early for large groups.',
+        question: loc.docsGroupBookingsFaq10Q,
+        answer: loc.docsGroupBookingsFaq10A,
         category: 'Group Bookings',
         order: 10,
       ),
       FAQModel(
         id: 'faq_group_split_payment',
-        question: 'Can we split the payment?',
-        answer:
-            'The deposit is paid by the person making the booking. After service, you can split the remaining 70% however you like - cash, individual app payments, or one person paying for all.',
+        question: loc.docsGroupBookingsFaq11Q,
+        answer: loc.docsGroupBookingsFaq11A,
         category: 'Group Bookings',
         order: 11,
       ),
       FAQModel(
         id: 'faq_group_reschedule',
-        question: 'Can we reschedule a group booking?',
-        answer:
-            'Yes, you can reschedule the entire group booking up to 24 hours before the appointment. The deposit transfers to the new time. If only some people need to reschedule, contact the shop.',
+        question: loc.docsGroupBookingsFaq12Q,
+        answer: loc.docsGroupBookingsFaq12A,
         category: 'Group Bookings',
         order: 12,
       ),
       FAQModel(
         id: 'faq_group_guest_booking',
-        question: 'Can we book as a group without an account?',
-        answer:
-            'Yes! If the shop shares a group booking link, everyone can use it without downloading the app or creating accounts. The booking confirmation and receipt details are sent to your WhatsApp.',
+        question: loc.docsGroupBookingsFaq13Q,
+        answer: loc.docsGroupBookingsFaq13A,
         category: 'Group Bookings',
         order: 13,
       ),
       FAQModel(
         id: 'faq_group_remaining_cash',
-        question: 'Do we all have to pay in cash or can we use the app?',
-        answer:
-            'You have full flexibility! You can pay the remaining 70% in cash (to the shop/worker), via the app individually, or any combination. Some people can pay cash while others use the app for their portion.',
+        question: loc.docsGroupBookingsFaq14Q,
+        answer: loc.docsGroupBookingsFaq14A,
         category: 'Group Bookings',
         order: 14,
       ),
