@@ -1,6 +1,7 @@
 // lib/features/documentation/data/docs/booking_docs/booking_getting_started.dart
 
 import 'package:flutter/material.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 import 'package:nano_embryo/app/documentations/user_manual/models/documentation_model.dart'
     show DocumentationModule;
 import 'package:nano_embryo/app/documentations/user_manual/models/faq_model.dart';
@@ -12,14 +13,19 @@ class BookingGettingStartedDocs implements DocumentationModule {
   int get order => 1;
 
   @override
-  String getTitle(BuildContext context) => 'Getting Started with Bookings';
+  String getTitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsBookingStartedTitle;
+  }
 
   @override
   String get id => 'bookingGettingStarted';
 
   @override
-  String getSubtitle(BuildContext context) =>
-      'A simple guide to understanding how bookings work';
+  String getSubtitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsBookingStartedSubtitle;
+  }
 
   @override
   IconData get icon => Icons.calendar_month;
