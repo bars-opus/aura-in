@@ -1,15 +1,21 @@
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 
 class CreateShopDocs implements DocumentationModule {
   @override
-  String getTitle(BuildContext context) => 'Create Your Shop';
+  String getTitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsCreateShopTitle;
+  }
 
   @override
   String get id => 'create_shop';
 
   @override
-  String getSubtitle(BuildContext context) =>
-      'Set up your business and start taking bookings in minutes';
+  String getSubtitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsCreateShopSubtitle;
+  }
 
   @override
   IconData get icon => Icons.store;
