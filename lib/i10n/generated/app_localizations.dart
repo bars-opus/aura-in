@@ -14718,6 +14718,576 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Management'**
   String get docsCreateProductFaqModel_category6;
+
+  /// No description provided for @docsToolsAutomatedRemindersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Automated Reminders'**
+  String get docsToolsAutomatedRemindersTitle;
+
+  /// No description provided for @docsToolsAutomatedRemindersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send automatic reminders to customers'**
+  String get docsToolsAutomatedRemindersSubtitle;
+
+  /// No description provided for @docsToolsReminderPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically send reminder messages to customers before their bookings. Reduces no-shows and keeps customers informed.'**
+  String get docsToolsReminderPurpose;
+
+  /// No description provided for @docsToolsReminderBenefits.
+  ///
+  /// In en, this message translates to:
+  /// **'Automated reminders help you:'**
+  String get docsToolsReminderBenefits;
+
+  /// No description provided for @docsToolsReminderBenefitNoShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce no-shows - customers are less likely to forget'**
+  String get docsToolsReminderBenefitNoShow;
+
+  /// No description provided for @docsToolsReminderBenefitExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'Improve customer experience - they know when to arrive'**
+  String get docsToolsReminderBenefitExperience;
+
+  /// No description provided for @docsToolsReminderBenefitTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Save time - no need to manually call or message'**
+  String get docsToolsReminderBenefitTime;
+
+  /// No description provided for @docsToolsReminderBenefitReliability.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase reliability - reminders go out automatically'**
+  String get docsToolsReminderBenefitReliability;
+
+  /// No description provided for @docsToolsReminderSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Click \"Configure Automated Reminders\" to set timing: send reminders 24 hours before, 2 hours before, or on the morning of the appointment.'**
+  String get docsToolsReminderSetup;
+
+  /// No description provided for @docsToolsReminderImpact.
+  ///
+  /// In en, this message translates to:
+  /// **'Shops using automated reminders see 20-30% fewer no-shows. This directly impacts your revenue.'**
+  String get docsToolsReminderImpact;
+
+  /// No description provided for @docsToolsPromotionsManagerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'2. Promotions Manager'**
+  String get docsToolsPromotionsManagerTitle;
+
+  /// No description provided for @docsToolsPromotionsManagerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create special offers and discounts'**
+  String get docsToolsPromotionsManagerSubtitle;
+
+  /// No description provided for @docsToolsPromoPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Create time-limited promotions and discounts. Offer percentage off, fixed amount off, or free add-ons to attract more customers.'**
+  String get docsToolsPromoPurpose;
+
+  /// No description provided for @docsToolsPromoIdeasTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotion Ideas'**
+  String get docsToolsPromoIdeasTitle;
+
+  /// No description provided for @docsToolsPromoIdeasContent.
+  ///
+  /// In en, this message translates to:
+  /// **'You can create promotions like:'**
+  String get docsToolsPromoIdeasContent;
+
+  /// No description provided for @docsToolsPromoIdea1.
+  ///
+  /// In en, this message translates to:
+  /// **'20% off haircuts on Mondays'**
+  String get docsToolsPromoIdea1;
+
+  /// No description provided for @docsToolsPromoIdea2.
+  ///
+  /// In en, this message translates to:
+  /// **'Free massage oil with any massage booking'**
+  String get docsToolsPromoIdea2;
+
+  /// No description provided for @docsToolsPromoIdea3.
+  ///
+  /// In en, this message translates to:
+  /// **'50 off a full-service package'**
+  String get docsToolsPromoIdea3;
+
+  /// No description provided for @docsToolsPromoIdea4.
+  ///
+  /// In en, this message translates to:
+  /// **'First-time customer: 30% discount'**
+  String get docsToolsPromoIdea4;
+
+  /// No description provided for @docsToolsPromoIdea5.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty bonus: 5th service is half price'**
+  String get docsToolsPromoIdea5;
+
+  /// No description provided for @docsToolsPromoStrategy.
+  ///
+  /// In en, this message translates to:
+  /// **'Use promotions during slow periods to boost bookings. Track which promotions work best through your analytics.'**
+  String get docsToolsPromoStrategy;
+
+  /// No description provided for @docsToolsExportReportsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'3. Export Reports'**
+  String get docsToolsExportReportsTitle;
+
+  /// No description provided for @docsToolsExportReportsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download your data for analysis'**
+  String get docsToolsExportReportsSubtitle;
+
+  /// No description provided for @docsToolsExportPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Download detailed reports of your business data in spreadsheet format. Analyze bookings, revenue, customers, and more.'**
+  String get docsToolsExportPurpose;
+
+  /// No description provided for @docsToolsExportTypesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Reports'**
+  String get docsToolsExportTypesTitle;
+
+  /// No description provided for @docsToolsExportTypesContent.
+  ///
+  /// In en, this message translates to:
+  /// **'You can export:'**
+  String get docsToolsExportTypesContent;
+
+  /// No description provided for @docsToolsExportType1.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking reports - all bookings with details'**
+  String get docsToolsExportType1;
+
+  /// No description provided for @docsToolsExportType2.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue reports - earnings by date range'**
+  String get docsToolsExportType2;
+
+  /// No description provided for @docsToolsExportType3.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer reports - your client list'**
+  String get docsToolsExportType3;
+
+  /// No description provided for @docsToolsExportType4.
+  ///
+  /// In en, this message translates to:
+  /// **'Service reports - performance by service'**
+  String get docsToolsExportType4;
+
+  /// No description provided for @docsToolsExportType5.
+  ///
+  /// In en, this message translates to:
+  /// **'Worker reports - staff performance metrics'**
+  String get docsToolsExportType5;
+
+  /// No description provided for @docsToolsExportWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why Export Data?'**
+  String get docsToolsExportWhyTitle;
+
+  /// No description provided for @docsToolsExportWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Use exported data in Excel for custom analysis, record-keeping, tax purposes, or sharing with accountant.'**
+  String get docsToolsExportWhy;
+
+  /// No description provided for @docsToolsPaymentSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'4. Payment Settings'**
+  String get docsToolsPaymentSettingsTitle;
+
+  /// No description provided for @docsToolsPaymentSettingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure your payment method'**
+  String get docsToolsPaymentSettingsSubtitle;
+
+  /// No description provided for @docsToolsPaymentPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your payment processor (Paystack or Stripe) so customers can pay for bookings and you can receive payments.'**
+  String get docsToolsPaymentPurpose;
+
+  /// No description provided for @docsToolsPaymentNeededTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What You Need'**
+  String get docsToolsPaymentNeededTitle;
+
+  /// No description provided for @docsToolsPaymentNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'To set up payments, you need: a business account with Paystack or Stripe, bank account for receiving money.'**
+  String get docsToolsPaymentNeeded;
+
+  /// No description provided for @docsToolsPaymentImportance.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment setup is required to accept customer bookings. Without it, customers cannot pay and you cannot receive orders.'**
+  String get docsToolsPaymentImportance;
+
+  /// No description provided for @docsToolsBusinessHoursTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'5. Business Hours'**
+  String get docsToolsBusinessHoursTitle;
+
+  /// No description provided for @docsToolsBusinessHoursSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your working schedule'**
+  String get docsToolsBusinessHoursSubtitle;
+
+  /// No description provided for @docsToolsHoursPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure when your business is open. Customers can only book during hours you set as available.'**
+  String get docsToolsHoursPurpose;
+
+  /// No description provided for @docsToolsHoursFeaturesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get docsToolsHoursFeaturesTitle;
+
+  /// No description provided for @docsToolsHoursFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Set different hours for each day, mark days as closed, and update hours whenever you need.'**
+  String get docsToolsHoursFeatures;
+
+  /// No description provided for @docsToolsHoursImportance.
+  ///
+  /// In en, this message translates to:
+  /// **'Accurate hours are crucial. Customers get frustrated when they can\'t book during hours you actually work.'**
+  String get docsToolsHoursImportance;
+
+  /// No description provided for @docsToolsServiceManagementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'6. Service Management'**
+  String get docsToolsServiceManagementTitle;
+
+  /// No description provided for @docsToolsServiceManagementSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add and edit your services'**
+  String get docsToolsServiceManagementSubtitle;
+
+  /// No description provided for @docsToolsServicesPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your service catalog. Add new services, update pricing, change duration, or archive services you no longer offer.'**
+  String get docsToolsServicesPurpose;
+
+  /// No description provided for @docsToolsServicesWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why Use It?'**
+  String get docsToolsServicesWhyTitle;
+
+  /// No description provided for @docsToolsServicesWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Central place to manage all services. Make changes instantly and they apply to all your bookings.'**
+  String get docsToolsServicesWhy;
+
+  /// No description provided for @docsToolsServicesTipsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tips'**
+  String get docsToolsServicesTipsTitle;
+
+  /// No description provided for @docsToolsServicesTips.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep service descriptions clear and concise. Prices should match your current rates. Archive (don\'t delete) old services for record-keeping.'**
+  String get docsToolsServicesTips;
+
+  /// No description provided for @docsToolsLoyaltyProgramTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'7. Loyalty Program'**
+  String get docsToolsLoyaltyProgramTitle;
+
+  /// No description provided for @docsToolsLoyaltyProgramSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward repeat customers'**
+  String get docsToolsLoyaltyProgramSubtitle;
+
+  /// No description provided for @docsToolsLoyaltyPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically reward customers for repeat visits. Set rules like \"free service after 5 visits\" to encourage loyalty.'**
+  String get docsToolsLoyaltyPurpose;
+
+  /// No description provided for @docsToolsLoyaltyWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why Loyalty Matters'**
+  String get docsToolsLoyaltyWhyTitle;
+
+  /// No description provided for @docsToolsLoyaltyWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyal customers spend more money. They refer friends and leave positive reviews. Loyalty programs increase customer lifetime value.'**
+  String get docsToolsLoyaltyWhy;
+
+  /// No description provided for @docsToolsLoyaltyIdeasTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty Ideas'**
+  String get docsToolsLoyaltyIdeasTitle;
+
+  /// No description provided for @docsToolsLoyaltyIdeas.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: \"Every 5th haircut is free\" or \"10 visits = 50% off next service\". Simple rules work best.'**
+  String get docsToolsLoyaltyIdeas;
+
+  /// No description provided for @docsToolsBroadcastsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'8. Broadcasts'**
+  String get docsToolsBroadcastsTitle;
+
+  /// No description provided for @docsToolsBroadcastsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send messages to customers'**
+  String get docsToolsBroadcastsSubtitle;
+
+  /// No description provided for @docsToolsBroadcastPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Send bulk messages to your customers. Announce new services, special offers, or business updates via push notification or WhatsApp.'**
+  String get docsToolsBroadcastPurpose;
+
+  /// No description provided for @docsToolsBroadcastWhenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When to Broadcast'**
+  String get docsToolsBroadcastWhenTitle;
+
+  /// No description provided for @docsToolsBroadcastWhenContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Use broadcasts to:'**
+  String get docsToolsBroadcastWhenContent;
+
+  /// No description provided for @docsToolsBroadcastUse1.
+  ///
+  /// In en, this message translates to:
+  /// **'Announce new services or pricing'**
+  String get docsToolsBroadcastUse1;
+
+  /// No description provided for @docsToolsBroadcastUse2.
+  ///
+  /// In en, this message translates to:
+  /// **'Promote limited-time offers'**
+  String get docsToolsBroadcastUse2;
+
+  /// No description provided for @docsToolsBroadcastUse3.
+  ///
+  /// In en, this message translates to:
+  /// **'Share business updates'**
+  String get docsToolsBroadcastUse3;
+
+  /// No description provided for @docsToolsBroadcastUse4.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite customers to special events'**
+  String get docsToolsBroadcastUse4;
+
+  /// No description provided for @docsToolsBroadcastUse5.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank customers for their loyalty'**
+  String get docsToolsBroadcastUse5;
+
+  /// No description provided for @docsToolsBroadcastTipsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcasting Tips'**
+  String get docsToolsBroadcastTipsTitle;
+
+  /// No description provided for @docsToolsBroadcastTips.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep messages short and valuable. Don\'t broadcast too often or customers will mute notifications. Timing matters - send during business hours.'**
+  String get docsToolsBroadcastTips;
+
+  /// No description provided for @docsToolsFAQTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Common Questions'**
+  String get docsToolsFAQTitle;
+
+  /// No description provided for @docsToolsFAQSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get help with tools'**
+  String get docsToolsFAQSubtitle;
+
+  /// No description provided for @docsToolsFAQQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'Which tool should I use first?'**
+  String get docsToolsFAQQ1;
+
+  /// No description provided for @docsToolsFAQA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with Business Hours and Service Management - these are essential. Then add Automated Reminders to reduce no-shows. Add Promotions when you want to boost bookings.'**
+  String get docsToolsFAQA1;
+
+  /// No description provided for @docsToolsFAQQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'Do tools cost extra?'**
+  String get docsToolsFAQQ2;
+
+  /// No description provided for @docsToolsFAQA2.
+  ///
+  /// In en, this message translates to:
+  /// **'No. All tools are included with your shop account at no additional cost. Use as many as you want.'**
+  String get docsToolsFAQA2;
+
+  /// No description provided for @docsToolsFAQQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'Will customers receive reminders?'**
+  String get docsToolsFAQQ3;
+
+  /// No description provided for @docsToolsFAQA3.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes - reminders go to customers who have opted into notifications. They receive push notifications and/or SMS depending on their settings.'**
+  String get docsToolsFAQA3;
+
+  /// No description provided for @docsToolsFAQQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I run multiple promotions at once?'**
+  String get docsToolsFAQQ4;
+
+  /// No description provided for @docsToolsFAQA4.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. You can run multiple promotions on different services simultaneously. Customers get the best available deal.'**
+  String get docsToolsFAQA4;
+
+  /// No description provided for @docsToolsFAQQ5.
+  ///
+  /// In en, this message translates to:
+  /// **'How often can I export reports?'**
+  String get docsToolsFAQQ5;
+
+  /// No description provided for @docsToolsFAQA5.
+  ///
+  /// In en, this message translates to:
+  /// **'Anytime you want. Export daily, weekly, or monthly depending on your needs. Data updates in real-time.'**
+  String get docsToolsFAQA5;
+
+  /// No description provided for @docsToolsFAQQ6.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s the most important tool?'**
+  String get docsToolsFAQQ6;
+
+  /// No description provided for @docsToolsFAQA6.
+  ///
+  /// In en, this message translates to:
+  /// **'Business Hours and Service Management are essential - set these up first. Then add Reminders to reduce no-shows. Everything else is extra optimization.'**
+  String get docsToolsFAQA6;
+
+  /// No description provided for @docsToolsFAQQ7.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I change tools settings anytime?'**
+  String get docsToolsFAQQ7;
+
+  /// No description provided for @docsToolsFAQA7.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. Change your hours, prices, promotions, reminders, or any setting anytime. Changes take effect immediately.'**
+  String get docsToolsFAQA7;
+
+  /// No description provided for @docsToolsFAQQ8.
+  ///
+  /// In en, this message translates to:
+  /// **'Which tool increases sales most?'**
+  String get docsToolsFAQQ8;
+
+  /// No description provided for @docsToolsFAQA8.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotions during slow times + Loyalty program for repeat customers = biggest sales boost. Analytics shows you which works best.'**
+  String get docsToolsFAQA8;
+
+  /// No description provided for @docsToolsFAQQ9.
+  ///
+  /// In en, this message translates to:
+  /// **'Do I need to pay for Paystack or Stripe?'**
+  String get docsToolsFAQQ9;
+
+  /// No description provided for @docsToolsFAQA9.
+  ///
+  /// In en, this message translates to:
+  /// **'These payment processors take a small commission (usually 1.5-3%) per transaction. You only pay when you get paid.'**
+  String get docsToolsFAQA9;
+
+  /// No description provided for @docsToolsFAQQ10.
+  ///
+  /// In en, this message translates to:
+  /// **'Can customers ignore broadcast messages?'**
+  String get docsToolsFAQQ10;
+
+  /// No description provided for @docsToolsFAQA10.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. Customers control their notification settings. Only those who opted in will receive broadcasts. Respect their preferences.'**
+  String get docsToolsFAQA10;
+
+  /// No description provided for @docsToolsFAQQ11.
+  ///
+  /// In en, this message translates to:
+  /// **'What happens if I change my business hours?'**
+  String get docsToolsFAQQ11;
+
+  /// No description provided for @docsToolsFAQA11.
+  ///
+  /// In en, this message translates to:
+  /// **'Future bookings follow new hours. Existing bookings are not affected. Customers cannot book outside your updated hours.'**
+  String get docsToolsFAQA11;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

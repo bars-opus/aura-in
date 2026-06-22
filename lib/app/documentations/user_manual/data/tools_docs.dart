@@ -24,39 +24,40 @@ class ToolsDocs implements DocumentationModule {
   IconData get icon => Icons.build;
 
   @override
-  List<ManualSection> getSections(BuildContext context) => [
+  List<ManualSection> getSections(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return [
     // Section 1: Overview
     ManualSection(
       id: 'tools_overview',
-      title: 'Tools Overview',
-      subtitle: 'What each tool does and how to use it',
+      title: loc.docsToolsOverviewTitle,
+      subtitle: loc.docsToolsOverviewSubtitle,
       icon: Icons.info_outline,
       category: 'Tools',
       order: 1,
       contents: [
         ManualContent(
           id: 'tools_welcome',
-          title: 'Welcome to Business Tools',
-          content:
-              'The Tools tab has 8 powerful features to help you automate, promote, and manage your business more effectively. Each tool solves a specific business problem.',
+          title: loc.docsToolsWelcomeTitle,
+          content: loc.docsToolsWelcomeContent,
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'tools_list',
-          title: 'Available Tools',
-          content: 'You have access to these 8 tools:',
+          title: loc.docsToolsListTitle,
+          content: loc.docsToolsListContent,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            'Automated Reminders - Send reminders to customers',
-            'Promotions Manager - Create and manage discounts',
-            'Export Reports - Download your business data',
-            'Payment Settings - Configure how you receive payments',
-            'Business Hours - Set your working schedule',
-            'Service Management - Add and edit your services',
-            'Loyalty Program - Reward repeat customers',
-            'Broadcasts - Send messages to your customers',
+            loc.docsToolsReminders,
+            loc.docsToolsPromotions,
+            loc.docsToolsExport,
+            loc.docsToolsPayment,
+            loc.docsToolsHours,
+            loc.docsToolsServices,
+            loc.docsToolsLoyalty,
+            loc.docsToolsBroadcasts,
           ],
         ),
       ],
@@ -65,8 +66,8 @@ class ToolsDocs implements DocumentationModule {
     // Section 2: Automated Reminders
     ManualSection(
       id: 'automated_reminders',
-      title: '1. Automated Reminders',
-      subtitle: 'Send automatic reminders to customers',
+      title: loc.docsToolsAutomatedRemindersTitle,
+      subtitle: loc.docsToolsAutomatedRemindersSubtitle,
       icon: Icons.notifications_active,
       category: 'Individual Tools',
       order: 2,
@@ -74,37 +75,34 @@ class ToolsDocs implements DocumentationModule {
         ManualContent(
           id: 'reminder_purpose',
           title: 'What It Does',
-          content:
-              'Automatically send reminder messages to customers before their bookings. Reduces no-shows and keeps customers informed.',
+          content: loc.docsToolsReminderPurpose,
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'reminder_benefits',
           title: 'Benefits',
-          content: 'Automated reminders help you:',
+          content: loc.docsToolsReminderBenefits,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            'Reduce no-shows - customers are less likely to forget',
-            'Improve customer experience - they know when to arrive',
-            'Save time - no need to manually call or message',
-            'Increase reliability - reminders go out automatically',
+            loc.docsToolsReminderBenefitNoShow,
+            loc.docsToolsReminderBenefitExperience,
+            loc.docsToolsReminderBenefitTime,
+            loc.docsToolsReminderBenefitReliability,
           ],
         ),
         ManualContent(
           id: 'reminder_setup',
           title: 'How to Set It Up',
-          content:
-              'Click "Configure Automated Reminders" to set timing: send reminders 24 hours before, 2 hours before, or on the morning of the appointment.',
+          content: loc.docsToolsReminderSetup,
           numberPrefix: '3',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'reminder_impact',
           title: '',
-          content:
-              'Shops using automated reminders see 20-30% fewer no-shows. This directly impacts your revenue.',
+          content: loc.docsToolsReminderImpact,
           type: ManualContentType.important,
         ),
       ],
@@ -113,8 +111,8 @@ class ToolsDocs implements DocumentationModule {
     // Section 3: Promotions Manager
     ManualSection(
       id: 'promotions_manager',
-      title: '2. Promotions Manager',
-      subtitle: 'Create special offers and discounts',
+      title: loc.docsToolsPromotionsManagerTitle,
+      subtitle: loc.docsToolsPromotionsManagerSubtitle,
       icon: Icons.local_offer,
       category: 'Individual Tools',
       order: 3,
@@ -122,30 +120,28 @@ class ToolsDocs implements DocumentationModule {
         ManualContent(
           id: 'promo_purpose',
           title: 'What It Does',
-          content:
-              'Create time-limited promotions and discounts. Offer percentage off, fixed amount off, or free add-ons to attract more customers.',
+          content: loc.docsToolsPromoPurpose,
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'promo_examples',
-          title: 'Promotion Ideas',
-          content: 'You can create promotions like:',
+          title: loc.docsToolsPromoIdeasTitle,
+          content: loc.docsToolsPromoIdeasContent,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            '20% off haircuts on Mondays',
-            'Free massage oil with any massage booking',
-            '50 off a full-service package',
-            'First-time customer: 30% discount',
-            'Loyalty bonus: 5th service is half price',
+            loc.docsToolsPromoIdea1,
+            loc.docsToolsPromoIdea2,
+            loc.docsToolsPromoIdea3,
+            loc.docsToolsPromoIdea4,
+            loc.docsToolsPromoIdea5,
           ],
         ),
         ManualContent(
           id: 'promo_strategy',
           title: 'Promotion Strategy',
-          content:
-              'Use promotions during slow periods to boost bookings. Track which promotions work best through your analytics.',
+          content: loc.docsToolsPromoStrategy,
           numberPrefix: '3',
           type: ManualContentType.text,
         ),
@@ -155,8 +151,8 @@ class ToolsDocs implements DocumentationModule {
     // Section 4: Export Reports
     ManualSection(
       id: 'export_reports',
-      title: '3. Export Reports',
-      subtitle: 'Download your data for analysis',
+      title: loc.docsToolsExportReportsTitle,
+      subtitle: loc.docsToolsExportReportsSubtitle,
       icon: Icons.download,
       category: 'Individual Tools',
       order: 4,
@@ -164,30 +160,28 @@ class ToolsDocs implements DocumentationModule {
         ManualContent(
           id: 'export_purpose',
           title: 'What It Does',
-          content:
-              'Download detailed reports of your business data in spreadsheet format. Analyze bookings, revenue, customers, and more.',
+          content: loc.docsToolsExportPurpose,
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'export_types',
-          title: 'Available Reports',
-          content: 'You can export:',
+          title: loc.docsToolsExportTypesTitle,
+          content: loc.docsToolsExportTypesContent,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            'Booking reports - all bookings with details',
-            'Revenue reports - earnings by date range',
-            'Customer reports - your client list',
-            'Service reports - performance by service',
-            'Worker reports - staff performance metrics',
+            loc.docsToolsExportType1,
+            loc.docsToolsExportType2,
+            loc.docsToolsExportType3,
+            loc.docsToolsExportType4,
+            loc.docsToolsExportType5,
           ],
         ),
         ManualContent(
           id: 'export_uses',
-          title: 'Why Export Data?',
-          content:
-              'Use exported data in Excel for custom analysis, record-keeping, tax purposes, or sharing with accountant.',
+          title: loc.docsToolsExportWhyTitle,
+          content: loc.docsToolsExportWhy,
           numberPrefix: '3',
           type: ManualContentType.text,
         ),
@@ -197,8 +191,8 @@ class ToolsDocs implements DocumentationModule {
     // Section 5: Payment Settings
     ManualSection(
       id: 'payment_settings',
-      title: '4. Payment Settings',
-      subtitle: 'Configure your payment method',
+      title: loc.docsToolsPaymentSettingsTitle,
+      subtitle: loc.docsToolsPaymentSettingsSubtitle,
       icon: Icons.payment,
       category: 'Individual Tools',
       order: 5,
@@ -206,24 +200,21 @@ class ToolsDocs implements DocumentationModule {
         ManualContent(
           id: 'payment_purpose',
           title: 'What It Does',
-          content:
-              'Set up your payment processor (Paystack or Stripe) so customers can pay for bookings and you can receive payments.',
+          content: loc.docsToolsPaymentPurpose,
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'payment_setup',
-          title: 'What You Need',
-          content:
-              'To set up payments, you need: a business account with Paystack or Stripe, bank account for receiving money.',
+          title: loc.docsToolsPaymentNeededTitle,
+          content: loc.docsToolsPaymentNeeded,
           numberPrefix: '2',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'payment_importance',
           title: '',
-          content:
-              'Payment setup is required to accept customer bookings. Without it, customers cannot pay and you cannot receive orders.',
+          content: loc.docsToolsPaymentImportance,
           type: ManualContentType.important,
         ),
       ],
@@ -232,8 +223,8 @@ class ToolsDocs implements DocumentationModule {
     // Section 6: Business Hours
     ManualSection(
       id: 'business_hours',
-      title: '5. Business Hours',
-      subtitle: 'Set your working schedule',
+      title: loc.docsToolsBusinessHoursTitle,
+      subtitle: loc.docsToolsBusinessHoursSubtitle,
       icon: Icons.access_time,
       category: 'Individual Tools',
       order: 6,
@@ -241,23 +232,21 @@ class ToolsDocs implements DocumentationModule {
         ManualContent(
           id: 'hours_purpose',
           title: 'What It Does',
-          content:
-              'Configure when your business is open. Customers can only book during hours you set as available.',
+          content: loc.docsToolsHoursPurpose,
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'hours_features',
-          title: 'Features',
-          content: 'Set different hours for each day, mark days as closed, and update hours whenever you need.',
+          title: loc.docsToolsHoursFeaturesTitle,
+          content: loc.docsToolsHoursFeatures,
           numberPrefix: '2',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'hours_importance',
           title: '',
-          content:
-              'Accurate hours are crucial. Customers get frustrated when they can\'t book during hours you actually work.',
+          content: loc.docsToolsHoursImportance,
           type: ManualContentType.important,
         ),
       ],
@@ -266,8 +255,8 @@ class ToolsDocs implements DocumentationModule {
     // Section 7: Service Management
     ManualSection(
       id: 'service_management',
-      title: '6. Service Management',
-      subtitle: 'Add and edit your services',
+      title: loc.docsToolsServiceManagementTitle,
+      subtitle: loc.docsToolsServiceManagementSubtitle,
       icon: Icons.cut,
       category: 'Individual Tools',
       order: 7,
@@ -275,24 +264,21 @@ class ToolsDocs implements DocumentationModule {
         ManualContent(
           id: 'services_purpose',
           title: 'What It Does',
-          content:
-              'Manage your service catalog. Add new services, update pricing, change duration, or archive services you no longer offer.',
+          content: loc.docsToolsServicesPurpose,
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'services_benefits',
-          title: 'Why Use It?',
-          content:
-              'Central place to manage all services. Make changes instantly and they apply to all your bookings.',
+          title: loc.docsToolsServicesWhyTitle,
+          content: loc.docsToolsServicesWhy,
           numberPrefix: '2',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'services_tips',
-          title: 'Tips',
-          content:
-              'Keep service descriptions clear and concise. Prices should match your current rates. Archive (don\'t delete) old services for record-keeping.',
+          title: loc.docsToolsServicesTipsTitle,
+          content: loc.docsToolsServicesTips,
           numberPrefix: '3',
           type: ManualContentType.text,
         ),
@@ -302,8 +288,8 @@ class ToolsDocs implements DocumentationModule {
     // Section 8: Loyalty Program
     ManualSection(
       id: 'loyalty_program',
-      title: '7. Loyalty Program',
-      subtitle: 'Reward repeat customers',
+      title: loc.docsToolsLoyaltyProgramTitle,
+      subtitle: loc.docsToolsLoyaltyProgramSubtitle,
       icon: Icons.card_giftcard,
       category: 'Individual Tools',
       order: 8,
@@ -311,24 +297,21 @@ class ToolsDocs implements DocumentationModule {
         ManualContent(
           id: 'loyalty_purpose',
           title: 'What It Does',
-          content:
-              'Automatically reward customers for repeat visits. Set rules like "free service after 5 visits" to encourage loyalty.',
+          content: loc.docsToolsLoyaltyPurpose,
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'loyalty_benefits',
-          title: 'Why Loyalty Matters',
-          content:
-              'Loyal customers spend more money. They refer friends and leave positive reviews. Loyalty programs increase customer lifetime value.',
+          title: loc.docsToolsLoyaltyWhyTitle,
+          content: loc.docsToolsLoyaltyWhy,
           numberPrefix: '2',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'loyalty_examples',
-          title: 'Loyalty Ideas',
-          content:
-              'Example: "Every 5th haircut is free" or "10 visits = 50% off next service". Simple rules work best.',
+          title: loc.docsToolsLoyaltyIdeasTitle,
+          content: loc.docsToolsLoyaltyIdeas,
           numberPrefix: '3',
           type: ManualContentType.text,
         ),
@@ -338,8 +321,8 @@ class ToolsDocs implements DocumentationModule {
     // Section 9: Broadcasts
     ManualSection(
       id: 'broadcasts',
-      title: '8. Broadcasts',
-      subtitle: 'Send messages to customers',
+      title: loc.docsToolsBroadcastsTitle,
+      subtitle: loc.docsToolsBroadcastsSubtitle,
       icon: Icons.campaign_outlined,
       category: 'Individual Tools',
       order: 9,
@@ -347,30 +330,28 @@ class ToolsDocs implements DocumentationModule {
         ManualContent(
           id: 'broadcast_purpose',
           title: 'What It Does',
-          content:
-              'Send bulk messages to your customers. Announce new services, special offers, or business updates via push notification or WhatsApp.',
+          content: loc.docsToolsBroadcastPurpose,
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'broadcast_uses',
-          title: 'When to Broadcast',
-          content: 'Use broadcasts to:',
+          title: loc.docsToolsBroadcastWhenTitle,
+          content: loc.docsToolsBroadcastWhenContent,
           numberPrefix: '2',
           type: ManualContentType.bulletList,
           bulletPoints: [
-            'Announce new services or pricing',
-            'Promote limited-time offers',
-            'Share business updates',
-            'Invite customers to special events',
-            'Thank customers for their loyalty',
+            loc.docsToolsBroadcastUse1,
+            loc.docsToolsBroadcastUse2,
+            loc.docsToolsBroadcastUse3,
+            loc.docsToolsBroadcastUse4,
+            loc.docsToolsBroadcastUse5,
           ],
         ),
         ManualContent(
           id: 'broadcast_tips',
-          title: 'Broadcasting Tips',
-          content:
-              'Keep messages short and valuable. Don\'t broadcast too often or customers will mute notifications. Timing matters - send during business hours.',
+          title: loc.docsToolsBroadcastTipsTitle,
+          content: loc.docsToolsBroadcastTips,
           numberPrefix: '3',
           type: ManualContentType.text,
         ),
@@ -380,104 +361,95 @@ class ToolsDocs implements DocumentationModule {
     // Section 10: FAQ
     ManualSection(
       id: 'tools_faq',
-      title: 'Common Questions',
-      subtitle: 'Get help with tools',
+      title: loc.docsToolsFAQTitle,
+      subtitle: loc.docsToolsFAQSubtitle,
       icon: Icons.help_outline,
       category: 'Help',
       order: 10,
       contents: [
         ManualContent(
           id: 'faq_which_tool',
-          title: 'Which tool should I use first?',
-          content:
-              'Start with Business Hours and Service Management - these are essential. Then add Automated Reminders to reduce no-shows. Add Promotions when you want to boost bookings.',
+          title: loc.docsToolsFAQQ1,
+          content: loc.docsToolsFAQA1,
           numberPrefix: '1',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'faq_tools_cost',
-          title: 'Do tools cost extra?',
-          content:
-              'No. All tools are included with your shop account at no additional cost. Use as many as you want.',
+          title: loc.docsToolsFAQQ2,
+          content: loc.docsToolsFAQA2,
           numberPrefix: '2',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'faq_reminders_delivery',
-          title: 'Will customers receive reminders?',
-          content:
-              'Yes - reminders go to customers who have opted into notifications. They receive push notifications and/or SMS depending on their settings.',
+          title: loc.docsToolsFAQQ3,
+          content: loc.docsToolsFAQA3,
           numberPrefix: '3',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'faq_promo_conflicts',
-          title: 'Can I run multiple promotions at once?',
-          content:
-              'Yes. You can run multiple promotions on different services simultaneously. Customers get the best available deal.',
+          title: loc.docsToolsFAQQ4,
+          content: loc.docsToolsFAQA4,
           numberPrefix: '4',
           type: ManualContentType.text,
         ),
         ManualContent(
           id: 'faq_export_frequency',
-          title: 'How often can I export reports?',
-          content:
-              'Anytime you want. Export daily, weekly, or monthly depending on your needs. Data updates in real-time.',
+          title: loc.docsToolsFAQQ5,
+          content: loc.docsToolsFAQA5,
           numberPrefix: '5',
           type: ManualContentType.text,
         ),
       ],
     ),
-  ];
+    ];
+  }
 
   @override
   List<FAQModel> getFAQs(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return [
       FAQModel(
         id: 'faq_tools_1',
-        question: 'What\'s the most important tool?',
-        answer:
-            'Business Hours and Service Management are essential - set these up first. Then add Reminders to reduce no-shows. Everything else is extra optimization.',
+        question: loc.docsToolsFAQQ6,
+        answer: loc.docsToolsFAQA6,
         category: 'Getting Started',
         order: 1,
       ),
       FAQModel(
         id: 'faq_tools_2',
-        question: 'Can I change tools settings anytime?',
-        answer:
-            'Yes. Change your hours, prices, promotions, reminders, or any setting anytime. Changes take effect immediately.',
+        question: loc.docsToolsFAQQ7,
+        answer: loc.docsToolsFAQA7,
         category: 'Usage',
         order: 2,
       ),
       FAQModel(
         id: 'faq_tools_3',
-        question: 'Which tool increases sales most?',
-        answer:
-            'Promotions during slow times + Loyalty program for repeat customers = biggest sales boost. Analytics shows you which works best.',
+        question: loc.docsToolsFAQQ8,
+        answer: loc.docsToolsFAQA8,
         category: 'Strategy',
         order: 3,
       ),
       FAQModel(
         id: 'faq_tools_4',
-        question: 'Do I need to pay for Paystack or Stripe?',
-        answer:
-            'These payment processors take a small commission (usually 1.5-3%) per transaction. You only pay when you get paid.',
+        question: loc.docsToolsFAQQ9,
+        answer: loc.docsToolsFAQA9,
         category: 'Payments',
         order: 4,
       ),
       FAQModel(
         id: 'faq_tools_5',
-        question: 'Can customers ignore broadcast messages?',
-        answer:
-            'Yes. Customers control their notification settings. Only those who opted in will receive broadcasts. Respect their preferences.',
+        question: loc.docsToolsFAQQ10,
+        answer: loc.docsToolsFAQA10,
         category: 'Broadcasts',
         order: 5,
       ),
       FAQModel(
         id: 'faq_tools_6',
-        question: 'What happens if I change my business hours?',
-        answer:
-            'Future bookings follow new hours. Existing bookings are not affected. Customers cannot book outside your updated hours.',
+        question: loc.docsToolsFAQQ11,
+        answer: loc.docsToolsFAQA11,
         category: 'Business Hours',
         order: 6,
       ),

@@ -7510,4 +7510,289 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get docsCreateProductFaqModel_category6 => 'Management';
+
+  @override
+  String get docsToolsAutomatedRemindersTitle => '1. Automated Reminders';
+
+  @override
+  String get docsToolsAutomatedRemindersSubtitle => 'Send automatic reminders to customers';
+
+  @override
+  String get docsToolsReminderPurpose => 'Automatically send reminder messages to customers before their bookings. Reduces no-shows and keeps customers informed.';
+
+  @override
+  String get docsToolsReminderBenefits => 'Automated reminders help you:';
+
+  @override
+  String get docsToolsReminderBenefitNoShow => 'Reduce no-shows - customers are less likely to forget';
+
+  @override
+  String get docsToolsReminderBenefitExperience => 'Improve customer experience - they know when to arrive';
+
+  @override
+  String get docsToolsReminderBenefitTime => 'Save time - no need to manually call or message';
+
+  @override
+  String get docsToolsReminderBenefitReliability => 'Increase reliability - reminders go out automatically';
+
+  @override
+  String get docsToolsReminderSetup => 'Click \"Configure Automated Reminders\" to set timing: send reminders 24 hours before, 2 hours before, or on the morning of the appointment.';
+
+  @override
+  String get docsToolsReminderImpact => 'Shops using automated reminders see 20-30% fewer no-shows. This directly impacts your revenue.';
+
+  @override
+  String get docsToolsPromotionsManagerTitle => '2. Promotions Manager';
+
+  @override
+  String get docsToolsPromotionsManagerSubtitle => 'Create special offers and discounts';
+
+  @override
+  String get docsToolsPromoPurpose => 'Create time-limited promotions and discounts. Offer percentage off, fixed amount off, or free add-ons to attract more customers.';
+
+  @override
+  String get docsToolsPromoIdeasTitle => 'Promotion Ideas';
+
+  @override
+  String get docsToolsPromoIdeasContent => 'You can create promotions like:';
+
+  @override
+  String get docsToolsPromoIdea1 => '20% off haircuts on Mondays';
+
+  @override
+  String get docsToolsPromoIdea2 => 'Free massage oil with any massage booking';
+
+  @override
+  String get docsToolsPromoIdea3 => '50 off a full-service package';
+
+  @override
+  String get docsToolsPromoIdea4 => 'First-time customer: 30% discount';
+
+  @override
+  String get docsToolsPromoIdea5 => 'Loyalty bonus: 5th service is half price';
+
+  @override
+  String get docsToolsPromoStrategy => 'Use promotions during slow periods to boost bookings. Track which promotions work best through your analytics.';
+
+  @override
+  String get docsToolsExportReportsTitle => '3. Export Reports';
+
+  @override
+  String get docsToolsExportReportsSubtitle => 'Download your data for analysis';
+
+  @override
+  String get docsToolsExportPurpose => 'Download detailed reports of your business data in spreadsheet format. Analyze bookings, revenue, customers, and more.';
+
+  @override
+  String get docsToolsExportTypesTitle => 'Available Reports';
+
+  @override
+  String get docsToolsExportTypesContent => 'You can export:';
+
+  @override
+  String get docsToolsExportType1 => 'Booking reports - all bookings with details';
+
+  @override
+  String get docsToolsExportType2 => 'Revenue reports - earnings by date range';
+
+  @override
+  String get docsToolsExportType3 => 'Customer reports - your client list';
+
+  @override
+  String get docsToolsExportType4 => 'Service reports - performance by service';
+
+  @override
+  String get docsToolsExportType5 => 'Worker reports - staff performance metrics';
+
+  @override
+  String get docsToolsExportWhyTitle => 'Why Export Data?';
+
+  @override
+  String get docsToolsExportWhy => 'Use exported data in Excel for custom analysis, record-keeping, tax purposes, or sharing with accountant.';
+
+  @override
+  String get docsToolsPaymentSettingsTitle => '4. Payment Settings';
+
+  @override
+  String get docsToolsPaymentSettingsSubtitle => 'Configure your payment method';
+
+  @override
+  String get docsToolsPaymentPurpose => 'Set up your payment processor (Paystack or Stripe) so customers can pay for bookings and you can receive payments.';
+
+  @override
+  String get docsToolsPaymentNeededTitle => 'What You Need';
+
+  @override
+  String get docsToolsPaymentNeeded => 'To set up payments, you need: a business account with Paystack or Stripe, bank account for receiving money.';
+
+  @override
+  String get docsToolsPaymentImportance => 'Payment setup is required to accept customer bookings. Without it, customers cannot pay and you cannot receive orders.';
+
+  @override
+  String get docsToolsBusinessHoursTitle => '5. Business Hours';
+
+  @override
+  String get docsToolsBusinessHoursSubtitle => 'Set your working schedule';
+
+  @override
+  String get docsToolsHoursPurpose => 'Configure when your business is open. Customers can only book during hours you set as available.';
+
+  @override
+  String get docsToolsHoursFeaturesTitle => 'Features';
+
+  @override
+  String get docsToolsHoursFeatures => 'Set different hours for each day, mark days as closed, and update hours whenever you need.';
+
+  @override
+  String get docsToolsHoursImportance => 'Accurate hours are crucial. Customers get frustrated when they can\'t book during hours you actually work.';
+
+  @override
+  String get docsToolsServiceManagementTitle => '6. Service Management';
+
+  @override
+  String get docsToolsServiceManagementSubtitle => 'Add and edit your services';
+
+  @override
+  String get docsToolsServicesPurpose => 'Manage your service catalog. Add new services, update pricing, change duration, or archive services you no longer offer.';
+
+  @override
+  String get docsToolsServicesWhyTitle => 'Why Use It?';
+
+  @override
+  String get docsToolsServicesWhy => 'Central place to manage all services. Make changes instantly and they apply to all your bookings.';
+
+  @override
+  String get docsToolsServicesTipsTitle => 'Tips';
+
+  @override
+  String get docsToolsServicesTips => 'Keep service descriptions clear and concise. Prices should match your current rates. Archive (don\'t delete) old services for record-keeping.';
+
+  @override
+  String get docsToolsLoyaltyProgramTitle => '7. Loyalty Program';
+
+  @override
+  String get docsToolsLoyaltyProgramSubtitle => 'Reward repeat customers';
+
+  @override
+  String get docsToolsLoyaltyPurpose => 'Automatically reward customers for repeat visits. Set rules like \"free service after 5 visits\" to encourage loyalty.';
+
+  @override
+  String get docsToolsLoyaltyWhyTitle => 'Why Loyalty Matters';
+
+  @override
+  String get docsToolsLoyaltyWhy => 'Loyal customers spend more money. They refer friends and leave positive reviews. Loyalty programs increase customer lifetime value.';
+
+  @override
+  String get docsToolsLoyaltyIdeasTitle => 'Loyalty Ideas';
+
+  @override
+  String get docsToolsLoyaltyIdeas => 'Example: \"Every 5th haircut is free\" or \"10 visits = 50% off next service\". Simple rules work best.';
+
+  @override
+  String get docsToolsBroadcastsTitle => '8. Broadcasts';
+
+  @override
+  String get docsToolsBroadcastsSubtitle => 'Send messages to customers';
+
+  @override
+  String get docsToolsBroadcastPurpose => 'Send bulk messages to your customers. Announce new services, special offers, or business updates via push notification or WhatsApp.';
+
+  @override
+  String get docsToolsBroadcastWhenTitle => 'When to Broadcast';
+
+  @override
+  String get docsToolsBroadcastWhenContent => 'Use broadcasts to:';
+
+  @override
+  String get docsToolsBroadcastUse1 => 'Announce new services or pricing';
+
+  @override
+  String get docsToolsBroadcastUse2 => 'Promote limited-time offers';
+
+  @override
+  String get docsToolsBroadcastUse3 => 'Share business updates';
+
+  @override
+  String get docsToolsBroadcastUse4 => 'Invite customers to special events';
+
+  @override
+  String get docsToolsBroadcastUse5 => 'Thank customers for their loyalty';
+
+  @override
+  String get docsToolsBroadcastTipsTitle => 'Broadcasting Tips';
+
+  @override
+  String get docsToolsBroadcastTips => 'Keep messages short and valuable. Don\'t broadcast too often or customers will mute notifications. Timing matters - send during business hours.';
+
+  @override
+  String get docsToolsFAQTitle => 'Common Questions';
+
+  @override
+  String get docsToolsFAQSubtitle => 'Get help with tools';
+
+  @override
+  String get docsToolsFAQQ1 => 'Which tool should I use first?';
+
+  @override
+  String get docsToolsFAQA1 => 'Start with Business Hours and Service Management - these are essential. Then add Automated Reminders to reduce no-shows. Add Promotions when you want to boost bookings.';
+
+  @override
+  String get docsToolsFAQQ2 => 'Do tools cost extra?';
+
+  @override
+  String get docsToolsFAQA2 => 'No. All tools are included with your shop account at no additional cost. Use as many as you want.';
+
+  @override
+  String get docsToolsFAQQ3 => 'Will customers receive reminders?';
+
+  @override
+  String get docsToolsFAQA3 => 'Yes - reminders go to customers who have opted into notifications. They receive push notifications and/or SMS depending on their settings.';
+
+  @override
+  String get docsToolsFAQQ4 => 'Can I run multiple promotions at once?';
+
+  @override
+  String get docsToolsFAQA4 => 'Yes. You can run multiple promotions on different services simultaneously. Customers get the best available deal.';
+
+  @override
+  String get docsToolsFAQQ5 => 'How often can I export reports?';
+
+  @override
+  String get docsToolsFAQA5 => 'Anytime you want. Export daily, weekly, or monthly depending on your needs. Data updates in real-time.';
+
+  @override
+  String get docsToolsFAQQ6 => 'What\'s the most important tool?';
+
+  @override
+  String get docsToolsFAQA6 => 'Business Hours and Service Management are essential - set these up first. Then add Reminders to reduce no-shows. Everything else is extra optimization.';
+
+  @override
+  String get docsToolsFAQQ7 => 'Can I change tools settings anytime?';
+
+  @override
+  String get docsToolsFAQA7 => 'Yes. Change your hours, prices, promotions, reminders, or any setting anytime. Changes take effect immediately.';
+
+  @override
+  String get docsToolsFAQQ8 => 'Which tool increases sales most?';
+
+  @override
+  String get docsToolsFAQA8 => 'Promotions during slow times + Loyalty program for repeat customers = biggest sales boost. Analytics shows you which works best.';
+
+  @override
+  String get docsToolsFAQQ9 => 'Do I need to pay for Paystack or Stripe?';
+
+  @override
+  String get docsToolsFAQA9 => 'These payment processors take a small commission (usually 1.5-3%) per transaction. You only pay when you get paid.';
+
+  @override
+  String get docsToolsFAQQ10 => 'Can customers ignore broadcast messages?';
+
+  @override
+  String get docsToolsFAQA10 => 'Yes. Customers control their notification settings. Only those who opted in will receive broadcasts. Respect their preferences.';
+
+  @override
+  String get docsToolsFAQQ11 => 'What happens if I change my business hours?';
+
+  @override
+  String get docsToolsFAQA11 => 'Future bookings follow new hours. Existing bookings are not affected. Customers cannot book outside your updated hours.';
 }
