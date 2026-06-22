@@ -1,5 +1,6 @@
 // lib/features/documentation/data/docs/booking_docs/payment_fees_explained.dart
 import 'package:flutter/material.dart';
+import 'package:nano_embryo/i10n/generated/app_localizations.dart';
 import 'package:nano_embryo/app/documentations/user_manual/models/documentation_model.dart'
     show DocumentationModule;
 import 'package:nano_embryo/app/documentations/user_manual/models/faq_model.dart';
@@ -11,14 +12,19 @@ class PaymentFeesExplainedDocs implements DocumentationModule {
   int get order => 3;
 
   @override
-  String getTitle(BuildContext context) => 'Payment & Fees Explained';
+  String getTitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsPaymentTitle;
+  }
 
   @override
   String get id => 'paymentFeesExplained';
 
   @override
-  String getSubtitle(BuildContext context) =>
-      'How 30% deposits, platform fees, and guest bookings work';
+  String getSubtitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return loc.docsPaymentSubtitle;
+  }
 
   @override
   IconData get icon => Icons.payment;
