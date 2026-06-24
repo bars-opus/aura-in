@@ -108,9 +108,17 @@ async function dispatchWhatsApp(
   // in the edge runtime didn't validate against whatsapp-send's verify_jwt
   // gate). Both functions wrap the same _shared/whatsapp_client helper,
   // so the contract is identical.
-  const orderedParams = Object.keys(params)
+  //
+  // whatsapp_params shape: numeric keys "1","2",… are body params (ordered);
+  // the optional reserved key "button_url_suffix" is the dynamic suffix for
+  // a URL-button template (order_* templates use this — booking templates
+  // don't).
+  const paramsRec = params as Record<string, string>;
+  const urlButtonSuffix = paramsRec["button_url_suffix"];
+  const orderedParams = Object.keys(paramsRec)
+    .filter((k) => /^\d+$/.test(k))
     .sort((a, b) => parseInt(a) - parseInt(b))
-    .map((k) => (params as Record<string, string>)[k]);
+    .map((k) => paramsRec[k]);
 
   let messageId: string;
   try {
@@ -118,6 +126,7 @@ async function dispatchWhatsApp(
       to: phone,
       templateName: template,
       bodyParams: orderedParams,
+      urlButtonSuffix,
     });
     messageId = result.messageId;
   } catch (err) {

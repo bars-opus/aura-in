@@ -18,6 +18,13 @@ export interface SendTemplateInput {
   templateName: string;        // e.g. "booking_confirmation_v1"
   languageCode?: string;       // default "en"
   bodyParams: string[];        // ordered values for {{1}}, {{2}}, …
+  /**
+   * Dynamic suffix appended to a URL-button template at button index 0.
+   * Meta requires the URL base to be static (e.g.
+   * `https://aurain.barsopus.com/order/{{1}}`); we only send the suffix.
+   * Omit if the template has no buttons or only static buttons.
+   */
+  urlButtonSuffix?: string;
 }
 
 export interface SendTemplateResult {
@@ -43,6 +50,26 @@ export async function sendWhatsAppTemplate(
   }
 
   const url = `https://graph.facebook.com/${META_GRAPH_VERSION}/${phoneNumberId}/messages`;
+
+  // Assemble components: body (optional) + URL button at index 0 (optional).
+  // Meta accepts an empty components array as the "no components" case but
+  // omitting the field entirely is cleaner when there are truly no parts.
+  const components: Array<Record<string, unknown>> = [];
+  if (input.bodyParams.length > 0) {
+    components.push({
+      type: "body",
+      parameters: input.bodyParams.map((text) => ({ type: "text", text })),
+    });
+  }
+  if (input.urlButtonSuffix && input.urlButtonSuffix.length > 0) {
+    components.push({
+      type: "button",
+      sub_type: "url",
+      index: "0",
+      parameters: [{ type: "text", text: input.urlButtonSuffix }],
+    });
+  }
+
   const body = {
     messaging_product: "whatsapp",
     to: input.to.replace(/^\+/, ""), // Meta wants digits-only
@@ -50,12 +77,7 @@ export async function sendWhatsAppTemplate(
     template: {
       name: input.templateName,
       language: { code: input.languageCode ?? "en" },
-      components: input.bodyParams.length > 0
-        ? [{
-            type: "body",
-            parameters: input.bodyParams.map((text) => ({ type: "text", text })),
-          }]
-        : undefined,
+      components: components.length > 0 ? components : undefined,
     },
   };
 
