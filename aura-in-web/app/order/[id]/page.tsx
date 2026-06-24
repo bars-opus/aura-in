@@ -7,9 +7,10 @@
 //
 // Server component; force-dynamic so a status update reflects on refresh.
 
-import { fetchOrderDetail } from "@/lib/api";
+import { fetchOrderDetail, fetchOrderReview } from "@/lib/api";
 import { notFound } from "next/navigation";
 import { formatMoney } from "@/lib/format";
+import { OrderReviewForm } from "./order-review-form";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -39,7 +40,10 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function OrderDetailPage({ params }: Props) {
   const { id } = await params;
-  const data = await fetchOrderDetail(id);
+  const [data, review] = await Promise.all([
+    fetchOrderDetail(id),
+    fetchOrderReview(id),
+  ]);
   if (!data) notFound();
 
   const currency = data.currency ?? data.shop?.currency ?? "GHS";
@@ -209,6 +213,55 @@ export default async function OrderDetailPage({ params }: Props) {
           </div>
         </section>
       )}
+
+      {/* Review section: shows the submitted review if any; otherwise an
+          inline form when the order is delivered. Pre-delivery the section
+          is hidden — customers shouldn't review what hasn't arrived. */}
+      {review ? (
+        <section className="max-w-md mx-auto px-4 pt-3">
+          <div className="bg-white rounded-xl border border-slate-200 p-4">
+            <h2 className="text-xs uppercase tracking-wide text-slate-500 mb-2 font-medium">
+              Your review
+            </h2>
+            <div
+              className="flex items-center gap-1"
+              aria-label={`${review.rating} out of 5 stars`}
+            >
+              {[1, 2, 3, 4, 5].map((i) => (
+                <span
+                  key={i}
+                  className={
+                    i <= review.rating
+                      ? "text-amber-400 text-lg leading-none"
+                      : "text-slate-200 text-lg leading-none"
+                  }
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+            {review.comment && (
+              <p className="mt-2 text-sm text-slate-700 whitespace-pre-wrap">
+                {review.comment}
+              </p>
+            )}
+            {review.shop_response && (
+              <div className="mt-3 bg-slate-50 rounded-lg p-3 border border-slate-100">
+                <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">
+                  Shop response
+                </p>
+                <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                  {review.shop_response}
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      ) : data.status === "delivered" ? (
+        <section className="max-w-md mx-auto px-4 pt-3">
+          <OrderReviewForm orderId={data.id} shopName={data.shop?.name ?? "this shop"} />
+        </section>
+      ) : null}
 
       <p className="max-w-md mx-auto px-4 pt-6 text-xs text-slate-400 text-center">
         Reference: {data.id.slice(0, 8)}
