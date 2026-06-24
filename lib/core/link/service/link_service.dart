@@ -26,6 +26,25 @@ class LinkService {
     );
   }
 
+  /// Create a shop-products marketplace link (/m/<slug>) that lets clients
+  /// browse + order this shop's products without installing the app.
+  /// Reuses the same short_links table as the booking link, distinguished
+  /// only by link_type = 'shop_products'.
+  Future<LinkCreationResult> createShopProductsLink({
+    required String shopId,
+    String? customSlug,
+    Map<String, dynamic>? metadata,
+    Duration? expiresIn,
+  }) async {
+    return _createLink(
+      type: LinkType.shopProducts,
+      targetId: shopId,
+      customSlug: customSlug,
+      metadata: metadata,
+      expiresIn: expiresIn,
+    );
+  }
+
   /// Create a worker link
   Future<LinkCreationResult> createWorkerLink({
     required String workerId,
@@ -113,7 +132,7 @@ class LinkService {
       final linkData = {
         'slug': slug,
         'app_id': _config.appId,
-        'link_type': type.name,
+        'link_type': type.value,
         'target_id': targetId,
         'metadata': metadata ?? {},
         'created_by': userId,

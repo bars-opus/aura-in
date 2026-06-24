@@ -19,6 +19,10 @@ import type {
   GetSlotsResponse,
   BookingDetail,
   BookingReview,
+  ShopProductsResponse,
+  OrderDetail,
+  CreateGuestOrderRequest,
+  CreateGuestOrderResponse,
 } from "./types";
 
 /**
@@ -283,4 +287,71 @@ export async function submitGuestReview(
   }
   const data = (await res.json().catch(() => null)) as BookingReview | null;
   return { ok: true, review: data ?? undefined };
+}
+
+// ────────────────────────────────────────────────────────────────────────
+// Link-products: shop products grid + guest checkout + order tracking
+// ────────────────────────────────────────────────────────────────────────
+
+/** Resolve a shop_products slug to its shop + product grid. */
+export async function resolveProductsLink(
+  slug: string,
+): Promise<ShopProductsResponse | null> {
+  const { supabaseUrl, anonKey } = getSupabaseEnv();
+  const url = `${supabaseUrl}/functions/v1/resolve-products-link?slug=${encodeURIComponent(slug)}`;
+  const res = await fetch(url, {
+    method: "GET",
+    headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` },
+    next: { revalidate: 30 },
+  });
+  if (!res.ok) return null;
+  return (await res.json().catch(() => null)) as ShopProductsResponse | null;
+}
+
+/** Submit a guest order via the edge function. */
+export async function createGuestOrder(
+  body: CreateGuestOrderRequest,
+): Promise<CreateGuestOrderResponse> {
+  const { supabaseUrl, anonKey } = getSupabaseEnv();
+  const url = `${supabaseUrl}/functions/v1/create-guest-order`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+  const data = (await res.json().catch(() => null)) as
+    | CreateGuestOrderResponse
+    | { error?: string }
+    | null;
+  if (!res.ok || !data || !("success" in data) || !data.success) {
+    return {
+      success: false,
+      error: (data && "error" in data ? data.error : null) ?? "Could not place order.",
+    };
+  }
+  return data;
+}
+
+/** Fetch a public order detail by ID. */
+export async function fetchOrderDetail(
+  id: string,
+): Promise<OrderDetail | null> {
+  const { supabaseUrl, anonKey } = getSupabaseEnv();
+  const res = await fetch(`${supabaseUrl}/rest/v1/rpc/get_order_detail`, {
+    method: "POST",
+    headers: {
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ p_id: id }),
+    cache: "no-store",
+  });
+  if (!res.ok) return null;
+  return (await res.json().catch(() => null)) as OrderDetail | null;
 }

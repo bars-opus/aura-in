@@ -207,6 +207,94 @@ export interface CreateBookingResponse {
  * Shape returned by get_booking_detail RPC. Used by the /booking/[id] page
  * accessible from the WhatsApp confirmation link. Phone is server-redacted.
  */
+// ────────────────────────────────────────────────────────────────────────
+// Products / orders (link-products feature)
+// ────────────────────────────────────────────────────────────────────────
+
+export interface ShopProductsTarget {
+  id: string;
+  name: string;
+  type: string | null;
+  logo_url: string | null;
+  address: string | null;
+  country: string | null;
+  currency: string | null;
+  currency_symbol: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  phone: string | null;
+  whatsapp: string | null;
+}
+
+export interface ShopProduct {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  images: string[] | null;
+  category: string | null;
+  stock_quantity: number;
+  average_rating: number | null;
+  review_count: number | null;
+}
+
+export interface ShopProductsResponse {
+  shop: ShopProductsTarget;
+  products: ShopProduct[];
+}
+
+export interface OrderItem {
+  product_id: string;
+  name: string | null;
+  image: string | null;
+  quantity: number;
+  unit_price: number;
+  subtotal: number;
+}
+
+export interface OrderDetail {
+  id: string;
+  status:
+    | "pending_confirmation"
+    | "confirmed"
+    | "out_for_delivery"
+    | "delivered"
+    | "cancelled"
+    | "disputed";
+  total_amount: number;
+  currency: string | null;
+  currency_symbol: string | null;
+  delivery_address: string;
+  customer_phone_masked: string | null;
+  customer_notes: string | null;
+  shop_notes: string | null;
+  created_at: string;
+  confirmed_at: string | null;
+  dispatched_at: string | null;
+  delivered_at: string | null;
+  cancelled_at: string | null;
+  shop: ShopProductsTarget | null;
+  items: OrderItem[];
+}
+
+export interface CreateGuestOrderRequest {
+  shopId: string;
+  guestName: string;
+  guestPhone: string;
+  deliveryAddress: string;
+  customerNotes?: string;
+  items: Array<{ productId: string; quantity: number }>;
+  totalAmount: number;
+  idempotencyKey: string;
+  deliveryChannel?: "whatsapp" | "none";
+}
+
+export interface CreateGuestOrderResponse {
+  success: boolean;
+  orderId?: string;
+  error?: string;
+}
+
 export interface BookingReview {
   id: string;
   rating: number;

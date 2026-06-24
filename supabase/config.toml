@@ -38,3 +38,17 @@ verify_jwt = false
 
 [functions.whatsapp-webhook]
 verify_jwt = false
+
+# Public product-link resolver — called anonymously from the marketing/shop
+# web page when a visitor opens https://aurain.barsopus.com/m/<slug>.
+# No JWT required by design.
+
+[functions.resolve-products-link]
+verify_jwt = false
+
+# Public guest order creation — called anonymously from the web checkout
+# at /m/<slug>. Validates input, upserts guest profile, calls the
+# create_guest_order RPC, schedules WhatsApp confirmation.
+
+[functions.create-guest-order]
+verify_jwt = false
