@@ -2,15 +2,30 @@ import 'package:flutter/foundation.dart';
 
 /// Types of links supported by the system
 enum LinkType {
-  shop, // Link to a shop profile
+  shop, // Link to a shop profile (booking page — /book/<slug>)
   worker, // Link to a worker/stylist profile
   booking, // Link to a specific booking
+  // Shareable URL for a shop's products marketplace — /m/<slug>.
+  // Stored as link_type='shop_products' in the short_links table; the
+  // hyphen-less Dart name is just for enum convention.
+  shopProducts,
   campaign, // Marketing campaign link
   custom; // Custom destination
 
-  String get value => name;
+  /// Server-side link_type literal stored in short_links.link_type.
+  /// Must match the values expected by the slug-sync triggers and the
+  /// resolve-link / resolve-products-link edge functions.
+  String get value {
+    switch (this) {
+      case LinkType.shopProducts:
+        return 'shop_products';
+      default:
+        return name;
+    }
+  }
 
   static LinkType fromString(String value) {
+    if (value == 'shop_products') return shopProducts;
     return values.firstWhere((e) => e.name == value, orElse: () => custom);
   }
 }

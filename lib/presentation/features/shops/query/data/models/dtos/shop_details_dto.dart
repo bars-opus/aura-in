@@ -65,6 +65,11 @@ class ShopDetailsDTO extends Equatable {
   /// first slug is generated (e.g. older shops or a failed initial sync).
   final String? bookingSlug;
 
+  /// Public products slug (mirrors `shops.products_slug`). Synced by the
+  /// trigger on short_links rows of link_type='shop_products'. Drives the
+  /// /m/<slug> web marketplace page.
+  final String? productsSlug;
+
   const ShopDetailsDTO({
     required this.id,
     required this.userId,
@@ -99,6 +104,7 @@ class ShopDetailsDTO extends Equatable {
     this.amenityIds = const [],
     this.totalReviews,
     this.bookingSlug,
+    this.productsSlug,
   });
 
   factory ShopDetailsDTO.fromJson(Map<String, dynamic> json) {
@@ -229,6 +235,7 @@ class ShopDetailsDTO extends Equatable {
       services: services, // ✅ Now populated
       amenityIds: amenityIds, // ✅ Now populated
       bookingSlug: json['booking_slug'] as String?,
+      productsSlug: json['products_slug'] as String?,
     );
   }
 
