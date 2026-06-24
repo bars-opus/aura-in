@@ -21,6 +21,7 @@ import type {
   BookingReview,
   ShopProductsResponse,
   OrderDetail,
+  OrderReview,
   CreateGuestOrderRequest,
   CreateGuestOrderResponse,
 } from "./types";
@@ -354,4 +355,55 @@ export async function fetchOrderDetail(
   });
   if (!res.ok) return null;
   return (await res.json().catch(() => null)) as OrderDetail | null;
+}
+
+/** Fetch the order's review (one per guest order), or null if not submitted. */
+export async function fetchOrderReview(
+  orderId: string,
+): Promise<OrderReview | null> {
+  const { supabaseUrl, anonKey } = getSupabaseEnv();
+  const res = await fetch(`${supabaseUrl}/rest/v1/rpc/get_order_review`, {
+    method: "POST",
+    headers: {
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ p_order_id: orderId }),
+    cache: "no-store",
+  });
+  if (!res.ok) return null;
+  return (await res.json().catch(() => null)) as OrderReview | null;
+}
+
+/** Submit a guest order review. Idempotent on (order, guest, product). */
+export async function submitGuestOrderReview(
+  orderId: string,
+  rating: number,
+  comment: string,
+): Promise<{ ok: boolean; review?: OrderReview; error?: string }> {
+  const { supabaseUrl, anonKey } = getSupabaseEnv();
+  const res = await fetch(
+    `${supabaseUrl}/rest/v1/rpc/submit_guest_order_review`,
+    {
+      method: "POST",
+      headers: {
+        apikey: anonKey,
+        Authorization: `Bearer ${anonKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        p_order_id: orderId,
+        p_rating: rating,
+        p_comment: comment,
+      }),
+      cache: "no-store",
+    },
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    return { ok: false, error: err?.message ?? "Could not submit review." };
+  }
+  const data = (await res.json().catch(() => null)) as OrderReview | null;
+  return { ok: true, review: data ?? undefined };
 }

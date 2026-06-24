@@ -252,6 +252,17 @@ export interface OrderItem {
   subtotal: number;
 }
 
+export interface OrderReview {
+  id: string;
+  rating: number;
+  comment: string | null;
+  shop_response?: string | null;
+  shop_response_at?: string | null;
+  created_at: string;
+  updated_at?: string;
+  already_submitted?: boolean;
+}
+
 export interface OrderDetail {
   id: string;
   status:

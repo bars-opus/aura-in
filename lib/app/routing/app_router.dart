@@ -235,6 +235,12 @@ class _DeepLinkResolverScreenState
       case LinkType.shop:
       case LinkType.worker:
       case LinkType.booking:
+      // shop_products links land on the same in-app destination — the
+      // shop's detail screen is the right home for both the booking
+      // entry point and the products grid (the screen's Products tab
+      // covers the marketplace experience for users who already have
+      // the app installed). Guests still go to /m/<slug> on the web.
+      case LinkType.shopProducts:
         context.pushReplacement(
           RouteNames.shopDetailsScreen,
           extra: <String, String?>{
