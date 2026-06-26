@@ -11,6 +11,23 @@
 
 
 
+Do this:
+git add -A
+git commit -m "wip: save uncommitted work before merge"
+
+
+Which branch are you on and what works did you just commit?
+
+
+
+On branch feat/freelancer-tags-product-rails.
+
+The commit only captured architecture/algorithms/algorithm_quality_review_checklist.md — that was the only unstaged change git saw. All the actual feature work from this session (product rails, notifications, iOS entitlements, checkout screen, etc.) was already committed in previous commits on this branch.
+
+
+
+
+
 
 // supabase secrets set WHATSAPP_VERIFY_TOKEN=3765b6803b1f283313ae9d7e6708b4fe1cd83103
 
