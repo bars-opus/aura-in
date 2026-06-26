@@ -56,7 +56,7 @@ class TabsWithContent extends StatefulWidget {
 }
 
 class _TabsWithContentState extends State<TabsWithContent>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late TabController _tabController;
   late int _currentIndex;
 
@@ -77,15 +77,16 @@ class _TabsWithContentState extends State<TabsWithContent>
   ScrollPhysics? get _tabViewPhysics =>
       _swipeEnabled ? null : const NeverScrollableScrollPhysics();
 
-  bool Function(int)? get _onTabTap => widget.onTabChangeRequest != null
-      ? (index) {
-          final fromIndex = _currentIndex;
-          if (fromIndex == index) return true;
-          final allow = widget.onTabChangeRequest!(fromIndex, index);
-          if (allow) _tabController.animateTo(index);
-          return allow;
-        }
-      : null;
+  bool Function(int)? get _onTabTap =>
+      widget.onTabChangeRequest != null
+          ? (index) {
+            final fromIndex = _currentIndex;
+            if (fromIndex == index) return true;
+            final allow = widget.onTabChangeRequest!(fromIndex, index);
+            if (allow) _tabController.animateTo(index);
+            return allow;
+          }
+          : null;
 
   @override
   void initState() {
@@ -108,10 +109,11 @@ class _TabsWithContentState extends State<TabsWithContent>
     if (oldWidget.tabs.length != widget.tabs.length) {
       _tabController.removeListener(_onTabControllerChanged);
       _tabController.dispose();
+      _currentIndex = _currentIndex.clamp(0, widget.tabs.length - 1);
       _tabController = TabController(
         length: widget.tabs.length,
         vsync: this,
-        initialIndex: _currentIndex.clamp(0, widget.tabs.length - 1),
+        initialIndex: _currentIndex,
       );
       _tabController.addListener(_onTabControllerChanged);
     }
@@ -217,8 +219,7 @@ class _TabsWithContentState extends State<TabsWithContent>
                 scrollable: widget.scrollable,
                 onTabTap: _onTabTap,
               ),
-              if (widget.showContent)
-                SizedBox(height: widget.contentSpacing.h),
+              if (widget.showContent) SizedBox(height: widget.contentSpacing.h),
             ],
           ),
         ),
@@ -231,9 +232,10 @@ class _TabsWithContentState extends State<TabsWithContent>
             child: TabBarView(
               controller: _tabController,
               physics: _tabViewPhysics,
-              children: widget.tabs
-                  .map((tab) => tab.content ?? const SizedBox())
-                  .toList(),
+              children:
+                  widget.tabs
+                      .map((tab) => tab.content ?? const SizedBox())
+                      .toList(),
             ),
           ),
       ],

@@ -150,11 +150,11 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
             ),
 
             SemanticContainerWidget(
+              title: 'Revenue overview',
               content:
-                  'Kindly wait for the paypemt to finish processing and return to your app to generate your appointment',
+                  'Review your quarterly revenue, compare performance, and use the analytics tabs to understand how this shop is doing over time.',
               icon: Icons.monetization_on,
-              title: '',
-              backgroundColor: colorScheme.primary.withOpacity(0.1),
+              backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
               borderColor: colorScheme.primary,
               iconColor: colorScheme.primary,
               textTheme: theme.textTheme,

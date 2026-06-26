@@ -5,11 +5,13 @@ import 'package:nano_embryo/core/moderation/config/moderation_config.dart';
 import 'package:nano_embryo/core/moderation/data/moderation_models.dart';
 import 'package:nano_embryo/core/moderation/presentation/providers/moderation_provider.dart';
 import 'package:nano_embryo/core/moderation/presentation/widgets/moderation_unavailable_widget.dart';
+import 'package:nano_embryo/core/notifications/presentation/widgets/notification_bell_icon.dart';
 import 'package:nano_embryo/core/providers/profile_providers/profile_provider.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/presentation/features/chat/presentation/screens/chat_screen.dart';
 import 'package:nano_embryo/presentation/features/chat/presentation/state/chat_state.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/account_products_provider.dart';
 import 'package:nano_embryo/presentation/features/profile/models/profile.dart';
 import 'package:nano_embryo/presentation/features/profile/models/profile_search_result.dart';
 import 'package:nano_embryo/presentation/features/admin/providers/admin_provider.dart';
@@ -32,26 +34,25 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen>
-    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
-  late final TabController _tabController;
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  TabController? _tabController;
+  int _tabCount = 0;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-      length:
-          buildProfileTabs(
-            widget.profileUserId,
-            widget.currentUserId == widget.profileUserId,
-            false,
-          ).length,
-      vsync: this,
-    );
+    _tabCount =
+        buildProfileTabs(
+          widget.profileUserId,
+          widget.currentUserId == widget.profileUserId,
+          false,
+        ).length;
+    _tabController = TabController(length: _tabCount, vsync: this);
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController?.dispose();
     super.dispose();
   }
 
@@ -226,6 +227,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final productsState = ref.watch(
+      accountProductsProvider(widget.profileUserId),
+    );
+    final showBuysTab =
+        productsState.isInitialLoading || productsState.items.isNotEmpty;
     final tabs = buildProfileTabs(
       // The tabs reflect the profile being VIEWED, so the first arg is
       // profileUserId (matches the init call above). Passing currentUserId
@@ -234,7 +240,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       isAuthor,
       false,
       loc: loc,
+      showBuysTab: showBuysTab,
     );
+    _syncTabController(tabs.length);
+    final tabController = _tabController!;
 
     return Scaffold(
       body: NestedScrollView(
@@ -291,14 +300,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                               ),
                             ),
                             const SizedBox(width: 15),
-                            if (isAuthor)
-                              AppIconButton(
-                                icon: Icons.notifications_active_outlined,
-                                onPressed:
-                                    () => context.showLoadingSnackbar(
-                                      loc.profileScreenLoadingNotifications,
-                                    ),
-                              ),
+                            if (isAuthor) const NotificationBellIcon(),
                             if (isAuthor)
                               AppIconButton(
                                 icon: Icons.menu,
@@ -352,24 +354,32 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                       showActions: true,
                     ),
                     if (isAuthor)
-                      ref.watch(isCurrentUserAdminProvider).maybeWhen(
-                        data: (isAdmin) => isAdmin
-                            ? CardInkWell(
-                                margin: EdgeInsets.only(bottom: 10.h),
-                                child: InfoRowWidget(
-                                  title: 'Verification queue',
-                                  subtitle: 'Review pending producer documents',
-                                  icon: Icons.verified_user_outlined,
-                                  avatarRadius: 25.h,
-                                  onTap: () => context.push('/adminVerificationQueue'),
-                                  showAvatar: false,
-                                  showTrailingArrow: true,
-                                  showDivider: false,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                        orElse: () => const SizedBox.shrink(),
-                      ),
+                      ref
+                          .watch(isCurrentUserAdminProvider)
+                          .maybeWhen(
+                            data:
+                                (isAdmin) =>
+                                    isAdmin
+                                        ? CardInkWell(
+                                          margin: EdgeInsets.only(bottom: 10.h),
+                                          child: InfoRowWidget(
+                                            title: 'Verification queue',
+                                            subtitle:
+                                                'Review pending producer documents',
+                                            icon: Icons.verified_user_outlined,
+                                            avatarRadius: 25.h,
+                                            onTap:
+                                                () => context.push(
+                                                  '/adminVerificationQueue',
+                                                ),
+                                            showAvatar: false,
+                                            showTrailingArrow: true,
+                                            showDivider: false,
+                                          ),
+                                        )
+                                        : const SizedBox.shrink(),
+                            orElse: () => const SizedBox.shrink(),
+                          ),
                   ],
                 ),
               ),
@@ -378,19 +388,32 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               pinned: true,
               delegate: TabBarDelegate(
                 tabs: tabs,
-                tabController: _tabController,
+                tabController: tabController,
               ),
             ),
           ];
         },
         body: TabBarView(
-          controller: _tabController,
+          controller: tabController,
           children:
               tabs
                   .map((tab) => tab.content ?? const SizedBox.shrink())
                   .toList(),
         ),
       ),
+    );
+  }
+
+  void _syncTabController(int length) {
+    if (_tabController != null && _tabCount == length) return;
+    final previousIndex = _tabController?.index ?? 0;
+    _tabController?.dispose();
+    _tabCount = length;
+    _tabController = TabController(
+      length: length,
+      vsync: this,
+      initialIndex:
+          length == 0 ? 0 : previousIndex.clamp(0, length - 1).toInt(),
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:nano_embryo/presentation/features/products/data/models/cart_item_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/screens/customer_orders_screen.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/qty_stepper.dart';
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
@@ -26,7 +27,7 @@ class CartScreen extends ConsumerWidget {
           MarketplaceStrings.cartTitle,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface.withOpacity(0.8),
+            color: colorScheme.onSurface.withValues(alpha: 0.8),
           ),
         ),
         actions: [
@@ -59,74 +60,98 @@ class CartScreen extends ConsumerWidget {
         ],
       ),
 
-      body:
-          cartState.isEmpty
-              ? _buildEmptyCart()
-              : Column(
-                children: [
-                  if (cartState.error != null)
-                    ErrorStateWidget(title: cartState.error!),
-                  // Cart items list
-                  Expanded(
-                    child: ListView.builder(
-                      padding: EdgeInsets.all(16.w),
-                      itemCount: cartState.items.length,
-                      itemBuilder: (context, index) {
-                        final item = cartState.items[index];
-                        return _buildCartItem(
-                          context,
-                          item,
-                          cartNotifier,
-                          theme,
-                        );
-                      },
-                    ),
-                  ),
+      body: TabsWithContent(
+        tabs: [
+          AppTabItem(
+            label: MarketplaceStrings.cartTitle,
+            icon: Icons.shopping_cart_outlined,
+            content: _buildCartContent(
+              context,
+              cartState,
+              cartNotifier,
+              theme,
+              textTheme,
+            ),
+          ),
+          const AppTabItem(
+            label: 'Orders',
+            icon: Icons.receipt_long_outlined,
+            content: CustomerOrdersTab(),
+          ),
+        ],
+      ),
+    );
+  }
 
-                  // Bottom checkout bar
-                  CardInkWell(
-                    margin: const EdgeInsets.all(0),
-                    child: Column(
-                      children: [
-                        InfoRowWidget(
-                          subtitle: '',
-                          title: '${cartState.itemCount} item(s)',
-                          icon: Icons.memory,
-                          iconSize: 0.0,
-                          avatarRadius: 25.h,
-                          onTap: () {},
-                          disableTrailing: false,
-                          showAvatar: false,
-                          showDivider: false,
-                          showTrailingArrow: false,
-                          trailing: Text(
-                            Currency.formatWithSymbol(
-                              cartState.totalAmount,
-                              cartState.currencySymbol,
-                            ),
-                            semanticsLabel:
-                                'Total ${Currency.formatWithSymbol(cartState.totalAmount, cartState.currencySymbol)}',
-                            style: textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                        Gap(Spacing.md),
-                        AppButton(
-                          height: 40.h,
-                          label: MarketplaceStrings.proceedToCheckout,
-                          onPressed: () => context.pushNamed('checkout'),
-                          padding: Spacing.horizontalMd,
-                          size: ButtonSize.small,
-                          width: double.infinity,
-                        ),
-                        Gap(Spacing.lg.h),
-                      ],
-                    ),
+  Widget _buildCartContent(
+    BuildContext context,
+    CartState cartState,
+    CartNotifier cartNotifier,
+    ThemeData theme,
+    TextTheme textTheme,
+  ) {
+    if (cartState.isEmpty) return _buildEmptyCart();
+
+    return Column(
+      children: [
+        if (cartState.error != null) ErrorStateWidget(title: cartState.error!),
+        Expanded(
+          child: ListView.builder(
+            padding: EdgeInsets.all(16.w),
+            itemCount: cartState.items.length,
+            itemBuilder: (context, index) {
+              final item = cartState.items[index];
+              return _buildCartItem(
+                context,
+                item,
+                cartNotifier,
+                theme,
+              );
+            },
+          ),
+        ),
+        CardInkWell(
+          margin: const EdgeInsets.all(0),
+          child: Column(
+            children: [
+              InfoRowWidget(
+                subtitle: '',
+                title: '${cartState.itemCount} item(s)',
+                icon: Icons.memory,
+                iconSize: 0.0,
+                avatarRadius: 25.h,
+                onTap: () {},
+                disableTrailing: false,
+                showAvatar: false,
+                showDivider: false,
+                showTrailingArrow: false,
+                trailing: Text(
+                  Currency.formatWithSymbol(
+                    cartState.totalAmount,
+                    cartState.currencySymbol,
                   ),
-                ],
+                  semanticsLabel:
+                      'Total ${Currency.formatWithSymbol(cartState.totalAmount, cartState.currencySymbol)}',
+                  style: textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
               ),
+              Gap(Spacing.md),
+              AppButton(
+                height: 40.h,
+                label: MarketplaceStrings.proceedToCheckout,
+                onPressed: () => context.pushNamed('checkout'),
+                padding: Spacing.horizontalMd,
+                size: ButtonSize.small,
+                width: double.infinity,
+              ),
+              Gap(Spacing.lg.h),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

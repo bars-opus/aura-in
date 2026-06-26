@@ -64,61 +64,77 @@ NotificationConfig buildNanoEmbryoNotificationConfig() {
     onNotificationTap: (notification, context) {
       final type = notification.data?['type'] as String?;
       final shopId = notification.data?['shop_id'] as String?;
+      final bookingId = notification.data?['booking_id'] as String?;
+      final orderId = notification.data?['order_id'] as String?;
 
-      switch (type) {
-        case 'booking_reminder_24h':
-        case 'booking_reminder_1h':
-        case 'booking_reminder_5min':
-        case 'shop_reminder_15min':
-        case 'booking_created':
-        case 'booking_confirmed':
-        case 'booking_cancelled':
+      if (type == 'booking_reminder_24h' ||
+          type == 'booking_reminder_1h' ||
+          type == 'booking_reminder_5min' ||
+          type == 'shop_reminder_15min' ||
+          type == 'booking_confirmation' ||
+          type == 'booking_created' ||
+          type == 'booking_confirmed' ||
+          type == 'booking_cancelled' ||
+          type == 'new_booking' ||
+          type == 'new_booking_shop') {
+        if (bookingId != null && bookingId.isNotEmpty) {
+          GoRouter.of(context).push(
+            RouteNames.bookingDetail,
+            extra: {'bookingId': bookingId},
+          );
+        } else {
           GoRouter.of(context).go(RouteNames.calendar);
-
-        case 'new_shop_nearby':
-          if (shopId != null && shopId.isNotEmpty) {
-            GoRouter.of(context).push(
-              RouteNames.shopDetailsScreen,
-              extra: {'shopId': shopId, 'coverImageUrl': ''},
-            );
-          } else {
-            GoRouter.of(context).go(RouteNames.home);
-          }
-
-        case 'review_request':
-        case 'new_message':
-          final channelUrl = notification.data?['channel_url'] as String?;
-          if (channelUrl != null && channelUrl.isNotEmpty) {
-            GoRouter.of(context).push(
-              '${RouteNames.chatChannel}?url=${Uri.encodeComponent(channelUrl)}',
-            );
-          } else {
-            GoRouter.of(context).go(RouteNames.home);
-          }
-
-        case 'order_placed':
-          // Seller's order detail. create_order's payload carries order_id +
-          // shop_id; shopOrderDetail expects extra: {orderId, shopId}.
-          final orderId = notification.data?['order_id'] as String?;
-          if (orderId != null && orderId.isNotEmpty && shopId != null && shopId.isNotEmpty) {
-            GoRouter.of(context).push(
-              RouteNames.shopOrderDetail,
-              extra: {'orderId': orderId, 'shopId': shopId},
-            );
-          } else {
-            GoRouter.of(context).go(RouteNames.home);
-          }
-
-        case 'out_of_stock':
-          // Deep-link to the seller's product list so they can restock.
-          if (shopId != null && shopId.isNotEmpty) {
-            GoRouter.of(context).push(RouteNames.shopProducts, extra: shopId);
-          } else {
-            GoRouter.of(context).go(RouteNames.home);
-          }
-
-        default:
+        }
+      } else if (type == 'new_shop_nearby') {
+        if (shopId != null && shopId.isNotEmpty) {
+          GoRouter.of(context).push(
+            RouteNames.shopDetailsScreen,
+            extra: {'shopId': shopId, 'coverImageUrl': ''},
+          );
+        } else {
           GoRouter.of(context).go(RouteNames.home);
+        }
+      } else if (type == 'review_request' || type == 'new_message') {
+        final channelUrl = notification.data?['channel_url'] as String?;
+        if (channelUrl != null && channelUrl.isNotEmpty) {
+          GoRouter.of(context).push(
+            '${RouteNames.chatChannel}?url=${Uri.encodeComponent(channelUrl)}',
+          );
+        } else {
+          GoRouter.of(context).go(RouteNames.home);
+        }
+      } else if (type == 'order_placed') {
+        final targetRole = notification.data?['target_role'] as String? ??
+            notification.data?['role'] as String?;
+        if (orderId != null && orderId.isNotEmpty) {
+          if (targetRole == 'seller' ||
+              targetRole == 'shop_owner' ||
+              targetRole == 'shop') {
+            if (shopId != null && shopId.isNotEmpty) {
+              GoRouter.of(context).push(
+                RouteNames.shopOrderDetail,
+                extra: {'orderId': orderId, 'shopId': shopId},
+              );
+            } else {
+              GoRouter.of(context).go(RouteNames.home);
+            }
+          } else {
+            GoRouter.of(context).push(
+              RouteNames.customerOrderDetail,
+              extra: orderId,
+            );
+          }
+        } else {
+          GoRouter.of(context).go(RouteNames.home);
+        }
+      } else if (type == 'out_of_stock') {
+        if (shopId != null && shopId.isNotEmpty) {
+          GoRouter.of(context).push(RouteNames.shopProducts, extra: shopId);
+        } else {
+          GoRouter.of(context).go(RouteNames.home);
+        }
+      } else {
+        GoRouter.of(context).go(RouteNames.home);
       }
     },
     // ── App-specific settings toggles ─────────────────────────────────────────

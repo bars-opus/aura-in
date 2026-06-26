@@ -22,13 +22,13 @@ class WalletScreen extends ConsumerStatefulWidget {
   final String shopCurrencyCode;
 
   const WalletScreen({
-    Key? key,
+    super.key,
     required this.shopId,
     required this.shopOwnerId,
     required this.shopCurrencyCode,
     required this.shopCountry,
     required this.shopName,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<WalletScreen> createState() => _WalletScreenState();
@@ -66,6 +66,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final loc = AppLocalizations.of(context)!;
+    final dashboardDocs = DashboardDocs();
 
     // Watch wallet data
     final walletAsync = ref.watch(shopWalletProvider(widget.shopId));
@@ -128,10 +129,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           bottom: Spacing.sm,
                         ),
                         child: SemanticContainerWidget(
+                          title: 'Payment setup',
                           content: loc.walletPaymentProcessing,
                           icon: Icons.monetization_on,
-                          title: '',
-                          backgroundColor: colorScheme.primary.withOpacity(0.1),
+                          backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
                           borderColor: colorScheme.primary,
                           iconColor: colorScheme.primary,
                           textTheme: theme.textTheme,
@@ -151,6 +152,36 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     );
                     return const SizedBox.shrink();
                   },
+                ),
+              ),
+
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.only(top: Spacing.md.h),
+                  child: GestureDetector(
+                    onTap: () {
+                      BottomSheetUtils.showDocumentationBottomSheet(
+                        context: context,
+                        showButtons: false,
+                        widget: DocumentationTabView(
+                          documentation: dashboardDocs.getSections(context),
+                          faqs: dashboardDocs.getFAQs(context),
+                          showDocumentationFirst: true,
+                        ),
+                      );
+                    },
+                    child: SemanticContainerWidget(
+                      title: 'Wallet overview',
+                      content:
+                          'See what is available to withdraw, how much you have earned in total, and review your recent transactions in one place.',
+                      icon: Icons.account_balance_wallet_outlined,
+                      trailingIcon: Icons.arrow_forward_ios_sharp,
+                      backgroundColor: colorScheme.primary.withValues(alpha: 0.08),
+                      borderColor: colorScheme.primary,
+                      iconColor: colorScheme.primary,
+                      textTheme: theme.textTheme,
+                    ),
+                  ),
                 ),
               ),
 

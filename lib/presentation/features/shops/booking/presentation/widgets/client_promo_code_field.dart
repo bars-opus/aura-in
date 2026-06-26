@@ -12,7 +12,7 @@
 //      previously-applied (auto or manual) code with the new one.
 //
 // All discount math is server-authoritative. The widget passes
-// (promotionId, amountOff, newTotal) to the parent screen via the
+// (promotionId, amountOffMinor, newTotalMinor) to the parent screen via the
 // [onApplied] callback; the parent re-derives platform fee from the
 // discounted new_total and stores promotionId for processPayment.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +25,7 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dash
 
 class ClientPromoCodeField extends ConsumerStatefulWidget {
   final String shopId;
+  final String currency;
 
   /// Caller identity. Exactly one must be non-null. The widget's
   /// internal RPC calls pass these straight through to the server.
@@ -53,6 +54,7 @@ class ClientPromoCodeField extends ConsumerStatefulWidget {
   const ClientPromoCodeField({
     super.key,
     required this.shopId,
+    required this.currency,
     required this.userId,
     required this.guestProfileId,
     required this.bookingTotal,
@@ -148,8 +150,8 @@ class _ClientPromoCodeFieldState extends ConsumerState<ClientPromoCodeField> {
     final applied = AppliedPromo(
       promotionId: result.promotionId,
       code: result.code,
-      amountOffMinor: parseMoneyMinor(result.amountOff),
-      newTotalMinor: parseMoneyMinor(result.newTotal),
+      amountOffMinor: result.amountOffMinor,
+      newTotalMinor: result.newTotalMinor,
       source: result.source,
     );
     setState(() => _applied = applied);
@@ -168,7 +170,7 @@ class _ClientPromoCodeFieldState extends ConsumerState<ClientPromoCodeField> {
     if (_applied != null) {
       return CardInkWell(
         child: InfoRowWidget(
-          subtitle: '-${formatMoney(_applied!.amountOffMinor, "")}',
+          subtitle: '-${formatMoney(_applied!.amountOffMinor, widget.currency)}',
           title: _applied!.displayLabel,
           icon: Icons.local_offer_outlined,
           avatarRadius: 25.h,

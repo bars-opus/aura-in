@@ -138,6 +138,11 @@ class NotificationListTile extends StatelessWidget {
       case 'booking_reminder_24h':
       case 'booking_reminder_1h':
       case 'booking_reminder_5min':
+      case 'booking_confirmation':
+      case 'booking_created':
+      case 'booking_confirmed':
+      case 'booking_cancelled':
+      case 'new_booking_shop':
         return Icons.event_available;
       case 'shop_reminder_15min':
         return Icons.storefront;
@@ -145,6 +150,8 @@ class NotificationListTile extends StatelessWidget {
         return Icons.rate_review;
       case 'new_booking':
         return Icons.book_online;
+      case 'order_placed':
+        return Icons.receipt_long;
       case 'new_shop_nearby':
         return Icons.store;
       case 'new_review_shop':

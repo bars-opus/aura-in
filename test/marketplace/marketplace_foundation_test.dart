@@ -40,8 +40,10 @@ void main() {
     });
 
     test('clean preserves tab, LF, CR', () {
-      expect(InputSanitizer.clean('line1\nline2\tcol3\rfoo'),
-          'line1\nline2\tcol3\rfoo');
+      expect(
+        InputSanitizer.clean('line1\nline2\tcol3\rfoo'),
+        'line1\nline2\tcol3\rfoo',
+      );
     });
 
     test('clean trims surrounding whitespace', () {
@@ -141,10 +143,7 @@ void main() {
         'category': 'hair',
         'created_at': '2026-05-15T10:00:00Z',
         'updated_at': '2026-05-15T11:00:00Z',
-        'shops': {
-          'shop_name': 'Aura Salon',
-          'verified': true,
-        },
+        'shops': {'shop_name': 'Aura Salon', 'verified': true},
       };
       final p = ProductModel.fromJson(json);
       expect(p.shopName, 'Aura Salon');
@@ -184,6 +183,26 @@ void main() {
       expect(o.status, OrderStatus.confirmed);
       expect(o.totalAmount, 5000.0);
       expect(o.confirmedAt, isNull);
+    });
+
+    test('parses a guest order without a user id', () {
+      final json = {
+        'id': 'o1',
+        'user_id': null,
+        'guest_profile_id': 'g1',
+        'shop_id': 's1',
+        'status': 'pending_confirmation',
+        'total_amount': 50,
+        'delivery_address': '1 main st',
+        'customer_phone': '0240000000',
+        'created_at': '2026-05-15T10:00:00Z',
+        'updated_at': '2026-05-15T10:01:00Z',
+      };
+
+      final order = OrderModel.fromJson(json);
+
+      expect(order.userId, isNull);
+      expect(order.customerPhone, '0240000000');
     });
 
     test('unwraps profiles join into customer fields', () {
@@ -251,8 +270,10 @@ void main() {
     });
 
     test('OrderStatus.fromString falls back safely on unknown', () {
-      expect(OrderStatusExtension.fromString('not-a-status'),
-          OrderStatus.pending_confirmation);
+      expect(
+        OrderStatusExtension.fromString('not-a-status'),
+        OrderStatus.pending_confirmation,
+      );
     });
   });
 
@@ -268,18 +289,16 @@ void main() {
         );
 
     test('totalAmount sums subtotals', () {
-      final s = CartState(items: [
-        item('p1', 's1', 100, 2),
-        item('p2', 's1', 50, 3),
-      ]);
+      final s = CartState(
+        items: [item('p1', 's1', 100, 2), item('p2', 's1', 50, 3)],
+      );
       expect(s.totalAmount, 350.0);
     });
 
     test('itemCount sums quantities', () {
-      final s = CartState(items: [
-        item('p1', 's1', 100, 2),
-        item('p2', 's1', 50, 3),
-      ]);
+      final s = CartState(
+        items: [item('p1', 's1', 100, 2), item('p2', 's1', 50, 3)],
+      );
       expect(s.itemCount, 5);
     });
 
@@ -293,18 +312,16 @@ void main() {
     });
 
     test('hasMultipleShops detects cross-shop carts', () {
-      final s = CartState(items: [
-        item('p1', 's1', 100, 1),
-        item('p2', 's2', 100, 1),
-      ]);
+      final s = CartState(
+        items: [item('p1', 's1', 100, 1), item('p2', 's2', 100, 1)],
+      );
       expect(s.hasMultipleShops, isTrue);
     });
 
     test('hasMultipleShops is false for single-shop carts', () {
-      final s = CartState(items: [
-        item('p1', 's1', 100, 1),
-        item('p2', 's1', 100, 1),
-      ]);
+      final s = CartState(
+        items: [item('p1', 's1', 100, 1), item('p2', 's1', 100, 1)],
+      );
       expect(s.hasMultipleShops, isFalse);
     });
 

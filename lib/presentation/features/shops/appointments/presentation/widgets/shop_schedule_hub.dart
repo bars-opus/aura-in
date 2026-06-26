@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nano_embryo/core/widgets/app_tabs.dart';
-import 'package:nano_embryo/i10n/generated/app_localizations.dart';
+import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/calendar/presentation/screens/calendar_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/appointments/presentation/screens/daily_schedule_screen.dart';
-import 'package:nano_embryo/presentation/home/widgets/tabs_with_content.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
+import 'package:nano_embryo/presentation/home/widgets/owner_tab_shop_switcher.dart';
 
 class ShopScheduleHub extends ConsumerStatefulWidget {
   final String shopId;
@@ -28,6 +26,7 @@ class _ShopScheduleHubState extends ConsumerState<ShopScheduleHub>
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final loc = AppLocalizations.of(context)!;
+    final shopsAsync = ref.watch(userShopsProvider);
     final tabs = [
       AppTabItem(
         label: loc.scheduleTabDaily,
@@ -58,9 +57,19 @@ class _ShopScheduleHubState extends ConsumerState<ShopScheduleHub>
           loc.scheduleTitle,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: colorScheme.onBackground,
+            color: colorScheme.onSurface,
           ),
         ),
+        actions: [
+          shopsAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+            data: (shops) => Padding(
+              padding: EdgeInsets.only(right: Spacing.md.w),
+              child: OwnerTabShopSwitcher(shops: shops),
+            ),
+          ),
+        ],
       ),
       body: TabsWithContent(
         useNestedScrollMode: false,

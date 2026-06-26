@@ -22,7 +22,7 @@ class BookingConfirmationScreen extends ConsumerStatefulWidget {
   final String shopLogoUrl;
 
   const BookingConfirmationScreen({
-    Key? key,
+    super.key,
     required this.shopType,
     required this.shopName,
     required this.shopCurrency,
@@ -30,7 +30,7 @@ class BookingConfirmationScreen extends ConsumerStatefulWidget {
     required this.latitude,
     required this.longitude,
     required this.shopAddress,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<BookingConfirmationScreen> createState() =>
@@ -172,7 +172,7 @@ class _BookingConfirmationScreenState
                     Text(
                       profile?.username ?? '',
                       style: theme.textTheme.titleSmall?.copyWith(
-                        color: colorScheme.onBackground,
+                        color: colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -186,7 +186,7 @@ class _BookingConfirmationScreenState
                 data: (allWorkers) {
                   return BookingSummaryCard(
                     services: services,
-                    workers: workers ?? {},
+                    workers: workers,
                     payOnPressed: _showPaymentDialog,
                     allWorkers: allWorkers,
                     date: date,
@@ -196,7 +196,7 @@ class _BookingConfirmationScreenState
                     // Phase 17: widget signature flips in Wave 5.6. Until then,
                     // convert at the boundary.
                     totalPrice: totalPriceMinor / 100,
-                    shopCurrency: '',
+                    shopCurrency: widget.shopCurrency,
                     isProcessing: _isProcessing,
                     reference: '',
                   );
@@ -216,6 +216,7 @@ class _BookingConfirmationScreenState
               // promotionId + amountOff via _onPromoApplied.
               ClientPromoCodeField(
                 shopId: shopId,
+                currency: widget.shopCurrency,
                 userId: profile?.id,
                 guestProfileId: null,
                 // Phase 17: ClientPromoCodeField widget signature stays
@@ -238,7 +239,7 @@ class _BookingConfirmationScreenState
                         ? Icons.warning_amber_rounded
                         : Icons.info_outline,
                 title: '',
-                backgroundColor: Colors.red.withOpacity(0.1),
+                backgroundColor: Colors.red.withValues(alpha: 0.1),
                 borderColor: Colors.red,
                 iconColor: Colors.red,
                 textTheme: theme.textTheme,
@@ -253,7 +254,7 @@ class _BookingConfirmationScreenState
                         : 'You can change the worker later if they become unavailable',
                 icon: Icons.payment,
                 title: '',
-                backgroundColor: colorScheme.primary.withOpacity(0.1),
+                backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
                 borderColor: colorScheme.primary,
                 iconColor: colorScheme.primary,
                 textTheme: theme.textTheme,
@@ -382,11 +383,11 @@ class _BookingConfirmationScreenState
             final serviceAddons = addons[service.id] ?? [];
             final addonMinor = serviceAddons.fold<int>(
               0,
-              (s, a) => s + (a.priceMinor as int),
+              (s, a) => s + a.priceMinor,
             );
             final addonDurationMins = serviceAddons.fold<int>(
               0,
-              (s, a) => s + ((a.durationMinutes as int?) ?? 0),
+              (s, a) => s + (a.durationMinutes ?? 0),
             );
             return List.generate(qty, (i) {
               final worker = i < workerEntries.length ? workerEntries[i] : null;

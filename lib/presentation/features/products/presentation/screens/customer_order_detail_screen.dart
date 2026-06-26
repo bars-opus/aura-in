@@ -676,23 +676,21 @@ class _CustomerOrderDetailScreenState
                   try {
                     await repository.cancelOrderByCustomer(orderId);
                     ref.invalidate(orderWithItemsProvider(orderId));
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Order cancelled successfully'),
-                        ),
-                      );
-                      Navigator.pop(context);
-                    }
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Order cancelled successfully'),
+                      ),
+                    );
+                    Navigator.pop(context);
                   } catch (e, stack) {
                     MarketplaceLogger.error(
                         'cancel order (from detail) failed',
                         error: e, stack: stack);
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Failed to cancel: $e')),
-                      );
-                    }
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to cancel: $e')),
+                    );
                   }
                 },
                 child: const Text('Yes, Cancel'),

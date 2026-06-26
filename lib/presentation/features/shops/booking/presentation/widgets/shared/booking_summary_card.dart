@@ -1,9 +1,9 @@
 // lib/features/booking/presentation/widgets/shared/booking_summary_card.dart
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/service_addon_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/service_addons_provider.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 
 /// A beautiful card displaying a complete booking summary.
 ///
@@ -47,26 +47,27 @@ class BookingSummaryCard extends ConsumerWidget {
   final String reference;
 
   const BookingSummaryCard({
-    Key? key,
+    super.key,
     required this.services,
     required this.allWorkers,
     required this.date,
     required this.timeSlots, // ← Changed
-    required this.isCombinedView, // ← New    required this.totalDuration,
+    required this.isCombinedView, // ← New
+    required this.totalDuration,
     required this.totalPrice,
     required this.shopCurrency,
     required this.workers,
     required this.isProcessing,
     required this.payOnPressed,
     required this.reference,
-    required this.totalDuration,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Added WidgetRef ref
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final effectiveShopCurrency =
+        shopCurrency.isNotEmpty
+            ? shopCurrency
+            : (ref.watch(currentShopProvider)?.currency ?? '');
 
     // Now you can use ref here
     final quantities = ref.watch(serviceQuantityProvider);
@@ -98,15 +99,12 @@ class BookingSummaryCard extends ConsumerWidget {
         Gap(Spacing.lg.h),
         CardInkWell(
           padding: EdgeInsets.all(Spacing.sm),
-
           borderRadius: BorderRadius.circular(10),
           elevation: 5,
-
           child: Column(
             children: [
               Gap(Spacing.md.h),
               ...services.asMap().entries.map((entry) {
-                final index = entry.key;
                 final service = entry.value;
                 final quantity = quantities[service.id] ?? 1;
 
@@ -155,7 +153,7 @@ class BookingSummaryCard extends ConsumerWidget {
                           TableRowData(
                             leftLabel: formatMoney(
                               effectiveMinor * quantity,
-                              shopCurrency,
+                              effectiveShopCurrency,
                             ),
                             leftValue: '',
                             rightLabel: _getTimeDisplay(
@@ -168,11 +166,16 @@ class BookingSummaryCard extends ConsumerWidget {
                         ],
                       ),
                       if (addons.isNotEmpty)
-                        _buildAddonsSection(context, addons, quantity),
+                        _buildAddonsSection(
+                          context,
+                          addons,
+                          quantity,
+                          effectiveShopCurrency,
+                        ),
                     ],
                   ),
                 );
-              }).toList(),
+              }),
 
               BookingPriceBreakdown(
                 buttonText: 'Confirm appointment',
@@ -182,7 +185,7 @@ class BookingSummaryCard extends ConsumerWidget {
                 platformFee: 2,
                 payOnPressed: payOnPressed,
                 reference: reference,
-                shopCurrency: shopCurrency,
+                shopCurrency: effectiveShopCurrency,
                 isShopOwner: false,
               ),
             ],
@@ -198,6 +201,7 @@ class BookingSummaryCard extends ConsumerWidget {
     BuildContext context,
     List<ServiceAddonDTO> addons,
     int quantity,
+    String currency,
   ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -209,7 +213,7 @@ class BookingSummaryCard extends ConsumerWidget {
         vertical: Spacing.xs.h,
       ),
       decoration: BoxDecoration(
-        color: colorScheme.primary.withOpacity(0.05),
+        color: colorScheme.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(10.r),
         border: Border.all(width: 0.5, color: Colors.grey.shade300),
       ),
@@ -229,7 +233,7 @@ class BookingSummaryCard extends ConsumerWidget {
                 Text(
                   'Add-ons',
                   style: theme.textTheme.labelSmall?.copyWith(
-                    color: colorScheme.onBackground.withOpacity(0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -238,7 +242,7 @@ class BookingSummaryCard extends ConsumerWidget {
           ...addons.map((a) {
             final priceLabel = formatMoney(
               a.priceMinor * quantity,
-              shopCurrency,
+              currency,
             );
             final hasDuration =
                 a.durationMinutes != null && a.durationMinutes! > 0;
@@ -252,7 +256,7 @@ class BookingSummaryCard extends ConsumerWidget {
                           ? '${a.name}  ·  +${a.durationMinutes} min'
                           : a.name,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onBackground,
+                        color: colorScheme.onSurface,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -287,7 +291,7 @@ class BookingSummaryCard extends ConsumerWidget {
       return MyDateFormat.toTime(timeSlot.startTime);
     } else {
       // In regular view, show service-specific time
-      return '${MyDateFormat.toTime(timeSlot.startTime)}';
+      return MyDateFormat.toTime(timeSlot.startTime);
     }
   }
 }

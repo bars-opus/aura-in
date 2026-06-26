@@ -16,11 +16,7 @@
 // case 3 (Payment Settings) still uses Snackbar.info while the shop
 // details async is loading.
 
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/app/documentations/user_manual/data/tools_docs.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/link/providers/link_providers.dart';
 import 'package:nano_embryo/core/link/widgets/shareable_link_section.dart';
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
@@ -74,7 +70,7 @@ class ToolsScreen extends ConsumerWidget {
                   'Use these tools to run the shop day to day: reminders, promotions, exports, payout settings, business hours, service management, loyalty, and broadcasts.',
               icon: Icons.build_outlined,
               title: docs.getTitle(context),
-              backgroundColor: colorScheme.primary.withOpacity(0.1),
+              backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
               borderColor: colorScheme.primary,
               iconColor: colorScheme.primary,
               textTheme: theme.textTheme,

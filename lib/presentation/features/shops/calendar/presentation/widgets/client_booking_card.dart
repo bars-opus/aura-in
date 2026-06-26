@@ -1,10 +1,12 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/booking_detail_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/status_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/client/countdown_widget.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 
-class ClientBookingCard extends StatelessWidget {
+class ClientBookingCard extends ConsumerWidget {
   final DateTime startTime;
   final DateTime endTime;
   final String bookingId;
@@ -42,9 +44,14 @@ class ClientBookingCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final effectiveShopCurrency =
+        shopCurrency.isNotEmpty
+            ? shopCurrency
+            : (ref.watch(currentShopProvider)?.currency ?? '');
+
     return InfoRowWidget(
-      title: '$serviceName\n${formatMoney(totalAmountMinor, shopCurrency)}',
+      title: '$serviceName\n${formatMoney(totalAmountMinor, effectiveShopCurrency)}',
       subtitle: '$shopName\n$shopType',
       imageUrl: shopLogoUrl,
       icon: shopLogoUrl == null ? Icons.person : null,
@@ -64,13 +71,13 @@ class ClientBookingCard extends StatelessWidget {
         if (shouldPop) {
           Navigator.pop(context);
         }
-        _navigateToDetail(context);
+        _navigateToDetail(context, effectiveShopCurrency);
       },
       showTrailingArrow: false,
     );
   }
 
-  void _navigateToDetail(BuildContext context) {
+  void _navigateToDetail(BuildContext context, String effectiveShopCurrency) {
     BottomSheetUtils.showDocumentationBottomSheet(
       context: context,
       widget: BookingDetailScreen(
@@ -79,7 +86,7 @@ class ClientBookingCard extends StatelessWidget {
         bookingId: bookingId,
         totalAmountMinor: totalAmountMinor,
         preLoadedBookingDetail: null,
-        shopCurrency: shopCurrency,
+        shopCurrency: effectiveShopCurrency,
         shopType: shopType,
         shopName: shopName,
         shopLogoUrl: shopLogoUrl,

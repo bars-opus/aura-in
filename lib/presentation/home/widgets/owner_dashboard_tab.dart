@@ -5,7 +5,7 @@ import 'package:nano_embryo/presentation/features/admin/providers/admin_provider
 import 'package:nano_embryo/presentation/features/profile/models/profile_role.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/owner_dashboard_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
-import 'package:nano_embryo/presentation/home/widgets/owner_tab_shop_switcher.dart';
+import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/shop_list_item_dto.dart';
 
 class OwnerDashboardTab extends ConsumerStatefulWidget {
   final AccountType role;
@@ -22,17 +22,15 @@ class _VerificationBanner extends ConsumerWidget {
   final String entityType; // 'shop' | 'worker'
   final String entityId;
 
-  const _VerificationBanner({
-    required this.entityType,
-    required this.entityId,
-  });
+  const _VerificationBanner({required this.entityType, required this.entityId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final statusAsync = ref.watch(
-      entityVerificationStatusProvider(
-        (entityType: entityType, entityId: entityId),
-      ),
+      entityVerificationStatusProvider((
+        entityType: entityType,
+        entityId: entityId,
+      )),
     );
 
     return statusAsync.when(
@@ -55,7 +53,7 @@ class _VerificationBanner extends ConsumerWidget {
               title: 'Verification rejected',
               content:
                   'Rejected: ${vs.rejectionReason ?? 'No reason provided.'}',
-              backgroundColor: colorScheme.error.withOpacity(0.1),
+              backgroundColor: colorScheme.error.withValues(alpha: 0.1),
               borderColor: colorScheme.error,
               iconColor: colorScheme.error,
               textTheme: theme.textTheme,
@@ -80,7 +78,7 @@ class _VerificationBanner extends ConsumerWidget {
             icon: Icons.hourglass_top_outlined,
             title: 'Under review',
             content: 'Pending review — hidden from clients until approved.',
-            backgroundColor: colorScheme.primary.withOpacity(0.08),
+            backgroundColor: colorScheme.primary.withValues(alpha: 0.08),
             borderColor: colorScheme.primary,
             iconColor: colorScheme.primary,
             textTheme: theme.textTheme,
@@ -99,9 +97,10 @@ class _VerificationBanner extends ConsumerWidget {
           .read(verificationActionsProvider)
           .submit(entityType: entityType, entityId: entityId);
       ref.invalidate(
-        entityVerificationStatusProvider(
-          (entityType: entityType, entityId: entityId),
-        ),
+        entityVerificationStatusProvider((
+          entityType: entityType,
+          entityId: entityId,
+        )),
       );
     } catch (e) {
       if (context.mounted) {
@@ -115,16 +114,7 @@ class _VerificationBanner extends ConsumerWidget {
 
 class _OwnerDashboardTabState extends ConsumerState<OwnerDashboardTab> {
   bool _redirecting = false;
-  bool _initialized = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_initialized) {
-      _initialized = true;
-      ref.invalidate(userShopsProvider);
-    }
-  }
+  bool _initializingShop = false;
 
   @override
   Widget build(BuildContext context) {
@@ -135,11 +125,12 @@ class _OwnerDashboardTabState extends ConsumerState<OwnerDashboardTab> {
 
     return shopsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => ErrorStateWidget(
-        title: 'Could not load shops',
-        subtitle: e.toString(),
-        type: ErrorStateType.genericError,
-      ),
+      error:
+          (e, _) => ErrorStateWidget(
+            title: 'Could not load shops',
+            subtitle: e.toString(),
+            type: ErrorStateType.genericError,
+          ),
       data: (shops) {
         if (shops.isEmpty) {
           if (!_redirecting) {
@@ -152,26 +143,19 @@ class _OwnerDashboardTabState extends ConsumerState<OwnerDashboardTab> {
         }
 
         // currentShopProvider holds full ShopDetailsDTO, needed for all params.
-        // OwnerScheduleTab initialises it; we wait if it's still null.
-        if (currentShop == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            if (!mounted) return;
-            final full =
-                await ref.read(shopByIdProvider(shops.first.id).future);
-            if (full != null && mounted) {
-              ref.read(currentShopProvider.notifier).state = full;
-            }
-          });
+        // Initialise after this frame so persistent sibling tabs are never
+        // dirtied while Flutter is building this tab.
+        final currentShopIsOwned =
+            currentShop != null &&
+            shops.any((shop) => shop.id == currentShop.id);
+        if (!currentShopIsOwned) {
+          _initializeShop(shops);
           return const Center(child: CircularProgressIndicator());
         }
 
         return Column(
           children: [
-            OwnerTabShopSwitcher(shops: shops),
-            _VerificationBanner(
-              entityType: 'shop',
-              entityId: currentShop.id,
-            ),
+            _VerificationBanner(entityType: 'shop', entityId: currentShop.id),
             Expanded(
               child: OwnerDashboardScreen(
                 shopId: currentShop.id,
@@ -187,5 +171,28 @@ class _OwnerDashboardTabState extends ConsumerState<OwnerDashboardTab> {
         );
       },
     );
+  }
+
+  void _initializeShop(List<ShopListItemDTO> shops) {
+    if (_initializingShop) return;
+    _initializingShop = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      try {
+        final preferredId =
+            ref.read(ownerShopPreferenceProvider).selectedShopId;
+        final shopId =
+            shops.any((shop) => shop.id == preferredId)
+                ? preferredId!
+                : shops.first.id;
+        final full = await ref.read(shopByIdProvider(shopId).future);
+        if (full != null && mounted) {
+          ref.read(currentShopProvider.notifier).state = full;
+          await ref.read(ownerShopPreferenceProvider).save(full.id);
+        }
+      } finally {
+        _initializingShop = false;
+      }
+    });
   }
 }

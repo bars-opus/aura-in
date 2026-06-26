@@ -1,15 +1,10 @@
 // lib/features/products/presentation/screens/checkout_screen.dart
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
-import 'package:nano_embryo/app/theme/app_theme.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/core/utils/location/location_search_mode.dart';
 import 'package:nano_embryo/core/utils/phone_field_widget.dart';
-import 'package:nano_embryo/core/widgets/app_text_form_field.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
-import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
+import 'package:nano_embryo/presentation/features/currency/domain/entities/parsed_address.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/input_sanitizer.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
@@ -97,6 +92,23 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     }
   }
 
+  Future<void> _openDeliveryLocationPicker() async {
+    await BottomSheetUtils.showDocumentationBottomSheet(
+      maxHeight: 500.h,
+      context: context,
+      widget: LocationPickerBottomSheet(
+        mode: LocationSearchMode.address,
+        onLocationSelected: _onDeliveryAddressSelected,
+      ),
+    );
+  }
+
+  void _onDeliveryAddressSelected(ParsedAddress address) {
+    setState(() {
+      _addressController.text = address.fullAddress;
+    });
+  }
+
   @override
   void dispose() {
     _addressController.dispose();
@@ -113,6 +125,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please enter a valid phone number'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final cleanAddress = InputSanitizer.clean(_addressController.text);
+    if (cleanAddress.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a delivery address'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -149,7 +172,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
     try {
       final orderNotifier = ref.read(orderNotifierProvider.notifier);
-      final cleanAddress = InputSanitizer.clean(_addressController.text);
       final orderId = await orderNotifier.createOrder(
         shopId: shopId,
         items: items,
@@ -201,7 +223,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           MarketplaceStrings.checkoutTitle,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface.withOpacity(0.8),
+            color: colorScheme.onSurface.withValues(alpha: 0.8),
           ),
         ),
       ),
@@ -226,7 +248,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         'Order Summary',
                         style: textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: colorScheme.onBackground,
+                          color: colorScheme.onSurface,
                         ),
                         semanticsLabel: 'Order summary',
                       ),
@@ -256,7 +278,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                       child: Text(
                                         '${item.quantity}x ${item.productName}',
                                         style: textTheme.bodyMedium?.copyWith(
-                                          color: colorScheme.onBackground,
+                                          color: colorScheme.onSurface,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -268,7 +290,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                       ),
                                       style: textTheme.bodyMedium?.copyWith(
                                         fontWeight: FontWeight.w500,
-                                        color: colorScheme.onBackground,
+                                        color: colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
@@ -283,7 +305,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                   'Total',
                                   style: textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    color: colorScheme.onBackground,
+                                    color: colorScheme.onSurface,
                                   ),
                                 ),
                                 Text(
@@ -309,7 +331,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         'Delivery Information',
                         style: textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: colorScheme.onBackground.withOpacity(.5),
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                       Gap(Spacing.sm),
@@ -318,17 +340,32 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         margin: const EdgeInsets.all(0),
                         child: Column(
                           children: [
-                            AppTextFormField(
-                              controller: _addressController,
-                              label: 'Delivery Address',
-                              hintText: 'Enter your full address',
-                              maxLines: 3,
-                              maxLength: InputSanitizer.maxDeliveryAddress,
-                              validator: InputSanitizer.requiredLength(
-                                InputSanitizer.maxDeliveryAddress,
-                                fieldName: 'Delivery address',
+                            if (_addressController.text.isNotEmpty)
+                              HighlightContainer(
+                                child: InfoRowWidget(
+                                  subtitle: 'Delivery address',
+                                  title: _addressController.text,
+                                  icon: Icons.location_on,
+                                  avatarRadius: 25.h,
+                                  backgroundColor: colorScheme.primary,
+                                  iconColor: colorScheme.onPrimary,
+                                  onTap: _openDeliveryLocationPicker,
+                                  disableTrailing: false,
+                                  showAvatar: true,
+                                  showDivider: false,
+                                  showTrailingArrow: true,
+                                  trailing: AppIconButton(
+                                    icon: Icons.edit,
+                                    onPressed: _openDeliveryLocationPicker,
+                                  ),
+                                ),
+                              )
+                            else
+                              OutlinedButton.icon(
+                                onPressed: _openDeliveryLocationPicker,
+                                icon: const Icon(Icons.location_on),
+                                label: const Text('Select delivery address'),
                               ),
-                            ),
 
                             // Same phone widget as AddContactModal — reports E.164.
                             // Keyed on _prefsLoaded so it rebuilds with the saved
@@ -385,7 +422,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         content: MarketplaceStrings.codSubtitle,
                         icon: Icons.payments_outlined,
                         title: MarketplaceStrings.codTitle,
-                        backgroundColor: colorScheme.primary.withOpacity(0.1),
+                        backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
                         borderColor: colorScheme.primary,
                         iconColor: colorScheme.primary,
                         textTheme: theme.textTheme,
@@ -399,7 +436,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           content: 'Connect to the internet and try again',
                           icon: Icons.wifi_off,
                           title: MarketplaceStrings.youreOffline,
-                          backgroundColor: colorScheme.error.withOpacity(0.1),
+                          backgroundColor: colorScheme.error.withValues(alpha: 0.1),
                           borderColor: colorScheme.error,
                           iconColor: colorScheme.error,
                           textTheme: theme.textTheme,

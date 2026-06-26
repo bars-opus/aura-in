@@ -75,6 +75,9 @@ class ClientCalendarBooking extends Equatable {
     } catch (e) {
       // Keep empty values
     }
+    if (shopCurrency.isEmpty) {
+      shopCurrency = json['currency'] as String? ?? '';
+    }
 
     // Handle main fields with null safety
     final id = json['id'] as String?;

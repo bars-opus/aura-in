@@ -55,7 +55,7 @@ extension OrderStatusExtension on OrderStatus {
 
 class OrderModel extends Equatable {
   final String id;
-  final String userId;
+  final String? userId;
   final String shopId;
   final DateTime orderDate;
   final OrderStatus status;
@@ -125,7 +125,7 @@ class OrderModel extends Equatable {
 
     return OrderModel(
       id: json['id'] as String,
-      userId: json['user_id'] as String,
+      userId: json['user_id'] as String?,
       shopId: json['shop_id'] as String,
       orderDate: DateTime.parse(
         (json['order_date'] ?? json['created_at']) as String,
@@ -145,63 +145,65 @@ class OrderModel extends Equatable {
       updatedAt: DateTime.parse(json['updated_at'] as String),
       currencyCode: json['currency'] as String? ?? shop?['currency'] as String?,
       currencySymbol:
-          json['currency_symbol'] as String? ?? shop?['currency_symbol'] as String?,
+          json['currency_symbol'] as String? ??
+          shop?['currency_symbol'] as String?,
       shopName: shop?['shop_name'] as String? ?? json['shop_name'] as String?,
       shopVerified:
           shop?['verified'] as bool? ?? json['shop_verified'] as bool?,
-      shopLogo: shop?['shop_logo_url'] as String? ??
-          json['shop_logo'] as String?,
+      shopLogo:
+          shop?['shop_logo_url'] as String? ?? json['shop_logo'] as String?,
       customerName:
           profile?['full_name'] as String? ?? json['customer_name'] as String?,
       customerEmail:
           profile?['email'] as String? ?? json['customer_email'] as String?,
-      customerAvatarUrl: profile?['avatar_url'] as String? ??
+      customerAvatarUrl:
+          profile?['avatar_url'] as String? ??
           json['customer_avatar_url'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'user_id': userId,
-        'shop_id': shopId,
-        'order_date': orderDate.toIso8601String(),
-        'status': status.name,
-        'total_amount': totalAmount,
-        'delivery_address': deliveryAddress,
-        'customer_phone': customerPhone,
-        'customer_notes': customerNotes,
-        'shop_notes': shopNotes,
-        'delivery_notes': deliveryNotes,
-        'confirmed_at': confirmedAt?.toIso8601String(),
-        'dispatched_at': dispatchedAt?.toIso8601String(),
-        'delivered_at': deliveredAt?.toIso8601String(),
-        'cancelled_at': cancelledAt?.toIso8601String(),
-        'created_at': createdAt.toIso8601String(),
-        'updated_at': updatedAt.toIso8601String(),
-      };
+    'id': id,
+    'user_id': userId,
+    'shop_id': shopId,
+    'order_date': orderDate.toIso8601String(),
+    'status': status.name,
+    'total_amount': totalAmount,
+    'delivery_address': deliveryAddress,
+    'customer_phone': customerPhone,
+    'customer_notes': customerNotes,
+    'shop_notes': shopNotes,
+    'delivery_notes': deliveryNotes,
+    'confirmed_at': confirmedAt?.toIso8601String(),
+    'dispatched_at': dispatchedAt?.toIso8601String(),
+    'delivered_at': deliveredAt?.toIso8601String(),
+    'cancelled_at': cancelledAt?.toIso8601String(),
+    'created_at': createdAt.toIso8601String(),
+    'updated_at': updatedAt.toIso8601String(),
+  };
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        shopId,
-        orderDate,
-        status,
-        totalAmount,
-        deliveryAddress,
-        customerPhone,
-        customerNotes,
-        shopNotes,
-        deliveryNotes,
-        confirmedAt,
-        dispatchedAt,
-        deliveredAt,
-        cancelledAt,
-        createdAt,
-        updatedAt,
-        currencyCode,
-        currencySymbol,
-      ];
+    id,
+    userId,
+    shopId,
+    orderDate,
+    status,
+    totalAmount,
+    deliveryAddress,
+    customerPhone,
+    customerNotes,
+    shopNotes,
+    deliveryNotes,
+    confirmedAt,
+    dispatchedAt,
+    deliveredAt,
+    cancelledAt,
+    createdAt,
+    updatedAt,
+    currencyCode,
+    currencySymbol,
+  ];
 }
 
 class OrderItemModel extends Equatable {
@@ -238,44 +240,47 @@ class OrderItemModel extends Equatable {
       id: json['id'] as String? ?? '',
       orderId: json['order_id'] as String? ?? '',
       productId: json['product_id'] as String,
-      productName: (json['product_name'] as String?) ??
+      productName:
+          (json['product_name'] as String?) ??
           (product?['name'] as String?) ??
           '',
-      productImage: (json['product_image'] as String?) ??
+      productImage:
+          (json['product_image'] as String?) ??
           (product?['images'] is List
               ? (product!['images'] as List).cast<String>().firstOrNull
               : null),
       quantity: qty,
       unitPrice: unitPrice,
       subtotal: (json['subtotal'] as num?)?.toDouble() ?? (unitPrice * qty),
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
-          : DateTime.now(),
+      createdAt:
+          json['created_at'] != null
+              ? DateTime.parse(json['created_at'] as String)
+              : DateTime.now(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'order_id': orderId,
-        'product_id': productId,
-        'product_name': productName,
-        'product_image': productImage,
-        'quantity': quantity,
-        'unit_price': unitPrice,
-        'subtotal': subtotal,
-        'created_at': createdAt.toIso8601String(),
-      };
+    'id': id,
+    'order_id': orderId,
+    'product_id': productId,
+    'product_name': productName,
+    'product_image': productImage,
+    'quantity': quantity,
+    'unit_price': unitPrice,
+    'subtotal': subtotal,
+    'created_at': createdAt.toIso8601String(),
+  };
 
   @override
   List<Object?> get props => [
-        id,
-        orderId,
-        productId,
-        productName,
-        productImage,
-        quantity,
-        unitPrice,
-        subtotal,
-        createdAt,
-      ];
+    id,
+    orderId,
+    productId,
+    productName,
+    productImage,
+    quantity,
+    unitPrice,
+    subtotal,
+    createdAt,
+  ];
 }

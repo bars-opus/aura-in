@@ -3,7 +3,7 @@ import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/profile/models/profile_role.dart';
 import 'package:nano_embryo/presentation/features/shops/appointments/presentation/widgets/shop_schedule_hub.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
-import 'package:nano_embryo/presentation/home/widgets/owner_tab_shop_switcher.dart';
+import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/shop_list_item_dto.dart';
 
 class OwnerScheduleTab extends ConsumerStatefulWidget {
   final AccountType role;
@@ -16,16 +16,7 @@ class OwnerScheduleTab extends ConsumerStatefulWidget {
 
 class _OwnerScheduleTabState extends ConsumerState<OwnerScheduleTab> {
   bool _redirecting = false;
-  bool _initialized = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_initialized) {
-      _initialized = true;
-      ref.invalidate(userShopsProvider);
-    }
-  }
+  bool _initializingShop = false;
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +25,12 @@ class _OwnerScheduleTabState extends ConsumerState<OwnerScheduleTab> {
 
     return shopsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => ErrorStateWidget(
-        title: 'Could not load shops',
-        subtitle: e.toString(),
-        type: ErrorStateType.genericError,
-      ),
+      error:
+          (e, _) => ErrorStateWidget(
+            title: 'Could not load shops',
+            subtitle: e.toString(),
+            type: ErrorStateType.genericError,
+          ),
       data: (shops) {
         if (shops.isEmpty) {
           if (!_redirecting) {
@@ -51,30 +43,42 @@ class _OwnerScheduleTabState extends ConsumerState<OwnerScheduleTab> {
         }
 
         // Initialise currentShopProvider with full details on first render.
-        if (currentShop == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            if (!mounted) return;
-            final full =
-                await ref.read(shopByIdProvider(shops.first.id).future);
-            if (full != null && mounted) {
-              ref.read(currentShopProvider.notifier).state = full;
-            }
-          });
+        final currentShopIsOwned =
+            currentShop != null &&
+            shops.any((shop) => shop.id == currentShop.id);
+        if (!currentShopIsOwned) {
+          _initializeShop(shops);
           return const Center(child: CircularProgressIndicator());
         }
 
-        return Column(
-          children: [
-            OwnerTabShopSwitcher(shops: shops),
-            Expanded(
-              child: ShopScheduleHub(
-                shopId: currentShop.id,
-                accountType: widget.role.value,
-              ),
-            ),
-          ],
+        return ShopScheduleHub(
+          shopId: currentShop.id,
+          accountType: widget.role.value,
         );
       },
     );
+  }
+
+  void _initializeShop(List<ShopListItemDTO> shops) {
+    if (_initializingShop) return;
+    _initializingShop = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      try {
+        final preferredId =
+            ref.read(ownerShopPreferenceProvider).selectedShopId;
+        final shopId =
+            shops.any((shop) => shop.id == preferredId)
+                ? preferredId!
+                : shops.first.id;
+        final full = await ref.read(shopByIdProvider(shopId).future);
+        if (full != null && mounted) {
+          ref.read(currentShopProvider.notifier).state = full;
+          await ref.read(ownerShopPreferenceProvider).save(full.id);
+        }
+      } finally {
+        _initializingShop = false;
+      }
+    });
   }
 }

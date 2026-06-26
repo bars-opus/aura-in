@@ -27,22 +27,23 @@ class SupabaseOrderRepository implements OrderRepository {
   }) async {
     try {
       Future<dynamic> call() => _supabase.rpc(
-            'create_order',
-            params: {
-              'p_user_id': userId,
-              'p_shop_id': shopId,
-              'p_items': items,
-              'p_total_amount': totalAmount,
-              'p_delivery_address': deliveryAddress,
-              'p_customer_phone': customerPhone,
-              'p_customer_notes': customerNotes,
-              if (idempotencyKey != null) 'p_idempotency_key': idempotencyKey,
-            },
-          );
+        'create_order',
+        params: {
+          'p_user_id': userId,
+          'p_shop_id': shopId,
+          'p_items': items,
+          'p_total_amount': totalAmount,
+          'p_delivery_address': deliveryAddress,
+          'p_customer_phone': customerPhone,
+          'p_customer_notes': customerNotes,
+          if (idempotencyKey != null) 'p_idempotency_key': idempotencyKey,
+        },
+      );
 
-      final response = idempotencyKey != null
-          ? await RetryPolicy.run(call, operationName: 'create_order')
-          : await call();
+      final response =
+          idempotencyKey != null
+              ? await RetryPolicy.run(call, operationName: 'create_order')
+              : await call();
 
       return response.toString();
     } catch (e, stack) {
@@ -59,35 +60,23 @@ class SupabaseOrderRepository implements OrderRepository {
     String? statusFilter,
   }) async {
     try {
-      final response = await RetryPolicy.run(
-        () {
-          var query = _supabase
-              .from('orders')
-              .select('''
-                *,
-                profiles!user_id (
-                  full_name,
-                  email,
-                  avatar_url
-                )
-              ''')
-              .eq('shop_id', shopId);
+      final response = await RetryPolicy.run(() {
+        var query = _supabase.from('orders').select().eq('shop_id', shopId);
 
-          if (statusFilter != null && statusFilter.isNotEmpty) {
-            query = query.eq('status', statusFilter);
-          }
+        if (statusFilter != null && statusFilter.isNotEmpty) {
+          query = query.eq('status', statusFilter);
+        }
 
-          final from = page * limit;
-          return query
-              .order('created_at', ascending: false)
-              .range(from, from + limit - 1);
-        },
-        operationName: 'getShopOrders',
-      );
+        final from = page * limit;
+        return query
+            .order('created_at', ascending: false)
+            .range(from, from + limit - 1);
+      }, operationName: 'getShopOrders');
 
-      return (response as List)
-          .map((json) => OrderModel.fromJson(json as Map<String, dynamic>))
-          .toList();
+      final orders = List<Map<String, dynamic>>.from(response as List);
+      await _attachCustomerProfiles(orders);
+
+      return orders.map(OrderModel.fromJson).toList();
     } catch (e, stack) {
       MarketplaceLogger.error('getShopOrders failed', error: e, stack: stack);
       throw mapToMarketplaceException(e, 'Failed to load shop orders');
@@ -98,15 +87,11 @@ class SupabaseOrderRepository implements OrderRepository {
   Future<Map<String, dynamic>> getOrderWithItems(String orderId) async {
     try {
       final orderResponse = await RetryPolicy.run(
-        () => _supabase
-            .from('orders')
-            .select('''
+        () =>
+            _supabase
+                .from('orders')
+                .select('''
               *,
-              profiles!user_id (
-                full_name,
-                email,
-                avatar_url
-              ),
               shops!inner (
                 id,
                 shop_name,
@@ -114,14 +99,17 @@ class SupabaseOrderRepository implements OrderRepository {
                 shop_logo_url
               )
             ''')
-            .eq('id', orderId)
-            .maybeSingle(),
+                .eq('id', orderId)
+                .maybeSingle(),
         operationName: 'getOrderWithItems.order',
       );
 
       if (orderResponse == null) {
         throw OrderNotFoundException(orderId);
       }
+
+      final orderJson = Map<String, dynamic>.from(orderResponse);
+      await _attachCustomerProfiles([orderJson]);
 
       final itemsResponse = await RetryPolicy.run(
         () => _supabase
@@ -137,18 +125,58 @@ class SupabaseOrderRepository implements OrderRepository {
         operationName: 'getOrderWithItems.items',
       );
 
-      final order = OrderModel.fromJson(orderResponse);
-      final items = (itemsResponse as List)
-          .map((json) => OrderItemModel.fromJson(json as Map<String, dynamic>))
-          .toList();
+      final order = OrderModel.fromJson(orderJson);
+      final items =
+          (itemsResponse as List)
+              .map(
+                (json) => OrderItemModel.fromJson(json as Map<String, dynamic>),
+              )
+              .toList();
 
       return {'order': order, 'items': items};
     } on OrderNotFoundException {
       rethrow;
     } catch (e, stack) {
-      MarketplaceLogger.error('getOrderWithItems failed',
-          error: e, stack: stack);
+      MarketplaceLogger.error(
+        'getOrderWithItems failed',
+        error: e,
+        stack: stack,
+      );
       throw mapToMarketplaceException(e, 'Failed to load order details');
+    }
+  }
+
+  /// `orders.user_id` references `auth.users`, so PostgREST cannot embed the
+  /// matching public profile. Fetch profiles explicitly and retain the nested
+  /// shape expected by [OrderModel]. Guest orders have no public profile and
+  /// continue to use the customer phone fallback in the UI.
+  Future<void> _attachCustomerProfiles(
+    List<Map<String, dynamic>> orders,
+  ) async {
+    final userIds =
+        orders
+            .map((order) => order['user_id'] as String?)
+            .whereType<String>()
+            .toSet()
+            .toList();
+    if (userIds.isEmpty) return;
+
+    final response = await _supabase
+        .from('profiles')
+        .select('id, display_name, avatar_url')
+        .inFilter('id', userIds);
+    final profilesById = {
+      for (final profile in List<Map<String, dynamic>>.from(response))
+        profile['id'] as String: profile,
+    };
+
+    for (final order in orders) {
+      final profile = profilesById[order['user_id']];
+      if (profile == null) continue;
+      order['profiles'] = {
+        'full_name': profile['display_name'],
+        'avatar_url': profile['avatar_url'],
+      };
     }
   }
 
@@ -173,8 +201,11 @@ class SupabaseOrderRepository implements OrderRepository {
         operationName: 'update_order_status',
       );
     } catch (e, stack) {
-      MarketplaceLogger.error('updateOrderStatus failed',
-          error: e, stack: stack);
+      MarketplaceLogger.error(
+        'updateOrderStatus failed',
+        error: e,
+        stack: stack,
+      );
       throw mapToMarketplaceException(e, 'Failed to update order status');
     }
   }
@@ -201,8 +232,11 @@ class SupabaseOrderRepository implements OrderRepository {
       await _supabase.rpc('cancel_order', params: {'p_order_id': orderId});
       return true;
     } catch (e, stack) {
-      MarketplaceLogger.error('cancelOrderByCustomer failed',
-          error: e, stack: stack);
+      MarketplaceLogger.error(
+        'cancelOrderByCustomer failed',
+        error: e,
+        stack: stack,
+      );
       throw mapToMarketplaceException(e, 'Failed to cancel order');
     }
   }
@@ -237,8 +271,11 @@ class SupabaseOrderRepository implements OrderRepository {
           .map((json) => OrderModel.fromJson(json as Map<String, dynamic>))
           .toList();
     } catch (e, stack) {
-      MarketplaceLogger.error('getCustomerOrders failed',
-          error: e, stack: stack);
+      MarketplaceLogger.error(
+        'getCustomerOrders failed',
+        error: e,
+        stack: stack,
+      );
       throw mapToMarketplaceException(e, 'Failed to load your orders');
     }
   }
@@ -284,8 +321,7 @@ class SupabaseOrderRepository implements OrderRepository {
         };
       }).toList();
     } catch (e, stack) {
-      MarketplaceLogger.error('getReorderItems failed',
-          error: e, stack: stack);
+      MarketplaceLogger.error('getReorderItems failed', error: e, stack: stack);
       throw mapToMarketplaceException(e, 'Failed to get reorder items');
     }
   }
@@ -299,10 +335,10 @@ class SupabaseOrderRepository implements OrderRepository {
     required String reason,
   }) async {
     try {
-      await _supabase.rpc('raise_dispute', params: {
-        'p_order_id': orderId,
-        'p_reason': reason,
-      });
+      await _supabase.rpc(
+        'raise_dispute',
+        params: {'p_order_id': orderId, 'p_reason': reason},
+      );
     } catch (e, stack) {
       MarketplaceLogger.error('raiseDispute failed', error: e, stack: stack);
       if (e is OrderException) rethrow;

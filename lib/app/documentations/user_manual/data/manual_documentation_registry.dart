@@ -25,7 +25,7 @@ class DocumentationRegistry {
     registerModule(CreateShopDocs());
     registerModule(FreelancerDocs());
     registerModule(CreateProductDocs());
-    registerModule(BookingGettingStartedDocs());
+    // registerModule(BookingGettingStartedDocs());
     registerModule(HowToBookServicesDocs());
     registerModule(GroupBookingsDocs());
     registerModule(PaymentFeesExplainedDocs());
@@ -33,7 +33,7 @@ class DocumentationRegistry {
     registerModule(FAQsDocs());
 
     registerModule(DashboardDocs());
-    registerModule(GettingStartedDocs());
+    // registerModule(GettingStartedDocs());
 
     // Add more as needed
   }

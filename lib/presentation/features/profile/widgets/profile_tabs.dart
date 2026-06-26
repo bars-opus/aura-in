@@ -7,6 +7,7 @@ List<AppTabItem> buildProfileTabs(
   isCurrentUser,
   isLogin, {
   AppLocalizations? loc,
+  bool showBuysTab = true,
 }) {
   // If loc is not provided, we're just building for tab count in initState
   // The actual labels will be used when the tabs are rendered in _buildBody
@@ -15,6 +16,7 @@ List<AppTabItem> buildProfileTabs(
     return [
       const AppTabItem(label: '', icon: null, content: null),
       const AppTabItem(label: '', icon: null, content: null),
+      if (showBuysTab) const AppTabItem(label: '', icon: null, content: null),
       const AppTabItem(label: '', icon: null, content: null),
     ];
   }
@@ -33,17 +35,18 @@ List<AppTabItem> buildProfileTabs(
                 isCurrentUser: isCurrentUser,
               ),
     ),
-    AppTabItem(
-      label: labels.profileTabsBuys,
-      icon: null,
-      content:
-          isLogin
-              ? const SizedBox.shrink()
-              : ProfileBuysTab(
-                profileUserId: profileUserId,
-                isCurrentUser: isCurrentUser,
-              ),
-    ),
+    if (showBuysTab)
+      AppTabItem(
+        label: labels.profileTabsBuys,
+        icon: null,
+        content:
+            isLogin
+                ? const SizedBox.shrink()
+                : ProfileBuysTab(
+                  profileUserId: profileUserId,
+                  isCurrentUser: isCurrentUser,
+                ),
+      ),
     AppTabItem(
       label: labels.profileTabsSaves,
       icon: null,

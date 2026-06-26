@@ -17,8 +17,14 @@ class NotificationUtils {
         return Icons.storefront;
       case 'review_request':
         return Icons.rate_review;
+      case 'booking_confirmation':
+      case 'booking_created':
+      case 'booking_confirmed':
+      case 'booking_cancelled':
       case 'new_booking_shop':
         return Icons.book_online;
+      case 'order_placed':
+        return Icons.receipt_long;
       case 'new_shop_nearby':
         return Icons.store;
       case 'new_review_shop':
@@ -39,8 +45,14 @@ class NotificationUtils {
         return colorScheme.secondary;
       case 'review_request':
         return colorScheme.tertiary;
+      case 'booking_confirmation':
+      case 'booking_created':
+      case 'booking_confirmed':
+      case 'booking_cancelled':
       case 'new_booking_shop':
         return Colors.green;
+      case 'order_placed':
+        return colorScheme.secondary;
       case 'new_shop_nearby':
         return Colors.blue;
       case 'new_review_shop':

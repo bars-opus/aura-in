@@ -1,10 +1,9 @@
 import 'package:nano_embryo/core/utils/money.dart';
-import 'package:nano_embryo/presentation/features/shops/booking/data/models/status_config.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/appointment_actions.dart';
-import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/status_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/exceptions/booking_error_messages.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/client_sticky_note_card.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 
 class BookingDetailScreen extends ConsumerStatefulWidget {
   final DateTime startTime;
@@ -68,7 +67,8 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: bookingAsync.when(
-        data: (BookingDetail) => _buildContent(context, BookingDetail, false),
+        data: (bookingDetailData) =>
+            _buildContent(context, bookingDetailData, false),
         loading: () => _buildContent(context, null, true),
         error:
             (error, stack) => ErrorStateWidget(
@@ -92,6 +92,64 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
     final theme = Theme.of(context);
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = theme.colorScheme;
+    final effectiveShopCurrency =
+        widget.shopCurrency.isNotEmpty
+            ? widget.shopCurrency
+            : (ref.watch(currentShopProvider)?.currency ?? '');
+
+    if (isLoading) {
+      return Stack(
+        alignment: FractionalOffset.bottomCenter,
+        children: [
+          CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: EdgeInsets.all(0),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: AppIconButton(
+                            icon: Icons.close,
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Gap(Spacing.md.h),
+                    Container(
+                      color: colorScheme.surface,
+                      padding: EdgeInsets.all(Spacing.md.h),
+                      margin: EdgeInsets.only(top: Spacing.lg.h),
+                      height: 700.h,
+                    ),
+                    Gap(Spacing.xxl.h),
+                    Gap(Spacing.xxl.h),
+                  ]),
+                ),
+              ),
+            ],
+          ),
+          Positioned(
+            bottom: 10,
+            child: ShakeTransition(
+              curve: Curves.easeOutBack,
+              axis: Axis.vertical,
+              child: Padding(
+                padding: EdgeInsets.all(Spacing.md),
+                child: CircularLoadingIndicator(),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    final booking = bookingDetail!;
 
     return Stack(
       alignment: FractionalOffset.bottomCenter,
@@ -120,13 +178,13 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
                           child: Text(
                             formatMoney(
                               widget.totalAmountMinor,
-                              widget.shopCurrency,
+                              effectiveShopCurrency,
                             ),
                             style: Theme.of(
                               context,
                             ).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: colorScheme.onBackground,
+                              color: colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -147,7 +205,7 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
                           widget.shopName,
                           style: textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: colorScheme.onBackground,
+                            color: colorScheme.onSurface,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -173,16 +231,7 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
 
                   // // Status Header
                   // BookingStatusHeader(booking: booking),
-                  isLoading
-                      ? Container(
-                        color: colorScheme.background,
-                        padding: EdgeInsets.all(Spacing.md.h),
-                        margin: EdgeInsets.only(top: Spacing.lg.h),
-                        height: 700.h,
-                      )
-                      : bookingDetail == null
-                      ? SizedBox.shrink()
-                      : Column(
+                  Column(
                         children: [
                           Gap(Spacing.lg.h),
                           ClientServiceCard(
@@ -192,18 +241,15 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
                                 bookingDetailProvider(widget.bookingId),
                               );
                             },
-                            status:
-                                bookingDetail == null
-                                    ? ''
-                                    : bookingDetail!.status.name,
+                            status: booking.status.name,
                             isShopOwner: widget.isShopOwner,
                             label: 'Service',
-                            shopCurrency: widget.shopCurrency,
-                            booking: bookingDetail,
+                            shopCurrency: effectiveShopCurrency,
+                            booking: booking,
                           ),
                           if (widget.isShopOwner) ...[
                             Gap(Spacing.sm.h),
-                            ClientStickyNoteCard(booking: bookingDetail),
+                            ClientStickyNoteCard(booking: booking),
                           ],
                           if (!widget.isShopOwner)
                             BookingShopInfoCard(
@@ -213,13 +259,13 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
                               shopLogoUrl: widget.shopLogoUrl,
                               shopAddress:
                                   widget.shopAddress.isEmpty
-                                      ? bookingDetail.shopAddress ??
+                                      ? booking.shopAddress ??
                                           widget.shopAddress
                                       : widget.shopAddress,
-                              latitude: bookingDetail.latitude ?? 0,
-                              longitude: bookingDetail.longitude ?? 0,
-                              bookingId: bookingDetail.id,
-                              status: bookingDetail.status.name,
+                              latitude: booking.latitude ?? 0,
+                              longitude: booking.longitude ?? 0,
+                              bookingId: booking.id,
+                              status: booking.status.name,
                               // booking: bookingDetail
                             ),
                         ],
@@ -237,20 +283,14 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
           child: ShakeTransition(
             curve: Curves.easeOutBack,
             axis: Axis.vertical,
-            child:
-                isLoading
-                    ? Padding(
-                      padding: EdgeInsets.all(Spacing.md),
-                      child: CircularLoadingIndicator(),
-                    )
-                    : AppointmentActions(
-                      isShopOwner: widget.isShopOwner,
-                      shopId: bookingDetail!.shopId,
-                      startTime: bookingDetail!.startTime,
-                      bookingId: bookingDetail!.id,
-                      status: bookingDetail.status.name,
-                      shopName: bookingDetail.clientName ?? '',
-                    ),
+            child: AppointmentActions(
+              isShopOwner: widget.isShopOwner,
+              shopId: booking.shopId,
+              startTime: booking.startTime,
+              bookingId: booking.id,
+              status: booking.status.name,
+              shopName: booking.clientName ?? '',
+            ),
           ),
         ),
       ],

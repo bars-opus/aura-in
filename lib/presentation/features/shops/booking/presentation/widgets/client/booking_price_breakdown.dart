@@ -38,7 +38,7 @@ class BookingPriceBreakdown extends StatelessWidget {
         Text(
           "Receipt",
           style: theme.textTheme.bodySmall?.copyWith(
-            color: colorScheme.onBackground,
+            color: colorScheme.onSurface,
           ),
         ),
 
@@ -112,13 +112,15 @@ class BookingPriceBreakdown extends StatelessWidget {
           label,
           style: theme.textTheme.bodySmall?.copyWith(
             fontWeight: isBold ? FontWeight.w500 : FontWeight.normal,
-            color: theme.colorScheme.onSurface.withOpacity(0.7),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         Text(
           label == 'Reference'
               ? amount.toString()
-              : '${shopCurrency} ${amount}',
+              : shopCurrency.isNotEmpty
+                  ? '$shopCurrency $amount'
+                  : amount,
           style:
               isBold
                   ? theme.textTheme.bodyLarge?.copyWith(

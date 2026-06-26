@@ -6,6 +6,7 @@ import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/account_products_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/screens/product_form_screen.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/product_card.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 
 class ProfileBuysTab extends ConsumerWidget {
   final String profileUserId;
@@ -21,6 +22,7 @@ class ProfileBuysTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(accountProductsProvider(profileUserId));
     final notifier = ref.read(accountProductsProvider(profileUserId).notifier);
+    final selectedShop = ref.watch(currentShopProvider);
 
     if (state.isInitialLoading) {
       return const Center(child: CircularLoadingIndicator());
@@ -43,12 +45,17 @@ class ProfileBuysTab extends ConsumerWidget {
         child: EmptyStateWidget(
           icon: Icons.shopping_bag_outlined,
           title: isCurrentUser ? 'No products yet' : 'Nothing for sale',
-          subtitle: isCurrentUser
-              ? 'Products you list for sale will appear here.'
-              : 'This account isn\'t selling any products yet.',
+          subtitle:
+              isCurrentUser
+                  ? 'Products you list for sale will appear here.'
+                  : 'This account isn\'t selling any products yet.',
         ),
       );
     }
+
+    final managementShopId =
+        selectedShop?.id ??
+        (state.items.isNotEmpty ? state.items.first.shopId : '');
 
     return NotificationListener<ScrollNotification>(
       onNotification: (n) {
@@ -61,15 +68,31 @@ class ProfileBuysTab extends ConsumerWidget {
       },
       child: ListView.builder(
         padding: EdgeInsets.all(16.w),
-        itemCount: state.items.length + (state.hasMore ? 1 : 0),
+        itemCount:
+            state.items.length +
+            (state.hasMore ? 1 : 0) +
+            (isCurrentUser ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index >= state.items.length) {
+          if (isCurrentUser && index == 0) {
+            return _SellerManageOrdersCard(
+              onTap:
+                  managementShopId.isEmpty
+                      ? null
+                      : () => context.pushNamed(
+                        'shopOrders',
+                        extra: managementShopId,
+                      ),
+            );
+          }
+
+          final productIndex = isCurrentUser ? index - 1 : index;
+          if (productIndex >= state.items.length) {
             return Padding(
               padding: EdgeInsets.symmetric(vertical: 24.h),
               child: const Center(child: CircularProgressIndicator()),
             );
           }
-          final product = state.items[index];
+          final product = state.items[productIndex];
           return ProductCard(
             product: product,
             onTap: () {
@@ -86,11 +109,40 @@ class ProfileBuysTab extends ConsumerWidget {
                 );
               } else {
                 // Visitor: view + buy.
-                context.pushNamed('productDetail', extra: <String, String?>{'productId': product.id, 'coverImageUrl': product.images.firstOrNull ?? ''});
+                context.pushNamed(
+                  'productDetail',
+                  extra: <String, String?>{
+                    'productId': product.id,
+                    'coverImageUrl': product.images.firstOrNull ?? '',
+                  },
+                );
               }
             },
           );
         },
+      ),
+    );
+  }
+}
+
+class _SellerManageOrdersCard extends StatelessWidget {
+  final VoidCallback? onTap;
+
+  const _SellerManageOrdersCard({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return CardInkWell(
+      margin: EdgeInsets.only(bottom: 10.h),
+      child: InfoRowWidget(
+        subtitle: 'Confirm orders and manage fulfilment for this shop.',
+        title: 'Manage your orders',
+        icon: Icons.receipt_long_outlined,
+        avatarRadius: 25.h,
+        onTap: onTap,
+        showAvatar: false,
+        showTrailingArrow: true,
+        showDivider: false,
       ),
     );
   }

@@ -1,17 +1,12 @@
 // lib/features/dashboard/presentation/screens/owner_dashboard_screen.dart
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
-import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/dashboard_metrics.dart';
-import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/owner_dashboard_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/analytics_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/clients_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/insights_screen.dart';
-import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/todays_view.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/tools_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/dashboard_workers_screen.dart';
-import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/tools/kpi_card.dart';
-import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/today_schedule_list.dart';
-import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dashboard_providers.dart';
-import 'package:nano_embryo/payment/presentation/widgets/payment_setup_banner.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
+import 'package:nano_embryo/presentation/home/widgets/owner_tab_shop_switcher.dart';
 import 'package:nano_embryo/wallet/presentation/screens/wallet_screen.dart';
 
 class OwnerDashboardScreen extends ConsumerStatefulWidget {
@@ -47,6 +42,8 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final loc = AppLocalizations.of(context)!;
+    final dashboardDocs = DashboardDocs();
+    final shopsAsync = ref.watch(userShopsProvider);
 
     final List<AppTabItem> tabs = [
       AppTabItem(
@@ -91,18 +88,66 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
         centerTitle: false,
         title: Text(
           loc.dashboardTitle,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: colorScheme.onBackground,
+            color: colorScheme.onSurface,
           ),
         ),
+        actions: [
+          shopsAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+            data: (shops) => Padding(
+              padding: EdgeInsets.only(right: Spacing.md.w),
+              child: OwnerTabShopSwitcher(shops: shops),
+            ),
+          ),
+        ],
       ),
-      body: TabsWithContent(
-        useNestedScrollMode: false,
-        tabs: tabs,
-        initialIndex: 0,
-        scrollable: true,
-        showContent: true,
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              Spacing.md.w,
+              Spacing.sm.h,
+              Spacing.md.w,
+              0,
+            ),
+            child: GestureDetector(
+              onTap: () {
+                BottomSheetUtils.showDocumentationBottomSheet(
+                  context: context,
+                  showButtons: false,
+                  widget: DocumentationTabView(
+                    documentation: dashboardDocs.getSections(context),
+                    faqs: dashboardDocs.getFAQs(context),
+                    showDocumentationFirst: true,
+                  ),
+                );
+              },
+              child: SemanticContainerWidget(
+                title: dashboardDocs.getTitle(context),
+                content:
+                    'Track revenue, review analytics, manage tools, and keep clients and staff in sync from one place.',
+                icon: dashboardDocs.icon,
+                trailingIcon: Icons.arrow_forward_ios_sharp,
+              backgroundColor: colorScheme.primary.withValues(alpha: 0.08),
+                borderColor: colorScheme.primary,
+                iconColor: colorScheme.primary,
+                textTheme: theme.textTheme,
+              ),
+            ),
+          ),
+          Expanded(
+            child: TabsWithContent(
+              useNestedScrollMode: false,
+              tabs: tabs,
+              initialIndex: 0,
+              scrollable: true,
+              showContent: true,
+            ),
+          ),
+        ],
       ),
     );
   }

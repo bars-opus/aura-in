@@ -20,7 +20,16 @@ class CustomerOrdersScreen extends ConsumerStatefulWidget {
       _CustomerOrdersScreenState();
 }
 
-class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
+class CustomerOrdersTab extends ConsumerStatefulWidget {
+  final bool showStatusFilter;
+
+  const CustomerOrdersTab({super.key, this.showStatusFilter = true});
+
+  @override
+  ConsumerState<CustomerOrdersTab> createState() => _CustomerOrdersTabState();
+}
+
+class _CustomerOrdersTabState extends ConsumerState<CustomerOrdersTab> {
   OrderStatus? _selectedStatusFilter;
 
   /// Filter is client-side: applies to whatever pages are currently
@@ -34,24 +43,21 @@ class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
     final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
 
     if (user == null) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.lock_outline, size: 64.w),
-              SizedBox(height: 16.h),
-              const Text('Please log in to view your orders'),
-              SizedBox(height: 16.h),
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text('Login'),
-              ),
-            ],
-          ),
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.lock_outline, size: 64.w),
+            SizedBox(height: 16.h),
+            const Text('Please log in to view your orders'),
+            SizedBox(height: 16.h),
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text('Login'),
+            ),
+          ],
         ),
       );
     }
@@ -59,18 +65,11 @@ class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
     final state = ref.watch(customerOrdersPagedProvider(user.id));
     final notifier = ref.read(customerOrdersPagedProvider(user.id).notifier);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          MarketplaceStrings.myOrders,
-          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(50.h),
-          child: _buildStatusFilter(),
-        ),
-      ),
-      body: _buildBody(state, notifier, theme),
+    return Column(
+      children: [
+        if (widget.showStatusFilter) _buildStatusFilter(),
+        Expanded(child: _buildBody(state, notifier, theme)),
+      ],
     );
   }
 
@@ -315,6 +314,23 @@ class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
 
   String _formatDate(DateTime date) =>
       '${date.day}/${date.month}/${date.year}';
+}
+
+class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          MarketplaceStrings.myOrders,
+          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
+      ),
+      body: const CustomerOrdersTab(),
+    );
+  }
 }
 
 class _ErrorRetry extends StatelessWidget {

@@ -8,6 +8,7 @@ import 'package:nano_embryo/core/account_lifecycle/utils/account_lifecycle_route
 import 'package:nano_embryo/core/config/survey/presentation/screens/feature_survey_screen.dart';
 import 'package:nano_embryo/core/feedback/presentation/screens/feedback_history_screen.dart';
 import 'package:nano_embryo/core/feedback/presentation/screens/feedback_screen.dart';
+import 'package:nano_embryo/core/notifications/presentation/screens/notification_inbox_screen.dart';
 import 'package:nano_embryo/core/moderation/data/moderation_models.dart';
 import 'package:nano_embryo/core/moderation/presentation/screens/block_account_screen.dart';
 import 'package:nano_embryo/core/moderation/presentation/screens/blocked_accounts_screen.dart';
@@ -84,6 +85,7 @@ import 'package:nano_embryo/presentation/features/products/presentation/screens/
 import 'package:nano_embryo/presentation/features/products/presentation/screens/seller_onboarding_screen.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 import 'package:nano_embryo/presentation/features/admin/presentation/screens/verification_review_screen.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/booking_notification_detail_screen.dart';
 
 /// Route names for type-safe navigation
 class RouteNames {
@@ -92,6 +94,7 @@ class RouteNames {
   static const String allLegalDocumentation = '/allLegalDocumentation';
   static const String appInfoScreen = '/appInfoScreen';
   static const String settings = '/settings';
+  static const String notifications = '/notifications';
   static const String more = '/more';
   static const String login = '/login';
   static const String loginOptions = '/loginOptions';
@@ -167,6 +170,7 @@ class RouteNames {
   static const String customerOrderDetail = '/customerOrderDetail';
   static const String shopOrders = '/shopOrders';
   static const String shopOrderDetail = '/shopOrderDetail';
+  static const String bookingDetail = '/bookingDetail';
   static const String shopProducts = '/shopProducts';
   static const String productForm = '/productForm';
   static const String sellerOnboarding = '/sellerOnboarding';
@@ -507,6 +511,11 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
           final currentUserId = state.extra as String? ?? '';
           return SettingsScreen(currentUserId: currentUserId);
         },
+      ),
+      GoRoute(
+        path: RouteNames.notifications,
+        name: 'notifications',
+        builder: (context, state) => const NotificationInboxScreen(),
       ),
       // GoRoute(
       //   path: RouteNames.settings,
@@ -1028,19 +1037,19 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         //           );
         //         },
         builder: (context, state) {
-              final extra = state.extra;
-              if (extra is Map<String, String?>) {
-                return ProductDetailScreen(
-                  productId: extra['productId'] ?? '',
-                  coverImageUrl: extra['coverImageUrl'] ?? '',
-                );
-              }
-              // Legacy callers that still pass a bare String.
-              return ProductDetailScreen(
-                productId: extra as String? ?? '',
-                coverImageUrl: '',
-              );
-            },
+          final extra = state.extra;
+          if (extra is Map<String, String?>) {
+            return ProductDetailScreen(
+              productId: extra['productId'] ?? '',
+              // coverImageUrl: extra['coverImageUrl'] ?? '',
+            );
+          }
+          // Legacy callers that still pass a bare String.
+          return ProductDetailScreen(
+            productId: extra as String? ?? '',
+            // coverImageUrl: '',
+          );
+        },
       ),
       GoRoute(
         path: RouteNames.cart,
@@ -1087,6 +1096,16 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
           return OrderDetailScreen(
             orderId: params['orderId'] ?? '',
             shopId: params['shopId'] ?? '',
+          );
+        },
+      ),
+      GoRoute(
+        path: RouteNames.bookingDetail,
+        name: 'bookingDetail',
+        builder: (context, state) {
+          final params = state.extra as Map<String, dynamic>? ?? const {};
+          return BookingNotificationDetailScreen(
+            bookingId: params['bookingId'] as String? ?? '',
           );
         },
       ),

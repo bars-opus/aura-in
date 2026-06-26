@@ -350,6 +350,7 @@ class SupabaseBookingRepository implements BookingRepository {
                 'end_time': row['end_time'],
                 'status': row['status'],
                 'total_amount': row['total_amount'],
+                'currency': row['currency'],
                 'client': {
                   'display_name': row['client_display_name'],
                   'username': row['client_username'],

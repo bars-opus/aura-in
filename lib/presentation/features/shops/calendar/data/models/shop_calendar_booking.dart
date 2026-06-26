@@ -57,6 +57,9 @@ class ShopCalendarBooking extends Equatable {
     if (shop != null) {
       shopCurrency = shop['currency'] as String? ?? '';
     }
+    if (shopCurrency.isEmpty) {
+      shopCurrency = json['currency'] as String? ?? '';
+    }
 
     // Extract first service name safely
     String serviceName = 'Service';
