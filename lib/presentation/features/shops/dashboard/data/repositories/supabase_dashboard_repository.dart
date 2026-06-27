@@ -293,7 +293,11 @@ class SupabaseDashboardRepository implements DashboardRepository {
           } catch (e) {
             AppLogger.warn(
               'dashboard.today_schedule.service_lookup_failed',
-              fields: {'shop_id': shopId, 'slot_id': slotId, 'error': e.toString()},
+              fields: {
+                'shop_id': shopId,
+                'slot_id': slotId,
+                'error': e.toString(),
+              },
             );
           }
         }
@@ -314,7 +318,11 @@ class SupabaseDashboardRepository implements DashboardRepository {
           } catch (e) {
             AppLogger.warn(
               'dashboard.today_schedule.worker_lookup_failed',
-              fields: {'shop_id': shopId, 'worker_id': workerId, 'error': e.toString()},
+              fields: {
+                'shop_id': shopId,
+                'worker_id': workerId,
+                'error': e.toString(),
+              },
             );
           }
         }
@@ -799,7 +807,8 @@ class SupabaseDashboardRepository implements DashboardRepository {
             .select('id, service_name')
             .inFilter('id', missingSlotIds.toList());
         for (final slot in slotsResponse) {
-          slotNameById[slot['id'] as String] = slot['service_name'] as String? ?? '';
+          slotNameById[slot['id'] as String] =
+              slot['service_name'] as String? ?? '';
         }
       }
 
@@ -807,9 +816,10 @@ class SupabaseDashboardRepository implements DashboardRepository {
         final slotId = item['slot_id'];
         if (slotId == null) continue;
         final price = (item['price_at_booking'] as num).toDouble();
-        final serviceName = (item['service_name'] as String?)?.isNotEmpty == true
-            ? item['service_name'] as String
-            : slotNameById[slotId] ?? '';
+        final serviceName =
+            (item['service_name'] as String?)?.isNotEmpty == true
+                ? item['service_name'] as String
+                : slotNameById[slotId] ?? '';
         if (serviceName.isEmpty) continue;
         final serviceId = slotId as String;
         if (!serviceStats.containsKey(serviceId)) {
@@ -1721,8 +1731,8 @@ class SupabaseDashboardRepository implements DashboardRepository {
         DateTime? lastBookingAt;
 
         for (final booking in userBookings) {
-          // Only count completed bookings for total spent
-          if (booking['status'] == 'completed') {
+          // Count all non-lost bookings toward client spend.
+          if (_countsTowardClientSpend(booking['status'] as String?)) {
             totalSpent += (booking['total_amount'] ?? 0).toDouble();
           }
 
@@ -1811,10 +1821,12 @@ class SupabaseDashboardRepository implements DashboardRepository {
       // Count all bookings
       final totalBookings = bookings.length;
 
-      // Calculate total spent from completed bookings only
-      final completedBookings =
-          bookings.where((b) => b['status'] == 'completed').toList();
-      final totalSpent = completedBookings.fold<double>(
+      // Count all non-lost bookings toward client spend.
+      final spendBookings =
+          bookings
+              .where((b) => _countsTowardClientSpend(b['status'] as String?))
+              .toList();
+      final totalSpent = spendBookings.fold<double>(
         0,
         (sum, b) => sum + (b['total_amount'] ?? 0).toDouble(),
       );
@@ -2369,7 +2381,10 @@ class SupabaseDashboardRepository implements DashboardRepository {
         originalError: e,
       );
     } catch (e) {
-      throw DashboardRepositoryException('reminder_send_failed', originalError: e);
+      throw DashboardRepositoryException(
+        'reminder_send_failed',
+        originalError: e,
+      );
     }
   }
 
@@ -2389,7 +2404,10 @@ class SupabaseDashboardRepository implements DashboardRepository {
         originalError: e,
       );
     } catch (e) {
-      throw DashboardRepositoryException('reminder_send_failed', originalError: e);
+      throw DashboardRepositoryException(
+        'reminder_send_failed',
+        originalError: e,
+      );
     }
   }
 
@@ -2399,7 +2417,8 @@ class SupabaseDashboardRepository implements DashboardRepository {
     if (e.code == '42501' || e.code == 'P0002') return 'not_found';
     final hint = e.hint ?? '';
     if (hint.contains('BOOKING_ALREADY_STARTED')) return 'booking_in_past';
-    if (hint.contains('NO_PUSH_FOR_GUEST')) return 'guest_booking_not_supported';
+    if (hint.contains('NO_PUSH_FOR_GUEST'))
+      return 'guest_booking_not_supported';
     if (e.code == '22023') return 'invalid_input';
     return 'reminder_send_failed';
   }
@@ -2461,8 +2480,10 @@ class SupabaseDashboardRepository implements DashboardRepository {
       final map = Map<String, dynamic>.from(response as Map);
       final list = (map['weeks'] as List? ?? const []);
       return list
-          .map((row) =>
-              LostBookingWeek.fromJson(Map<String, dynamic>.from(row as Map)))
+          .map(
+            (row) =>
+                LostBookingWeek.fromJson(Map<String, dynamic>.from(row as Map)),
+          )
           .toList();
     } on PostgrestException catch (e) {
       throw DashboardRepositoryException(
@@ -2492,8 +2513,11 @@ class SupabaseDashboardRepository implements DashboardRepository {
       final map = Map<String, dynamic>.from(response as Map);
       final list = (map['offenders'] as List? ?? const []);
       return list
-          .map((row) => LostBookingOffender.fromJson(
-              Map<String, dynamic>.from(row as Map)))
+          .map(
+            (row) => LostBookingOffender.fromJson(
+              Map<String, dynamic>.from(row as Map),
+            ),
+          )
           .toList();
     } on PostgrestException catch (e) {
       throw DashboardRepositoryException(
@@ -2533,14 +2557,17 @@ class SupabaseDashboardRepository implements DashboardRepository {
   }) async {
     // Locked correction 1: opens_at / closes_at pass through as TEXT.
     // The existing UI already writes "09:00 AM" strings — no conversion.
-    final hoursJson = hours
-        .map((h) => {
-              'day_of_week': h.dayOfWeek,
-              'opens_at': h.opensAt,
-              'closes_at': h.closesAt,
-              'is_closed': h.isClosed,
-            })
-        .toList();
+    final hoursJson =
+        hours
+            .map(
+              (h) => {
+                'day_of_week': h.dayOfWeek,
+                'opens_at': h.opensAt,
+                'closes_at': h.closesAt,
+                'is_closed': h.isClosed,
+              },
+            )
+            .toList();
     try {
       await _supabase.rpc(
         'rebuild_shop_opening_hours',
@@ -2564,7 +2591,9 @@ class SupabaseDashboardRepository implements DashboardRepository {
   /// Maps PostgrestException raised by `rebuild_shop_opening_hours`
   /// to the typed exception subtype the controller branches on.
   BusinessHoursException _classifyHoursError(
-      PostgrestException e, String shopId) {
+    PostgrestException e,
+    String shopId,
+  ) {
     if (e.code == '42501') return HoursNotFoundException(shopId);
     final hint = e.hint ?? '';
     if (e.code == '22023' && hint == 'DAY_OF_WEEK_OUT_OF_RANGE') {
@@ -2650,9 +2679,10 @@ class SupabaseDashboardRepository implements DashboardRepository {
           .from('client_notes')
           .select('*')
           .eq('shop_id', shopId);
-      final filtered = userId != null
-          ? query.eq('user_id', userId)
-          : query.eq('guest_profile_id', guestProfileId!);
+      final filtered =
+          userId != null
+              ? query.eq('user_id', userId)
+              : query.eq('guest_profile_id', guestProfileId!);
       final row = await filtered.maybeSingle();
       if (row == null) return null;
       return ClientNoteDTO.fromJson(row);
@@ -2872,8 +2902,7 @@ class SupabaseDashboardRepository implements DashboardRepository {
   /// to the typed exception subtype the screen switches on. NO
   /// string-matching on `e.message` — branching is exclusively on
   /// `e.code` + `e.hint`. Phase 15 RESEARCH §9.
-  PricingOverrideException _classifyPricingOverrideError(
-      PostgrestException e) {
+  PricingOverrideException _classifyPricingOverrideError(PostgrestException e) {
     if (e.code == '42501') return OverrideAccessDeniedException();
     final hint = e.hint ?? '';
     if (e.code == '22023') {
@@ -2912,12 +2941,13 @@ class SupabaseDashboardRepository implements DashboardRepository {
     required DateTime reportDate,
   }) async {
     try {
-      final row = await _supabase
-          .from('daily_reports')
-          .select('shop_id, report_date, payload, generated_at')
-          .eq('shop_id', shopId)
-          .eq('report_date', _dateOnlyIso(reportDate))
-          .maybeSingle();
+      final row =
+          await _supabase
+              .from('daily_reports')
+              .select('shop_id, report_date, payload, generated_at')
+              .eq('shop_id', shopId)
+              .eq('report_date', _dateOnlyIso(reportDate))
+              .maybeSingle();
       if (row == null) return null;
       return DailyReportDTO.fromJson(
         shopId: row['shop_id'] as String,
@@ -2947,12 +2977,14 @@ class SupabaseDashboardRepository implements DashboardRepository {
     int pageSize = 30,
   }) async {
     try {
-      final result = await _supabase.rpc('list_daily_reports', params: {
-        'p_shop_id': shopId,
-        'p_before_date':
-            beforeDate == null ? null : _dateOnlyIso(beforeDate),
-        'p_page_size': pageSize,
-      });
+      final result = await _supabase.rpc(
+        'list_daily_reports',
+        params: {
+          'p_shop_id': shopId,
+          'p_before_date': beforeDate == null ? null : _dateOnlyIso(beforeDate),
+          'p_page_size': pageSize,
+        },
+      );
       final rows = List<Map<String, dynamic>>.from(result as List);
       return rows.map(DailyReportSummaryDTO.fromRow).toList(growable: false);
     } on PostgrestException catch (e) {
@@ -2976,10 +3008,13 @@ class SupabaseDashboardRepository implements DashboardRepository {
     required DateTime reportDate,
   }) async {
     try {
-      final result = await _supabase.rpc('generate_daily_report', params: {
-        'p_shop_id': shopId,
-        'p_report_date': _dateOnlyIso(reportDate),
-      });
+      final result = await _supabase.rpc(
+        'generate_daily_report',
+        params: {
+          'p_shop_id': shopId,
+          'p_report_date': _dateOnlyIso(reportDate),
+        },
+      );
       return result as String;
     } on PostgrestException catch (e) {
       AppLogger.warn(
@@ -2993,6 +3028,16 @@ class SupabaseDashboardRepository implements DashboardRepository {
         fields: {'shop_id': shopId, 'error': e.toString()},
       );
       throw ReportGenerationFailedException();
+    }
+  }
+
+  bool _countsTowardClientSpend(String? status) {
+    switch (status) {
+      case 'cancelled':
+      case 'no_show':
+        return false;
+      default:
+        return true;
     }
   }
 

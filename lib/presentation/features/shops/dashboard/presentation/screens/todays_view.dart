@@ -1,12 +1,17 @@
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/tools/kpi_card.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dashboard_providers.dart';
-import 'package:nano_embryo/wallet/presentation/screens/wallet_screen.dart';
-import 'package:nano_embryo/wallet/presentation/widgets/wallet_balance_card.dart';
 
 class TodaysView extends ConsumerWidget {
   final String shopId;
-  const TodaysView({super.key, required this.shopId});
+  final String shopCurrencyCode;
+
+  const TodaysView({
+    super.key,
+    required this.shopId,
+    required this.shopCurrencyCode,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -48,7 +53,11 @@ class TodaysView extends ConsumerWidget {
     final kpiDataList = [
       _KpiData(
         title: 'Today\'s Revenue',
-        value: '\$${state.metrics.todayRevenue.toStringAsFixed(0)}',
+        value: formatMajorMoney(
+          state.metrics.todayRevenue,
+          shopCurrencyCode,
+          fractionDigits: 0,
+        ),
         icon: Icons.money,
         iconColor: colorScheme.success,
         trendPercent: state.metrics.revenueChangePercent,
@@ -145,9 +154,6 @@ class TodaysView extends ConsumerWidget {
       ),
     );
   }
-
-  
-
 }
 
 // Helper data class

@@ -18,6 +18,7 @@ import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/core/widgets/card_inkwell.dart';
 import 'package:nano_embryo/core/widgets/info_row_widget.dart';
+import 'package:nano_embryo/presentation/features/auth/utility/auth_exports.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:nano_embryo/core/link/config/aurain_link_config.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/usecases/publish_shop_usecase.dart'
@@ -29,45 +30,44 @@ enum ShareableLinkKind {
   products;
 
   String get pathPrefix => switch (this) {
-        ShareableLinkKind.booking  => 'book',
-        ShareableLinkKind.products => 'm',
-      };
+    ShareableLinkKind.booking => 'book',
+    ShareableLinkKind.products => 'm',
+  };
 
   String get headline => switch (this) {
-        ShareableLinkKind.booking  => 'Shareable booking link',
-        ShareableLinkKind.products => 'Shareable products link',
-      };
+    ShareableLinkKind.booking => 'Shareable booking link',
+    ShareableLinkKind.products => 'Shareable products link',
+  };
 
   String get emptySubtitle => switch (this) {
-        ShareableLinkKind.booking =>
-          'No public booking link yet. Generate one to start sharing on WhatsApp or Instagram.',
-        ShareableLinkKind.products =>
-          'No public products link yet. Generate one so clients can order without the app — pay on delivery.',
-      };
+    ShareableLinkKind.booking =>
+      'No public booking link yet. Generate one to start sharing on WhatsApp or Instagram.',
+    ShareableLinkKind.products =>
+      'No public products link yet. Generate one so clients can order without the app — pay on delivery.',
+  };
 
   String get explanation => switch (this) {
-        ShareableLinkKind.booking =>
-          'Share this on WhatsApp or Instagram to let clients book without the app.',
-        ShareableLinkKind.products =>
-          'Share this on WhatsApp or Instagram to let clients order products. They pay on delivery.',
-      };
+    ShareableLinkKind.booking =>
+      'Share this on WhatsApp or Instagram to let clients book without the app.',
+    ShareableLinkKind.products =>
+      'Share this on WhatsApp or Instagram to let clients order products. They pay on delivery.',
+  };
 
   String get editTitle => switch (this) {
-        ShareableLinkKind.booking  => 'Edit booking link slug',
-        ShareableLinkKind.products => 'Edit products link slug',
-      };
+    ShareableLinkKind.booking => 'Edit booking link slug',
+    ShareableLinkKind.products => 'Edit products link slug',
+  };
 
   String shareText(String entityName, String url) => switch (this) {
-        ShareableLinkKind.booking =>
-          'Book your appointment at $entityName: $url',
-        ShareableLinkKind.products =>
-          'Order from $entityName (pay on delivery): $url',
-      };
+    ShareableLinkKind.booking => 'Book your appointment at $entityName: $url',
+    ShareableLinkKind.products =>
+      'Order from $entityName (pay on delivery): $url',
+  };
 
   String shareSubject(String entityName) => switch (this) {
-        ShareableLinkKind.booking  => 'Book at $entityName',
-        ShareableLinkKind.products => 'Order from $entityName',
-      };
+    ShareableLinkKind.booking => 'Book at $entityName',
+    ShareableLinkKind.products => 'Order from $entityName',
+  };
 }
 
 class ShareableLinkSection extends ConsumerWidget {
@@ -100,7 +100,6 @@ class ShareableLinkSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     final config = AuraInLinkConfig.getConfig();
@@ -144,71 +143,69 @@ class ShareableLinkSection extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          InfoRowWidget(
+            subtitle: kind.explanation,
+            title: kind.headline,
+            icon: Icons.link,
+            avatarRadius: 25.r,
+            onTap: () {},
+            disableTrailing: true,
+            showAvatar: false,
+            showTrailingArrow: false,
+            showDivider: false,
+          ),
+
+          const Gap(Spacing.lg),
           Text(
-            kind.headline,
+            url,
             style: textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onBackground,
+              color: Colors.blue,
               fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            kind.explanation,
-            style: textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onBackground.withOpacity(.7),
-              fontSize: 12.sp,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: colorScheme.background,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              url,
-              style: textTheme.bodyMedium?.copyWith(
-                color: Colors.blue,
-                fontSize: 14.sp,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
+          const Gap(Spacing.lg),
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.copy, size: 16),
-                  label: const Text('Copy'),
+                child: AppButton(
+                  height: 35.h,
+                  label: 'Copy',
+                  iconData: Icons.copy,
                   onPressed: () async {
                     await Clipboard.setData(ClipboardData(text: url));
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Link copied')),
-                      );
+                      context.showSuccessSnackbar('Link copied');
                     }
                   },
+                  padding: Spacing.horizontalMd,
+                  variant: ButtonVariant.outline,
+                  size: ButtonSize.small,
+                  width: double.infinity,
                 ),
               ),
-              const SizedBox(width: 8),
+              const Gap(Spacing.sm),
               Expanded(
-                child: FilledButton.icon(
-                  icon: const Icon(Icons.share, size: 16),
-                  label: const Text('Share'),
-                  onPressed: () => Share.share(
-                    kind.shareText(entityName, url),
-                    subject: kind.shareSubject(entityName),
-                  ),
+                child: AppButton(
+                  height: 35.h,
+                  label: 'Share',
+                  iconData: Icons.share,
+                  onPressed:
+                      () => Share.share(
+                        kind.shareText(entityName, url),
+                        subject: kind.shareSubject(entityName),
+                      ),
+                  padding: Spacing.horizontalMd,
+                  size: ButtonSize.small,
+                  width: double.infinity,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          TextButton(
+          const Gap(Spacing.md),
+          AppTextButton(
+            text: 'Edit slug',
+            fontSize: FontSizeTokens.sm,
             onPressed: () => _showEditSlugDialog(context),
-            child: const Text('Edit slug'),
           ),
         ],
       ),
@@ -216,46 +213,60 @@ class ShareableLinkSection extends ConsumerWidget {
   }
 
   Future<void> _showEditSlugDialog(BuildContext context) async {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final config = AuraInLinkConfig.getConfig();
     final defaultSlug = currentSlug ?? slugifyShopName(entityName);
     final ctrl = TextEditingController(text: defaultSlug);
     final result = await showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(kind.editTitle),
-        content: TextField(
-          controller: ctrl,
-          decoration: InputDecoration(
-            prefixText: '${config.baseDomain}/${kind.pathPrefix}/',
-            border: const OutlineInputBorder(),
+      builder:
+          (ctx) => AlertDialog(
+            title: Text(
+              kind.editTitle,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface.withOpacity(0.8),
+              ),
+            ),
+            content: TextField(
+              controller: ctrl,
+              decoration: InputDecoration(
+                prefixText: '${config.baseDomain}/${kind.pathPrefix}/',
+                border: const OutlineInputBorder(),
+              ),
+              autofocus: true,
+            ),
+            actions: [
+              SizedBox(
+                width: 100.w,
+                child: AppTextButton(
+                  text: 'Cancel',
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ),
+
+              AppButton(
+                height: 35.h,
+                label: 'Save',
+                iconData: Icons.share,
+                onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+                padding: Spacing.horizontalMd,
+                size: ButtonSize.small,
+                width: 100.w,
+              ),
+            ],
           ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
     );
     if (result == null || result.isEmpty || result == currentSlug) return;
     try {
       await onEditSlug(result);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Slug updated')),
-        );
+        context.showSuccessSnackbar('Slug updated');
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not update slug: $e')),
-        );
+        context.showErrorSnackbar('Could not update slug: $e');
       }
     }
   }

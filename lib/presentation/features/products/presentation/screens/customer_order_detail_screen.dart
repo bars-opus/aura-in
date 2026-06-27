@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
+import 'package:nano_embryo/presentation/features/chat/presentation/services/business_chat_launcher.dart';
 import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/cart_item_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
@@ -82,9 +83,10 @@ class _CustomerOrderDetailScreenState
       }
 
       if (!mounted) return;
-      final msg = skipped == 0
-          ? '$added item${added == 1 ? '' : 's'} added to cart'
-          : '$added added · $skipped unavailable';
+      final msg =
+          skipped == 0
+              ? '$added item${added == 1 ? '' : 's'} added to cart'
+              : '$added added · $skipped unavailable';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       if (added > 0) context.pushNamed('cart');
     } on MarketplaceException catch (e, stack) {
@@ -110,72 +112,70 @@ class _CustomerOrderDetailScreenState
     final reasonController = TextEditingController();
     final reason = await showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Report an issue'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Briefly describe what went wrong. The shop will be notified.',
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text('Report an issue'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Briefly describe what went wrong. The shop will be notified.',
+                ),
+                SizedBox(height: 12.h),
+                TextField(
+                  controller: reasonController,
+                  maxLines: 4,
+                  maxLength: InputSanitizer.maxDisputeReason,
+                  decoration: const InputDecoration(
+                    hintText: 'e.g. wrong product delivered',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 12.h),
-            TextField(
-              controller: reasonController,
-              maxLines: 4,
-              maxLength: InputSanitizer.maxDisputeReason,
-              decoration: const InputDecoration(
-                hintText: 'e.g. wrong product delivered',
-                border: OutlineInputBorder(),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
               ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+              FilledButton(
+                onPressed: () {
+                  final v = InputSanitizer.clean(reasonController.text);
+                  if (v.isEmpty) return;
+                  if (v.length > InputSanitizer.maxDisputeReason) return;
+                  Navigator.pop(ctx, v);
+                },
+                child: const Text('Submit'),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () {
-              final v = InputSanitizer.clean(reasonController.text);
-              if (v.isEmpty) return;
-              if (v.length > InputSanitizer.maxDisputeReason) return;
-              Navigator.pop(ctx, v);
-            },
-            child: const Text('Submit'),
-          ),
-        ],
-      ),
     );
 
     if (reason == null || !mounted) return;
 
     try {
-      await ref.read(orderNotifierProvider.notifier).raiseDispute(
-            orderId: order.id,
-            reason: reason,
-          );
+      await ref
+          .read(orderNotifierProvider.notifier)
+          .raiseDispute(orderId: order.id, reason: reason);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Issue reported. The shop will respond.')),
       );
       ref.invalidate(orderWithItemsProvider(widget.orderId));
     } on MarketplaceException catch (e, stack) {
-      MarketplaceLogger.warn('reportIssue rejected',
-          error: e, stack: stack);
+      MarketplaceLogger.warn('reportIssue rejected', error: e, stack: stack);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
       }
     } catch (e, stack) {
-      MarketplaceLogger.error('reportIssue failed',
-          error: e, stack: stack);
+      MarketplaceLogger.error('reportIssue failed', error: e, stack: stack);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to report issue')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to report issue')));
       }
     }
   }
@@ -319,8 +319,10 @@ class _CustomerOrderDetailScreenState
               // Report issue (once the order is in motion)
               if (_canReport(order) && order.status != OrderStatus.disputed)
                 SliverPadding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 4.h,
+                  ),
                   sliver: SliverToBoxAdapter(
                     child: Semantics(
                       button: true,
@@ -392,7 +394,10 @@ class _CustomerOrderDetailScreenState
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8.r),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8.r,
+          ),
         ],
       ),
       child: Column(
@@ -533,6 +538,17 @@ class _CustomerOrderDetailScreenState
                   ],
                 ),
               ),
+              IconButton(
+                tooltip: 'Message shop',
+                onPressed:
+                    () => BusinessChatLauncher.openForOrder(
+                      context,
+                      ref,
+                      order,
+                      isShopOwner: false,
+                    ),
+                icon: const Icon(Icons.message_outlined),
+              ),
             ],
           ),
         ),
@@ -540,7 +556,11 @@ class _CustomerOrderDetailScreenState
     );
   }
 
-  Widget _buildOrderItem(OrderItemModel item, ThemeData theme, String? currencySymbol) {
+  Widget _buildOrderItem(
+    OrderItemModel item,
+    ThemeData theme,
+    String? currencySymbol,
+  ) {
     return Card(
       margin: EdgeInsets.only(bottom: 8.h),
       child: Padding(
@@ -685,8 +705,10 @@ class _CustomerOrderDetailScreenState
                     Navigator.pop(context);
                   } catch (e, stack) {
                     MarketplaceLogger.error(
-                        'cancel order (from detail) failed',
-                        error: e, stack: stack);
+                      'cancel order (from detail) failed',
+                      error: e,
+                      stack: stack,
+                    );
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Failed to cancel: $e')),

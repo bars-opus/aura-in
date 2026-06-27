@@ -1,8 +1,7 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/exceptions/booking_error_messages.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/utils/booking_logger.dart';
+import 'package:nano_embryo/presentation/features/chat/presentation/services/business_chat_launcher.dart';
 import 'package:nano_embryo/presentation/features/shops/appointments/shop_daily_schedule/providers/daily_schedule_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/contact_bottom_sheet.dart';
 
@@ -14,6 +13,7 @@ class AppointmentActions extends ConsumerStatefulWidget {
   final DateTime startTime;
   final String bookingId;
   final String status;
+  final BookingModel booking;
 
   const AppointmentActions({
     super.key,
@@ -23,6 +23,7 @@ class AppointmentActions extends ConsumerStatefulWidget {
     required this.bookingId,
     required this.status,
     required this.shopName,
+    required this.booking,
   });
 
   @override
@@ -84,32 +85,38 @@ class _AppointmentActionsState extends ConsumerState<AppointmentActions> {
                     AppIconButton(
                       icon: Icons.check_circle_outline,
                       iconColor: colorScheme.onPrimary,
-                      onPressed: _busy
-                          ? null
-                          : () {
-                              BottomSheetUtils.showDocumentationBottomSheet(
-                                context: context,
-                                widget: ConfirmationDialog(
-                                  type: ConfirmationType.info,
-                                  icon: Icons.check_circle,
-                                  title: 'Mark as Completed',
-                                  confirmText: 'Complete',
-                                  message:
-                                      'Are you sure you want to mark this appointment as completed?',
-                                  onConfirm: () => _runMutation(
-                                    op: 'mark_complete_failed',
-                                    loadingMessage: 'Marking as completed...',
-                                    successMessage:
-                                        'Appointment marked as completed',
-                                    action: () => scheduleNotifier
-                                        .markBookingAsCompleted(
-                                          widget.bookingId,
-                                          widget.startTime,
+                      onPressed:
+                          _busy
+                              ? null
+                              : () {
+                                BottomSheetUtils.showDocumentationBottomSheet(
+                                  maxHeight: 400.h,
+                                  context: context,
+
+                                  widget: ConfirmationDialog(
+                                    type: ConfirmationType.info,
+                                    icon: Icons.check_circle,
+                                    title: 'Mark as Completed',
+                                    confirmText: 'Complete',
+                                    message:
+                                        'Are you sure you want to mark this appointment as completed?',
+                                    onConfirm:
+                                        () => _runMutation(
+                                          op: 'mark_complete_failed',
+                                          loadingMessage:
+                                              'Marking as completed...',
+                                          successMessage:
+                                              'Appointment marked as completed',
+                                          action:
+                                              () => scheduleNotifier
+                                                  .markBookingAsCompleted(
+                                                    widget.bookingId,
+                                                    widget.startTime,
+                                                  ),
                                         ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
                       tooltip: 'Mark Complete',
                     ),
 
@@ -118,32 +125,37 @@ class _AppointmentActionsState extends ConsumerState<AppointmentActions> {
                     AppIconButton(
                       icon: Icons.person_off_outlined,
                       iconColor: colorScheme.onPrimary,
-                      onPressed: _busy
-                          ? null
-                          : () {
-                              BottomSheetUtils.showDocumentationBottomSheet(
-                                context: context,
-                                widget: ConfirmationDialog(
-                                  type: ConfirmationType.warning,
-                                  icon: Icons.person_off_outlined,
-                                  title: 'Mark as No-Show',
-                                  confirmText: 'Mark No-Show',
-                                  message:
-                                      'Mark this client as no-show? This will affect their record.',
-                                  onConfirm: () => _runMutation(
-                                    op: 'mark_no_show_failed',
-                                    loadingMessage: 'Marking as no-show...',
-                                    successMessage:
-                                        'Client marked as no-show',
-                                    action: () => scheduleNotifier
-                                        .markBookingAsNoShow(
-                                          widget.bookingId,
-                                          widget.startTime,
+                      onPressed:
+                          _busy
+                              ? null
+                              : () {
+                                BottomSheetUtils.showDocumentationBottomSheet(
+                                  maxHeight: 400.h,
+                                  context: context,
+                                  widget: ConfirmationDialog(
+                                    type: ConfirmationType.warning,
+                                    icon: Icons.person_off_outlined,
+                                    title: 'Mark as No-Show',
+                                    confirmText: 'Mark No-Show',
+                                    message:
+                                        'Mark this client as no-show? This will affect their record.',
+                                    onConfirm:
+                                        () => _runMutation(
+                                          op: 'mark_no_show_failed',
+                                          loadingMessage:
+                                              'Marking as no-show...',
+                                          successMessage:
+                                              'Client marked as no-show',
+                                          action:
+                                              () => scheduleNotifier
+                                                  .markBookingAsNoShow(
+                                                    widget.bookingId,
+                                                    widget.startTime,
+                                                  ),
                                         ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
                       tooltip: 'Mark No-Show',
                     ),
 
@@ -153,9 +165,16 @@ class _AppointmentActionsState extends ConsumerState<AppointmentActions> {
                   AppIconButton(
                     icon: Icons.message,
                     iconColor: colorScheme.onPrimary,
-                    onPressed: () {
-                      // _handleContactClient();
-                    },
+                    onPressed:
+                        widget.booking.userId.isEmpty
+                            ? null
+                            : () => BusinessChatLauncher.openForBooking(
+                              context,
+                              ref,
+                              widget.booking,
+                              isShopOwner: true,
+                              shopName: widget.shopName,
+                            ),
                     tooltip: 'Message',
                   ),
                 ],
@@ -175,6 +194,7 @@ class _AppointmentActionsState extends ConsumerState<AppointmentActions> {
                     iconColor: colorScheme.onPrimary,
                     onPressed: () {
                       BottomSheetUtils.showDocumentationBottomSheet(
+                        maxHeight: 400.h,
                         context: context,
                         widget: ContactBottomSheet(
                           shopId: widget.shopId,
@@ -187,7 +207,14 @@ class _AppointmentActionsState extends ConsumerState<AppointmentActions> {
                   AppIconButton(
                     icon: Icons.message,
                     iconColor: colorScheme.onPrimary,
-                    onPressed: () {},
+                    onPressed:
+                        () => BusinessChatLauncher.openForBooking(
+                          context,
+                          ref,
+                          widget.booking,
+                          isShopOwner: false,
+                          shopName: widget.shopName,
+                        ),
                     tooltip: 'Message',
                   ),
                 ],

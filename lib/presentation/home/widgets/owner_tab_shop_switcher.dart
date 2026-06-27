@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/core/utils/haptic_feedback_utils.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/shop_list_item_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 
@@ -14,45 +15,45 @@ class OwnerTabShopSwitcher extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentShop = ref.watch(currentShopProvider);
+    final colorScheme = Theme.of(context).colorScheme;
 
     // Hide when there is only one shop or details not loaded yet.
     if (shops.length <= 1 || currentShop == null) {
       return const SizedBox.shrink();
     }
 
-    final colorScheme = Theme.of(context).colorScheme;
+    void onOpenSwitcher() {
+      _showSwitcherSheet(context, ref, currentShop.id);
+    }
 
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: Spacing.md.w,
-        vertical: Spacing.xs.h,
-      ),
-      child: GestureDetector(
-        onTap: () => _showSwitcherSheet(context, ref),
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: Spacing.sm.w,
-            vertical: Spacing.xs.h,
-          ),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(20.r),
-          ),
+    return GestureDetector(
+      onTap: onOpenSwitcher,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: Spacing.md.w,
+          vertical: Spacing.xs.h,
+        ),
+        child: SizedBox(
+          height: 56.h,
+          width: 150.w,
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Icon(Icons.store, size: 16.sp, color: colorScheme.primary),
-              SizedBox(width: Spacing.xs.w),
+              AppIconButton(icon: Icons.keyboard_arrow_down_rounded),
               Text(
                 currentShop.shopName,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+
+                  color: colorScheme.onSurface,
+                ),
               ),
-              Icon(
-                Icons.arrow_drop_down,
-                size: 20.sp,
-                color: colorScheme.onSurface,
+              Gap(Spacing.sm),
+              ProfileAvatar(
+                avatarUrl: currentShop.shopLogoUrl ?? '',
+                currentUserId: '',
+                size: 35.h,
+                enableHero: false,
               ),
             ],
           ),
@@ -61,55 +62,78 @@ class OwnerTabShopSwitcher extends ConsumerWidget {
     );
   }
 
-  void _showSwitcherSheet(BuildContext context, WidgetRef ref) {
-    final currentShop = ref.read(currentShopProvider);
+  void _showSwitcherSheet(
+    BuildContext context,
+    WidgetRef ref,
+    String selectedShopId,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
 
-    showModalBottomSheet(
+    BottomSheetUtils.showDocumentationBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-      ),
-      builder:
-          (_) => Padding(
-            padding: EdgeInsets.all(Spacing.md.h),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Switch Business',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: Spacing.md.h),
-                ...shops.map(
-                  (shop) => ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor:
-                          Theme.of(context).colorScheme.primaryContainer,
-                      child: Icon(
-                        Icons.store,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    title: Text(shop.shopName),
-                    subtitle: Text(shop.shopType ?? 'Shop'),
-                    trailing:
-                        currentShop?.id == shop.id
-                            ? const Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
-                            )
-                            : null,
-                    onTap: () {
-                      Navigator.pop(context);
-                      _switchShop(ref, shop.id);
-                    },
-                  ),
-                ),
-              ],
+      maxHeight: 400.h,
+      widget: ListView(
+        padding: EdgeInsets.fromLTRB(0, 0, 0, Spacing.xl.h),
+        children: [
+          Text(
+            'Switch Business',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+
+              color: colorScheme.onSurface,
             ),
           ),
+          Gap(Spacing.md),
+          AppDivider(),
+          Gap(Spacing.md),
+          ...shops.map(
+            (shop) => CardInkWell(
+              padding: EdgeInsets.all(Spacing.sm),
+              // margin: EdgeInsets.only(bottom:  Spacing.lg : 0),
+              child: _buildShopTile(
+                context,
+                shopName: shop.shopName,
+                shopType: shop.shopType,
+                coverImageUrl: shop.coverImageUrl,
+                isSelected: selectedShopId == shop.id,
+                onTap: () {
+                  Navigator.pop(context);
+                  _switchShop(ref, shop.id);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShopTile(
+    BuildContext context, {
+    required String shopName,
+    String? shopType,
+    String? coverImageUrl,
+    required bool isSelected,
+    VoidCallback? onTap,
+    // Widget? leadingAction,
+  }) {
+    return InfoRowWidget(
+      title: shopName,
+      subtitle: (shopType ?? 'Shop'),
+      imageUrl: coverImageUrl ?? '',
+      isNotAvatarImage: false,
+      iconSize: 40,
+
+      avatarRadius: 45.h,
+      titleMaxLines: 1,
+      subTitleMaxLines: 1,
+      showDivider: false,
+      showTrailingArrow: false,
+      trailing:
+          (isSelected
+              ? const Icon(Icons.check_circle, color: Colors.green)
+              : const SizedBox.shrink()),
+      onTap: onTap,
     );
   }
 
@@ -117,6 +141,7 @@ class OwnerTabShopSwitcher extends ConsumerWidget {
     final shop = await ref.read(shopByIdProvider(shopId).future);
     if (shop == null) return;
 
+    await HapticFeedbackUtils.triggerSelectionFeedback();
     ref.read(currentShopProvider.notifier).state = shop;
     await ref.read(ownerShopPreferenceProvider).save(shop.id);
   }

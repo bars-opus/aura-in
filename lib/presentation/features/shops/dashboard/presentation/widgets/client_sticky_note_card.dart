@@ -15,10 +15,9 @@
 // are absent (a malformed booking shape), the widget renders nothing
 // rather than crash.
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nano_embryo/core/widgets/feedback/snackbar_widget.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/models/booking_model.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/exceptions/client_notes_exceptions.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/providers/client_note_provider.dart';
@@ -111,55 +110,31 @@ class _ClientStickyNoteCardState extends ConsumerState<ClientStickyNoteCard> {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.sticky_note_2_outlined,
-                  size: 20,
-                  color: theme.colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
+                AppIconButton(icon: Icons.sticky_note_2_outlined),
+                const Gap(Spacing.sm),
                 Text(
-                  'Private note about this client',
-                  style: theme.textTheme.titleSmall,
+                  'Private note about this client\nOnly you can see this',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: theme.colorScheme.onBackground,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Only you can see this.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 12),
+
+            const Gap(Spacing.md),
             noteAsync.when(
-              loading: () => const Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+              loading:
+                  () => const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Center(child: CircularLoadingIndicator()),
                   ),
-                ),
-              ),
-              error: (_, __) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "We couldn't load the note.",
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    TextButton(
-                      onPressed: () =>
-                          ref.invalidate(clientNoteProvider(key)),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              ),
+              error:
+                  (_, __) => ErrorStateWidget(
+                    title: "We couldn't load the note.",
+                    subtitle: '',
+                    onPrimaryAction:
+                        () => ref.invalidate(clientNoteProvider(key)),
+                  ),
               data: (note) {
                 if (!_didSeed) {
                   _initialBody = note?.body ?? '';
@@ -176,44 +151,40 @@ class _ClientStickyNoteCardState extends ConsumerState<ClientStickyNoteCard> {
   }
 
   Widget _buildEditor(ThemeData theme) {
-    final canSave = !_saving &&
+    final canSave =
+        !_saving &&
         _controller.text != _initialBody &&
         _controller.text.length <= _maxChars;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        TextField(
+        AppTextFormField(
           controller: _controller,
+          isSmall: true,
+          label: 'sticky note',
+          hintText: "e.g. Prefers no fringe, allergic to fragrance X.",
+
           maxLines: null,
           minLines: 3,
           maxLength: _maxChars,
-          maxLengthEnforcement: MaxLengthEnforcement.enforced,
-          inputFormatters: [LengthLimitingTextInputFormatter(_maxChars)],
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            hintText: "e.g. Prefers no fringe, allergic to fragrance X.",
-          ),
+          keyboardType: TextInputType.multiline,
+          textInputAction: TextInputAction.done,
           onChanged: (_) => setState(() {}),
+          inputFormatters: [LengthLimitingTextInputFormatter(_maxChars)],
         ),
-        const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            if (_saving)
-              const Padding(
-                padding: EdgeInsets.only(right: 12),
-                child: SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            FilledButton(
-              onPressed: canSave ? _save : null,
-              child: const Text('Save'),
-            ),
-          ],
+
+        const Gap(Spacing.md),
+        if (_saving) const CircularLoadingIndicator(),
+
+        AppButton(
+          elevation: 0,
+          label: 'Save',
+          onPressed: canSave ? _save : null,
+          size: ButtonSize.small,
+          width: double.infinity,
+          padding: Spacing.horizontalMd,
+          height: 40.h,
         ),
       ],
     );

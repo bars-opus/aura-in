@@ -15,12 +15,14 @@ class ServiceWithRequirements extends StatelessWidget {
   final BookingServiceModel service;
   final VoidCallback onRequirementsSaved;
   final bool isShopOwner;
+  final bool canEditSpecialRequirements;
 
   const ServiceWithRequirements({
     super.key,
     required this.service,
     required this.onRequirementsSaved,
     required this.isShopOwner,
+    required this.canEditSpecialRequirements,
   });
 
   @override
@@ -63,31 +65,48 @@ class ServiceWithRequirements extends StatelessWidget {
     );
   }
 
-  _buildRequirement(BuildContext context, bool hasRequirements) {
+  Widget _buildRequirement(BuildContext context, bool hasRequirements) {
+    final canEdit = !isShopOwner && canEditSpecialRequirements;
+    final canRead = hasRequirements && (!canEdit || isShopOwner);
+
     return InfoRowWidget(
       subtitle:
-          hasRequirements ? 'Special Requirements' : 'Add special requirements',
+          hasRequirements
+              ? 'Special Requirements'
+              : canEdit
+              ? 'Add special requirements'
+              : 'No special requirements',
       title: hasRequirements ? service.specialRequirements! : '',
-      icon: hasRequirements ? Icons.note_add : Icons.add,
+      icon:
+          hasRequirements
+              ? Icons.note_add
+              : canEdit
+              ? Icons.add
+              : Icons.notes_outlined,
       avatarRadius: 25.h,
-      onTap: () {
-        isShopOwner
-            ? BottomSheetUtils.showDocumentationBottomSheet(
-              context: context,
-              widget: ReadAll(body: service.specialRequirements ?? ''),
-            )
-            : BottomSheetUtils.showDocumentationBottomSheet(
-              context: context,
-              widget: SpecialRequirementsBottomSheet(
-                bookingServiceId: service.id,
-                serviceName: service.serviceName ?? 'Service',
-                initialRequirements: service.specialRequirements,
-                onRequirementsSaved: onRequirementsSaved,
-              ),
-            );
-      },
+      onTap:
+          canRead
+              ? () {
+                BottomSheetUtils.showDocumentationBottomSheet(
+                  context: context,
+                  widget: ReadAll(body: service.specialRequirements ?? ''),
+                );
+              }
+              : canEdit
+              ? () {
+                BottomSheetUtils.showDocumentationBottomSheet(
+                  context: context,
+                  widget: SpecialRequirementsBottomSheet(
+                    bookingServiceId: service.id,
+                    serviceName: service.serviceName ?? 'Service',
+                    initialRequirements: service.specialRequirements,
+                    onRequirementsSaved: onRequirementsSaved,
+                  ),
+                );
+              }
+              : null,
       showDivider: false,
-      disableTrailing: true,
+      disableTrailing: !canRead && !canEdit,
       showAvatar: false,
       showTrailingArrow: false,
     );

@@ -2,10 +2,10 @@
 
 import 'package:nano_embryo/core/widgets/search_text_field.dart';
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
-import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/clients/client_profile.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/client_management_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/client_card.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dashboard_providers.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 
 class ClientsScreen extends ConsumerStatefulWidget {
   final String shopId;
@@ -28,6 +28,8 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+    final currentShop = ref.watch(currentShopProvider);
+    final currencyCode = currentShop?.currency ?? '';
     final state = ref.watch(
       clientManagementControllerProviderFamily(
         ClientManagementParams(shopId: widget.shopId),
@@ -35,37 +37,33 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     );
 
     return Scaffold(
-      body: CardInkWell(
-        elevation: 0,
-        margin: EdgeInsets.all(Spacing.md),
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: Spacing.md.h),
-              child: SearchFormField(
-                controller: _searchController,
-                autofocus: false,
-                hintText: loc.clientsSearchHint,
-                onChanged: (query) {
-                  ref
-                      .read(
-                        clientManagementControllerProviderFamily(
-                          ClientManagementParams(shopId: widget.shopId),
-                        ).notifier,
-                      )
-                      .setSearchQuery(query);
-                },
-              ),
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: Spacing.md.h),
+            child: SearchFormField(
+              controller: _searchController,
+              autofocus: false,
+              hintText: loc.clientsSearchHint,
+              onChanged: (query) {
+                ref
+                    .read(
+                      clientManagementControllerProviderFamily(
+                        ClientManagementParams(shopId: widget.shopId),
+                      ).notifier,
+                    )
+                    .setSearchQuery(query);
+              },
             ),
-            Gap(Spacing.xl.h),
-            Expanded(child: _buildContent(state)),
-          ],
-        ),
+          ),
+          Gap(Spacing.sm.h),
+          Expanded(child: _buildContent(state, currencyCode)),
+        ],
       ),
     );
   }
 
-  Widget _buildContent(ClientManagementState state) {
+  Widget _buildContent(ClientManagementState state, String currencyCode) {
     final loc = AppLocalizations.of(context)!;
 
     if (state.isLoading) {
@@ -120,9 +118,10 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                   .refresh(),
       child: ListView.builder(
         itemCount: filteredClients.length,
+        padding: const EdgeInsets.symmetric(horizontal: Spacing.sm),
         itemBuilder: (context, index) {
           final client = filteredClients[index];
-          return ClientCard(client: client);
+          return ClientCard(client: client, currencyCode: currencyCode);
         },
       ),
     );

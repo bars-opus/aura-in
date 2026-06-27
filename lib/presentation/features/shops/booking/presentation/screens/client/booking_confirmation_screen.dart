@@ -517,6 +517,7 @@ class _BookingConfirmationScreenState
             widget: BookingDetailScreen(
               startTime: booking.startTime,
               endTime: booking.endTime,
+              status: booking.status.name,
               bookingId: booking.id,
               totalAmountMinor: booking.totalAmountMinor,
               preLoadedBookingDetail: booking,

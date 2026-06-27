@@ -3,7 +3,10 @@
 // everyone else taps to view/buy it in ProductDetailScreen.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/account_products_provider.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/paginated_list_notifier.dart';
+import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/screens/product_form_screen.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/product_card.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
@@ -20,9 +23,16 @@ class ProfileBuysTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(accountProductsProvider(profileUserId));
-    final notifier = ref.read(accountProductsProvider(profileUserId).notifier);
     final selectedShop = ref.watch(currentShopProvider);
+    final selectedShopId = isCurrentUser ? selectedShop?.id : null;
+    final state =
+        selectedShopId == null
+            ? ref.watch(accountProductsProvider(profileUserId))
+            : ref.watch(shopProductsPagedProvider(selectedShopId));
+    final PagedListNotifier<ProductModel> notifier =
+        selectedShopId == null
+            ? ref.read(accountProductsProvider(profileUserId).notifier)
+            : ref.read(shopProductsPagedProvider(selectedShopId).notifier);
 
     if (state.isInitialLoading) {
       return const Center(child: CircularLoadingIndicator());
@@ -54,7 +64,7 @@ class ProfileBuysTab extends ConsumerWidget {
     }
 
     final managementShopId =
-        selectedShop?.id ??
+        selectedShopId ??
         (state.items.isNotEmpty ? state.items.first.shopId : '');
 
     return NotificationListener<ScrollNotification>(

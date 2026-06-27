@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_text_button.dart';
 import 'package:nano_embryo/core/widgets/card_inkwell.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/quarterly_revenue.dart';
@@ -13,12 +14,14 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/w
 class QuarterlyRevenueChart extends StatelessWidget {
   final YearlyRevenue data;
   final double maxRevenue;
+  final String shopCurrencyCode;
   final VoidCallback? onTap;
 
   const QuarterlyRevenueChart({
     super.key,
     required this.data,
     required this.maxRevenue,
+    required this.shopCurrencyCode,
     this.onTap,
   });
 
@@ -85,7 +88,11 @@ class QuarterlyRevenueChart extends StatelessWidget {
                       ),
                     ),
                     TextSpan(
-                      text: '\$${data.totalRevenue.toStringAsFixed(0)}',
+                      text: formatMajorMoney(
+                        data.totalRevenue,
+                        shopCurrencyCode,
+                        fractionDigits: 0,
+                      ),
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: colorScheme.success,
@@ -121,7 +128,7 @@ class QuarterlyRevenueChart extends StatelessWidget {
                       }
                       final quarter = data.quarters[groupIndex];
                       return BarTooltipItem(
-                        '${quarter.quarterName}\n\$${quarter.amount.toStringAsFixed(0)}',
+                        '${quarter.quarterName}\n${formatMajorMoney(quarter.amount, shopCurrencyCode, fractionDigits: 0)}',
                         theme.textTheme.labelSmall!.copyWith(
                           color: colorScheme.onSurface,
                         ),
@@ -161,7 +168,7 @@ class QuarterlyRevenueChart extends StatelessWidget {
                         // Format based on value magnitude
                         if (value >= 1000) {
                           return Text(
-                            '\$${(value / 1000).toStringAsFixed(0)}k',
+                            formatCompactNumber(value),
                             style: theme.textTheme.labelSmall?.copyWith(
                               fontSize: FontSizeTokens.xs.sp,
                               color: colorScheme.onSurface,
@@ -169,7 +176,7 @@ class QuarterlyRevenueChart extends StatelessWidget {
                           );
                         }
                         return Text(
-                          '\$${value.toStringAsFixed(0)}',
+                          formatCompactNumber(value),
                           style: theme.textTheme.labelSmall?.copyWith(
                             fontSize: FontSizeTokens.xs.sp,
                             color: colorScheme.onSurface,

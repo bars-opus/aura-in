@@ -9,6 +9,7 @@ class TopServicesList extends StatelessWidget {
   final TopServicesData data;
   final VoidCallback? onSeeAll;
   final String shopId;
+  final String shopCurrencyCode;
   final AnalyticsPeriod peroid;
   // final Function(String serviceId)? onServiceTap;
 
@@ -16,6 +17,7 @@ class TopServicesList extends StatelessWidget {
     super.key,
     required this.data,
     required this.shopId,
+    required this.shopCurrencyCode,
     required this.peroid,
     this.onSeeAll,
     // this.onServiceTap,
@@ -51,15 +53,17 @@ class TopServicesList extends StatelessWidget {
                   bookingCount: service.bookingCount,
                   percentage: service.percentage,
                   revenue: service.revenue,
+                  shopCurrencyCode: shopCurrencyCode,
                   onTap: () {
                     BottomSheetUtils.showDocumentationBottomSheet(
                       showButtons: false,
-                      
+
                       // maxHeight: 320.h,
                       context: context,
                       widget: ServiceDetailScreen(
                         shopId: shopId,
                         slotId: service.id,
+                        shopCurrencyCode: shopCurrencyCode,
                         serviceName: service.name,
                         period: peroid,
                       ),

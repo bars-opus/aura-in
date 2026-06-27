@@ -2,6 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/presentation/features/chat/domain/entities/conversation.dart';
 import 'package:nano_embryo/presentation/features/chat/presentation/state/chat_state.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 
 // UI State Providers
 
@@ -32,12 +33,23 @@ final filteredConversationsProvider = Provider<List<Conversation>>((ref) {
   final searchQuery = ref.watch(searchQueryProvider);
   final sortCriteria = ref.watch(sortCriteriaProvider);
   final activeFilters = ref.watch(activeFiltersProvider);
+  final selectedShopId = ref.watch(currentShopIdProvider);
 
   return conversationsAsync.when(
     data: (conversations) {
       if (conversations.isEmpty) return [];
 
-      List<Conversation> filtered = _applySearchFilter(conversations, searchQuery);
+      final shopScoped =
+          selectedShopId == null
+              ? conversations
+              : conversations
+                  .where(
+                    (conversation) =>
+                        conversation.shopId == null ||
+                        conversation.shopId == selectedShopId,
+                  )
+                  .toList();
+      List<Conversation> filtered = _applySearchFilter(shopScoped, searchQuery);
       if (filtered.isEmpty) return [];
 
       filtered = _applyChipFilters(filtered, activeFilters);

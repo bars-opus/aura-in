@@ -15,11 +15,13 @@ import 'package:nano_embryo/presentation/home/widgets/tabs_with_content.dart';
 
 class QuarterlyRevenueDetailScreen extends ConsumerStatefulWidget {
   final String shopId;
+  final String shopCurrencyCode;
   final YearlyRevenue yearlyRevenue;
 
   const QuarterlyRevenueDetailScreen({
     super.key,
     required this.shopId,
+    required this.shopCurrencyCode,
     required this.yearlyRevenue,
   });
 
@@ -95,6 +97,7 @@ class _QuarterlyRevenueDetailScreenState
           DetailedQuarterlySummaryCard(
             quarter: quarter,
             quarterData: quarterData,
+            shopCurrencyCode: widget.shopCurrencyCode,
             totalBookings: totalBookings,
           ),
           Gap(Spacing.md.h),
@@ -107,6 +110,7 @@ class _QuarterlyRevenueDetailScreenState
           Gap(Spacing.sm.h),
           DetailedQuarterlyMonthlyRevenueChart(
             data: monthlyData,
+            shopCurrencyCode: widget.shopCurrencyCode,
             isLoading: false,
           ),
           Gap(Spacing.lg.h),
@@ -117,7 +121,11 @@ class _QuarterlyRevenueDetailScreenState
             ),
           ),
           Gap(Spacing.sm.h),
-          CategoryBreakdownList(categories: categories, isLoading: false),
+          CategoryBreakdownList(
+            categories: categories,
+            shopCurrencyCode: widget.shopCurrencyCode,
+            isLoading: false,
+          ),
         ],
       ),
     );

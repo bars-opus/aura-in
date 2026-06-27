@@ -26,7 +26,7 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
     final heatmapState = ref.watch(
       heatmapControllerProviderFamily(HeatmapParams(shopId: widget.shopId)),
     );
-   
+
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
@@ -54,7 +54,7 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
               _buildHeatmapSection(heatmapState),
               Gap(Spacing.lg.h),
               _buildAlertsSection(alertsState),
-              Gap(Spacing.lg.h),
+              Gap(Spacing.xxl.h * 2),
             ],
           ),
         ),
@@ -136,7 +136,7 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
         if (state.isLoading)
           Column(
             children: [
-              ShopSchimmerSkeleton(height: 250.h),
+              ShopSchimmerSkeleton(height: 350.h),
               ShopSchimmerSkeleton(height: 400.h),
             ],
           )

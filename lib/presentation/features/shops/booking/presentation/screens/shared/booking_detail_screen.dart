@@ -1,5 +1,6 @@
 import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/appointment_actions.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/status_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/exceptions/booking_error_messages.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/client_sticky_note_card.dart';
@@ -14,6 +15,7 @@ class BookingDetailScreen extends ConsumerStatefulWidget {
   final String shopType;
   final String? shopLogoUrl;
   final String shopAddress;
+  final String status;
 
   /// Money in int minor units (kobo / cents). Display via [formatMoney].
   /// Checklist v3.1 P0-U 2.19.
@@ -28,6 +30,7 @@ class BookingDetailScreen extends ConsumerStatefulWidget {
   const BookingDetailScreen({
     super.key,
     required this.startTime,
+    required this.status,
     required this.endTime,
     required this.shopCurrency,
     required this.shopAddress,
@@ -63,24 +66,103 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
       // Convert pre-loaded data to AsyncValue
       bookingAsync = AsyncValue.data(widget.preLoadedBookingDetail!);
     }
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
+    final effectiveShopCurrency =
+        widget.shopCurrency.isNotEmpty
+            ? widget.shopCurrency
+            : (ref.watch(currentShopProvider)?.currency ?? '');
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: bookingAsync.when(
-        data: (bookingDetailData) =>
-            _buildContent(context, bookingDetailData, false),
-        loading: () => _buildContent(context, null, true),
-        error:
-            (error, stack) => ErrorStateWidget(
-              title: '',
-              subtitle: BookingErrorMessages.forUser(error),
-              compact: true,
-              onPrimaryAction: () {
-                ref.invalidate(bookingDetailProvider(widget.bookingId));
-              },
-              type: ErrorStateType.genericError,
-            ),
+      backgroundColor: colorScheme.neutral,
+      appBar: AppBar(
+        centerTitle: false,
+        backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: true,
+        title: Text(
+          formatMoney(widget.totalAmountMinor, effectiveShopCurrency),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: Spacing.md),
+            child: StatusWidget(status: widget.status),
+          ),
+        ],
       ),
+      body: Padding(
+        padding: const EdgeInsets.all(Spacing.md),
+        child: bookingAsync.when(
+          data:
+              (bookingDetailData) => _buildContent(
+                context,
+                bookingDetailData,
+                false,
+                effectiveShopCurrency,
+              ),
+          loading:
+              () => _buildContent(context, null, true, effectiveShopCurrency),
+          error:
+              (error, stack) => ErrorStateWidget(
+                title: '',
+                subtitle: BookingErrorMessages.forUser(error),
+                compact: true,
+                onPrimaryAction: () {
+                  ref.invalidate(bookingDetailProvider(widget.bookingId));
+                },
+                type: ErrorStateType.genericError,
+              ),
+        ),
+      ),
+    );
+  }
+
+  _headerContents() {
+    final theme = Theme.of(context);
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = theme.colorScheme;
+    return Column(
+      children: [
+        if (widget.isShopOwner)
+          Column(
+            children: [
+              ProfileAvatar(
+                avatarUrl: widget.shopLogoUrl ?? '',
+                currentUserId: '',
+                size: 50,
+              ),
+              Gap(Spacing.sm.h),
+              Text(
+                widget.shopName,
+                style: textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+
+        Gap(Spacing.md.h),
+        Text(
+          '4 days more',
+          // _formatDate(booking.startTime),
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.primary,
+          ),
+        ),
+        Gap(Spacing.md.h),
+
+        TimeslotDurationWidget(
+          startTime: widget.startTime,
+          endTime: widget.endTime,
+        ),
+      ],
     );
   }
 
@@ -88,15 +170,10 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
     BuildContext context,
     BookingModel? bookingDetail,
     bool isLoading,
+    String effectiveShopCurrency,
   ) {
     final theme = Theme.of(context);
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = theme.colorScheme;
-    final effectiveShopCurrency =
-        widget.shopCurrency.isNotEmpty
-            ? widget.shopCurrency
-            : (ref.watch(currentShopProvider)?.currency ?? '');
-
+   
     if (isLoading) {
       return Stack(
         alignment: FractionalOffset.bottomCenter,
@@ -107,28 +184,8 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
                 padding: EdgeInsets.all(0),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: AppIconButton(
-                            icon: Icons.close,
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Gap(Spacing.md.h),
-                    Container(
-                      color: colorScheme.surface,
-                      padding: EdgeInsets.all(Spacing.md.h),
-                      margin: EdgeInsets.only(top: Spacing.lg.h),
-                      height: 700.h,
-                    ),
-                    Gap(Spacing.xxl.h),
-                    Gap(Spacing.xxl.h),
+                    _headerContents(),
+                    Gap(Spacing.lg.h),
                   ]),
                 ),
               ),
@@ -160,116 +217,52 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
             SliverPadding(
               padding: EdgeInsets.all(0),
               sliver: SliverList(
+                delegate: SliverChildListDelegate([_headerContents()]),
+              ),
+            ),
+            SliverPadding(
+              padding: EdgeInsets.all(0),
+              sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: AppIconButton(
-                          icon: Icons.close,
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            formatMoney(
-                              widget.totalAmountMinor,
-                              effectiveShopCurrency,
-                            ),
-                            style: Theme.of(
-                              context,
-                            ).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: colorScheme.onSurface,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  if (widget.isShopOwner)
-                    Column(
-                      children: [
-                        ProfileAvatar(
-                          avatarUrl: widget.shopLogoUrl ?? '',
-                          currentUserId: '',
-                          size: 50,
-                        ),
-                        Gap(Spacing.sm.h),
-                        Text(
-                          widget.shopName,
-                          style: textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-
-                  Gap(Spacing.md.h),
-                  Text(
-                    '4 days more',
-                    // _formatDate(booking.startTime),
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.primary,
-                    ),
-                  ),
-                  Gap(Spacing.md.h),
-
-                  TimeslotDurationWidget(
-                    startTime: widget.startTime,
-                    endTime: widget.endTime,
-                  ),
-
                   // // Status Header
                   // BookingStatusHeader(booking: booking),
                   Column(
-                        children: [
-                          Gap(Spacing.lg.h),
-                          ClientServiceCard(
-                            onRequirementsSaved: () {
-                              // This invalidates the booking provider
-                              ref.invalidate(
-                                bookingDetailProvider(widget.bookingId),
-                              );
-                            },
-                            status: booking.status.name,
-                            isShopOwner: widget.isShopOwner,
-                            label: 'Service',
-                            shopCurrency: effectiveShopCurrency,
-                            booking: booking,
-                          ),
-                          if (widget.isShopOwner) ...[
-                            Gap(Spacing.sm.h),
-                            ClientStickyNoteCard(booking: booking),
-                          ],
-                          if (!widget.isShopOwner)
-                            BookingShopInfoCard(
-                              shopType: widget.shopType,
-                              shopId: '',
-                              shopName: widget.shopName,
-                              shopLogoUrl: widget.shopLogoUrl,
-                              shopAddress:
-                                  widget.shopAddress.isEmpty
-                                      ? booking.shopAddress ??
-                                          widget.shopAddress
-                                      : widget.shopAddress,
-                              latitude: booking.latitude ?? 0,
-                              longitude: booking.longitude ?? 0,
-                              bookingId: booking.id,
-                              status: booking.status.name,
-                              // booking: bookingDetail
-                            ),
-                        ],
+                    children: [
+                      Gap(Spacing.lg.h),
+                      ClientServiceCard(
+                        onRequirementsSaved: () {
+                          // This invalidates the booking provider
+                          ref.invalidate(
+                            bookingDetailProvider(widget.bookingId),
+                          );
+                        },
+                        isShopOwner: widget.isShopOwner,
+                        label: 'Service',
+                        shopCurrency: effectiveShopCurrency,
+                        booking: booking,
                       ),
+                      if (widget.isShopOwner) ...[
+                        Gap(Spacing.sm.h),
+                        ClientStickyNoteCard(booking: booking),
+                      ],
+                      if (!widget.isShopOwner)
+                        BookingShopInfoCard(
+                          shopType: widget.shopType,
+                          shopId: '',
+                          shopName: widget.shopName,
+                          shopLogoUrl: widget.shopLogoUrl,
+                          shopAddress:
+                              widget.shopAddress.isEmpty
+                                  ? booking.shopAddress ?? widget.shopAddress
+                                  : widget.shopAddress,
+                          latitude: booking.latitude ?? 0,
+                          longitude: booking.longitude ?? 0,
+                          bookingId: booking.id,
+                          status: booking.status.name,
+                          // booking: bookingDetail
+                        ),
+                    ],
+                  ),
                   Gap(Spacing.xxl.h),
                   Gap(Spacing.xxl.h),
                 ]),
@@ -284,6 +277,7 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
             curve: Curves.easeOutBack,
             axis: Axis.vertical,
             child: AppointmentActions(
+              booking: booking,
               isShopOwner: widget.isShopOwner,
               shopId: booking.shopId,
               startTime: booking.startTime,

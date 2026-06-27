@@ -41,14 +41,14 @@ class NotificationBellIcon extends ConsumerWidget {
         clipBehavior: Clip.none,
         children: [
           AppIconButton(
-            icon: Icons.menu,
+            icon: Icons.notifications_active_outlined,
             onPressed: () => context.push('/notifications'),
           ),
 
           if (unreadCount > 0)
             Positioned(
               right: 5.w,
-              top: 8.h,
+              top: 0.h,
               child: Container(
                 padding: EdgeInsets.all(Spacing.xs.w),
                 decoration: BoxDecoration(

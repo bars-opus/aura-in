@@ -1,11 +1,11 @@
 // lib/features/orders/presentation/screens/order_detail_screen.dart
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
+import 'package:nano_embryo/presentation/features/chat/presentation/services/business_chat_launcher.dart';
 import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
@@ -58,8 +58,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         );
       }
     } on MarketplaceException catch (e, stack) {
-      MarketplaceLogger.warn('updateStatus rejected',
-          error: e, stack: stack);
+      MarketplaceLogger.warn('updateStatus rejected', error: e, stack: stack);
       if (mounted) {
         setState(() => _optimisticStatus = null); // revert
         ScaffoldMessenger.of(
@@ -67,8 +66,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         ).showSnackBar(SnackBar(content: Text(e.message)));
       }
     } catch (e, stack) {
-      MarketplaceLogger.error('updateStatus failed',
-          error: e, stack: stack);
+      MarketplaceLogger.error('updateStatus failed', error: e, stack: stack);
       if (mounted) {
         setState(() => _optimisticStatus = null); // revert
         ScaffoldMessenger.of(
@@ -243,6 +241,19 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                     ],
                   ),
                 ),
+                IconButton(
+                  tooltip: 'Message customer',
+                  onPressed:
+                      order.userId == null || order.userId!.isEmpty
+                          ? null
+                          : () => BusinessChatLauncher.openForOrder(
+                            context,
+                            ref,
+                            order,
+                            isShopOwner: true,
+                          ),
+                  icon: const Icon(Icons.message_outlined),
+                ),
               ],
             ),
             SizedBox(height: 12.h),
@@ -291,7 +302,11 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     );
   }
 
-  Widget _buildOrderItem(OrderItemModel item, ThemeData theme, String? currencySymbol) {
+  Widget _buildOrderItem(
+    OrderItemModel item,
+    ThemeData theme,
+    String? currencySymbol,
+  ) {
     return Card(
       margin: EdgeInsets.only(bottom: 8.h),
       child: Padding(

@@ -13,6 +13,7 @@ import 'package:nano_embryo/wallet/presentation/widgets/wallet_balance_card.dart
 import 'package:nano_embryo/wallet/presentation/widgets/withdrawal_sheet.dart';
 import 'package:nano_embryo/wallet/providers/wallet_providers.dart';
 import 'package:nano_embryo/wallet/providers/wallet_transactions_paginated_provider.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   final String shopId;
@@ -34,8 +35,12 @@ class WalletScreen extends ConsumerStatefulWidget {
   ConsumerState<WalletScreen> createState() => _WalletScreenState();
 }
 
-class _WalletScreenState extends ConsumerState<WalletScreen> {
+class _WalletScreenState extends ConsumerState<WalletScreen>
+    with AutomaticKeepAliveClientMixin {
   final ScrollController _scroll = ScrollController();
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -47,9 +52,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     if (!_scroll.hasClients) return;
     if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 200) {
       ref
-          .read(
-            walletTransactionsPaginatedProvider(widget.shopId).notifier,
-          )
+          .read(walletTransactionsPaginatedProvider(widget.shopId).notifier)
           .loadNext();
     }
   }
@@ -63,10 +66,16 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final loc = AppLocalizations.of(context)!;
     final dashboardDocs = DashboardDocs();
+    final currentShop = ref.watch(currentShopProvider);
+    final effectiveCurrencyCode =
+        currentShop?.currency?.isNotEmpty == true
+            ? currentShop!.currency!
+            : widget.shopCurrencyCode;
 
     // Watch wallet data
     final walletAsync = ref.watch(shopWalletProvider(widget.shopId));
@@ -132,7 +141,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           title: 'Payment setup',
                           content: loc.walletPaymentProcessing,
                           icon: Icons.monetization_on,
-                          backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
+                          backgroundColor: colorScheme.primary.withValues(
+                            alpha: 0.1,
+                          ),
                           borderColor: colorScheme.primary,
                           iconColor: colorScheme.primary,
                           textTheme: theme.textTheme,
@@ -155,36 +166,6 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 ),
               ),
 
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.only(top: Spacing.md.h),
-                  child: GestureDetector(
-                    onTap: () {
-                      BottomSheetUtils.showDocumentationBottomSheet(
-                        context: context,
-                        showButtons: false,
-                        widget: DocumentationTabView(
-                          documentation: dashboardDocs.getSections(context),
-                          faqs: dashboardDocs.getFAQs(context),
-                          showDocumentationFirst: true,
-                        ),
-                      );
-                    },
-                    child: SemanticContainerWidget(
-                      title: 'Wallet overview',
-                      content:
-                          'See what is available to withdraw, how much you have earned in total, and review your recent transactions in one place.',
-                      icon: Icons.account_balance_wallet_outlined,
-                      trailingIcon: Icons.arrow_forward_ios_sharp,
-                      backgroundColor: colorScheme.primary.withValues(alpha: 0.08),
-                      borderColor: colorScheme.primary,
-                      iconColor: colorScheme.primary,
-                      textTheme: theme.textTheme,
-                    ),
-                  ),
-                ),
-              ),
-
               // Wallet Balance Card
               SliverToBoxAdapter(
                 child: walletAsync.when(
@@ -193,6 +174,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                         balance: wallet.balance,
                         totalEarned: wallet.totalEarned,
                         totalWithdrawn: wallet.totalWithdrawn,
+                        currencyCode: effectiveCurrencyCode,
                         onWithdraw: () {
                           BottomSheetUtils.showDocumentationBottomSheet(
                             padding: Spacing.md,
@@ -234,9 +216,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                       summary: error.toString(),
                       fields: {'shop_id': widget.shopId},
                     );
-                    final userMessage = error is WalletException
-                        ? error.userMessage
-                        : loc.walletLoadError;
+                    final userMessage =
+                        error is WalletException
+                            ? error.userMessage
+                            : loc.walletLoadError;
                     return Center(
                       child: ErrorStateWidget(
                         compact: true,
@@ -250,11 +233,80 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
               // Dead-letter (stuck withdrawals) banner
               SliverToBoxAdapter(
-                child: DeadLetterBanner(shopId: widget.shopId),
+                child: DeadLetterBanner(
+                  shopId: widget.shopId,
+                  currencyCode: effectiveCurrencyCode,
+                ),
               ),
 
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        BottomSheetUtils.showDocumentationBottomSheet(
+                          context: context,
+                          showButtons: false,
+                          widget: DocumentationTabView(
+                            documentation: dashboardDocs.getSections(context),
+                            faqs: dashboardDocs.getFAQs(context),
+                            showDocumentationFirst: true,
+                          ),
+                        );
+                      },
+                      child: SemanticContainerWidget(
+                        title: dashboardDocs.getTitle(context),
+                        content:
+                            'Track revenue, review analytics, manage tools, and keep clients and staff in sync from one place.',
+                        icon: dashboardDocs.icon,
+                        trailingIcon: Icons.arrow_forward_ios_sharp,
+                        backgroundColor: colorScheme.primary.withValues(
+                          alpha: 0.08,
+                        ),
+                        borderColor: colorScheme.primary,
+                        iconColor: colorScheme.primary,
+                        textTheme: theme.textTheme,
+                      ),
+                    ),
+
+                    GestureDetector(
+                      onTap: () {
+                        BottomSheetUtils.showDocumentationBottomSheet(
+                          context: context,
+                          showButtons: false,
+                          widget: DocumentationTabView(
+                            documentation: dashboardDocs.getSections(context),
+                            faqs: dashboardDocs.getFAQs(context),
+                            showDocumentationFirst: true,
+                          ),
+                        );
+                      },
+                      child: SemanticContainerWidget(
+                        title: 'Wallet overview',
+                        content:
+                            'See what is available to withdraw, how much you have earned in total, and review your recent transactions in one place.',
+                        icon: Icons.account_balance_wallet_outlined,
+                        trailingIcon: Icons.arrow_forward_ios_sharp,
+                        backgroundColor: colorScheme.primary.withValues(
+                          alpha: 0.08,
+                        ),
+                        borderColor: colorScheme.primary,
+                        iconColor: colorScheme.primary,
+                        textTheme: theme.textTheme,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SliverToBoxAdapter(child: Gap(Spacing.lg)),
               // Quick Stats Section
-              SliverToBoxAdapter(child: TodaysView(shopId: widget.shopId)),
+              SliverToBoxAdapter(
+                child: TodaysView(
+                  shopId: widget.shopId,
+                  shopCurrencyCode: effectiveCurrencyCode,
+                ),
+              ),
 
               // Transactions Header
               SliverToBoxAdapter(
@@ -295,7 +347,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           );
                         }
                         final transaction = transactions[index];
-                        return TransactionListItem(transaction: transaction);
+                        return TransactionListItem(
+                          transaction: transaction,
+                          currencyCode: effectiveCurrencyCode,
+                        );
                       }, childCount: transactions.length + 1),
                     ),
                 loading:
@@ -311,13 +366,11 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     },
                   );
                   return SliverFillRemaining(
-                    child: Center(
-                      child: Text(loc.walletTransactionLoadError),
-                    ),
+                    child: Center(child: Text(loc.walletTransactionLoadError)),
                   );
                 },
               ),
-              SliverToBoxAdapter(child: Gap(Spacing.xxl)),
+              SliverToBoxAdapter(child: Gap(Spacing.xxl * 2)),
             ],
           ),
         ),

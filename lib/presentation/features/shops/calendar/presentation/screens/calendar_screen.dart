@@ -94,7 +94,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
               SliverToBoxAdapter(
                 child: Column(
                   children: [
-                    !widget.isShopOwner ? Gap(10.h) : Gap(20.h),
+                    //  Gap(20.h),
                     CalendarMonthView(
                       currentUserId: widget.currentUserId,
                       isShopOwner: widget.isShopOwner,
@@ -171,6 +171,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
                   }, childCount: _getSortedBookings(data.bookings).length),
                 ),
               ),
+
+              SliverToBoxAdapter(
+                child: Column(children: [Gap(Spacing.xxl * 2)]),
+              ),
+
               // Add bottom padding
             ],
           );
@@ -330,58 +335,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
     BottomSheetUtils.showDocumentationBottomSheet(
       // maxHeight: 320.h,
       context: context,
+      padding: 0,
       widget: DayAppointmentsSheet(
         date: selectedDay,
         bookings: dayBookings,
         isShopView: data.viewType == CalendarViewType.shop,
         isShopOwner: widget.isShopOwner,
-      ),
-    );
-  }
-
-  Widget _buildShopSelector(
-    BuildContext context,
-    dynamic state,
-    CalendarController controller,
-  ) {
-    if (state.availableShops.isEmpty) return const SizedBox();
-
-    return Padding(
-      padding: EdgeInsets.only(right: Spacing.md.w),
-      child: DropdownButton<String>(
-        value: state.activeShopId,
-        items:
-            state.availableShops.map<DropdownMenuItem<String>>((shop) {
-              return DropdownMenuItem<String>(
-                value: shop['id'] as String,
-                child: Row(
-                  children: [
-                    if (shop['shop_logo_url'] != null)
-                      Container(
-                        width: 24.w,
-                        height: 24.h,
-                        margin: EdgeInsets.only(right: Spacing.xs.w),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: NetworkImage(
-                              shop['shop_logo_url'] as String,
-                            ),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    Text(shop['shop_name'] as String),
-                  ],
-                ),
-              );
-            }).toList(),
-        onChanged: (String? newShopId) {
-          if (newShopId != null) {
-            // controller.switchShop(newShopId);
-          }
-        },
-        underline: const SizedBox(),
       ),
     );
   }

@@ -23,33 +23,11 @@ class DayAppointmentsSheet extends StatelessWidget {
 
     return Column(
       children: [
-        // Header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _formatDate(date, loc),
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface.withOpacity(0.6),
-                  ),
-                ),
-
-                Text(
-                  loc.calendarAppointmentCount(bookings.length),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface.withOpacity(0.6),
-                  ),
-                ),
-              ],
-            ),
-            AppTextButton(),
-          ],
+        BottomSheetHeader(
+          title:
+              '${_formatDate(date, loc)}\n${loc.calendarAppointmentCount(bookings.length)}',
         ),
+
         Gap(Spacing.md),
         AppDivider(),
 
@@ -76,7 +54,7 @@ class DayAppointmentsSheet extends StatelessWidget {
                           bookingId: booking.id,
                           totalAmountMinor: booking.totalAmountMinor,
                           shopCurrency: booking.shopCurrency,
-                          shopType:'@${booking.userName}',
+                          shopType: '@${booking.userName}',
                           shopName: booking.clientName,
                           shopLogoUrl: booking.clientAvatarUrl,
                           shopAddress: '',

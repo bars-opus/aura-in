@@ -3,6 +3,7 @@ import 'package:nano_embryo/presentation/features/settings/utility/settings_expo
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/analytics_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/clients_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/insights_screen.dart';
+import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/link_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/tools_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/dashboard_workers_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
@@ -42,32 +43,46 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final loc = AppLocalizations.of(context)!;
-    final dashboardDocs = DashboardDocs();
     final shopsAsync = ref.watch(userShopsProvider);
+    final selectedShop = ref.watch(currentShopProvider);
+    final activeShopId = selectedShop?.id ?? widget.shopId;
+    final activeShopName = selectedShop?.shopName ?? widget.shopName;
+    final activeShopOwnerId = selectedShop?.userId ?? widget.shopOwnerId;
+    final activeShopCountry = selectedShop?.country ?? widget.shopCountry;
+    final activeShopCurrency =
+        selectedShop?.currency ?? widget.shopCurrencyCode;
 
     final List<AppTabItem> tabs = [
       AppTabItem(
         label: loc.dashboardTabRevenue,
         content: WalletScreen(
-          shopId: widget.shopId,
-          shopOwnerId: widget.shopOwnerId,
-          shopName: widget.shopName,
-          shopCurrencyCode: widget.shopCurrencyCode,
-          shopCountry: widget.shopCountry,
+          shopId: activeShopId,
+          shopOwnerId: activeShopOwnerId,
+          shopName: activeShopName,
+          shopCurrencyCode: activeShopCurrency,
+          shopCountry: activeShopCountry,
         ),
       ),
       AppTabItem(
         label: loc.dashboardTabAnalytics,
-        content: AnalyticsScreen(shopId: widget.shopId),
+        content: AnalyticsScreen(
+          shopId: activeShopId,
+          shopCurrencyCode: activeShopCurrency,
+        ),
       ),
       AppTabItem(
         label: loc.dashboardTabInsights,
-        content: InsightsScreen(shopId: widget.shopId),
+        content: InsightsScreen(shopId: activeShopId),
       ),
-      AppTabItem(label: loc.dashboardTabTools, content: ToolsScreen(shopId: widget.shopId)),
+      AppTabItem(
+        label: loc.dashboardTabTools,
+        content: ToolsScreen(shopId: activeShopId),
+      ),
+      AppTabItem(label: 'Links', content: LinkScreen(shopId: activeShopId)),
+
       AppTabItem(
         label: loc.dashboardTabClients,
-        content: ClientsScreen(shopId: widget.shopId),
+        content: ClientsScreen(shopId: activeShopId),
       ),
     ];
 
@@ -76,7 +91,7 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
       tabs.add(
         AppTabItem(
           label: loc.dashboardTabStaff,
-          content: DashboardWorkersScreen(shopId: widget.shopId),
+          content: DashboardWorkersScreen(shopId: activeShopId),
         ),
       );
     }
@@ -88,7 +103,7 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
         centerTitle: false,
         title: Text(
           loc.dashboardTitle,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: colorScheme.onSurface,
           ),
@@ -97,57 +112,20 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
           shopsAsync.when(
             loading: () => const SizedBox.shrink(),
             error: (_, __) => const SizedBox.shrink(),
-            data: (shops) => Padding(
-              padding: EdgeInsets.only(right: Spacing.md.w),
-              child: OwnerTabShopSwitcher(shops: shops),
-            ),
+            data:
+                (shops) => Padding(
+                  padding: EdgeInsets.only(right: Spacing.md.w),
+                  child: OwnerTabShopSwitcher(shops: shops),
+                ),
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              Spacing.md.w,
-              Spacing.sm.h,
-              Spacing.md.w,
-              0,
-            ),
-            child: GestureDetector(
-              onTap: () {
-                BottomSheetUtils.showDocumentationBottomSheet(
-                  context: context,
-                  showButtons: false,
-                  widget: DocumentationTabView(
-                    documentation: dashboardDocs.getSections(context),
-                    faqs: dashboardDocs.getFAQs(context),
-                    showDocumentationFirst: true,
-                  ),
-                );
-              },
-              child: SemanticContainerWidget(
-                title: dashboardDocs.getTitle(context),
-                content:
-                    'Track revenue, review analytics, manage tools, and keep clients and staff in sync from one place.',
-                icon: dashboardDocs.icon,
-                trailingIcon: Icons.arrow_forward_ios_sharp,
-              backgroundColor: colorScheme.primary.withValues(alpha: 0.08),
-                borderColor: colorScheme.primary,
-                iconColor: colorScheme.primary,
-                textTheme: theme.textTheme,
-              ),
-            ),
-          ),
-          Expanded(
-            child: TabsWithContent(
-              useNestedScrollMode: false,
-              tabs: tabs,
-              initialIndex: 0,
-              scrollable: true,
-              showContent: true,
-            ),
-          ),
-        ],
+      body: TabsWithContent(
+        useNestedScrollMode: false,
+        tabs: tabs,
+        initialIndex: 0,
+        scrollable: true,
+        showContent: true,
       ),
     );
   }

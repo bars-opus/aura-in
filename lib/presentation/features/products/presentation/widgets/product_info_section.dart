@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/presentation/features/chat/presentation/services/business_chat_launcher.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/shop_details_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
@@ -101,6 +102,7 @@ class ProductInfoSection extends ConsumerWidget {
           Gap(Spacing.lg.h),
           CardInkWell(
             child: _SellerHeader(
+              product: product,
               shopId: product.shopId,
               fallbackName: product.shopName,
               fallbackVerified: product.shopVerified ?? false,
@@ -118,12 +120,14 @@ class ProductInfoSection extends ConsumerWidget {
 /// renders ShopHeaderWidget from it — so buyers see the seller's name, type
 /// chip, rating and overview either way. Tapping opens the seller's shop page.
 class _SellerHeader extends ConsumerWidget {
+  final ProductModel product;
   final String shopId;
   final String? fallbackName;
   final bool fallbackVerified;
   final int totalOrdersCount;
 
   const _SellerHeader({
+    required this.product,
     required this.shopId,
     required this.fallbackName,
     required this.fallbackVerified,
@@ -134,29 +138,43 @@ class _SellerHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final shopAsync = ref.watch(shopByIdProvider(shopId));
 
-    Widget headerFromDto(ShopDetailsDTO shop) => GestureDetector(
-      onTap:
-          () => context.pushNamed(
-            'shopDetailsScreen',
-            extra: <String, String?>{
-              'shopId': shop.id,
-              'coverImageUrl': shop.shopLogoUrl ?? '',
-            },
+    Widget headerFromDto(ShopDetailsDTO shop) => Column(
+      children: [
+        GestureDetector(
+          onTap:
+              () => context.pushNamed(
+                'shopDetailsScreen',
+                extra: <String, String?>{
+                  'shopId': shop.id,
+                  'coverImageUrl': shop.shopLogoUrl ?? '',
+                },
+              ),
+          child: ShopHeaderWidget(
+            name: shop.shopName,
+            luxuryLevel: shop.luxuryLevel ?? '',
+            logoUrl: shop.shopLogoUrl ?? '',
+            verified: shop.verified,
+            shopType: shop.shopType ?? '',
+            latitude: shop.latitude,
+            longitude: shop.longitude,
+            averageRating: shop.averageRating,
+            numberClientsWorked: totalOrdersCount,
+            overview: shop.overview,
+            id: shop.id,
+            isShop: true,
           ),
-      child: ShopHeaderWidget(
-        name: shop.shopName,
-        luxuryLevel: shop.luxuryLevel ?? '',
-        logoUrl: shop.shopLogoUrl ?? '',
-        verified: shop.verified,
-        shopType: shop.shopType ?? '',
-        latitude: shop.latitude,
-        longitude: shop.longitude,
-        averageRating: shop.averageRating,
-        numberClientsWorked: totalOrdersCount,
-        overview: shop.overview,
-        id: shop.id,
-        isShop: true,
-      ),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed:
+                () =>
+                    BusinessChatLauncher.openForProduct(context, ref, product),
+            icon: const Icon(Icons.message_outlined),
+            label: const Text('Message seller'),
+          ),
+        ),
+      ],
     );
 
     return shopAsync.when(
@@ -187,7 +205,7 @@ class _SellerHeader extends ConsumerWidget {
                       name,
                       style: textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: colorScheme.onBackground,
+                        color: colorScheme.onSurface,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),

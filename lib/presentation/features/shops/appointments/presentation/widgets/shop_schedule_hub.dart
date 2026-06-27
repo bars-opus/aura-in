@@ -30,7 +30,7 @@ class _ShopScheduleHubState extends ConsumerState<ShopScheduleHub>
     final tabs = [
       AppTabItem(
         label: loc.scheduleTabDaily,
-        icon: Icons.view_day,
+        // icon: Icons.view_day,
         content: DailyScheduleScreen(
           shopId: widget.shopId,
           key: const ValueKey('daily_schedule'),
@@ -38,12 +38,17 @@ class _ShopScheduleHubState extends ConsumerState<ShopScheduleHub>
       ),
       AppTabItem(
         label: loc.scheduleTabMonthly,
-        icon: Icons.calendar_month,
-        content: CalendarScreen(
-          currentUserId: widget.shopId,
-          isShopOwner: true,
-          key: const ValueKey('monthly_calendar'),
-          isCurrentUser: true,
+        // icon: Icons.calendar_month,
+        content: MediaQuery.removePadding(
+          removeTop: true,
+          context: context,
+
+          child: CalendarScreen(
+            currentUserId: widget.shopId,
+            isShopOwner: true,
+            key: const ValueKey('monthly_calendar'),
+            isCurrentUser: true,
+          ),
         ),
       ),
     ];
@@ -64,10 +69,11 @@ class _ShopScheduleHubState extends ConsumerState<ShopScheduleHub>
           shopsAsync.when(
             loading: () => const SizedBox.shrink(),
             error: (_, __) => const SizedBox.shrink(),
-            data: (shops) => Padding(
-              padding: EdgeInsets.only(right: Spacing.md.w),
-              child: OwnerTabShopSwitcher(shops: shops),
-            ),
+            data:
+                (shops) => Padding(
+                  padding: EdgeInsets.only(right: Spacing.md.w),
+                  child: OwnerTabShopSwitcher(shops: shops),
+                ),
           ),
         ],
       ),

@@ -92,7 +92,13 @@ serve(async (req: Request) => {
     }
 
     // 2. Parse request body.
-    const { target_user_id, channel_name } = await req.json();
+    const {
+      target_user_id,
+      channel_name,
+      shop_id,
+      context_type,
+      context_id,
+    } = await req.json();
     if (!target_user_id) {
       return new Response(JSON.stringify({ error: "target_user_id is required" }), {
         status: 400,
@@ -101,6 +107,26 @@ serve(async (req: Request) => {
     }
 
     const currentUserId = user.id;
+
+    // Shop-scoped chats must include the shop owner as one of the two members.
+    // This prevents callers from attaching unrelated conversations to a shop.
+    if (shop_id) {
+      const { data: shop, error: shopError } = await supabase
+        .from("shops")
+        .select("user_id")
+        .eq("id", shop_id)
+        .single();
+      if (
+        shopError ||
+        !shop ||
+        (shop.user_id !== currentUserId && shop.user_id !== target_user_id)
+      ) {
+        return new Response(JSON.stringify({ error: "Invalid shop context" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
 
     const { data: moderationState, error: moderationError } = await supabase.rpc(
       "is_moderation_blocked",
@@ -135,7 +161,18 @@ serve(async (req: Request) => {
       upsertSendbirdUser(target_user_id, targetNickname, targetProfile?.avatar_url ?? ""),
     ]);
 
-    // 5. Create (or retrieve the existing) distinct 1:1 channel via Platform API.
+    const customType = shop_id ? `shop:${shop_id}` : "account";
+    const channelMetadata = shop_id
+      ? JSON.stringify({
+        shop_id,
+        context_type: context_type || null,
+        context_id: context_id || null,
+      })
+      : undefined;
+
+    // 5. Create (or retrieve) a distinct 1:1 channel. Sendbird includes
+    //    custom_type in distinct-channel identity, separating the same two
+    //    accounts' conversations across different shops.
     //    Sendbird returns the existing channel when the exact member set + isDistinct
     //    already exists, so this is safe to call multiple times.
     const channelResp = await fetch(`${SENDBIRD_BASE}/group_channels`, {
@@ -145,6 +182,8 @@ serve(async (req: Request) => {
         user_ids: [currentUserId, target_user_id],
         is_distinct: true,
         name: channel_name || targetNickname,
+        custom_type: customType,
+        data: channelMetadata,
       }),
     });
 

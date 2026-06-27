@@ -14,8 +14,13 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dash
 
 class AnalyticsScreen extends ConsumerStatefulWidget {
   final String shopId;
+  final String shopCurrencyCode;
 
-  const AnalyticsScreen({super.key, required this.shopId});
+  const AnalyticsScreen({
+    super.key,
+    required this.shopId,
+    required this.shopCurrencyCode,
+  });
 
   @override
   ConsumerState<AnalyticsScreen> createState() => _AnalyticsScreenState();
@@ -82,7 +87,6 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
       // blank in release while debug let it slide via different layout
       // assertion paths).
       child: ListView(
-        padding: EdgeInsets.all(Spacing.md.h),
         children: [
           CustomUniversalTabs(
             tabs: _buildAnalyticsTabs(context),
@@ -100,15 +104,16 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
             animateIconScale: true,
             showBottomBorder: false,
           ),
-          _buildTabContent(state),
+          Padding(
+            padding: EdgeInsets.all(Spacing.sm.h),
+            child: _buildTabContent(state),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildTabContent(AnalyticsState state) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     switch (_selectedTab) {
       case AnalyticsTab.revenue:
         return Column(
@@ -117,6 +122,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
             if (state.revenueComparisons != null) ...[
               RevenueComparisonCard(
                 shopId: widget.shopId,
+                shopCurrencyCode: widget.shopCurrencyCode,
                 weeklyRevenue:
                     state.revenueComparisons!['weekly_revenue']?.toDouble() ??
                     0,
@@ -133,32 +139,26 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                     0,
               ),
             ],
-            Gap(Spacing.md.h),
-            LostBookingHeadlineCard(shopId: widget.shopId),
+            LostBookingHeadlineCard(
+              shopId: widget.shopId,
+              shopCurrencyCode: widget.shopCurrencyCode,
+            ),
             QuarterlyRevenueChart(
               data: state.quarterlyRevenue,
+              shopCurrencyCode: widget.shopCurrencyCode,
               maxRevenue: _getMaxRevenue(state),
               onTap: () {
                 BottomSheetUtils.showDocumentationBottomSheet(
                   context: context,
                   widget: QuarterlyRevenueDetailScreen(
                     shopId: widget.shopId,
+                    shopCurrencyCode: widget.shopCurrencyCode,
                     yearlyRevenue: state.quarterlyRevenue,
                   ),
                 );
               },
             ),
-
-            SemanticContainerWidget(
-              title: 'Revenue overview',
-              content:
-                  'Review your quarterly revenue, compare performance, and use the analytics tabs to understand how this shop is doing over time.',
-              icon: Icons.monetization_on,
-              backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
-              borderColor: colorScheme.primary,
-              iconColor: colorScheme.primary,
-              textTheme: theme.textTheme,
-            ),
+            Gap(Spacing.xxl.h * 2),
           ],
         );
 
@@ -170,6 +170,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               TopServicesList(
                 data: state.weeklyServices,
                 shopId: widget.shopId,
+                shopCurrencyCode: widget.shopCurrencyCode,
                 peroid: AnalyticsPeriod.weekly,
               ),
             if (state.weeklyServices.services.isNotEmpty &&
@@ -179,6 +180,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               TopServicesList(
                 data: state.monthlyServices,
                 shopId: widget.shopId,
+                shopCurrencyCode: widget.shopCurrencyCode,
                 peroid: AnalyticsPeriod.monthly,
               ),
           ],
@@ -189,12 +191,18 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
           children: [
             Gap(Spacing.md.h),
             if (state.weeklyWorkers.workers.isNotEmpty)
-              TopWorkersList(data: state.weeklyWorkers),
+              TopWorkersList(
+                data: state.weeklyWorkers,
+                shopCurrencyCode: widget.shopCurrencyCode,
+              ),
             if (state.weeklyWorkers.workers.isNotEmpty &&
                 state.monthlyWorkers.workers.isNotEmpty)
               Gap(Spacing.md.h),
             if (state.monthlyWorkers.workers.isNotEmpty)
-              TopWorkersList(data: state.monthlyWorkers),
+              TopWorkersList(
+                data: state.monthlyWorkers,
+                shopCurrencyCode: widget.shopCurrencyCode,
+              ),
           ],
         );
     }

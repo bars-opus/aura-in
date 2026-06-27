@@ -1,5 +1,6 @@
 // lib/features/notifications/presentation/providers/notification_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/services/notification_service.dart';
 import 'package:nano_embryo/core/notifications/data/repositories/notification_repository_impl.dart';
@@ -104,31 +105,35 @@ final notificationServiceProvider = Provider<NotificationService>((ref) {
 // Notifier Providers (Stateful)
 // ============================================
 
-final notificationListProvider =
-    StateNotifierProvider<NotificationNotifier, NotificationListState>((ref) {
-      final user = ref.watch(currentUserProvider);
-      final userId = user?.id;
+final notificationListProvider = StateNotifierProvider<
+  NotificationNotifier,
+  NotificationListState
+>((ref) {
+  final user = ref.watch(currentUserProvider);
+  final userId = user?.id;
 
-      if (userId == null) {
-        return NotificationNotifier(
-          getUserNotificationsUseCase: ref.read(getUserNotificationsUseCaseProvider),
-          markAsReadUseCase: ref.read(markNotificationAsReadUseCaseProvider),
-          markAllAsReadUseCase: ref.read(markAllNotificationsAsReadUseCaseProvider),
-          deleteNotificationUseCase: ref.read(deleteNotificationUseCaseProvider),
-          getUnreadCountUseCase: ref.read(getUnreadCountUseCaseProvider),
-          userId: '',
-        );
-      }
+  if (userId == null) {
+    return NotificationNotifier(
+      getUserNotificationsUseCase: ref.read(
+        getUserNotificationsUseCaseProvider,
+      ),
+      markAsReadUseCase: ref.read(markNotificationAsReadUseCaseProvider),
+      markAllAsReadUseCase: ref.read(markAllNotificationsAsReadUseCaseProvider),
+      deleteNotificationUseCase: ref.read(deleteNotificationUseCaseProvider),
+      getUnreadCountUseCase: ref.read(getUnreadCountUseCaseProvider),
+      userId: '',
+    );
+  }
 
-      return NotificationNotifier(
-        getUserNotificationsUseCase: ref.read(getUserNotificationsUseCaseProvider),
-        markAsReadUseCase: ref.read(markNotificationAsReadUseCaseProvider),
-        markAllAsReadUseCase: ref.read(markAllNotificationsAsReadUseCaseProvider),
-        deleteNotificationUseCase: ref.read(deleteNotificationUseCaseProvider),
-        getUnreadCountUseCase: ref.read(getUnreadCountUseCaseProvider),
-        userId: userId,
-      );
-    });
+  return NotificationNotifier(
+    getUserNotificationsUseCase: ref.read(getUserNotificationsUseCaseProvider),
+    markAsReadUseCase: ref.read(markNotificationAsReadUseCaseProvider),
+    markAllAsReadUseCase: ref.read(markAllNotificationsAsReadUseCaseProvider),
+    deleteNotificationUseCase: ref.read(deleteNotificationUseCaseProvider),
+    getUnreadCountUseCase: ref.read(getUnreadCountUseCaseProvider),
+    userId: userId,
+  );
+});
 
 final notificationSettingsProvider = StateNotifierProvider<
   NotificationSettingsNotifier,
@@ -158,8 +163,30 @@ final notificationSettingsProvider = StateNotifierProvider<
 // notifications arrive — no polling, no manual refresh needed.
 final unreadNotificationCountProvider = Provider<int>((ref) {
   final notificationsAsync = ref.watch(realTimeNotificationsProvider);
-  return notificationsAsync.valueOrNull?.where((n) => !n.isRead).length ?? 0;
+  final selectedShopId = ref.watch(currentShopIdProvider);
+  return notificationsAsync.valueOrNull
+          ?.where(
+            (notification) =>
+                !notification.isRead &&
+                notificationBelongsToShopContext(notification, selectedShopId),
+          )
+          .length ??
+      0;
 });
+
+/// Account-level notifications have no shop ID and remain visible. Business
+/// notifications are scoped to the owner's currently selected shop.
+bool notificationBelongsToShopContext(
+  AppNotification notification,
+  String? selectedShopId,
+) {
+  if (selectedShopId == null || selectedShopId.isEmpty) return true;
+  final data = notification.data;
+  final notificationShopId = data?['shop_id'] ?? data?['shopId'];
+  return notificationShopId == null ||
+      notificationShopId.toString().isEmpty ||
+      notificationShopId.toString() == selectedShopId;
+}
 
 // ============================================
 // Real-time Notification Subscription

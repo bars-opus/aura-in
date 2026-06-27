@@ -1,10 +1,12 @@
 // lib/features/wallet/presentation/widgets/wallet_balance_card.dart
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 
 class WalletBalanceCard extends StatelessWidget {
   final double balance;
   final double totalEarned;
   final double totalWithdrawn;
+  final String currencyCode;
   final VoidCallback onWithdraw;
   final bool isLoading;
 
@@ -13,6 +15,7 @@ class WalletBalanceCard extends StatelessWidget {
     required this.balance,
     required this.totalEarned,
     required this.totalWithdrawn,
+    required this.currencyCode,
     required this.onWithdraw,
     this.isLoading = false,
   }) : super(key: key);
@@ -120,7 +123,7 @@ class WalletBalanceCard extends StatelessWidget {
                             ),
                           ),
                           TextSpan(
-                            text: 'GHS ${balance.toStringAsFixed(2)}',
+                            text: formatMajorMoney(balance, currencyCode),
                             style: theme.textTheme.displayMedium?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
@@ -169,7 +172,7 @@ class WalletBalanceCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'GHS ${totalEarned.toStringAsFixed(2)}',
+                          formatMajorMoney(totalEarned, currencyCode),
                           style: theme.textTheme.titleSmall?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -190,7 +193,7 @@ class WalletBalanceCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'GHS ${totalWithdrawn.toStringAsFixed(2)}',
+                          formatMajorMoney(totalWithdrawn, currencyCode),
                           style: theme.textTheme.titleSmall?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,

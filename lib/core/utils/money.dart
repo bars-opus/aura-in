@@ -29,6 +29,49 @@ String formatMoney(int minor, String currency) {
   return '${neg ? '-' : ''}$currency $grouped.$minorPart';
 }
 
+/// Format a major-unit value (for example wallet/analytics doubles already in
+/// major currency units) with grouping and a fixed number of decimals.
+String formatMajorMoney(num major, String currency, {int fractionDigits = 2}) {
+  final neg = major < 0;
+  final abs = major.abs();
+  final fixed = abs.toStringAsFixed(fractionDigits);
+  final parts = fixed.split('.');
+  final whole = int.parse(parts.first);
+  final grouped = _groupThousands(whole);
+  final fraction = fractionDigits > 0 && parts.length > 1 ? '.${parts[1]}' : '';
+
+  return '${neg ? '-' : ''}$currency $grouped$fraction';
+}
+
+/// Compact major-unit formatting for chart axes and dense KPI labels.
+String formatCompactMajorMoney(num major, String currency) {
+  final neg = major < 0;
+  final abs = major.abs();
+  final prefix = neg ? '-$currency ' : '$currency ';
+
+  if (abs >= 1000000) {
+    return '$prefix${(abs / 1000000).toStringAsFixed(0)}m';
+  }
+  if (abs >= 1000) {
+    return '$prefix${(abs / 1000).toStringAsFixed(0)}k';
+  }
+  return '$prefix${abs.toStringAsFixed(0)}';
+}
+
+String formatCompactNumber(num value) {
+  final neg = value < 0;
+  final abs = value.abs();
+  final prefix = neg ? '-' : '';
+
+  if (abs >= 1000000) {
+    return '$prefix${(abs / 1000000).toStringAsFixed(0)}m';
+  }
+  if (abs >= 1000) {
+    return '$prefix${(abs / 1000).toStringAsFixed(0)}k';
+  }
+  return '$prefix${abs.toStringAsFixed(0)}';
+}
+
 String _groupThousands(int n) {
   final s = n.toString();
   final buf = StringBuffer();

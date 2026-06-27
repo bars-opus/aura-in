@@ -31,6 +31,8 @@ import 'package:nano_embryo/presentation/features/freelancer/creation/presentati
 import 'package:nano_embryo/presentation/features/freelancer/presentation/screens/freelancer_details_screen.dart';
 import 'package:nano_embryo/presentation/features/freelancer/presentation/screens/freelancer_preview_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/appointments/presentation/widgets/shop_schedule_hub.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/data/models/booking_model.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/shared/booking_detail_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/calendar/presentation/screens/calendar_screen.dart';
 import 'package:nano_embryo/presentation/features/profile/models/profile_search_result.dart';
 import 'package:nano_embryo/presentation/features/profile/widgets/profile_screen.dart';
@@ -1104,6 +1106,27 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         name: 'bookingDetail',
         builder: (context, state) {
           final params = state.extra as Map<String, dynamic>? ?? const {};
+          final startTime = params['startTime'] as DateTime?;
+          final endTime = params['endTime'] as DateTime?;
+
+          if (startTime != null && endTime != null) {
+            return BookingDetailScreen(
+              startTime: startTime,
+              endTime: endTime,
+              bookingId: params['bookingId'] as String? ?? '',
+              status:  params['status'] as String? ?? '',
+              totalAmountMinor: params['totalAmountMinor'] as int? ?? 0,
+              preLoadedBookingDetail:
+                  params['preLoadedBookingDetail'] as BookingModel?,
+              shopCurrency: params['shopCurrency'] as String? ?? '',
+              shopType: params['shopType'] as String? ?? '',
+              shopName: params['shopName'] as String? ?? '',
+              shopLogoUrl: params['shopLogoUrl'] as String?,
+              shopAddress: params['shopAddress'] as String? ?? '',
+              isShopOwner: params['isShopOwner'] as bool? ?? false,
+            );
+          }
+
           return BookingNotificationDetailScreen(
             bookingId: params['bookingId'] as String? ?? '',
           );

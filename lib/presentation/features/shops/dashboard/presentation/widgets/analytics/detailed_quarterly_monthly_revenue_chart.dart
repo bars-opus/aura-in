@@ -4,15 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/monthly_revenue.dart';
 
 class DetailedQuarterlyMonthlyRevenueChart extends StatelessWidget {
   final List<MonthlyRevenue> data;
+  final String shopCurrencyCode;
   final bool isLoading;
 
   const DetailedQuarterlyMonthlyRevenueChart({
     super.key,
     required this.data,
+    required this.shopCurrencyCode,
     this.isLoading = false,
   });
 
@@ -72,7 +75,7 @@ class DetailedQuarterlyMonthlyRevenueChart extends StatelessWidget {
                     if (value == 0) return const Text('');
                     // Format as thousands with 'k'
                     return Text(
-                      '\$${(value / 1000).toStringAsFixed(0)}k',
+                      formatCompactNumber(value),
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: colorScheme.onBackground,
                       ),

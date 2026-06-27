@@ -20,9 +20,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/utils/bottom_sheet_utils.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/core/widgets/card_inkwell.dart';
-import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/lost_booking_metrics.dart';
-import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/controllers/lost_bookings_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/lost_bookings/lost_booking_drilldown_sheet.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/lost_bookings/lost_booking_sparkline.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/lost_bookings/lost_booking_thresholds.dart';
@@ -30,8 +29,13 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/providers/dash
 
 class LostBookingHeadlineCard extends ConsumerWidget {
   final String shopId;
+  final String shopCurrencyCode;
 
-  const LostBookingHeadlineCard({super.key, required this.shopId});
+  const LostBookingHeadlineCard({
+    super.key,
+    required this.shopId,
+    required this.shopCurrencyCode,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,11 +78,10 @@ class LostBookingHeadlineCard extends ConsumerWidget {
     final delta = summary.rateDelta;
     final deltaText = _formatDelta(delta);
     final deltaUp = (delta ?? 0) > 0;
-    final lostCount =
-        summary.current.cancelled + summary.current.noShow;
+    final lostCount = summary.current.cancelled + summary.current.noShow;
     final subText = '$lostCount of ${summary.current.total}';
     final lostRevText =
-        'GHS ${summary.current.lostRevenue.toStringAsFixed(0)} lost revenue';
+        '${formatMajorMoney(summary.current.lostRevenue, shopCurrencyCode, fractionDigits: 0)} lost revenue';
 
     final semantics =
         'Lost-booking rate $pctText, $subText bookings. '
@@ -112,11 +115,7 @@ class LostBookingHeadlineCard extends ConsumerWidget {
                 ),
                 const Spacer(),
                 if (deltaText != null)
-                  _DeltaChip(
-                    text: deltaText,
-                    up: deltaUp,
-                    scheme: scheme,
-                  ),
+                  _DeltaChip(text: deltaText, up: deltaUp, scheme: scheme),
               ],
             ),
             Gap(Spacing.xs.h),
@@ -167,15 +166,16 @@ class LostBookingHeadlineCard extends ConsumerWidget {
       container: true,
       label: semantics,
       button: true,
-      child: shouldOutline
-          ? Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(BorderRadiusTokens.md),
-                border: Border.all(color: accent, width: 1.5),
-              ),
-              child: card,
-            )
-          : card,
+      child:
+          shouldOutline
+              ? Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(BorderRadiusTokens.md),
+                  border: Border.all(color: accent, width: 1.5),
+                ),
+                child: card,
+              )
+              : card,
     );
   }
 
@@ -223,9 +223,10 @@ class _DeltaChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Rising lost-rate is bad; falling is good. So `up == true` → error-ish.
-    final color = text.startsWith('—')
-        ? scheme.onSurfaceVariant
-        : (up ? scheme.error : scheme.primary);
+    final color =
+        text.startsWith('—')
+            ? scheme.onSurfaceVariant
+            : (up ? scheme.error : scheme.primary);
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: Spacing.sm,
@@ -238,9 +239,9 @@ class _DeltaChip extends StatelessWidget {
       child: Text(
         text,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -270,9 +271,9 @@ class _HotAdvisoryChip extends StatelessWidget {
               'Consider a deposit policy or reminder cadence review '
               '(combined cancel + no-show rate).',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: scheme.error,
-                    fontWeight: FontWeight.w500,
-                  ),
+                color: scheme.error,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],

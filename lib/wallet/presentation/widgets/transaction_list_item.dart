@@ -1,22 +1,23 @@
 // lib/features/wallet/presentation/widgets/transaction_list_item.dart
 
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
-import 'package:nano_embryo/i10n/generated/app_localizations.dart';
+import 'package:nano_embryo/core/utils/date_formatter.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/query/utility/quey_shop_exports.dart';
 import 'package:nano_embryo/wallet/data/models/wallet_transaction_model.dart';
 
-
 class TransactionListItem extends StatelessWidget {
   final WalletTransactionModel transaction;
+  final String currencyCode;
 
-  const TransactionListItem({Key? key, required this.transaction}) : super(key: key);
+  const TransactionListItem({
+    Key? key,
+    required this.transaction,
+    required this.currencyCode,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final loc = AppLocalizations.of(context)!;
 
     final isCredit = transaction.isCredit;
@@ -25,69 +26,94 @@ class TransactionListItem extends StatelessWidget {
     final amountColor = isCredit ? Colors.green : Colors.red;
     final amountPrefix = isCredit ? '+' : '-';
 
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: Spacing.md.w,
-        vertical: Spacing.xs.h,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12.r),
-          onTap: () {
-            // Show transaction details
-          },
-          child: Container(
-            padding: EdgeInsets.all(Spacing.md.w),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceVariant.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44.w,
-                  height: 44.h,
-                  decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: iconColor, size: 24.w),
-                ),
-                Gap(Spacing.md.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _getTransactionTitle(loc),
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Gap(Spacing.xs.h),
-                      Text(
-                        _formatDate(transaction.createdAt, loc),
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: colorScheme.onSurface.withOpacity(0.6),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  '$amountPrefix GHS ${transaction.amount.abs().toStringAsFixed(2)}',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: amountColor,
-                  ),
-                ),
-              ],
-            ),
+    return CardInkWell(
+      margin: EdgeInsets.only(bottom: Spacing.sm.h),
+      child: InfoRowWidget(
+        title: _getTransactionTitle(loc),
+        subtitle:
+            "${MyDateFormat.toDate(transaction.createdAt)}\n${MyDateFormat.toTime(transaction.createdAt)}",
+        iconColor: iconColor,
+        backgroundColor: iconColor.withOpacity(.1),
+        icon: icon,
+        avatarRadius: 20.h,
+        showTrailingArrow: false,
+        disableTrailing: false,
+        circularRadius: 10.r,
+        showDivider: false,
+        trailing: // Trend indicator
+            Text(
+          '$amountPrefix${formatMajorMoney(transaction.amount.abs(), currencyCode)}',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: amountColor,
           ),
         ),
       ),
     );
+
+    // Container(
+    //   margin: EdgeInsets.symmetric(
+    //     horizontal: Spacing.md.w,
+    //     vertical: Spacing.xs.h,
+    //   ),
+    //   child: Material(
+    //     color: Colors.transparent,
+    //     child: InkWell(
+    //       borderRadius: BorderRadius.circular(12.r),
+    //       onTap: () {
+    //         // Show transaction details
+    //       },
+    //       child: Container(
+    //         padding: EdgeInsets.all(Spacing.md.w),
+    //         decoration: BoxDecoration(
+    //           color: colorScheme.surfaceVariant.withOpacity(0.3),
+    //           borderRadius: BorderRadius.circular(12.r),
+    //         ),
+    //         child: Row(
+    //           children: [
+    //             Container(
+    //               width: 44.w,
+    //               height: 44.h,
+    //               decoration: BoxDecoration(
+    //                 color: iconColor.withOpacity(0.1),
+    //                 shape: BoxShape.circle,
+    //               ),
+    //               child: Icon(icon, color: iconColor, size: 24.w),
+    //             ),
+    //             Gap(Spacing.md.w),
+    //             Expanded(
+    //               child: Column(
+    //                 crossAxisAlignment: CrossAxisAlignment.start,
+    //                 children: [
+    //                   Text(
+    //                     _getTransactionTitle(loc),
+    //                     style: theme.textTheme.titleSmall?.copyWith(
+    //                       fontWeight: FontWeight.w600,
+    //                     ),
+    //                   ),
+    //                   Gap(Spacing.xs.h),
+    //                   Text(
+    //                     _formatDate(transaction.createdAt, loc),
+    //                     style: theme.textTheme.labelSmall?.copyWith(
+    //                       color: colorScheme.onSurface.withOpacity(0.6),
+    //                     ),
+    //                   ),
+    //                 ],
+    //               ),
+    //             ),
+    // Text(
+    //   '$amountPrefix GHS ${transaction.amount.abs().toStringAsFixed(2)}',
+    //   style: theme.textTheme.titleSmall?.copyWith(
+    //     fontWeight: FontWeight.w700,
+    //     color: amountColor,
+    //   ),
+    // ),
+    //           ],
+    //         ),
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 
   String _getTransactionTitle(AppLocalizations loc) {
@@ -105,28 +131,5 @@ class TransactionListItem extends StatelessWidget {
       case TransactionType.adjustment:
         return loc.transactionAdjustment;
     }
-  }
-
-  String _formatDate(DateTime date, AppLocalizations loc) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final dateDay = DateTime(date.year, date.month, date.day);
-
-    if (dateDay == today) {
-      return '${loc.transactionToday}, ${_formatTime(date)}';
-    } else if (dateDay == today.subtract(const Duration(days: 1))) {
-      return '${loc.transactionYesterday}, ${_formatTime(date)}';
-    } else {
-      return '${date.day}/${date.month}/${date.year}, ${_formatTime(date)}';
-    }
-  }
-
-  String _formatTime(DateTime date) {
-    final hour = date.hour;
-    final minute = date.minute;
-    final period = hour >= 12 ? 'PM' : 'AM';
-    final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
-    final minuteStr = minute.toString().padLeft(2, '0');
-    return '$displayHour:$minuteStr $period';
   }
 }

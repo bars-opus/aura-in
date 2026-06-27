@@ -1,4 +1,5 @@
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 
 class ServiceListItem extends StatelessWidget {
   final int rank;
@@ -8,6 +9,7 @@ class ServiceListItem extends StatelessWidget {
   final double percentage;
   final double averageRating;
   final double revenue;
+  final String shopCurrencyCode;
   final VoidCallback? onTap;
   final bool isWorker;
   final bool showDivider;
@@ -18,6 +20,7 @@ class ServiceListItem extends StatelessWidget {
     required this.bookingCount,
     this.percentage = 0.0,
     required this.revenue,
+    required this.shopCurrencyCode,
     this.onTap,
     this.showDivider = false,
     required this.averageRating,
@@ -98,7 +101,7 @@ class ServiceListItem extends StatelessWidget {
                               ),
                               Gap(Spacing.xs.w),
                               Text(
-                                averageRating!.toStringAsFixed(1),
+                                averageRating.toStringAsFixed(1),
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   color: colorScheme.onSurface.withOpacity(0.6),
                                 ),
@@ -134,13 +137,17 @@ class ServiceListItem extends StatelessWidget {
                     ),
                     isWorker
                         ? Text(
-                          '\$${revenue.toStringAsFixed(0)}',
+                          formatMajorMoney(
+                            revenue,
+                            shopCurrencyCode,
+                            fractionDigits: 0,
+                          ),
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: colorScheme.onSurface.withOpacity(0.6),
                           ),
                         )
                         : Text(
-                          '${percentage!.toStringAsFixed(0)}%',
+                          '${percentage.toStringAsFixed(0)}%',
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: colorScheme.onSurface.withOpacity(0.6),
                           ),

@@ -3,13 +3,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/i10n/generated/app_localizations.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/wallet/data/models/withdrawal_request_model.dart';
 import 'package:nano_embryo/wallet/providers/dead_letter_withdrawals_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DeadLetterBanner extends ConsumerStatefulWidget {
-  const DeadLetterBanner({required this.shopId, super.key});
+  const DeadLetterBanner({
+    required this.shopId,
+    required this.currencyCode,
+    super.key,
+  });
   final String shopId;
+  final String currencyCode;
 
   @override
   ConsumerState<DeadLetterBanner> createState() => _DeadLetterBannerState();
@@ -43,7 +49,7 @@ class _DeadLetterBannerState extends ConsumerState<DeadLetterBanner> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final total = list.fold<double>(0, (sum, w) => sum + w.amount);
-    const currency = 'GHS';
+    final currency = widget.currencyCode;
 
     return Material(
       color: cs.tertiaryContainer,
@@ -56,8 +62,10 @@ class _DeadLetterBannerState extends ConsumerState<DeadLetterBanner> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded,
-                      color: cs.onTertiaryContainer),
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    color: cs.onTertiaryContainer,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -72,10 +80,18 @@ class _DeadLetterBannerState extends ConsumerState<DeadLetterBanner> {
                         ),
                         Text(
                           list.length == 1
-                              ? loc.deadLetterSingle(currency, total.toStringAsFixed(2))
-                              : loc.deadLetterMultiple(currency, total.toStringAsFixed(2), list.length),
-                          style: theme.textTheme.bodySmall
-                              ?.copyWith(color: cs.onTertiaryContainer),
+                              ? loc.deadLetterSingle(
+                                currency,
+                                total.toStringAsFixed(2),
+                              )
+                              : loc.deadLetterMultiple(
+                                currency,
+                                total.toStringAsFixed(2),
+                                list.length,
+                              ),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cs.onTertiaryContainer,
+                          ),
                         ),
                       ],
                     ),
@@ -89,13 +105,16 @@ class _DeadLetterBannerState extends ConsumerState<DeadLetterBanner> {
               if (_expanded) ...[
                 const SizedBox(height: 12),
                 Divider(
-                    color: cs.onTertiaryContainer.withValues(alpha: 0.2),
-                    height: 1),
+                  color: cs.onTertiaryContainer.withValues(alpha: 0.2),
+                  height: 1,
+                ),
                 const SizedBox(height: 12),
-                ...list.map((w) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: _DeadLetterRow(withdrawal: w, currency: currency),
-                    )),
+                ...list.map(
+                  (w) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _DeadLetterRow(withdrawal: w, currency: currency),
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Align(
                   alignment: Alignment.centerRight,
@@ -126,14 +145,15 @@ class _DeadLetterRow extends StatelessWidget {
     final d = withdrawal.updatedAt;
     final fmtDate =
         '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-    final shortId = withdrawal.id.length >= 8
-        ? withdrawal.id.substring(0, 8)
-        : withdrawal.id;
+    final shortId =
+        withdrawal.id.length >= 8
+            ? withdrawal.id.substring(0, 8)
+            : withdrawal.id;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '• $currency ${withdrawal.amount.toStringAsFixed(2)} — $fmtDate — #$shortId',
+          '• ${formatMajorMoney(withdrawal.amount, currency)} — $fmtDate — #$shortId',
           style: theme.textTheme.bodySmall?.copyWith(
             color: cs.onTertiaryContainer,
             fontWeight: FontWeight.w500,

@@ -10,6 +10,7 @@ import 'package:nano_embryo/core/notifications/presentation/providers/notificati
 import 'package:nano_embryo/core/notifications/presentation/providers/notification_state.dart';
 import 'package:nano_embryo/core/notifications/presentation/widgets/notification_list_tile.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 
 class NotificationInboxScreen extends ConsumerStatefulWidget {
   const NotificationInboxScreen({super.key});
@@ -35,6 +36,16 @@ class _NotificationInboxScreenState
     final textTheme = Theme.of(context).textTheme;
     final notificationState = ref.watch(notificationListProvider);
     final notifier = ref.read(notificationListProvider.notifier);
+    final selectedShopId = ref.watch(currentShopIdProvider);
+    final visibleNotifications =
+        notificationState.notifications
+            .where(
+              (notification) => notificationBelongsToShopContext(
+                notification,
+                selectedShopId,
+              ),
+            )
+            .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -43,9 +54,17 @@ class _NotificationInboxScreenState
           style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         actions: [
-          if (notificationState.notifications.isNotEmpty)
+          if (visibleNotifications.any((notification) => !notification.isRead))
             TextButton(
-              onPressed: () => notifier.markAllAsRead(),
+              onPressed:
+                  () => Future.wait(
+                    visibleNotifications
+                        .where((notification) => !notification.isRead)
+                        .map(
+                          (notification) =>
+                              notifier.markAsRead(notification.id),
+                        ),
+                  ),
               child: Text(
                 'Mark all as read',
                 style: textTheme.labelMedium?.copyWith(
@@ -55,12 +74,13 @@ class _NotificationInboxScreenState
             ),
         ],
       ),
-      body: _buildBody(notificationState, notifier),
+      body: _buildBody(notificationState, visibleNotifications, notifier),
     );
   }
 
   Widget _buildBody(
     NotificationListState state,
+    List<AppNotification> visibleNotifications,
     NotificationNotifier notifier,
   ) {
     if (state.isLoading && state.notifications.isEmpty) {
@@ -93,7 +113,7 @@ class _NotificationInboxScreenState
       );
     }
 
-    if (state.notifications.isEmpty) {
+    if (visibleNotifications.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -101,7 +121,9 @@ class _NotificationInboxScreenState
             Icon(
               Icons.notifications_none,
               size: 64.w,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha:0.3),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.3),
             ),
             Gap(Spacing.md.h),
             Text(
@@ -109,7 +131,7 @@ class _NotificationInboxScreenState
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Theme.of(
                   context,
-                ).colorScheme.onSurface.withValues(alpha:0.6),
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
             Gap(Spacing.sm.h),
@@ -118,7 +140,7 @@ class _NotificationInboxScreenState
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,
-                ).colorScheme.onSurface.withValues(alpha:0.4),
+                ).colorScheme.onSurface.withValues(alpha: 0.4),
               ),
             ),
           ],
@@ -129,9 +151,9 @@ class _NotificationInboxScreenState
     return RefreshIndicator(
       onRefresh: () => notifier.loadNotifications(),
       child: ListView.builder(
-        itemCount: state.notifications.length,
+        itemCount: visibleNotifications.length,
         itemBuilder: (context, index) {
-          final notification = state.notifications[index];
+          final notification = visibleNotifications[index];
           return NotificationListTile(
             notification: notification,
             onTap: () => _handleTap(notification, notifier),

@@ -1,72 +1,58 @@
 // lib/features/dashboard/presentation/widgets/client_card.dart
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gap/gap.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
-import 'package:nano_embryo/presentation/features/profile/widgets/profile_header.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/clients/client_profile.dart';
 
 class ClientCard extends ConsumerWidget {
   final ClientProfile client;
+  final String currencyCode;
   final VoidCallback? onMessageTap;
 
-  const ClientCard({super.key, required this.client, this.onMessageTap});
+  const ClientCard({
+    super.key,
+    required this.client,
+    required this.currencyCode,
+    this.onMessageTap,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
     final String currentUserId = user == null ? '' : user.id;
-    return GestureDetector(
-      onTap:
-          () => context.push(
-            '/profileScreen',
-            extra: {
-              'profileUserId': client.id,
-              'currentUserId': currentUserId ?? '',
-            },
-          ),
-      child: Column(
-        children: [
-          ProfileHeader(
-            mode: ProfileHeaderMode.compact,
-            displayName: client.displayName,
-            userId: client.id,
-            avatarUrl: client.avatarUrl,
-            bio: "@${client.username}",
+    return CardInkWell(
+      child: InfoRowWidget(
+        title: client.displayName,
+        subtitle: client.displayName,
+        imageUrl: client.avatarUrl ?? '',
+        isNotAvatarImage: false,
+        iconSize: 40,
 
-            enableHero: false,
-            onProfileNavigatePressed:
-                () => context.push(
-                  '/profileScreen',
-                  extra: {
-                    'profileUserId': client.id,
-                    'currentUserId': currentUserId ?? '',
-                  },
-                ),
+        avatarRadius: 45.h,
+        titleMaxLines: 1,
+        subTitleMaxLines: 1,
+        showDivider: false,
+        showTrailingArrow: false,
+
+        trailing: Text(
+          formatMajorMoney(client.totalSpent, currencyCode, fractionDigits: 0),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: Theme.of(context).colorScheme.primary,
           ),
-          Gap(Spacing.sm.h),
-          Padding(
-            padding: EdgeInsets.only(left: Spacing.xl + Spacing.xl),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _StatChip(
-                  icon: Icons.attach_money,
-                  label: '\$${client.totalSpent.toStringAsFixed(0)}',
-                ),
-                _StatChip(
-                  icon: Icons.calendar_today_outlined,
-                  label:
-                      '${client.totalBookings} visits\n${_getLastBookingText(client.lastBookingAt!)}',
-                ),
-              ],
+        ),
+        onTap:
+            () => context.push(
+              '/profileScreen',
+              extra: {
+                'profileUserId': client.id,
+                'currentUserId': currentUserId,
+              },
             ),
-          ),
-          Gap(Spacing.sm),
-          AppDivider(),
-          Gap(Spacing.md),
-        ],
+        bottomWidget: _StatChip(
+          icon: Icons.calendar_today_outlined,
+          label:
+              '${client.totalBookings} visits\n${_getLastBookingText(client.lastBookingAt!)}',
+        ),
       ),
     );
   }

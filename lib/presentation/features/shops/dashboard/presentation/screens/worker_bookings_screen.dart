@@ -146,24 +146,26 @@ class _WorkerBookingsScreenState extends ConsumerState<WorkerBookingsScreen> {
     return RefreshIndicator(
       onRefresh: _loadBookings,
       child: ListView.builder(
-        padding: EdgeInsets.all(Spacing.md.h),
         itemCount: _bookings.length,
         itemBuilder: (context, index) {
           final booking = _bookings[index];
-          return ClientBookingCard(
-            startTime: booking.startTime,
-            endTime: booking.endTime,
-            totalAmountMinor: booking.totalAmountMinor,
-            shopCurrency: booking.shopCurrency,
-            shopType: booking.userName,
-            shopName: booking.clientName,
-            shopLogoUrl: booking.clientAvatarUrl,
-            shopAddress: '',
-            serviceName: booking.serviceName,
-            shouldPop: false,
-            bookingId: booking.id,
-            status: booking.status,
-            isShopOwner: true,
+          return Padding(
+            padding: EdgeInsets.only(bottom: Spacing.sm.h),
+            child: ClientBookingCard(
+              startTime: booking.startTime,
+              endTime: booking.endTime,
+              totalAmountMinor: booking.totalAmountMinor,
+              shopCurrency: booking.shopCurrency,
+              shopType: booking.userName,
+              shopName: booking.clientName,
+              shopLogoUrl: booking.clientAvatarUrl,
+              shopAddress: '',
+              serviceName: booking.serviceName,
+              shouldPop: false,
+              bookingId: booking.id,
+              status: booking.status,
+              isShopOwner: true,
+            ),
           );
         },
       ),

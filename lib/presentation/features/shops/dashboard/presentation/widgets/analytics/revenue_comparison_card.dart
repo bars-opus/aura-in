@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:nano_embryo/app/theme/app_colors.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/revenue_breakdown_screen.dart';
 
@@ -13,6 +13,7 @@ class RevenueComparisonCard extends StatelessWidget {
   final double monthlyRevenue;
   final double previousMonthlyRevenue;
   final String shopId;
+  final String shopCurrencyCode;
 
   const RevenueComparisonCard({
     super.key,
@@ -20,6 +21,7 @@ class RevenueComparisonCard extends StatelessWidget {
     required this.previousWeeklyRevenue,
     required this.monthlyRevenue,
     required this.shopId,
+    required this.shopCurrencyCode,
     required this.previousMonthlyRevenue,
   });
 
@@ -56,6 +58,7 @@ class RevenueComparisonCard extends StatelessWidget {
             child: _ComparisonItem(
               label: 'This Week',
               revenue: weeklyRevenue,
+              shopCurrencyCode: shopCurrencyCode,
               changePercent: weeklyChangePercent,
               isPositiveGood: true,
             ),
@@ -69,6 +72,7 @@ class RevenueComparisonCard extends StatelessWidget {
             child: _ComparisonItem(
               label: 'This Month',
               revenue: monthlyRevenue,
+              shopCurrencyCode: shopCurrencyCode,
               changePercent: monthlyChangePercent,
               isPositiveGood: true,
             ),
@@ -82,12 +86,14 @@ class RevenueComparisonCard extends StatelessWidget {
 class _ComparisonItem extends StatelessWidget {
   final String label;
   final double revenue;
+  final String shopCurrencyCode;
   final double changePercent;
   final bool isPositiveGood;
 
   const _ComparisonItem({
     required this.label,
     required this.revenue,
+    required this.shopCurrencyCode,
     required this.changePercent,
     required this.isPositiveGood,
   });
@@ -105,7 +111,7 @@ class _ComparisonItem extends StatelessWidget {
         Icon(Icons.arrow_upward, size: 20.w, color: colorScheme.success),
         Gap(Spacing.xs.h),
         Text(
-          '\$${revenue.toStringAsFixed(0)}',
+          formatMajorMoney(revenue, shopCurrencyCode, fractionDigits: 0),
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
             color: colorScheme.onSurface,

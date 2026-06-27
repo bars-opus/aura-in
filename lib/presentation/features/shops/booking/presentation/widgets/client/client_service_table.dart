@@ -95,9 +95,7 @@ Widget _buildServiceWorkerRow(
   // subtype of FlexParentData") and blanked the whole card.
   return RichText(
     text: TextSpan(
-      style: theme.textTheme.bodyMedium?.copyWith(
-        color: colorScheme.onSurface,
-      ),
+      style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
       children: [
         TextSpan(
           text: '$label:\n',
@@ -132,12 +130,12 @@ Widget _buildPriceDurationRow({
   // in release. Row is fine as a TableRow child.
   return Row(
     children: [
-      Icon(icon, size: 15.h, color: colorScheme.background),
+      Icon(icon, size: 15.h, color: Colors.black),
       Gap(10.w),
       Text(
         label,
         style: textTheme.labelSmall?.copyWith(
-          color: colorScheme.background,
+          color: Colors.black,
           fontWeight: FontWeight.normal,
         ),
       ),

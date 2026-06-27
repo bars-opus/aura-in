@@ -66,6 +66,7 @@ class BookingNotificationDetailScreen extends ConsumerWidget {
           startTime: booking.startTime,
           endTime: booking.endTime,
           bookingId: booking.id,
+          status: booking.status.name,
           shopCurrency: shop?.currency ?? '',
           shopName: shop?.shopName ?? 'Booking',
           shopType: shop?.shopType ?? '',

@@ -208,7 +208,10 @@ class ExportService {
           final bookings = List<Map<String, dynamic>>.from(c['bookings'] ?? []);
           final totalSpent = bookings.fold<double>(
             0,
-            (sum, b) => sum + (b['total_amount'] ?? 0).toDouble(),
+            (sum, b) =>
+                _countsTowardClientSpend(b['status'] as String?)
+                    ? sum + (b['total_amount'] ?? 0).toDouble()
+                    : sum,
           );
 
           return [
@@ -425,5 +428,15 @@ class ExportService {
     final hour = time.hour > 12 ? time.hour - 12 : time.hour;
     final period = time.hour >= 12 ? 'PM' : 'AM';
     return '$hour:${time.minute.toString().padLeft(2, '0')}$period';
+  }
+
+  bool _countsTowardClientSpend(String? status) {
+    switch (status) {
+      case 'cancelled':
+      case 'no_show':
+        return false;
+      default:
+        return true;
+    }
   }
 }

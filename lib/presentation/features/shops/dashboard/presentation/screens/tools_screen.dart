@@ -45,8 +45,6 @@ class ToolsScreen extends ConsumerWidget {
     final shopDetailsAsync = ref.watch(shopDetailsProvider(shopId));
     final shop = shopDetailsAsync.maybeWhen(data: (s) => s, orElse: () => null);
     final shopName = shop?.shopName ?? '';
-    final bookingSlug = shop?.bookingSlug;
-    final productsSlug = shop?.productsSlug;
     final docs = ToolsDocs();
 
     return Scaffold(
@@ -86,48 +84,7 @@ class ToolsScreen extends ConsumerWidget {
             ),
           ),
           Gap(Spacing.md),
-          ShareableLinkSection(
-            currentSlug: bookingSlug,
-            entityName: shopName,
-            onEditSlug: (newSlug) async {
-              final svc = ref.read(linkServiceProvider);
-              final result = await svc.createShopLink(
-                shopId: shopId,
-                customSlug: newSlug,
-                metadata: {'name': shopName},
-              );
-              if (!result.success) {
-                throw Exception(result.error ?? 'Failed to update slug');
-              }
-              // Trigger from Plan A syncs shops.booking_slug; reload to pick
-              // it up in the UI.
-              await ref
-                  .read(shopDetailsProvider(shopId).notifier)
-                  .loadShop(shopId);
-            },
-          ),
-          Gap(Spacing.sm),
-          ShareableLinkSection(
-            kind: ShareableLinkKind.products,
-            currentSlug: productsSlug,
-            entityName: shopName,
-            onEditSlug: (newSlug) async {
-              final svc = ref.read(linkServiceProvider);
-              final result = await svc.createShopProductsLink(
-                shopId: shopId,
-                customSlug: newSlug,
-                metadata: {'name': shopName},
-              );
-              if (!result.success) {
-                throw Exception(result.error ?? 'Failed to update slug');
-              }
-              // sync_products_slug_to_shop trigger mirrors the slug into
-              // shops.products_slug; reload the provider so the UI picks it up.
-              await ref
-                  .read(shopDetailsProvider(shopId).notifier)
-                  .loadShop(shopId);
-            },
-          ),
+
           CardInkWell(
             elevation: 0,
             onTap: () {},
@@ -299,6 +256,7 @@ class ToolsScreen extends ConsumerWidget {
               ],
             ),
           ),
+          Gap(Spacing.xxl * 3),
         ],
       ),
     );

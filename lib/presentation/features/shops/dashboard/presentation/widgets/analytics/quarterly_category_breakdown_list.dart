@@ -3,17 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/core/widgets/card_inkwell.dart';
 import 'package:nano_embryo/presentation/features/shops/calendar/utility/calendar_export.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/quaterly_category_breakdown.dart';
 
 class CategoryBreakdownList extends StatelessWidget {
   final List<QuaterlyCategoryBreakdown> categories;
+  final String shopCurrencyCode;
   final bool isLoading;
 
   const CategoryBreakdownList({
     super.key,
     required this.categories,
+    required this.shopCurrencyCode,
     this.isLoading = false,
   });
 
@@ -70,7 +73,11 @@ class CategoryBreakdownList extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '\$${category.amount.toStringAsFixed(0)}',
+                formatMajorMoney(
+                  category.amount,
+                  shopCurrencyCode,
+                  fractionDigits: 0,
+                ),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: colorScheme.onBackground,

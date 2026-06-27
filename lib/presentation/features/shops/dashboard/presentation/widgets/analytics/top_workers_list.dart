@@ -1,6 +1,5 @@
 // lib/features/dashboard/presentation/widgets/top_workers_list.dart
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
-import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/top_service.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/workers/worker_performance.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/worker_bookings_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/widgets/analytics/service_analytics_header.dart';
@@ -8,13 +7,14 @@ import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/w
 
 class TopWorkersList extends StatelessWidget {
   final TopWorkersData data;
+  final String shopCurrencyCode;
   final VoidCallback? onSeeAll;
 
   const TopWorkersList({
     super.key,
     required this.data,
+    required this.shopCurrencyCode,
     this.onSeeAll,
-    
   });
 
   @override
@@ -51,6 +51,7 @@ class TopWorkersList extends StatelessWidget {
                   averageRating: worker.averageRating ?? 0,
                   percentage: 0.0,
                   revenue: worker.revenue,
+                  shopCurrencyCode: shopCurrencyCode,
                   onTap: () {
                     BottomSheetUtils.showDocumentationBottomSheet(
                       showButtons: false,
@@ -59,7 +60,7 @@ class TopWorkersList extends StatelessWidget {
                       widget: WorkerBookingsScreen(
                         workerId: worker.id,
                         workerName: worker.name,
-                        period: data.period
+                        period: data.period,
                       ),
                     );
                   },

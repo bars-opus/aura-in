@@ -12,6 +12,8 @@ class ServiceDetailScreen extends ConsumerStatefulWidget {
   final String shopId;
   final String slotId;
   final String serviceName;
+  final String shopCurrencyCode;
+
   final AnalyticsPeriod period;
 
   const ServiceDetailScreen({
@@ -20,6 +22,7 @@ class ServiceDetailScreen extends ConsumerStatefulWidget {
     required this.slotId,
     required this.serviceName,
     required this.period,
+    required this.shopCurrencyCode,
   });
 
   @override
@@ -211,24 +214,26 @@ class _ServiceDetailScreenState extends ConsumerState<ServiceDetailScreen>
     return RefreshIndicator(
       onRefresh: _loadBookings,
       child: ListView.builder(
-        padding: EdgeInsets.all(Spacing.md.h),
         itemCount: _bookings.length,
         itemBuilder: (context, index) {
           final booking = _bookings[index];
-          return ClientBookingCard(
-            startTime: booking.startTime,
-            endTime: booking.endTime,
-            totalAmountMinor: booking.totalAmountMinor,
-            shopCurrency: booking.shopCurrency,
-            shopType: booking.userName,
-            shopName: booking.clientName,
-            shopLogoUrl: booking.clientAvatarUrl,
-            shopAddress: '',
-            serviceName: booking.serviceName,
-            shouldPop: false,
-            bookingId: booking.id,
-            status: booking.status,
-            isShopOwner: true,
+          return Padding(
+            padding: EdgeInsets.only(bottom: Spacing.sm.h),
+            child: ClientBookingCard(
+              startTime: booking.startTime,
+              endTime: booking.endTime,
+              totalAmountMinor: booking.totalAmountMinor,
+              shopCurrency: booking.shopCurrency,
+              shopType: booking.userName,
+              shopName: booking.clientName,
+              shopLogoUrl: booking.clientAvatarUrl,
+              shopAddress: '',
+              serviceName: booking.serviceName,
+              shouldPop: false,
+              bookingId: booking.id,
+              status: booking.status,
+              isShopOwner: true,
+            ),
           );
         },
       ),
@@ -277,6 +282,7 @@ class _ServiceDetailScreenState extends ConsumerState<ServiceDetailScreen>
             onTap: () {},
             revenue: worker.revenue,
             profileImageUrl: worker.profileImageUrl,
+            shopCurrencyCode: widget.shopCurrencyCode,
           );
         },
       ),

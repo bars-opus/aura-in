@@ -39,7 +39,7 @@ class SendbirdChatRepository
   final Map<String, Timer> _broadcastDebouncers = {};
 
   SendbirdChatRepository(SendbirdSdk sendbird, {required ChatConfig config})
-      : _config = config {
+    : _config = config {
     _sendbird = sendbird;
     _setupEventHandlers();
   }
@@ -119,7 +119,8 @@ class SendbirdChatRepository
   }
 
   @override
-  void onChannelChanged(BaseChannel channel) => _channelListController.add(null);
+  void onChannelChanged(BaseChannel channel) =>
+      _channelListController.add(null);
 
   @override
   void onUserJoined(GroupChannel channel, User user) =>
@@ -220,10 +221,12 @@ class SendbirdChatRepository
     final channels = await _withTimeout(query.loadNext());
     ChatLog.d('📋 [SB] getChannels | count=${channels.length}');
     return channels
-        .map((c) => Conversation.fromSBChannel(
-              _mapToSBChannel(c),
-              _currentUserId ?? '',
-            ))
+        .map(
+          (c) => Conversation.fromSBChannel(
+            _mapToSBChannel(c),
+            _currentUserId ?? '',
+          ),
+        )
         .toList();
   }
 
@@ -234,25 +237,33 @@ class SendbirdChatRepository
       coverUrl: channel.coverUrl,
       customType: channel.customType,
       channelType: channel.isPublic ? SBChannelType.open : SBChannelType.group,
-      createdAt: channel.createdAt != null
-          ? DateTime.fromMillisecondsSinceEpoch(channel.createdAt!)
-          : DateTime.now(),
-      updatedAt: channel.lastMessage?.createdAt != null
-          ? DateTime.fromMillisecondsSinceEpoch(channel.lastMessage!.createdAt)
-          : channel.createdAt != null
+      createdAt:
+          channel.createdAt != null
               ? DateTime.fromMillisecondsSinceEpoch(channel.createdAt!)
               : DateTime.now(),
-      lastMessage: channel.lastMessage != null
-          ? _mapToSBMessage(channel.lastMessage!)
-          : null,
+      updatedAt:
+          channel.lastMessage?.createdAt != null
+              ? DateTime.fromMillisecondsSinceEpoch(
+                channel.lastMessage!.createdAt,
+              )
+              : channel.createdAt != null
+              ? DateTime.fromMillisecondsSinceEpoch(channel.createdAt!)
+              : DateTime.now(),
+      lastMessage:
+          channel.lastMessage != null
+              ? _mapToSBMessage(channel.lastMessage!)
+              : null,
       unreadMessageCount: channel.unreadMessageCount,
-      members: channel.members
-          .map((m) => SBUser(
-                userId: m.userId,
-                nickname: m.nickname,
-                profileUrl: m.profileUrl,
-              ))
-          .toList(),
+      members:
+          channel.members
+              .map(
+                (m) => SBUser(
+                  userId: m.userId,
+                  nickname: m.nickname,
+                  profileUrl: m.profileUrl,
+                ),
+              )
+              .toList(),
       invitedMembers: const [],
       isDistinct: channel.isDistinct,
       isPublic: channel.isPublic,
@@ -284,13 +295,14 @@ class SendbirdChatRepository
         channelUrl: message.channelUrl,
         createdAt: DateTime.fromMillisecondsSinceEpoch(message.createdAt),
         message: message.message,
-        sender: message.sender != null
-            ? SBUser(
-                userId: message.sender!.userId,
-                nickname: message.sender!.nickname,
-                profileUrl: message.sender!.profileUrl,
-              )
-            : null,
+        sender:
+            message.sender != null
+                ? SBUser(
+                  userId: message.sender!.userId,
+                  nickname: message.sender!.nickname,
+                  profileUrl: message.sender!.profileUrl,
+                )
+                : null,
         sendingStatus: _mapSendingStatus(message.sendingStatus),
         data: _decodeData(message.data),
         parentMessageId: message.parentMessageId,
@@ -308,12 +320,13 @@ class SendbirdChatRepository
         type: message.type ?? '',
         size: message.size ?? 0,
         message: message.message,
-        sender: message.sender != null
-            ? SBUser(
-                userId: message.sender!.userId,
-                nickname: message.sender!.nickname,
-              )
-            : null,
+        sender:
+            message.sender != null
+                ? SBUser(
+                  userId: message.sender!.userId,
+                  nickname: message.sender!.nickname,
+                )
+                : null,
         sendingStatus: _mapSendingStatus(message.sendingStatus),
         data: _decodeData(message.data),
       );
@@ -352,12 +365,13 @@ class SendbirdChatRepository
     Map<String, dynamic>? data,
   }) async {
     try {
-      final params = GroupChannelParams()
-        ..name = name
-        ..userIds = userIds
-        ..isDistinct = isDistinct
-        ..isPublic = isPublic
-        ..data = data?.toString();
+      final params =
+          GroupChannelParams()
+            ..name = name
+            ..userIds = userIds
+            ..isDistinct = isDistinct
+            ..isPublic = isPublic
+            ..data = data == null ? null : jsonEncode(data);
 
       final channel = await _withTimeout(GroupChannel.createChannel(params));
       ChatLog.d(
@@ -451,25 +465,31 @@ class SendbirdChatRepository
 
     // reverse=true → newest-first; with ListView(reverse:true) index-0 sits at
     // the bottom near the composer. replyType.all keeps quoted replies inline.
-    final params = MessageListParams()
-      ..previousResultSize = limit ?? _config.messagePageSize
-      ..reverse = true
-      ..replyType = ReplyType.all;
+    final params =
+        MessageListParams()
+          ..previousResultSize = limit ?? _config.messagePageSize
+          ..reverse = true
+          ..replyType = ReplyType.all;
 
     // token is the oldest message's timestamp in ms (pagination cursor).
-    final timestamp = token != null
-        ? (int.tryParse(token) ?? DateTime.now().millisecondsSinceEpoch)
-        : DateTime.now().millisecondsSinceEpoch;
+    final timestamp =
+        token != null
+            ? (int.tryParse(token) ?? DateTime.now().millisecondsSinceEpoch)
+            : DateTime.now().millisecondsSinceEpoch;
 
-    final messages =
-        await _withTimeout(channel.getMessagesByTimestamp(timestamp, params));
+    final messages = await _withTimeout(
+      channel.getMessagesByTimestamp(timestamp, params),
+    );
     ChatLog.d(
       '📥 [SB] getMessages | channel=${ChatLog.shortId(channelUrl)} '
       '| count=${messages.length}',
     );
 
     return messages
-        .map((m) => Message.fromSBMessage(_mapToSBMessage(m), _currentUserId ?? ''))
+        .map(
+          (m) =>
+              Message.fromSBMessage(_mapToSBMessage(m), _currentUserId ?? ''),
+        )
         .toList();
   }
 
@@ -483,10 +503,11 @@ class SendbirdChatRepository
     try {
       final channel = await _withTimeout(GroupChannel.getChannel(channelUrl));
 
-      final params = UserMessageParams(message: content)
-        ..data = data != null ? jsonEncode(data) : null
-        ..parentMessageId = parentMessageId
-        ..replyToChannel = parentMessageId != null;
+      final params =
+          UserMessageParams(message: content)
+            ..data = data != null ? jsonEncode(data) : null
+            ..parentMessageId = parentMessageId
+            ..replyToChannel = parentMessageId != null;
 
       final completer = Completer<UserMessage>();
       channel.sendUserMessage(
@@ -505,7 +526,10 @@ class SendbirdChatRepository
       // onMessageReceived never fires for the sender — broadcast manually so the
       // sender's list updates immediately.
       unawaited(_loadAndBroadcastMessages(channelUrl));
-      return Message.fromSBMessage(_mapToSBMessage(message), _currentUserId ?? '');
+      return Message.fromSBMessage(
+        _mapToSBMessage(message),
+        _currentUserId ?? '',
+      );
     } catch (e) {
       ChatLog.e('sendText failed', e);
       rethrow;
@@ -555,7 +579,10 @@ class SendbirdChatRepository
       final message = await completer.future;
       ChatLog.d('✅ [SB] sendFile ok | msgId=${message.messageId}');
       unawaited(_loadAndBroadcastMessages(channelUrl));
-      return Message.fromSBMessage(_mapToSBMessage(message), _currentUserId ?? '');
+      return Message.fromSBMessage(
+        _mapToSBMessage(message),
+        _currentUserId ?? '',
+      );
     } catch (e) {
       ChatLog.e('sendFile failed', e);
       rethrow;
@@ -571,7 +598,10 @@ class SendbirdChatRepository
     try {
       final channel = await _withTimeout(GroupChannel.getChannel(channelUrl));
       await _withTimeout(
-        channel.updateUserMessage(messageId, UserMessageParams(message: content)),
+        channel.updateUserMessage(
+          messageId,
+          UserMessageParams(message: content),
+        ),
       );
     } catch (e) {
       ChatLog.e('updateMessage failed', e);

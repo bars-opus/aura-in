@@ -1,6 +1,7 @@
 // lib/features/dashboard/presentation/widgets/quarterly_summary_card.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/core/widgets/card_inkwell.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/analytics/quarterly_revenue.dart';
 
@@ -8,12 +9,14 @@ class DetailedQuarterlySummaryCard extends StatelessWidget {
   final int quarter;
   final QuarterlyRevenue quarterData;
   final int totalBookings;
+  final String shopCurrencyCode;
 
   const DetailedQuarterlySummaryCard({
     super.key,
     required this.quarter,
     required this.quarterData,
     required this.totalBookings,
+    required this.shopCurrencyCode,
   });
 
   @override
@@ -22,7 +25,6 @@ class DetailedQuarterlySummaryCard extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return CardInkWell(
-      
       onTap: () {},
       child: Row(
         children: [
@@ -31,7 +33,11 @@ class DetailedQuarterlySummaryCard extends StatelessWidget {
               context,
               'Q$quarter Revenue\n',
               quarterData.amount > 0
-                  ? '\$${quarterData.amount.toStringAsFixed(0)}'
+                  ? formatMajorMoney(
+                    quarterData.amount,
+                    shopCurrencyCode,
+                    fractionDigits: 0,
+                  )
                   : '--',
             ),
           ),

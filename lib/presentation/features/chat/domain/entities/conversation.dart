@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:nano_embryo/presentation/features/chat/data/models/sendbird/sb_channel.dart';
 import 'package:nano_embryo/presentation/features/chat/domain/entities/message.dart';
@@ -28,28 +30,36 @@ class Conversation {
 
   // Factory to create from Sendbird Channel
   factory Conversation.fromSBChannel(SBChannel channel, String currentUserId) {
-    final otherMember = channel.members.length > 1
-        ? channel.members.firstWhere(
-            (m) => m.userId != currentUserId,
-            orElse: () => channel.members.first,
-          )
-        : channel.members.isNotEmpty
+    final otherMember =
+        channel.members.length > 1
+            ? channel.members.firstWhere(
+              (m) => m.userId != currentUserId,
+              orElse: () => channel.members.first,
+            )
+            : channel.members.isNotEmpty
             ? channel.members.first
             : null;
 
     final allMemberIds = channel.members.map((m) => m.userId).toList();
-    final derivedName = channel.name.isNotEmpty
-        ? channel.name
-        : (otherMember?.nickname ?? otherMember?.userId ?? 'Unknown');
-    final hasCustomCover = channel.coverUrl != null &&
+    final derivedName =
+        channel.name.isNotEmpty
+            ? channel.name
+            : (otherMember?.nickname ?? otherMember?.userId ?? 'Unknown');
+    final hasCustomCover =
+        channel.coverUrl != null &&
         channel.coverUrl!.isNotEmpty &&
         !channel.coverUrl!.contains('static.sendbird.com');
-    final derivedAvatar = hasCustomCover
-        ? channel.coverUrl
-        : (otherMember?.profileUrl?.isNotEmpty == true ? otherMember!.profileUrl : null);
+    final derivedAvatar =
+        hasCustomCover
+            ? channel.coverUrl
+            : (otherMember?.profileUrl?.isNotEmpty == true
+                ? otherMember!.profileUrl
+                : null);
     final isGroup = _determineIfGroup(channel);
 
-    debugPrint('🗂️ [FROM-SB-CHANNEL] url=${channel.channelUrl} | currentUser=$currentUserId | allMembers=$allMemberIds | memberCount=${channel.members.length} | otherMember=${otherMember?.userId} | derivedName="$derivedName" | derivedAvatar=$derivedAvatar | isGroup=$isGroup');
+    debugPrint(
+      '🗂️ [FROM-SB-CHANNEL] url=${channel.channelUrl} | currentUser=$currentUserId | allMembers=$allMemberIds | memberCount=${channel.members.length} | otherMember=${otherMember?.userId} | derivedName="$derivedName" | derivedAvatar=$derivedAvatar | isGroup=$isGroup',
+    );
 
     return Conversation(
       id: channel.channelUrl,
@@ -63,7 +73,7 @@ class Conversation {
       updatedAt: channel.updatedAt,
       participants: channel.memberIds,
       isGroup: isGroup,
-      customData: channel.data?.toString(),
+      customData: channel.data?['raw']?.toString() ?? channel.data?.toString(),
     );
   }
 
@@ -143,6 +153,25 @@ class Conversation {
 
   // Convenience getters
   bool get hasUnread => unreadCount > 0;
+
+  /// Shop-scoped business channels carry this metadata. Legacy and personal
+  /// channels return null and remain visible regardless of the active shop.
+  String? get shopId {
+    final raw = customData;
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map<String, dynamic>) {
+        return (decoded['shop_id'] ?? decoded['shopId'])?.toString();
+      }
+    } on FormatException {
+      final match = RegExp(
+        r'(?:shop_id|shopId)\s*:\s*([^,}\s]+)',
+      ).firstMatch(raw);
+      return match?.group(1);
+    }
+    return null;
+  }
 
   String get displayName {
     if (name.isNotEmpty) return name;
