@@ -227,14 +227,25 @@ export async function handler(req: Request): Promise<Response> {
   };
 
   // 7. Normalize services payload.
-  const services = servicesRaw.map((s: any) => ({
-    id: s.id,
-    name: s.service_name,
-    description: s.description,
-    durationMinutes: parseDurationMinutes(s.duration),
-    price: typeof s.price === "number" ? s.price : Number(s.price ?? 0),
-    slotType: s.slot_type,
-  }));
+  //
+  // appointment_slots.price is stored in MINOR units (pesewas/kobo) — e.g. a
+  // GH₵25.00 service is 2500. The web booking flow treats `price` as a major
+  // unit throughout (display via formatMoney, and the totalAmount/deposit/
+  // platformFee it sends to create-booking, which itself multiplies float
+  // cedis by 100). So we convert minor → major exactly once, here at the
+  // boundary. Without this the page showed 2500.00 and, worse, create-booking
+  // charged 100× (2500 * 100 kobo = GH₵2500 instead of GH₵25).
+  const services = servicesRaw.map((s: any) => {
+    const priceMinor = typeof s.price === "number" ? s.price : Number(s.price ?? 0);
+    return {
+      id: s.id,
+      name: s.service_name,
+      description: s.description,
+      durationMinutes: parseDurationMinutes(s.duration),
+      price: priceMinor / 100,
+      slotType: s.slot_type,
+    };
+  });
 
   // 8. Worker payload — strip freelancer_details before returning to the
   //    public client (it contains owner-only fields). For freelancer flow,
