@@ -10,7 +10,6 @@ import 'package:nano_embryo/core/services/location_service.dart';
 import 'package:nano_embryo/core/utils/location/map_launcher_helper.dart';
 import 'package:nano_embryo/core/utils/location/widgets/location_display_widget.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
-import 'package:nano_embryo/core/widgets/info_row_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 
 class RoutePreviewWidget extends ConsumerWidget {

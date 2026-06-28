@@ -94,7 +94,7 @@ class OrderConfirmationScreen extends ConsumerWidget {
                             ),
                             SizedBox(height: 4.h),
                             Text(
-                              'Total: ${Currency.formatWithSymbol(order.totalAmount, order.currencySymbol)}',
+                              'Total: ${Currency.formatWithCurrency(order.totalAmount, currencySymbol: order.currencySymbol, currencyCode: order.currencyCode)}',
                               style: textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: theme.colorScheme.primary,

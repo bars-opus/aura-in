@@ -143,7 +143,7 @@ class _SellerManageOrdersCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardInkWell(
-      margin: EdgeInsets.only(bottom: 10.h),
+      margin: EdgeInsets.only(bottom: Spacing.sm),
       child: InfoRowWidget(
         subtitle: 'Confirm orders and manage fulfilment for this shop.',
         title: 'Manage your orders',

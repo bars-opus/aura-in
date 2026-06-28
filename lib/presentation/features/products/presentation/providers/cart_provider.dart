@@ -14,11 +14,7 @@ class CartState {
   final bool isLoading;
   final String? error;
 
-  const CartState({
-    this.items = const [],
-    this.isLoading = false,
-    this.error,
-  });
+  const CartState({this.items = const [], this.isLoading = false, this.error});
 
   double get totalAmount => items.fold(0, (sum, item) => sum + item.subtotal);
   int get itemCount => items.fold(0, (sum, item) => sum + item.quantity);
@@ -31,6 +27,8 @@ class CartState {
   /// The cart is single-shop (addItem enforces it), so currency is uniform.
   String? get currencySymbol =>
       items.isEmpty ? null : items.first.currencySymbol;
+
+  String? get currencyCode => items.isEmpty ? null : items.first.currencyCode;
 
   bool get hasMultipleShops =>
       items.map((item) => item.shopId).toSet().length > 1;
@@ -84,9 +82,10 @@ class CartNotifier extends _$CartNotifier {
       final cartJson = prefs.getString(_storageKey);
       if (cartJson != null) {
         final List<dynamic> decoded = json.decode(cartJson);
-        final items = decoded
-            .map((e) => CartItemModel.fromJson(e as Map<String, dynamic>))
-            .toList();
+        final items =
+            decoded
+                .map((e) => CartItemModel.fromJson(e as Map<String, dynamic>))
+                .toList();
         state = state.copyWith(items: items, clearError: true);
       } else {
         state = const CartState();
@@ -100,8 +99,7 @@ class CartNotifier extends _$CartNotifier {
   Future<void> _saveCartToStorage() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final cartJson =
-          json.encode(state.items.map((i) => i.toJson()).toList());
+      final cartJson = json.encode(state.items.map((i) => i.toJson()).toList());
       await prefs.setString(_storageKey, cartJson);
     } catch (e, stack) {
       MarketplaceLogger.warn('cart save failed', error: e, stack: stack);
@@ -112,13 +110,13 @@ class CartNotifier extends _$CartNotifier {
   /// contains items from a different shop — the UI should catch this and
   /// offer to clear the cart before re-adding.
   Future<void> addItem(CartItemModel newItem) async {
-    if (state.items.isNotEmpty &&
-        state.items.first.shopId != newItem.shopId) {
+    if (state.items.isNotEmpty && state.items.first.shopId != newItem.shopId) {
       throw MultiShopCartException();
     }
 
-    final existingIndex = state.items
-        .indexWhere((item) => item.productId == newItem.productId);
+    final existingIndex = state.items.indexWhere(
+      (item) => item.productId == newItem.productId,
+    );
 
     List<CartItemModel> updatedItems;
     if (existingIndex != -1) {
@@ -140,17 +138,19 @@ class CartNotifier extends _$CartNotifier {
       await removeItem(productId);
       return;
     }
-    final updated = state.items
-        .map((i) =>
-            i.productId == productId ? i.copyWith(quantity: quantity) : i)
-        .toList();
+    final updated =
+        state.items
+            .map(
+              (i) =>
+                  i.productId == productId ? i.copyWith(quantity: quantity) : i,
+            )
+            .toList();
     state = state.copyWith(items: updated);
     await _saveCartToStorage();
   }
 
   Future<void> removeItem(String productId) async {
-    final updated =
-        state.items.where((i) => i.productId != productId).toList();
+    final updated = state.items.where((i) => i.productId != productId).toList();
     state = state.copyWith(items: updated);
     await _saveCartToStorage();
   }

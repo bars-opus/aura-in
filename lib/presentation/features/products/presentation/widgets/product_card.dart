@@ -1,10 +1,6 @@
 // lib/features/products/presentation/widgets/product_card.dart
 
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
-import 'package:nano_embryo/core/widgets/info_row_widget.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/product_model.dart';
 
 class ProductCard extends StatelessWidget {
@@ -26,6 +22,7 @@ class ProductCard extends StatelessWidget {
           '${product.stockQuantity == 0 ? ', out of stock' : ''}'
           '${product.shopVerified == true ? ', from a verified shop' : ''}',
       child: CardInkWell(
+        padding: const EdgeInsets.all(Spacing.sm),
         onTap: onTap,
         child: InfoRowWidget(
           isNotAvatarImage: true,
@@ -33,48 +30,26 @@ class ProductCard extends StatelessWidget {
           title: product.name,
           icon: Icons.image_outlined,
           iconSize: 50.0,
-
           imageUrl: product.images.first,
           titleFontSize: FontSizeTokens.lg,
           avatarRadius: 70.h,
-
+          subTitleMaxLines: 2,
           onTap: onTap,
           disableTrailing: false,
           showAvatar: false,
           showDivider: false,
           showTrailingArrow: false,
-          trailing: Text(
-            product.formattedPrice,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: colorScheme.primary,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          bottomWidget: Row(
+          trailing: Column(
             children: [
-              if (!product.isActive)
-                _StatusChip(
-                  label: 'Inactive',
-                  color: Colors.grey.shade200,
-                  textColor: Colors.grey.shade700,
-                  textTheme: textTheme,
-                )
-              else if (product.stockQuantity == 0)
-                _StatusChip(
-                  label: 'Out of stock',
-                  color: theme.colorScheme.errorContainer,
-                  textColor: theme.colorScheme.onErrorContainer,
-                  textTheme: textTheme,
-                )
-              else if (product.stockQuantity <= 5)
-                _StatusChip(
-                  label: 'Only ${product.stockQuantity} left',
-                  color: theme.colorScheme.tertiaryContainer,
-                  textColor: theme.colorScheme.onTertiaryContainer,
-                  textTheme: textTheme,
+              Text(
+                product.formattedPrice,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.primary,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
               if (product.totalOrdersCount > 0)
                 Row(
                   children: [
@@ -96,6 +71,25 @@ class ProductCard extends StatelessWidget {
                 ),
             ],
           ),
+          bottomWidget: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Spacing.xs),
+            child: Row(
+              children: [
+                if (!product.isActive)
+                  _StatusChip(label: 'Inactive', color: Colors.grey.shade200)
+                else if (product.stockQuantity == 0)
+                  _StatusChip(
+                    label: 'Out of stock',
+                    color: theme.colorScheme.errorContainer,
+                  )
+                else if (product.stockQuantity <= 5)
+                  _StatusChip(
+                    label: 'Only ${product.stockQuantity} left',
+                    color: theme.colorScheme.tertiaryContainer,
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -105,21 +99,23 @@ class ProductCard extends StatelessWidget {
 class _StatusChip extends StatelessWidget {
   final String label;
   final Color color;
-  final Color textColor;
-  final TextTheme textTheme;
-  const _StatusChip({
-    required this.label,
-    required this.color,
-    required this.textColor,
-    required this.textTheme,
-  });
+  const _StatusChip({required this.label, required this.color});
   @override
-  Widget build(BuildContext context) => Container(
-    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-    decoration: BoxDecoration(
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(left: Spacing.xs),
+    child: MiniContainerIndicator(
       color: color,
-      borderRadius: BorderRadius.circular(4.r),
+      text: label,
+      // fontSize: 20,
     ),
-    child: Text(label, style: textTheme.labelSmall?.copyWith(color: textColor)),
   );
+
+  //  Container(
+  //   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+  //   decoration: BoxDecoration(
+  //     color: color,
+  //     borderRadius: BorderRadius.circular(4.r),
+  //   ),
+  //   child: Text(label, style: textTheme.labelSmall?.copyWith(color: textColor)),
+  // );
 }

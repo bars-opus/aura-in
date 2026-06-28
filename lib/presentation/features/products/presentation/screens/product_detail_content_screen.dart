@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/cart_item_model.dart';
@@ -118,7 +117,7 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
     if (!product.isActive) return MarketplaceStrings.unavailable;
     if (product.stockQuantity == 0) return MarketplaceStrings.outOfStock;
     return '${MarketplaceStrings.addToCart} '
-        '(${Currency.formatWithSymbol(product.price * _quantity, product.shopCurrencySymbol)})';
+        '(${Currency.formatWithCurrency(product.price * _quantity, currencySymbol: product.shopCurrencySymbol, currencyCode: product.shopCurrencyCode)})';
   }
 
   Future<bool?> _confirmReplaceCart() => showDialog<bool>(

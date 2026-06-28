@@ -1,11 +1,7 @@
 // lib/features/notifications/presentation/widgets/notification_list_tile.dart
 
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gap/gap.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/notifications/domain/entities/app_notification.dart';
-import 'package:nano_embryo/core/notifications/utils/notification_date_time_utils.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
 /// Reusable notification list tile with read/unread state
 class NotificationListTile extends StatelessWidget {
@@ -23,7 +19,6 @@ class NotificationListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
 
     return Dismissible(
       key: Key(notification.id),
@@ -35,101 +30,132 @@ class NotificationListTile extends StatelessWidget {
         padding: EdgeInsets.only(right: Spacing.lg.w),
         child: Icon(Icons.delete_outline, color: Colors.white, size: 24.w),
       ),
-      child: Material(
+      child: CardInkWell(
+        elevation: 0,
+        margin: const EdgeInsets.only(bottom: Spacing.sm),
         color:
             notification.isRead
                 ? Colors.transparent
-                : colorScheme.primaryContainer.withValues(alpha:0.3),
-        child: InkWell(
+                : colorScheme.primaryContainer.withValues(alpha: 0.3),
+        child: InfoRowWidget(
+          subtitle: '${notification.body}\n${notification.createdAt}',
+          title: notification.title,
+          icon: _getIconForType(notification.data?['type'] as String?),
+          avatarRadius: 25.h,
           onTap: onTap,
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: Spacing.md.w,
-              vertical: Spacing.md.h,
-            ),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: colorScheme.outline.withValues(alpha:0.1),
-                  width: BorderWidthTokens.hairline,
-                ),
-              ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Icon
-                Container(
-                  width: 40.w,
-                  height: 40.w,
-                  decoration: BoxDecoration(
-                    color: colorScheme.primaryContainer.withValues(alpha:0.5),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _getIconForType(notification.data?['type'] as String?),
-                    color: colorScheme.primary,
-                    size: 20.w,
-                  ),
-                ),
-                Gap(Spacing.md.w),
+          showAvatar: false,
+          showTrailingArrow: true,
 
-                // Content
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        notification.title,
-                        style: textTheme.titleSmall?.copyWith(
-                          fontWeight:
-                              notification.isRead
-                                  ? FontWeight.normal
-                                  : FontWeight.w600,
-                          color:
-                              notification.isRead
-                                  ? colorScheme.onSurface.withValues(alpha:0.7)
-                                  : colorScheme.onSurface,
-                        ),
-                      ),
-                      Gap(Spacing.xs.h),
-                      Text(
-                        notification.body,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurface.withValues(alpha:0.6),
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Gap(Spacing.xs.h),
-                      Text(
-                        NotificationDateTimeUtils.timeAgo(
-                          notification.createdAt,
-                        ),
-                        style: textTheme.labelSmall?.copyWith(
-                          color: colorScheme.onSurface.withValues(alpha:0.4),
-                          fontSize: 10.sp,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Unread indicator
-                if (!notification.isRead)
-                  Container(
+          showDivider: false,
+          trailing:
+              !notification.isRead
+                  ? Container(
                     width: 8.w,
                     height: 8.w,
                     decoration: BoxDecoration(
                       color: colorScheme.primary,
                       shape: BoxShape.circle,
                     ),
-                  ),
-              ],
-            ),
-          ),
+                  )
+                  : SizedBox.shrink(),
         ),
       ),
+
+      // Material(
+      //   color:
+      // notification.isRead
+      //     ? Colors.transparent
+      //     : colorScheme.primaryContainer.withValues(alpha:0.3),
+      //   child: InkWell(
+      //     onTap: onTap,
+      //     child: Container(
+      //       padding: EdgeInsets.symmetric(
+      //         horizontal: Spacing.md.w,
+      //         vertical: Spacing.md.h,
+      //       ),
+      //       decoration: BoxDecoration(
+      //         border: Border(
+      //           bottom: BorderSide(
+      //             color: colorScheme.outline.withValues(alpha:0.1),
+      //             width: BorderWidthTokens.hairline,
+      //           ),
+      //         ),
+      //       ),
+      //       child: Row(
+      //         crossAxisAlignment: CrossAxisAlignment.start,
+      //         children: [
+      //           // Icon
+      //           Container(
+      //             width: 40.w,
+      //             height: 40.w,
+      //             decoration: BoxDecoration(
+      //               color: colorScheme.primaryContainer.withValues(alpha:0.5),
+      //               shape: BoxShape.circle,
+      //             ),
+      //             child: Icon(
+      //               _getIconForType(notification.data?['type'] as String?),
+      //               color: colorScheme.primary,
+      //               size: 20.w,
+      //             ),
+      //           ),
+      //           Gap(Spacing.md.w),
+
+      //           // Content
+      //           Expanded(
+      //             child: Column(
+      //               crossAxisAlignment: CrossAxisAlignment.start,
+      //               children: [
+      //                 Text(
+      //                   notification.title,
+      //                   style: textTheme.titleSmall?.copyWith(
+      //                     fontWeight:
+      //                         notification.isRead
+      //                             ? FontWeight.normal
+      //                             : FontWeight.w600,
+      //                     color:
+      //                         notification.isRead
+      //                             ? colorScheme.onSurface.withValues(alpha:0.7)
+      //                             : colorScheme.onSurface,
+      //                   ),
+      //                 ),
+      //                 Gap(Spacing.xs.h),
+      //                 Text(
+      //                   notification.body,
+      //                   style: textTheme.bodySmall?.copyWith(
+      //                     color: colorScheme.onSurface.withValues(alpha:0.6),
+      //                   ),
+      //                   maxLines: 2,
+      //                   overflow: TextOverflow.ellipsis,
+      //                 ),
+      //                 Gap(Spacing.xs.h),
+      //                 Text(
+      //                   NotificationDateTimeUtils.timeAgo(
+      //                     notification.createdAt,
+      //                   ),
+      //                   style: textTheme.labelSmall?.copyWith(
+      //                     color: colorScheme.onSurface.withValues(alpha:0.4),
+      //                     fontSize: 10.sp,
+      //                   ),
+      //                 ),
+      //               ],
+      //             ),
+      //           ),
+
+      //           // Unread indicator
+      // if (!notification.isRead)
+      //   Container(
+      //     width: 8.w,
+      //     height: 8.w,
+      //     decoration: BoxDecoration(
+      //       color: colorScheme.primary,
+      //       shape: BoxShape.circle,
+      //     ),
+      //   ),
+      //         ],
+      //       ),
+      //     ),
+      //   ),
+      // ),
     );
   }
 

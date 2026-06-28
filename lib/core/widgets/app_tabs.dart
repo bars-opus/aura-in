@@ -319,7 +319,8 @@ class SimpleTabs extends StatelessWidget {
             // Uses low opacity for subtle separation without visual competition
             dividerColor:
                 style.showDivider
-                    ? (style.inactiveColor ?? colors.onSurface.withValues(alpha: 0.3))
+                    ? (style.inactiveColor ??
+                        colors.onSurface.withValues(alpha: 0.3))
                     : Colors.transparent,
             dividerHeight: 0.3,
 
@@ -410,23 +411,32 @@ class SimpleTabs extends StatelessWidget {
   /// `AppTabItem.customChild` is not specified. Ensures consistent spacing
   /// and typography across all default-style tabs.
   Widget _buildTabLabel(AppTabItem tab) {
-    return Row(
-      // Minimal width to fit content
-      mainAxisSize: MainAxisSize.min,
-      // Center content horizontally within tab
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Icon with consistent sizing from design tokens
-        if (tab.icon != null) ...[
-          Icon(tab.icon, size: IconSizes.md),
-          // Standard spacing between icon and text
-          SizedBox(width: 10.w),
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: tab.icon != null ? Spacing.md : 0,
+      ),
+      child: Row(
+        // Minimal width to fit content
+        mainAxisSize: MainAxisSize.min,
+        // Center content horizontally within tab
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Icon with consistent sizing from design tokens
+          if (tab.icon != null) ...[
+            Icon(tab.icon, size: IconSizes.md),
+            // Standard spacing between icon and text
+            SizedBox(width: 10.w),
+          ],
+          // Flexible text container prevents overflow
+          Flexible(
+            child: Text(
+              tab.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
-        // Flexible text container prevents overflow
-        Flexible(
-          child: Text(tab.label, maxLines: 1, overflow: TextOverflow.ellipsis),
-        ),
-      ],
+      ),
     );
   }
 }

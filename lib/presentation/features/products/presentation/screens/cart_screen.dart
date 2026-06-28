@@ -6,11 +6,18 @@ import 'package:nano_embryo/presentation/features/products/presentation/provider
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/qty_stepper.dart';
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
 
-class CartScreen extends ConsumerWidget {
+class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends ConsumerState<CartScreen> {
+  int _selectedTabIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
     final cartState = ref.watch(cartNotifierProvider);
     final cartNotifier = ref.read(cartNotifierProvider.notifier);
     final theme = Theme.of(context);
@@ -22,16 +29,9 @@ class CartScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: true,
-        centerTitle: false,
-        title: Text(
-          MarketplaceStrings.cartTitle,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface.withValues(alpha: 0.8),
-          ),
-        ),
+
         actions: [
-          if (!cartState.isEmpty)
+          if (_selectedTabIndex == 0 && !cartState.isEmpty)
             Padding(
               padding: EdgeInsets.only(top: Spacing.md),
               child: AppTextButton(
@@ -61,10 +61,14 @@ class CartScreen extends ConsumerWidget {
       ),
 
       body: TabsWithContent(
+        onTabChanged: (index) => setState(() => _selectedTabIndex = index),
+        scrollable: false,
+        showContent: true,
         tabs: [
           AppTabItem(
+            icon: null,
             label: MarketplaceStrings.cartTitle,
-            icon: Icons.shopping_cart_outlined,
+            // icon: Icons.shopping_cart_outlined,
             content: _buildCartContent(
               context,
               cartState,
@@ -75,7 +79,8 @@ class CartScreen extends ConsumerWidget {
           ),
           const AppTabItem(
             label: 'Orders',
-            icon: Icons.receipt_long_outlined,
+            icon: null,
+            // icon: Icons.receipt_long_outlined,
             content: CustomerOrdersTab(),
           ),
         ],
@@ -101,12 +106,7 @@ class CartScreen extends ConsumerWidget {
             itemCount: cartState.items.length,
             itemBuilder: (context, index) {
               final item = cartState.items[index];
-              return _buildCartItem(
-                context,
-                item,
-                cartNotifier,
-                theme,
-              );
+              return _buildCartItem(context, item, cartNotifier, theme);
             },
           ),
         ),
@@ -126,12 +126,13 @@ class CartScreen extends ConsumerWidget {
                 showDivider: false,
                 showTrailingArrow: false,
                 trailing: Text(
-                  Currency.formatWithSymbol(
+                  Currency.formatWithCurrency(
                     cartState.totalAmount,
-                    cartState.currencySymbol,
+                    currencySymbol: cartState.currencySymbol,
+                    currencyCode: cartState.currencyCode,
                   ),
                   semanticsLabel:
-                      'Total ${Currency.formatWithSymbol(cartState.totalAmount, cartState.currencySymbol)}',
+                      'Total ${Currency.formatWithCurrency(cartState.totalAmount, currencySymbol: cartState.currencySymbol, currencyCode: cartState.currencyCode)}',
                   style: textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.primary,
@@ -208,7 +209,11 @@ class CartScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              Currency.formatWithSymbol(item.price, item.currencySymbol),
+              Currency.formatWithCurrency(
+                item.price,
+                currencySymbol: item.currencySymbol,
+                currencyCode: item.currencyCode,
+              ),
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.primary,

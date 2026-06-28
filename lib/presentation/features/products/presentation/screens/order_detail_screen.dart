@@ -1,16 +1,15 @@
 // lib/features/orders/presentation/screens/order_detail_screen.dart
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
-import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
-import 'package:nano_embryo/presentation/features/chat/presentation/services/business_chat_launcher.dart';
+import 'package:nano_embryo/core/utils/date_formatter.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/payment/presentation/widgets/info_row.dart';
 import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
+import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_details_section.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
   final String orderId;
@@ -53,25 +52,19 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       ref.invalidate(shopOrdersProvider(widget.shopId));
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Order ${_getStatusAction(newStatus)}')),
-        );
+        context.showInfoSnackbar('Order ${_getStatusAction(newStatus)}');
       }
     } on MarketplaceException catch (e, stack) {
       MarketplaceLogger.warn('updateStatus rejected', error: e, stack: stack);
       if (mounted) {
         setState(() => _optimisticStatus = null); // revert
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
+        context.showErrorSnackbar(e.message);
       }
     } catch (e, stack) {
       MarketplaceLogger.error('updateStatus failed', error: e, stack: stack);
       if (mounted) {
         setState(() => _optimisticStatus = null); // revert
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to update: $e')));
+        context.showErrorSnackbar('Failed to update: $e');
       }
     } finally {
       if (mounted) {
@@ -110,194 +103,193 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     final orderDataAsync = ref.watch(orderWithItemsProvider(widget.orderId));
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
+      backgroundColor: colorScheme.neutral,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Text(
           'Order #${widget.orderId.substring(0, 8)}',
-          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+          style: textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
         ),
       ),
-      body: orderDataAsync.when(
-        data: (data) {
-          final order = data['order'] as OrderModel;
-          final items = data['items'] as List<OrderItemModel>;
 
-          return CustomScrollView(
-            slivers: [
-              // Customer info section
-              SliverToBoxAdapter(child: _buildInfoSection(order, theme)),
+      body: Padding(
+        padding: const EdgeInsets.all(Spacing.md),
+        child: orderDataAsync.when(
+          data: (data) {
+            final order = data['order'] as OrderModel;
+            final items = data['items'] as List<OrderItemModel>;
 
-              // Order items section
-              SliverPadding(
-                padding: EdgeInsets.all(16.w),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final item = items[index];
-                    return _buildOrderItem(item, theme, order.currencySymbol);
-                  }, childCount: items.length),
-                ),
-              ),
+            return CustomScrollView(
+              slivers: [
+                // Customer info section
+                SliverToBoxAdapter(child: _buildInfoSection(order, theme)),
 
-              // Delivery address section
-              SliverToBoxAdapter(child: _buildAddressSection(order, theme)),
-
-              // Status update buttons (if not delivered or cancelled)
-              if (_effectiveStatus(order) != OrderStatus.delivered &&
-                  _effectiveStatus(order) != OrderStatus.cancelled)
+                // Order items section
                 SliverPadding(
-                  padding: EdgeInsets.all(16.w),
-                  sliver: SliverToBoxAdapter(
-                    child: _buildActionButtons(order, theme),
+                  padding: EdgeInsets.all(0),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final item = items[index];
+                      return _buildOrderItem(
+                        item,
+                        theme,
+                        order.currencySymbol,
+                        order.currencyCode,
+                      );
+                    }, childCount: items.length),
                   ),
                 ),
 
-              SliverToBoxAdapter(child: SizedBox(height: 80.h)),
-            ],
-          );
-        },
-        loading: () => Center(child: const CircularLoadingIndicator()),
-        error:
-            (error, stack) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 48.w),
-                  SizedBox(height: 16.h),
-                  Text('Failed to load order details'),
-                  SizedBox(height: 8.h),
-                  Text(error.toString(), style: textTheme.bodySmall),
-                  SizedBox(height: 16.h),
-                  ElevatedButton(
-                    onPressed: () {
+                // Delivery address section
+                SliverToBoxAdapter(child: _buildAddressSection(order, theme)),
+
+                // Status update buttons (if not delivered or cancelled)
+                if (_effectiveStatus(order) != OrderStatus.delivered &&
+                    _effectiveStatus(order) != OrderStatus.cancelled)
+                  SliverPadding(
+                    padding: EdgeInsets.only(top: Spacing.md),
+                    sliver: SliverToBoxAdapter(
+                      child: _buildActionButtons(order, theme),
+                    ),
+                  ),
+
+                SliverPadding(
+                  padding: EdgeInsets.only(top: Spacing.md),
+                  sliver: SliverToBoxAdapter(
+                    child: _buildContactButtons(order),
+                  ),
+                ),
+
+                SliverToBoxAdapter(child: Gap(Spacing.xxl)),
+              ],
+            );
+          },
+          loading: () => Center(child: const CircularLoadingIndicator()),
+          error:
+              (error, stack) => Center(
+                child: Center(
+                  child: ErrorStateWidget(
+                    title: 'Failed to load order details',
+                    subtitle: error.toString(),
+                    onPrimaryAction: () {
                       ref.invalidate(orderWithItemsProvider(widget.orderId));
                     },
-                    child: const Text('Retry'),
                   ),
-                ],
+                ),
               ),
-            ),
+        ),
       ),
       bottomNavigationBar:
           _isUpdating
-              ? Container(
+              ? SizedBox(
                 height: 50.h,
-                color: Colors.black.withValues(alpha: 0.7),
-                child: const Center(child: CircularProgressIndicator()),
+                child: const Center(child: CircularLoadingIndicator()),
               )
               : null,
     );
   }
 
   Widget _buildInfoSection(OrderModel order, ThemeData theme) {
-    return Card(
-      margin: EdgeInsets.all(16.w),
-      child: Padding(
-        padding: EdgeInsets.all(16.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Customer Information',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(height: 12.h),
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 24.r,
-                  backgroundImage:
-                      order.customerAvatarUrl != null
-                          ? NetworkImage(order.customerAvatarUrl!)
-                          : null,
-                  child:
-                      order.customerAvatarUrl == null
-                          ? Icon(Icons.person, size: 24.w)
-                          : null,
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        order.customerName ?? 'Customer',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        order.customerEmail ?? 'No email',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      Text(
-                        order.customerPhone,
-                        style: theme.textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Message customer',
-                  onPressed:
-                      order.userId == null || order.userId!.isEmpty
-                          ? null
-                          : () => BusinessChatLauncher.openForOrder(
-                            context,
-                            ref,
-                            order,
-                            isShopOwner: true,
-                          ),
-                  icon: const Icon(Icons.message_outlined),
-                ),
-              ],
-            ),
-            SizedBox(height: 12.h),
-            Divider(),
-            SizedBox(height: 12.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Order Date:'),
-                Text(_formatDateTime(order.orderDate)),
-              ],
-            ),
-            if (order.confirmedAt != null) ...[
-              SizedBox(height: 8.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Confirmed:'),
-                  Text(_formatDateTime(order.confirmedAt!)),
-                ],
-              ),
-            ],
-            if (order.dispatchedAt != null) ...[
-              SizedBox(height: 8.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Dispatched:'),
-                  Text(_formatDateTime(order.dispatchedAt!)),
-                ],
-              ),
-            ],
-            if (order.deliveredAt != null) ...[
-              SizedBox(height: 8.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Delivered:'),
-                  Text(_formatDateTime(order.deliveredAt!)),
-                ],
-              ),
-            ],
+    final colorScheme = theme.colorScheme;
+    final statusColor = order.status.getColor(theme.colorScheme);
+
+    return CardInkWell(
+      onTap: () {},
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Gap(Spacing.sm),
+          ProfileHeader(
+            mode: ProfileHeaderMode.compact,
+            avatarUrl: order.customerAvatarUrl,
+            displayName: order.customerName ?? '',
+            userId: '',
+            bio: '',
+            onProfileNavigatePressed: () {},
+          ),
+          Gap(Spacing.md),
+          if (order.customerPhone.isNotEmpty) ...[
+            AppDivider(),
+            InfoRow(label: 'Phone number', value: order.customerPhone),
           ],
-        ),
+          if (order.customerEmail != null) ...[
+            AppDivider(),
+            InfoRow(label: 'Customer email', value: order.customerEmail ?? ''),
+          ],
+          if (order.orderDate != null) ...[
+            AppDivider(),
+            InfoRow(
+              label: 'Order date',
+              value: MyDateFormat.toDate(order.orderDate),
+            ),
+          ],
+          if (order.confirmedAt != null) ...[
+            AppDivider(),
+            InfoRow(
+              label: 'Confirm date',
+              value:
+                  order.confirmedAt == null
+                      ? ''
+                      : MyDateFormat.toDate(order.confirmedAt!),
+            ),
+          ],
+          if (order.deliveredAt != null) ...[
+            AppDivider(),
+            InfoRow(
+              label: 'Confirm date',
+              value:
+                  order.dispatchedAt == null
+                      ? ''
+                      : MyDateFormat.toDate(order.dispatchedAt!),
+            ),
+          ],
+          AppDivider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Order #${order.id.substring(0, 8)}',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              Text(
+                Currency.formatWithSymbol(
+                  order.totalAmount,
+                  order.currencySymbol,
+                ),
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+
+          AppDivider(),
+          if (order.deliveredAt != null) ...[
+            AppDivider(),
+            InfoRow(
+              label: 'Delivery date',
+              value:
+                  order.deliveredAt == null
+                      ? ''
+                      : MyDateFormat.toDate(order.deliveredAt!),
+            ),
+          ],
+          MiniContainerIndicator(
+            color: statusColor,
+            text: order.status.displayName,
+          ),
+        ],
       ),
     );
   }
@@ -306,135 +298,150 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     OrderItemModel item,
     ThemeData theme,
     String? currencySymbol,
+    String? currencyCode,
   ) {
-    return Card(
-      margin: EdgeInsets.only(bottom: 8.h),
-      child: Padding(
-        padding: EdgeInsets.all(12.w),
-        child: Row(
-          children: [
-            // Product image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8.r),
-              child: Container(
-                width: 60.w,
-                height: 60.w,
-                color: Colors.grey.shade200,
-                child:
-                    item.productImage != null
-                        ? Image.network(
-                          item.productImage!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(Icons.image_outlined, size: 24.w);
-                          },
-                        )
-                        : Icon(Icons.image_outlined, size: 24.w),
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.productName,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    '${item.quantity} x ${Currency.formatWithSymbol(item.unitPrice, currencySymbol)}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              Currency.formatWithSymbol(item.subtotal, currencySymbol),
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-          ],
+    final colorScheme = theme.colorScheme;
+    return CardInkWell(
+      padding: const EdgeInsets.all(Spacing.sm),
+      child: InfoRowWidget(
+        isNotAvatarImage: true,
+        subtitle:
+            '${item.quantity} x ${Currency.formatWithCurrency(item.unitPrice, currencySymbol: currencySymbol, currencyCode: currencyCode)}',
+        title: item.productName,
+        icon: Icons.image_outlined,
+        iconSize: 50.0,
+        imageUrl: item.productImage,
+        titleFontSize: FontSizeTokens.lg,
+        avatarRadius: 70.h,
+        subTitleMaxLines: 2,
+        disableTrailing: false,
+        showAvatar: false,
+        showDivider: false,
+        showTrailingArrow: false,
+        trailing: Text(
+          Currency.formatWithCurrency(
+            item.subtotal,
+            currencySymbol: currencySymbol,
+            currencyCode: currencyCode,
+          ),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.primary,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );
   }
 
   Widget _buildAddressSection(OrderModel order, ThemeData theme) {
-    return Card(
-      margin: EdgeInsets.all(16.w),
-      child: Padding(
-        padding: EdgeInsets.all(16.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    final colorScheme = theme.colorScheme;
+
+    return CardInkWell(
+      child: Column(
+        children: [
+          InfoRowWidget(
+            subtitle: 'Delivery Address',
+            titleMaxLines: 5,
+            title: order.deliveryAddress,
+            icon: Icons.house,
+            avatarRadius: 25.h,
+            onTap: () {},
+            disableTrailing: true,
+            showDivider: order.customerNotes == null,
+            showAvatar: false,
+            showTrailingArrow: false,
+          ),
+
+          if (order.customerNotes != null &&
+              order.customerNotes!.isNotEmpty) ...[
+            Gap(Spacing.md),
             Text(
-              'Delivery Address',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+              'Customer Notes:',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: colorScheme.onBackground,
               ),
             ),
-            SizedBox(height: 8.h),
-            Text(order.deliveryAddress),
-            if (order.customerNotes != null &&
-                order.customerNotes!.isNotEmpty) ...[
-              SizedBox(height: 12.h),
-              Text(
-                'Customer Notes:',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+            Gap(Spacing.sm),
+            Text(
+              order.customerNotes!,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onBackground,
               ),
-              SizedBox(height: 4.h),
-              Text(order.customerNotes!),
-            ],
-            if (order.shopNotes != null && order.shopNotes!.isNotEmpty) ...[
-              SizedBox(height: 12.h),
-              Text(
-                'Shop Notes:',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(height: 4.h),
-              Text(order.shopNotes!),
-            ],
+            ),
           ],
-        ),
+          if (order.shopNotes != null && order.shopNotes!.isNotEmpty) ...[
+            Gap(Spacing.md),
+            Text(
+              'Shop Notes:',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: colorScheme.onBackground,
+              ),
+            ),
+            Gap(Spacing.sm),
+            Text(
+              order.shopNotes!,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onBackground,
+              ),
+            ),
+          ],
+          Gap(Spacing.xl),
+        ],
       ),
     );
   }
 
   Widget _buildActionButtons(OrderModel order, ThemeData theme) {
     final List<Widget> buttons = [];
-
+    final colorScheme = theme.colorScheme;
     // Show different buttons based on current status
     switch (_effectiveStatus(order)) {
       case OrderStatus.pending_confirmation:
         buttons.add(
           Expanded(
             child: AppButton(
+              elevation: 0,
               label: 'Confirm Order',
               onPressed: () => _updateStatus('confirmed'),
-              // backgroundColor: Colors.green,
+
+              size: ButtonSize.small,
+              width: double.infinity,
+              padding: Spacing.horizontalMd,
+              height: 40.h,
             ),
           ),
         );
-        buttons.add(SizedBox(width: 12.w));
+        buttons.add(Gap(Spacing.sm));
         buttons.add(
           Expanded(
             child: AppButton(
+              height: 40.h,
+              
               label: 'Cancel Order',
-              onPressed: () => _showCancelDialog(),
-              // backgroundColor: Colors.red,
+              
+              onPressed: () {
+                BottomSheetUtils.showDocumentationBottomSheet(
+                  context: context,
+                  widget: ConfirmationDialog(
+                    type: ConfirmationType.warning,
+                    title: 'Are you sure you want to cancel this order?',
+                    confirmText: 'Cancel Order',
+                    message: '',
+                    onConfirm: () {
+                      _updateStatus('cancelled');
+                    },
+                  ),
+                );
+              },
+
+              padding: Spacing.horizontalMd,
+              customColor: colorScheme.error,
+              size: ButtonSize.small,
+              width: double.infinity,
             ),
           ),
         );
@@ -444,9 +451,14 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         buttons.add(
           Expanded(
             child: AppButton(
+              elevation: 0,
               label: 'Mark as Out for Delivery',
               onPressed: () => _updateStatus('out_for_delivery'),
-              // backgroundColor: Colors.orange,
+
+              size: ButtonSize.small,
+              width: double.infinity,
+              padding: Spacing.horizontalMd,
+              height: 40.h,
             ),
           ),
         );
@@ -456,9 +468,13 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         buttons.add(
           Expanded(
             child: AppButton(
+              elevation: 0,
               label: 'Mark as Delivered',
               onPressed: () => _updateStatus('delivered'),
-              // backgroundColor: Colors.green,
+              size: ButtonSize.small,
+              width: double.infinity,
+              padding: Spacing.horizontalMd,
+              height: 40.h,
             ),
           ),
         );
@@ -471,31 +487,15 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     return Row(children: buttons);
   }
 
-  void _showCancelDialog() {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Cancel Order'),
-            content: const Text('Are you sure you want to cancel this order?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('No'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _updateStatus('cancelled');
-                },
-                child: const Text('Yes, Cancel'),
-              ),
-            ],
-          ),
+  Widget _buildContactButtons(OrderModel order) {
+    return AppButton(
+      elevation: 0,
+      label: 'Call customer',
+      onPressed: () {},
+      size: ButtonSize.small,
+      width: double.infinity,
+      padding: Spacing.horizontalMd,
+      height: 40.h,
     );
-  }
-
-  String _formatDateTime(DateTime date) {
-    return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
 }

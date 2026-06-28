@@ -47,6 +47,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   bool _isActive = true;
   List<String> _selectedShopTypes = [];
   String? _shopCurrencySymbol;
+  String? _shopCurrencyCode;
 
   // Image handling
   final List<String> _existingImageUrls = [];
@@ -73,13 +74,19 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   }
 
   Future<void> _loadShopCurrency() async {
-    final row = await ref
-        .read(supabaseClientProvider)
-        .from('shops')
-        .select('currency_symbol')
-        .eq('id', widget.shopId)
-        .maybeSingle();
-    if (mounted) setState(() => _shopCurrencySymbol = row?['currency_symbol'] as String?);
+    final row =
+        await ref
+            .read(supabaseClientProvider)
+            .from('shops')
+            .select('currency_symbol, currency')
+            .eq('id', widget.shopId)
+            .maybeSingle();
+    if (mounted) {
+      setState(() {
+        _shopCurrencySymbol = row?['currency_symbol'] as String?;
+        _shopCurrencyCode = row?['currency'] as String?;
+      });
+    }
   }
 
   @override
@@ -193,7 +200,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     }
     if (_selectedShopTypes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select at least one category type')),
+        const SnackBar(
+          content: Text('Please select at least one category type'),
+        ),
       );
       return;
     }
@@ -289,6 +298,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final state = ref.watch(productFormNotifierProvider);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final previewStock = int.tryParse(_stockController.text.trim()) ?? 0;
+    final showDeleteButton =
+        widget.mode == FormMode.edit && widget.product != null;
 
     return Scaffold(
       backgroundColor: colorScheme.neutral,
@@ -313,6 +325,45 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (!_isActive)
+                        SemanticContainerWidget(
+                          title: 'Product hidden from buyers',
+                          content:
+                              'This product is currently inactive. Buyers will not see it in the marketplace until you turn it back on.',
+                          icon: Icons.visibility_off_outlined,
+                          backgroundColor: Colors.grey.withValues(alpha: 0.08),
+                          borderColor: Colors.grey,
+                          iconColor: Colors.grey,
+                          textTheme: theme.textTheme,
+                        )
+                      else if (previewStock == 0)
+                        SemanticContainerWidget(
+                          title: 'Out of stock',
+                          content:
+                              'This product has no stock available right now. Buyers can view it, but they will not be able to place an order until you add stock.',
+                          icon: Icons.inventory_2_outlined,
+                          backgroundColor: colorScheme.error.withValues(
+                            alpha: 0.08,
+                          ),
+                          borderColor: colorScheme.error,
+                          iconColor: colorScheme.error,
+                          textTheme: theme.textTheme,
+                        )
+                      else if (previewStock <= 5)
+                        SemanticContainerWidget(
+                          title: 'Low stock alert',
+                          content:
+                              'Only $previewStock item${previewStock == 1 ? '' : 's'} left. Restock soon so buyers do not run into availability issues.',
+                          icon: Icons.warning_amber_rounded,
+                          backgroundColor: colorScheme.warning.withValues(
+                            alpha: 0.08,
+                          ),
+                          borderColor: colorScheme.warning,
+                          iconColor: colorScheme.warning,
+                          textTheme: theme.textTheme,
+                        ),
+                      if (!_isActive || previewStock <= 5) Gap(Spacing.md.h),
+                      Gap(Spacing.md.h),
                       // Product Images Section
                       CardInkWell(
                         child: Column(
@@ -373,35 +424,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                               ),
                             ),
 
-                            // Shop-type chips
-                            Gap(Spacing.sm.h),
-                            Text(
-                              'Shop Type',
-                              style: theme.textTheme.labelMedium?.copyWith(
-                                color: colorScheme.onSurface.withValues(alpha: 0.7),
-                              ),
-                            ),
-                            Gap(Spacing.xs.h),
-                            Wrap(
-                              spacing: 8.w,
-                              runSpacing: 8.h,
-                              children: ShopTypes.all.map((type) {
-                                final selected = _selectedShopTypes.contains(type);
-                                return AppFilterChip(
-                                  label: type,
-                                  selected: selected,
-                                  onSelected: (sel) => setState(() {
-                                    if (sel) {
-                                      _selectedShopTypes.add(type);
-                                    } else {
-                                      _selectedShopTypes.remove(type);
-                                    }
-                                  }),
-                                );
-                              }).toList(),
-                            ),
-                            Gap(Spacing.sm.h),
-
                             // Category Dropdown
                             DropdownButtonFormField<String>(
                               value: _selectedCategory,
@@ -441,6 +463,49 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                         ),
                       ),
 
+                      CardInkWell(
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Column(
+                            children: [
+                              // Shop-type chips
+                              Gap(Spacing.sm.h),
+                              Text(
+                                'Select the category of shops your product is associated with.',
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: colorScheme.onSurface.withValues(
+                                    alpha: 0.7,
+                                  ),
+                                ),
+                              ),
+                              Gap(Spacing.xs.h),
+                              Wrap(
+                                spacing: 8.w,
+                                runSpacing: 8.h,
+                                children:
+                                    ShopTypes.all.map((type) {
+                                      final selected = _selectedShopTypes
+                                          .contains(type);
+                                      return AppFilterChip(
+                                        label: type,
+                                        selected: selected,
+                                        onSelected:
+                                            (sel) => setState(() {
+                                              if (sel) {
+                                                _selectedShopTypes.add(type);
+                                              } else {
+                                                _selectedShopTypes.remove(type);
+                                              }
+                                            }),
+                                      );
+                                    }).toList(),
+                              ),
+                              Gap(Spacing.sm.h),
+                            ],
+                          ),
+                        ),
+                      ),
+
                       // Price
                       CardInkWell(
                         child: Row(
@@ -449,7 +514,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                               flex: 1,
                               child: AppTextFormField(
                                 controller: _priceController,
-                                label: 'Price (${_shopCurrencySymbol ?? Currency.symbol})',
+                                label:
+                                    'Price (${_shopCurrencySymbol ?? _shopCurrencyCode ?? Currency.code})',
                                 hintText: '0.00',
                                 keyboardType: TextInputType.number,
                                 validator: (value) {
@@ -494,23 +560,25 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
                       // Active Status (Edit mode only)
                       if (widget.mode == FormMode.edit)
-                        SwitchListTile(
-                          title: Text('Product Active'),
-                          subtitle: Text(
-                            'Inactive products won\'t appear in marketplace',
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.6,
+                        CardInkWell(
+                          child: SwitchListTile(
+                            title: Text('Product Active'),
+                            subtitle: Text(
+                              'Inactive products won\'t appear in marketplace',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
                               ),
                             ),
+                            value: _isActive,
+                            onChanged: (value) {
+                              setState(() {
+                                _isActive = value;
+                              });
+                            },
                           ),
-                          value: _isActive,
-                          onChanged: (value) {
-                            setState(() {
-                              _isActive = value;
-                            });
-                          },
                         ),
 
                       // Save Button
@@ -530,7 +598,61 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                         padding: Spacing.horizontalMd,
                         height: 40.h,
                       ),
-                      Gap(Spacing.xl),
+                      Gap(Spacing.sm),
+                      if (showDeleteButton) ...[
+                        AppButton(
+                          elevation: 0,
+                          label: 'Delete',
+                          customColor: colorScheme.error,
+                          onPressed: () async {
+                            BottomSheetUtils.showDocumentationBottomSheet(
+                              context: context,
+                              maxHeight: 450.h,
+                              widget: ConfirmationDialog(
+                                icon: Icons.delete,
+                                type: ConfirmationType.warning,
+                                title:
+                                    'Are you sure you want to delete this product? This action cannot be undone.',
+                                confirmText: 'Delete Product',
+                                message:
+                                    'This product would be removed from the market and peoeple would no longer be able to buy it',
+                                onConfirm: () async {
+                                  final navigator = Navigator.of(context);
+                                  await ref
+                                      .read(
+                                        productFormNotifierProvider.notifier,
+                                      )
+                                      .deleteProduct(widget.product!.id);
+                                  if (!mounted) return;
+                                  if (ref
+                                      .read(productFormNotifierProvider)
+                                      .success) {
+                                    navigator.pop(true);
+                                  }
+                                },
+                              ),
+                            );
+                          },
+                          size: ButtonSize.small,
+                          width: double.infinity,
+                          padding: Spacing.horizontalMd,
+                          height: 40.h,
+                        ),
+                        Gap(Spacing.xxl),
+                      ],
+                      SemanticContainerWidget(
+                        title: 'Payment on delivery only',
+                        content:
+                            'Marketplace product payments are not processed in-app. Buyers pay when the product is delivered or handed over.',
+                        icon: Icons.account_balance_wallet_outlined,
+                        backgroundColor: colorScheme.warning.withValues(
+                          alpha: 0.08,
+                        ),
+                        borderColor: colorScheme.warning,
+                        iconColor: colorScheme.warning,
+                        textTheme: theme.textTheme,
+                      ),
+                      Gap(Spacing.xxl * 2),
                     ],
                   ),
                 ),
@@ -599,41 +721,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           ],
         );
       },
-    );
-  }
-
-  void _showDeleteConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Delete Product'),
-            content: const Text(
-              'Are you sure you want to delete this product? This action cannot be undone.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await ref
-                      .read(productFormNotifierProvider.notifier)
-                      .deleteProduct(widget.product!.id);
-                  if (!mounted) return;
-                  if (ref.read(productFormNotifierProvider).success) {
-                    Navigator.pop(context, true);
-                  }
-                },
-                child: const Text(
-                  'Delete',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-            ],
-          ),
     );
   }
 }

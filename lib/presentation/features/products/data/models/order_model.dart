@@ -83,6 +83,9 @@ class OrderModel extends Equatable {
   final String? customerName;
   final String? customerEmail;
   final String? customerAvatarUrl;
+  final String? previewProductName;
+  final String? previewProductImage;
+  final int previewItemCount;
 
   const OrderModel({
     required this.id,
@@ -110,6 +113,9 @@ class OrderModel extends Equatable {
     this.customerName,
     this.customerEmail,
     this.customerAvatarUrl,
+    this.previewProductName,
+    this.previewProductImage,
+    this.previewItemCount = 0,
   });
 
   /// Parses a snake_case row from Supabase. Joined `shops` / `profiles`
@@ -159,6 +165,9 @@ class OrderModel extends Equatable {
       customerAvatarUrl:
           profile?['avatar_url'] as String? ??
           json['customer_avatar_url'] as String?,
+      previewProductName: json['preview_product_name'] as String?,
+      previewProductImage: json['preview_product_image'] as String?,
+      previewItemCount: (json['preview_item_count'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -203,6 +212,9 @@ class OrderModel extends Equatable {
     updatedAt,
     currencyCode,
     currencySymbol,
+    previewProductName,
+    previewProductImage,
+    previewItemCount,
   ];
 }
 

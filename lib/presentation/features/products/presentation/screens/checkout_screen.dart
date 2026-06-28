@@ -284,9 +284,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                       ),
                                     ),
                                     Text(
-                                      Currency.formatWithSymbol(
+                                      Currency.formatWithCurrency(
                                         item.subtotal,
-                                        item.currencySymbol,
+                                        currencySymbol: item.currencySymbol,
+                                        currencyCode: item.currencyCode,
                                       ),
                                       style: textTheme.bodyMedium?.copyWith(
                                         fontWeight: FontWeight.w500,
@@ -309,9 +310,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                   ),
                                 ),
                                 Text(
-                                  Currency.formatWithSymbol(
+                                  Currency.formatWithCurrency(
                                     cartState.totalAmount,
-                                    cartState.currencySymbol,
+                                    currencySymbol: cartState.currencySymbol,
+                                    currencyCode: cartState.currencyCode,
                                   ),
                                   style: textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
@@ -422,7 +424,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         content: MarketplaceStrings.codSubtitle,
                         icon: Icons.payments_outlined,
                         title: MarketplaceStrings.codTitle,
-                        backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
+                        backgroundColor: colorScheme.primary.withValues(
+                          alpha: 0.1,
+                        ),
                         borderColor: colorScheme.primary,
                         iconColor: colorScheme.primary,
                         textTheme: theme.textTheme,
@@ -436,7 +440,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           content: 'Connect to the internet and try again',
                           icon: Icons.wifi_off,
                           title: MarketplaceStrings.youreOffline,
-                          backgroundColor: colorScheme.error.withValues(alpha: 0.1),
+                          backgroundColor: colorScheme.error.withValues(
+                            alpha: 0.1,
+                          ),
                           borderColor: colorScheme.error,
                           iconColor: colorScheme.error,
                           textTheme: theme.textTheme,

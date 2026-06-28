@@ -1,3 +1,4 @@
+import 'package:nano_embryo/core/utils/haptic_feedback_utils.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/calendar/utility/calendar_export.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
@@ -99,7 +100,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
                       currentUserId: widget.currentUserId,
                       isShopOwner: widget.isShopOwner,
                       focusedMonth: data.focusedMonth,
-                      onDaySelected: (selectedDay) {
+                      onDaySelected: (selectedDay) async {
+                        await HapticFeedbackUtils.triggerSelectionFeedback();
                         _showDayAppointmentsSheet(context, selectedDay, data);
                       },
                       onMonthChanged: (month) {

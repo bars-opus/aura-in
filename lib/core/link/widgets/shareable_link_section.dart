@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:nano_embryo/app/theme/design_tokens.dart';
+import 'package:nano_embryo/core/utils/haptic_feedback_utils.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
 import 'package:nano_embryo/core/widgets/card_inkwell.dart';
 import 'package:nano_embryo/core/widgets/info_row_widget.dart';
@@ -172,6 +173,8 @@ class ShareableLinkSection extends ConsumerWidget {
                   label: 'Copy',
                   iconData: Icons.copy,
                   onPressed: () async {
+                    await HapticFeedbackUtils.triggerSelectionFeedback();
+
                     await Clipboard.setData(ClipboardData(text: url));
                     if (context.mounted) {
                       context.showSuccessSnackbar('Link copied');
@@ -188,6 +191,7 @@ class ShareableLinkSection extends ConsumerWidget {
                 child: AppButton(
                   height: 35.h,
                   label: 'Share',
+                  elevation: 0,
                   iconData: Icons.share,
                   onPressed:
                       () => Share.share(
@@ -248,6 +252,7 @@ class ShareableLinkSection extends ConsumerWidget {
 
               AppButton(
                 height: 35.h,
+                elevation: 0,
                 label: 'Save',
                 iconData: Icons.share,
                 onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),

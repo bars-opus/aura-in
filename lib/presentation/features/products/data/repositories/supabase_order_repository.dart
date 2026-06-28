@@ -75,6 +75,7 @@ class SupabaseOrderRepository implements OrderRepository {
 
       final orders = List<Map<String, dynamic>>.from(response as List);
       await _attachCustomerProfiles(orders);
+      await _attachOrderPreviewItems(orders);
 
       return orders.map(OrderModel.fromJson).toList();
     } catch (e, stack) {
@@ -180,6 +181,54 @@ class SupabaseOrderRepository implements OrderRepository {
     }
   }
 
+  Future<void> _attachOrderPreviewItems(
+    List<Map<String, dynamic>> orders,
+  ) async {
+    final orderIds =
+        orders
+            .map((order) => order['id'] as String?)
+            .whereType<String>()
+            .toList();
+    if (orderIds.isEmpty) return;
+
+    final response = await _supabase
+        .from('order_items')
+        .select('''
+          order_id,
+          created_at,
+          products (
+            name,
+            images
+          )
+        ''')
+        .inFilter('order_id', orderIds)
+        .order('created_at', ascending: true);
+
+    final rows = List<Map<String, dynamic>>.from(response);
+    final Map<String, Map<String, dynamic>> firstItemByOrderId = {};
+    final Map<String, int> itemCountByOrderId = {};
+
+    for (final row in rows) {
+      final orderId = row['order_id'] as String?;
+      if (orderId == null) continue;
+      itemCountByOrderId[orderId] = (itemCountByOrderId[orderId] ?? 0) + 1;
+      firstItemByOrderId.putIfAbsent(orderId, () => row);
+    }
+
+    for (final order in orders) {
+      final orderId = order['id'] as String?;
+      if (orderId == null) continue;
+      final firstItem = firstItemByOrderId[orderId];
+      final product = firstItem?['products'] as Map<String, dynamic>?;
+      order['preview_product_name'] = product?['name'] as String?;
+      order['preview_product_image'] =
+          product?['images'] is List
+              ? (product!['images'] as List).cast<String>().firstOrNull
+              : null;
+      order['preview_item_count'] = itemCountByOrderId[orderId] ?? 0;
+    }
+  }
+
   /// Retry-safe — the RPC has an explicit `(v_order.status = p_new_status)`
   /// no-op clause, so calling twice with the same target state is fine.
   @override
@@ -267,9 +316,10 @@ class SupabaseOrderRepository implements OrderRepository {
         operationName: 'getCustomerOrders',
       );
 
-      return (response as List)
-          .map((json) => OrderModel.fromJson(json as Map<String, dynamic>))
-          .toList();
+      final orders = List<Map<String, dynamic>>.from(response as List);
+      await _attachOrderPreviewItems(orders);
+
+      return orders.map(OrderModel.fromJson).toList();
     } catch (e, stack) {
       MarketplaceLogger.error(
         'getCustomerOrders failed',

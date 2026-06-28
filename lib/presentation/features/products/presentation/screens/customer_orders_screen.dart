@@ -1,16 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
+import 'package:nano_embryo/core/utils/date_formatter.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
+import 'package:nano_embryo/payment/presentation/widgets/info_row.dart';
 import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
-import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
-import 'package:nano_embryo/core/widgets/feedback/empty_state.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
-import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/paginated_list_notifier.dart';
+import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_image_container.dart';
 
 class CustomerOrdersScreen extends ConsumerStatefulWidget {
   const CustomerOrdersScreen({super.key});
@@ -30,15 +28,6 @@ class CustomerOrdersTab extends ConsumerStatefulWidget {
 }
 
 class _CustomerOrdersTabState extends ConsumerState<CustomerOrdersTab> {
-  OrderStatus? _selectedStatusFilter;
-
-  /// Filter is client-side: applies to whatever pages are currently
-  /// loaded. Choosing a status no other order in the loaded pages
-  /// matches will surface an empty state — user can scroll to load
-  /// more or pull to refresh.
-  bool _matchesFilter(OrderModel o) =>
-      _selectedStatusFilter == null || o.status == _selectedStatusFilter;
-
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
@@ -46,18 +35,9 @@ class _CustomerOrdersTabState extends ConsumerState<CustomerOrdersTab> {
 
     if (user == null) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.lock_outline, size: 64.w),
-            SizedBox(height: 16.h),
-            const Text('Please log in to view your orders'),
-            SizedBox(height: 16.h),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Login'),
-            ),
-          ],
+        child: EmptyStateWidget(
+          title: 'Please log in to view your orders',
+          subtitle: '',
         ),
       );
     }
@@ -65,38 +45,70 @@ class _CustomerOrdersTabState extends ConsumerState<CustomerOrdersTab> {
     final state = ref.watch(customerOrdersPagedProvider(user.id));
     final notifier = ref.read(customerOrdersPagedProvider(user.id).notifier);
 
-    return Column(
-      children: [
-        if (widget.showStatusFilter) _buildStatusFilter(),
-        Expanded(child: _buildBody(state, notifier, theme)),
-      ],
+    if (!widget.showStatusFilter) {
+      return _buildBody(state, notifier, theme, statusFilter: null);
+    }
+
+    return TabsWithContent(
+      tabs: _buildTabs(state, notifier, theme),
+      initialIndex: 0,
+      scrollable: true,
+      showContent: true,
     );
+  }
+
+  List<AppTabItem> _buildTabs(
+    PagedListState<OrderModel> state,
+    CustomerOrdersPagedNotifier notifier,
+    ThemeData theme,
+  ) {
+    return [
+      AppTabItem(
+        label: 'All',
+        icon: Icons.receipt_long_outlined,
+        content: _buildBody(state, notifier, theme, statusFilter: null),
+      ),
+      ...OrderStatus.values.map(
+        (status) => AppTabItem(
+          label: status.displayName,
+          icon: _iconForStatus(status),
+          content: _buildBody(state, notifier, theme, statusFilter: status),
+        ),
+      ),
+    ];
   }
 
   Widget _buildBody(
     PagedListState<OrderModel> state,
     CustomerOrdersPagedNotifier notifier,
-    ThemeData theme,
-  ) {
+    ThemeData theme, {
+    required OrderStatus? statusFilter,
+  }) {
     if (state.isInitialLoading) {
       return const Center(child: CircularLoadingIndicator());
     }
     if (state.error != null && state.items.isEmpty) {
-      return _ErrorRetry(
-        message: state.error!,
-        onRetry: notifier.refresh,
+      return Center(
+        child: ErrorStateWidget(
+          title: state.error!,
+          onPrimaryAction: notifier.refresh,
+        ),
       );
     }
 
-    final filtered = state.items.where(_matchesFilter).toList();
+    final filtered =
+        statusFilter == null
+            ? state.items
+            : state.items.where((o) => o.status == statusFilter).toList();
 
     if (filtered.isEmpty && !state.hasMore) {
       return EmptyStateWidget(
         icon: Icons.shopping_bag_outlined,
         title: 'No orders',
-        subtitle: _selectedStatusFilter == null
-            ? "You haven't placed any orders yet"
-            : 'No ${_selectedStatusFilter!.displayName.toLowerCase()} orders',
+        subtitle:
+            statusFilter == null
+                ? "You haven't placed any orders yet"
+                : 'No ${statusFilter.displayName.toLowerCase()} orders',
         actionLabel: 'Start Shopping',
         onAction: () => context.pushNamed('marketplace'),
       );
@@ -128,233 +140,155 @@ class _CustomerOrdersTabState extends ConsumerState<CustomerOrdersTab> {
     );
   }
 
-  Widget _buildStatusFilter() {
-    final orderStatuses = OrderStatus.values;
-    return Container(
-      height: 45.h,
-      margin: EdgeInsets.only(bottom: 8.h),
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
-        itemCount: orderStatuses.length + 1,
-        separatorBuilder: (_, __) => SizedBox(width: 8.w),
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return FilterChip(
-              label: const Text('All'),
-              selected: _selectedStatusFilter == null,
-              onSelected: (_) =>
-                  setState(() => _selectedStatusFilter = null),
-            );
-          }
-          final status = orderStatuses[index - 1];
-          return FilterChip(
-            label: Text(status.displayName),
-            selected: _selectedStatusFilter == status,
-            onSelected: (_) =>
-                setState(() => _selectedStatusFilter = status),
-            backgroundColor: Colors.grey.shade100,
-            selectedColor: status
-                .getColor(Theme.of(context).colorScheme)
-                .withValues(alpha: 0.2),
-            labelStyle: TextStyle(
-              color: _selectedStatusFilter == status
-                  ? status.getColor(Theme.of(context).colorScheme)
-                  : null,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildOrderCard(OrderModel order, ThemeData theme) {
     final statusColor = order.status.getColor(theme.colorScheme);
-    return Card(
-      margin: EdgeInsets.only(bottom: 12.h),
-      child: InkWell(
-        onTap: () => context.pushNamed('customerOrderDetail', extra: order.id),
-        borderRadius: BorderRadius.circular(12.r),
-        child: Semantics(
-          button: true,
-          label:
-              'Order ${order.id.substring(0, 8)}, ${order.status.displayName}, '
-              '${Currency.formatWithSymbol(order.totalAmount, order.currencySymbol)}',
-          child: Padding(
-            padding: EdgeInsets.all(12.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Order #${order.id.substring(0, 8)}',
-                      style: theme.textTheme.titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w600),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 8.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                      child: Text(
-                        order.status.displayName,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: statusColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
+    final colorScheme = theme.colorScheme;
+    return CardInkWell(
+      onTap: () => context.pushNamed('customerOrderDetail', extra: order.id),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Order #${order.id.substring(0, 8)}',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
                 ),
-                SizedBox(height: 8.h),
-                Row(
-                  children: [
-                    Icon(Icons.store_outlined,
-                        size: 14.w, color: Colors.grey.shade600),
-                    SizedBox(width: 4.w),
-                    Expanded(
-                      child: Text(
-                        order.shopName ?? 'Shop',
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                    ),
-                  ],
+              ),
+              Text(
+                Currency.formatWithSymbol(
+                  order.totalAmount,
+                  order.currencySymbol,
                 ),
-                SizedBox(height: 8.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _formatDate(order.orderDate),
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: Colors.grey.shade600),
-                    ),
-                    Text(
-                      Currency.formatWithSymbol(order.totalAmount, order.currencySymbol),
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                  ],
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
                 ),
-                if (order.status == OrderStatus.pending_confirmation)
-                  Padding(
-                    padding: EdgeInsets.only(top: 8.h),
-                    child: Semantics(
-                      button: true,
-                      label: 'Cancel order',
-                      child: OutlinedButton(
-                        onPressed: () => _showCancelConfirmation(order.id),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red),
-                          minimumSize: Size(double.infinity, 32.h),
-                        ),
-                        child: const Text('Cancel Order'),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
-      ),
-    );
-  }
+          Gap(Spacing.sm),
+          AppDivider(),
+          Gap(Spacing.sm),
+          Row(
+            children: [
+              SizedBox(
+                width: 45.h,
+                height: 45.h,
+                child: ShopImageContainer(
+                  imageUrl: order.previewProductImage ?? '',
+                  isPreview: false,
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+              ),
+              Gap(Spacing.md.w),
+              Text(
+                order.previewProductName ?? 'Ordered product',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+          Gap(Spacing.md),
+          InfoRow(label: 'Shop name', value: order.shopName ?? ''),
+          InfoRow(
+            label: 'Order date',
+            value: MyDateFormat.toDate(order.orderDate),
+          ),
+          MiniContainerIndicator(
+            color: statusColor,
+            text: order.status.displayName,
+          ),
 
-  void _showCancelConfirmation(String orderId) {
-    showDialog(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        title: const Text('Cancel Order'),
-        content: const Text('Are you sure you want to cancel this order?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogCtx),
-            child: const Text('No'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(dialogCtx);
-              try {
-                await ref
-                    .read(orderRepositoryProvider)
-                    .cancelOrderByCustomer(orderId);
-                if (!mounted) return;
-                final u = ref.read(currentUserProvider);
-                if (u != null) {
-                  await ref
-                      .read(customerOrdersPagedProvider(u.id).notifier)
-                      .refresh();
-                }
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Order cancelled')),
-                );
-              } catch (e, stack) {
-                MarketplaceLogger.error('cancelOrderByCustomer failed',
-                    error: e, stack: stack);
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to cancel: $e')),
-                );
-              }
-            },
-            child: const Text('Yes, Cancel'),
-          ),
+          if (order.status == OrderStatus.pending_confirmation)
+            Padding(
+              padding: EdgeInsets.only(top: Spacing.lg),
+              child: Semantics(
+                button: true,
+                label: 'Cancel order',
+                child: AppButton(
+                  height: 30.h,
+
+                  label: 'Cancel Order',
+                  onPressed: () async {
+                    BottomSheetUtils.showDocumentationBottomSheet(
+                      context: context,
+                      widget: ConfirmationDialog(
+                        type: ConfirmationType.warning,
+                        title: 'Are you sure you want to cancel this order?',
+                        confirmText: 'Cancel Order',
+                        message: '',
+                        onConfirm: () async {
+                          Navigator.pop(context);
+                          try {
+                            await ref
+                                .read(orderRepositoryProvider)
+                                .cancelOrderByCustomer(order.id);
+                            if (!mounted) return;
+                            final u = ref.read(currentUserProvider);
+                            if (u != null) {
+                              await ref
+                                  .read(
+                                    customerOrdersPagedProvider(u.id).notifier,
+                                  )
+                                  .refresh();
+                            }
+                            if (!mounted) return;
+                            context.showInfoSnackbar('Order cancelled');
+                          } catch (e, stack) {
+                            MarketplaceLogger.error(
+                              'cancelOrderByCustomer failed',
+                              error: e,
+                              stack: stack,
+                            );
+                            if (!mounted) return;
+                            context.showErrorSnackbar('Failed to cancel: $e');
+                          }
+                        },
+                      ),
+                    );
+                  },
+                  padding: Spacing.horizontalMd,
+                  variant: ButtonVariant.outline,
+                  outlineColor: colorScheme.error,
+                  textColor: colorScheme.error,
+                  size: ButtonSize.small,
+                  width: double.infinity,
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  String _formatDate(DateTime date) =>
-      '${date.day}/${date.month}/${date.year}';
+  IconData _iconForStatus(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pending_confirmation:
+        return Icons.pending_actions_outlined;
+      case OrderStatus.confirmed:
+        return Icons.check_circle_outline;
+      case OrderStatus.out_for_delivery:
+        return Icons.local_shipping_outlined;
+      case OrderStatus.delivered:
+        return Icons.inventory_2_outlined;
+      case OrderStatus.cancelled:
+        return Icons.cancel_outlined;
+      case OrderStatus.disputed:
+        return Icons.report_problem_outlined;
+    }
+  }
 }
 
 class _CustomerOrdersScreenState extends ConsumerState<CustomerOrdersScreen> {
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          MarketplaceStrings.myOrders,
-          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-        ),
-      ),
-      body: const CustomerOrdersTab(),
-    );
+    return Scaffold(body: const CustomerOrdersTab());
   }
-}
-
-class _ErrorRetry extends StatelessWidget {
-  final String message;
-  final Future<void> Function() onRetry;
-  const _ErrorRetry({required this.message, required this.onRetry});
-  @override
-  Widget build(BuildContext context) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 48.w),
-            SizedBox(height: 16.h),
-            const Text('Failed to load'),
-            SizedBox(height: 8.h),
-            Text(message,
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center),
-            SizedBox(height: 16.h),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: Text(MarketplaceStrings.retry),
-            ),
-          ],
-        ),
-      );
 }

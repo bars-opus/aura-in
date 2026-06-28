@@ -50,8 +50,11 @@ class ProductModel extends Equatable {
 
   /// Price formatted in the owning shop's currency (falls back to the default
   /// marketplace symbol when the shop currency is unknown).
-  String get formattedPrice =>
-      Currency.formatWithSymbol(price, shopCurrencySymbol);
+  String get formattedPrice => Currency.formatWithCurrency(
+    price,
+    currencySymbol: shopCurrencySymbol,
+    currencyCode: shopCurrencyCode,
+  );
 
   /// Parses a row in the snake_case shape returned by Supabase.
   /// If the row was selected with a `shops!inner(...)` join the
@@ -64,7 +67,9 @@ class ProductModel extends Equatable {
       name: json['name'] as String,
       description: json['description'] as String?,
       price: (json['price'] as num).toDouble(),
-      images: (json['images'] as List?)?.map((e) => e as String).toList() ?? const [],
+      images:
+          (json['images'] as List?)?.map((e) => e as String).toList() ??
+          const [],
       category: json['category'] as String,
       isActive: json['is_active'] as bool? ?? true,
       stockQuantity: (json['stock_quantity'] as num?)?.toInt() ?? 0,
@@ -75,7 +80,9 @@ class ProductModel extends Equatable {
       updatedAt: DateTime.parse(json['updated_at'] as String),
       shopName: shop?['shop_name'] as String?,
       shopVerified: shop?['verified'] as bool?,
-      shopTypes: (json['shop_types'] as List?)?.map((e) => e as String).toList() ?? const [],
+      shopTypes:
+          (json['shop_types'] as List?)?.map((e) => e as String).toList() ??
+          const [],
       shopCurrencySymbol: shop?['currency_symbol'] as String?,
       shopCurrencyCode: shop?['currency'] as String?,
       distanceKm: (json['distance_km'] as num?)?.toDouble(),
@@ -83,48 +90,48 @@ class ProductModel extends Equatable {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'shop_id': shopId,
-        'name': name,
-        'description': description,
-        'price': price,
-        'images': images,
-        'category': category,
-        'is_active': isActive,
-        'stock_quantity': stockQuantity,
-        'total_orders_count': totalOrdersCount,
-        'average_rating': averageRating,
-        'review_count': reviewCount,
-        'created_at': createdAt.toIso8601String(),
-        'updated_at': updatedAt.toIso8601String(),
-        'shop_types': shopTypes,
-      };
+    'id': id,
+    'shop_id': shopId,
+    'name': name,
+    'description': description,
+    'price': price,
+    'images': images,
+    'category': category,
+    'is_active': isActive,
+    'stock_quantity': stockQuantity,
+    'total_orders_count': totalOrdersCount,
+    'average_rating': averageRating,
+    'review_count': reviewCount,
+    'created_at': createdAt.toIso8601String(),
+    'updated_at': updatedAt.toIso8601String(),
+    'shop_types': shopTypes,
+  };
 
   bool get isInStock => stockQuantity > 0;
 
   @override
   List<Object?> get props => [
-        id,
-        shopId,
-        name,
-        description,
-        price,
-        images,
-        category,
-        isActive,
-        stockQuantity,
-        totalOrdersCount,
-        averageRating,
-        reviewCount,
-        createdAt,
-        updatedAt,
-        shopName,
-        shopVerified,
-        shopTypes,
-        shopCurrencySymbol,
-        shopCurrencyCode,
-        distanceKm,
-      ];
+    id,
+    shopId,
+    name,
+    description,
+    price,
+    images,
+    category,
+    isActive,
+    stockQuantity,
+    totalOrdersCount,
+    averageRating,
+    reviewCount,
+    createdAt,
+    updatedAt,
+    shopName,
+    shopVerified,
+    shopTypes,
+    shopCurrencySymbol,
+    shopCurrencyCode,
+    distanceKm,
+  ];
 }
 
 enum ProductCategory {
@@ -137,9 +144,6 @@ enum ProductCategory {
   const ProductCategory(this.displayName);
 
   static ProductCategory fromString(String value) {
-    return values.firstWhere(
-      (e) => e.name == value,
-      orElse: () => hair,
-    );
+    return values.firstWhere((e) => e.name == value, orElse: () => hair);
   }
 }

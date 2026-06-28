@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
+import 'package:nano_embryo/core/widgets/card_inkwell.dart';
 import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
+import 'package:nano_embryo/core/widgets/info_row_widget.dart';
 import 'package:nano_embryo/presentation/features/chat/presentation/services/business_chat_launcher.dart';
 import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/cart_item_model.dart';
@@ -250,124 +253,143 @@ class _CustomerOrderDetailScreenState
     final orderDataAsync = ref.watch(orderWithItemsProvider(widget.orderId));
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
+      backgroundColor: colorScheme.neutral,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Text(
           'Order #${widget.orderId.substring(0, 8)}',
-          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+          style: textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
         ),
       ),
-      body: orderDataAsync.when(
-        data: (data) {
-          final order = data['order'] as OrderModel;
-          final items = data['items'] as List<OrderItemModel>;
 
-          return CustomScrollView(
-            slivers: [
-              // Order Status Timeline
-              SliverToBoxAdapter(child: _buildStatusTimeline(order, theme)),
+      body: Padding(
+        padding: const EdgeInsets.all(Spacing.md),
+        child: orderDataAsync.when(
+          data: (data) {
+            final order = data['order'] as OrderModel;
+            final items = data['items'] as List<OrderItemModel>;
 
-              // Shop info
-              SliverToBoxAdapter(child: _buildShopInfo(order, theme)),
+            return CustomScrollView(
+              slivers: [
+                // Order Status Timeline
+                SliverToBoxAdapter(child: _buildStatusTimeline(order, theme)),
 
-              // Order items
-              SliverPadding(
-                padding: EdgeInsets.all(16.w),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final item = items[index];
-                    return _buildOrderItem(item, theme, order.currencySymbol);
-                  }, childCount: items.length),
-                ),
-              ),
-
-              // Delivery info
-              SliverToBoxAdapter(child: _buildDeliveryInfo(order, theme)),
-
-              // Reorder button (if delivered)
-              if (order.status == OrderStatus.delivered)
+                // Order items
                 SliverPadding(
-                  padding: EdgeInsets.all(16.w),
-                  sliver: SliverToBoxAdapter(
-                    child: AppButton(
-                      label:
-                          _isReordering ? 'Adding to Cart...' : 'Reorder Items',
-                      onPressed: _isReordering ? null : () => _reorder(order),
-                      width: double.infinity,
-                    ),
+                  padding: EdgeInsets.all(0),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final item = items[index];
+                      return _buildOrderItem(
+                        item,
+                        theme,
+                        order.currencySymbol,
+                        order.currencyCode,
+                      );
+                    }, childCount: items.length),
                   ),
-                ),
+                ), // Shop info
+                SliverToBoxAdapter(child: _buildShopInfo(order, theme)),
 
-              // Cancel button (if pending)
-              if (order.status == OrderStatus.pending_confirmation)
-                SliverPadding(
-                  padding: EdgeInsets.all(16.w),
-                  sliver: SliverToBoxAdapter(
-                    child: OutlinedButton(
-                      onPressed: () => _showCancelDialog(order.id),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                        side: BorderSide(color: Colors.red),
-                        minimumSize: Size(double.infinity, 45.h),
-                      ),
-                      child: const Text('Cancel Order'),
-                    ),
-                  ),
-                ),
+                // Delivery info
+                SliverToBoxAdapter(child: _buildAddressSection(order, theme)),
 
-              // Report issue (once the order is in motion)
-              if (_canReport(order) && order.status != OrderStatus.disputed)
-                SliverPadding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 4.h,
-                  ),
-                  sliver: SliverToBoxAdapter(
-                    child: Semantics(
-                      button: true,
-                      label: MarketplaceStrings.reportIssue,
-                      child: TextButton.icon(
-                        icon: const Icon(Icons.flag_outlined),
-                        label: const Text(MarketplaceStrings.reportIssue),
-                        onPressed: () => _reportIssue(order),
+                SliverToBoxAdapter(child: Gap(Spacing.xl)),
+
+                // Reorder button (if delivered)
+                if (order.status == OrderStatus.delivered)
+                  SliverPadding(
+                    padding: EdgeInsets.only(top: Spacing.md),
+                    sliver: SliverToBoxAdapter(
+                      child: AppButton(
+                        elevation: 0,
+                        label:
+                            _isReordering
+                                ? 'Adding to Cart...'
+                                : 'Reorder Items',
+                        onPressed: _isReordering ? null : () => _reorder(order),
+                        size: ButtonSize.small,
+                        width: double.infinity,
+                        padding: Spacing.horizontalMd,
+                        height: 40.h,
                       ),
                     ),
                   ),
-                ),
 
-              SliverToBoxAdapter(child: SizedBox(height: 80.h)),
-
-              SliverToBoxAdapter(child: _buildReviewSection(order, items)),
-            ],
-          );
-        },
-        loading: () => Center(child: const CircularLoadingIndicator()),
-        error:
-            (error, stack) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 48.w),
-                  SizedBox(height: 16.h),
-                  Text('Failed to load order details'),
-                  SizedBox(height: 8.h),
-                  Text(error.toString(), style: textTheme.bodySmall),
-                  SizedBox(height: 16.h),
-                  ElevatedButton(
-                    onPressed: () {
-                      ref.invalidate(orderWithItemsProvider(widget.orderId));
-                    },
-                    child: const Text('Retry'),
+                // Cancel button (if pending)
+                if (order.status == OrderStatus.pending_confirmation)
+                  SliverPadding(
+                    padding: EdgeInsets.only(top: Spacing.md),
+                    sliver: SliverToBoxAdapter(
+                      child: AppButton(
+                        elevation: 0,
+                        customColor: colorScheme.error,
+                        label: 'Cancel Order',
+                        onPressed: () => _showCancelDialog(order.id),
+                        size: ButtonSize.small,
+                        width: double.infinity,
+                        padding: Spacing.horizontalMd,
+                        height: 40.h,
+                      ),
+                    ),
                   ),
-                ],
+
+                SliverPadding(
+                  padding: EdgeInsets.only(top: Spacing.md),
+                  sliver: SliverToBoxAdapter(
+                    child: _buildContactButtons(order),
+                  ),
+                ),
+                // Report issue (once the order is in motion)
+                if (_canReport(order) && order.status != OrderStatus.disputed)
+                  SliverPadding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 4.h,
+                    ),
+                    sliver: SliverToBoxAdapter(
+                      child: Semantics(
+                        button: true,
+                        label: MarketplaceStrings.reportIssue,
+                        child: TextButton.icon(
+                          icon: const Icon(Icons.flag_outlined),
+                          label: const Text(MarketplaceStrings.reportIssue),
+                          onPressed: () => _reportIssue(order),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                SliverToBoxAdapter(child: Gap(Spacing.xxl)),
+
+                SliverToBoxAdapter(child: _buildReviewSection(order, items)),
+              ],
+            );
+          },
+          loading: () => Center(child: const CircularLoadingIndicator()),
+          error:
+              (error, stack) => Center(
+                child: ErrorStateWidget(
+                  title: 'Failed to load order details',
+                  subtitle: error.toString(),
+                  onPrimaryAction: () {
+                    ref.invalidate(orderWithItemsProvider(widget.orderId));
+                  },
+                ),
               ),
-            ),
+        ),
       ),
     );
   }
 
   Widget _buildStatusTimeline(OrderModel order, ThemeData theme) {
+    final colorScheme = theme.colorScheme;
     final steps = [
       {'status': 'Pending', 'completed': true, 'icon': Icons.receipt_outlined},
       {
@@ -387,19 +409,8 @@ class _CustomerOrderDetailScreenState
       },
     ];
 
-    return Container(
-      margin: EdgeInsets.all(16.w),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8.r,
-          ),
-        ],
-      ),
+    return CardInkWell(
+      margin: const EdgeInsets.all(0),
       child: Column(
         children: [
           Row(
@@ -407,8 +418,9 @@ class _CustomerOrderDetailScreenState
               Expanded(
                 child: Text(
                   'Order Status',
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
+                    color: colorScheme.onBackground,
                   ),
                 ),
               ),
@@ -455,7 +467,10 @@ class _CustomerOrderDetailScreenState
                               ),
                               child: Icon(
                                 step['icon'] as IconData,
-                                color: Colors.white,
+                                color:
+                                    step['completed'] as bool
+                                        ? colorScheme.background
+                                        : colorScheme.onPrimary,
                                 size: 20.w,
                               ),
                             ),
@@ -493,65 +508,15 @@ class _CustomerOrderDetailScreenState
   }
 
   Widget _buildShopInfo(OrderModel order, ThemeData theme) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Card(
-        child: Padding(
-          padding: EdgeInsets.all(12.w),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 24.r,
-                backgroundImage:
-                    order.shopLogo != null
-                        ? NetworkImage(order.shopLogo!)
-                        : null,
-                child:
-                    order.shopLogo == null
-                        ? Icon(Icons.store, size: 24.w)
-                        : null,
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      order.shopName ?? 'Shop',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (order.shopVerified == true)
-                      Row(
-                        children: [
-                          Icon(Icons.verified, size: 14.w, color: Colors.blue),
-                          SizedBox(width: 4.w),
-                          Text(
-                            'Verified Shop',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ),
-              IconButton(
-                tooltip: 'Message shop',
-                onPressed:
-                    () => BusinessChatLauncher.openForOrder(
-                      context,
-                      ref,
-                      order,
-                      isShopOwner: false,
-                    ),
-                icon: const Icon(Icons.message_outlined),
-              ),
-            ],
-          ),
-        ),
+    return CardInkWell(
+      margin: const EdgeInsets.all(0),
+      child: ProfileHeader(
+        mode: ProfileHeaderMode.compact,
+        avatarUrl: order.shopLogo,
+        displayName: order.shopName ?? '',
+        userId: order.shopId,
+        bio: '',
+        onProfileNavigatePressed: () {},
       ),
     );
   }
@@ -560,120 +525,99 @@ class _CustomerOrderDetailScreenState
     OrderItemModel item,
     ThemeData theme,
     String? currencySymbol,
+    String? currencyCode,
   ) {
-    return Card(
-      margin: EdgeInsets.only(bottom: 8.h),
-      child: Padding(
-        padding: EdgeInsets.all(12.w),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8.r),
-              child: Container(
-                width: 60.w,
-                height: 60.w,
-                color: Colors.grey.shade200,
-                child:
-                    item.productImage != null
-                        ? Image.network(
-                          item.productImage!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(Icons.image_outlined, size: 24.w);
-                          },
-                        )
-                        : Icon(Icons.image_outlined, size: 24.w),
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.productName,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    '${item.quantity} x ${Currency.formatWithSymbol(item.unitPrice, currencySymbol)}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              Currency.formatWithSymbol(item.subtotal, currencySymbol),
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-          ],
+    final colorScheme = theme.colorScheme;
+    return CardInkWell(
+      margin: const EdgeInsets.all(0),
+
+      padding: const EdgeInsets.all(Spacing.sm),
+      child: InfoRowWidget(
+        isNotAvatarImage: true,
+        subtitle:
+            '${item.quantity} x ${Currency.formatWithCurrency(item.unitPrice, currencySymbol: currencySymbol, currencyCode: currencyCode)}',
+        title: item.productName,
+        icon: Icons.image_outlined,
+        iconSize: 50.0,
+        imageUrl: item.productImage,
+        titleFontSize: FontSizeTokens.lg,
+        avatarRadius: 70.h,
+        subTitleMaxLines: 2,
+        disableTrailing: false,
+        showAvatar: false,
+        showDivider: false,
+        showTrailingArrow: false,
+        trailing: Text(
+          Currency.formatWithCurrency(
+            item.subtotal,
+            currencySymbol: currencySymbol,
+            currencyCode: currencyCode,
+          ),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.primary,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );
   }
 
-  Widget _buildDeliveryInfo(OrderModel order, ThemeData theme) {
-    return Card(
-      margin: EdgeInsets.all(16.w),
-      child: Padding(
-        padding: EdgeInsets.all(16.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+  Widget _buildAddressSection(OrderModel order, ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+
+    return CardInkWell(
+      margin: const EdgeInsets.all(0),
+      child: Column(
+        children: [
+          InfoRowWidget(
+            subtitle: 'Delivery Address',
+            titleMaxLines: 5,
+            title: order.deliveryAddress,
+            icon: Icons.house,
+            avatarRadius: 25.h,
+            onTap: () {},
+            disableTrailing: true,
+            showDivider: order.customerNotes == null,
+            showAvatar: false,
+            showTrailingArrow: false,
+          ),
+
+          if (order.customerNotes != null &&
+              order.customerNotes!.isNotEmpty) ...[
+            Gap(Spacing.md),
             Text(
-              'Delivery Information',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+              'Customer Notes:',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: colorScheme.onBackground,
               ),
             ),
-            SizedBox(height: 12.h),
-            Row(
-              children: [
-                Icon(
-                  Icons.location_on_outlined,
-                  size: 20.w,
-                  color: Colors.grey.shade600,
-                ),
-                SizedBox(width: 8.w),
-                Expanded(child: Text(order.deliveryAddress)),
-              ],
-            ),
-            SizedBox(height: 8.h),
-            Row(
-              children: [
-                Icon(
-                  Icons.phone_outlined,
-                  size: 20.w,
-                  color: Colors.grey.shade600,
-                ),
-                SizedBox(width: 8.w),
-                Text(order.customerPhone),
-              ],
-            ),
-            if (order.customerNotes != null &&
-                order.customerNotes!.isNotEmpty) ...[
-              SizedBox(height: 12.h),
-              Text(
-                'Order Notes:',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+            Gap(Spacing.sm),
+            Text(
+              order.customerNotes!,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onBackground,
               ),
-              SizedBox(height: 4.h),
-              Text(order.customerNotes!),
-            ],
+            ),
           ],
-        ),
+
+          Gap(Spacing.xl),
+        ],
       ),
+    );
+  }
+
+  Widget _buildContactButtons(OrderModel order) {
+    return AppButton(
+      elevation: 0,
+      label: 'Call customer',
+      onPressed: () {},
+      size: ButtonSize.small,
+      width: double.infinity,
+      padding: Spacing.horizontalMd,
+      height: 40.h,
     );
   }
 
