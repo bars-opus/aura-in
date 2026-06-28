@@ -153,7 +153,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                 if (_effectiveStatus(order) != OrderStatus.delivered &&
                     _effectiveStatus(order) != OrderStatus.cancelled)
                   SliverPadding(
-                    padding: EdgeInsets.only(top: Spacing.md),
+                    padding: EdgeInsets.only(top: Spacing.xl),
                     sliver: SliverToBoxAdapter(
                       child: _buildActionButtons(order, theme),
                     ),
@@ -198,8 +198,8 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   Widget _buildInfoSection(OrderModel order, ThemeData theme) {
     final colorScheme = theme.colorScheme;
     final statusColor = order.status.getColor(theme.colorScheme);
-
     return CardInkWell(
+      margin: const EdgeInsets.all(0),
       onTap: () {},
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -274,7 +274,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             ],
           ),
 
-          AppDivider(),
           if (order.deliveredAt != null) ...[
             AppDivider(),
             InfoRow(
@@ -302,6 +301,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   ) {
     final colorScheme = theme.colorScheme;
     return CardInkWell(
+      margin: const EdgeInsets.all(0),
       padding: const EdgeInsets.all(Spacing.sm),
       child: InfoRowWidget(
         isNotAvatarImage: true,
@@ -339,6 +339,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     final colorScheme = theme.colorScheme;
 
     return CardInkWell(
+      margin: const EdgeInsets.all(0),
       child: Column(
         children: [
           InfoRowWidget(
@@ -420,12 +421,13 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
           Expanded(
             child: AppButton(
               height: 40.h,
-              
+
               label: 'Cancel Order',
-              
+
               onPressed: () {
                 BottomSheetUtils.showDocumentationBottomSheet(
                   context: context,
+                  maxHeight: 400.h,
                   widget: ConfirmationDialog(
                     type: ConfirmationType.warning,
                     title: 'Are you sure you want to cancel this order?',
@@ -499,3 +501,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     );
   }
 }
+
+
+// Calendar shows guest bookings — quick fix, just need to check the calendar provider query
+// Wallet balance reflecting payments — verify the add_wallet_transaction RPC is actually being called on payment success

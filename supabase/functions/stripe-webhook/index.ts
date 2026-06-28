@@ -432,7 +432,24 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   });
 
   if (walletError) {
-    console.error('⚠️ Wallet transaction failed (non-fatal):', walletError);
+    // [FIN] A failed credit must not vanish into a log line — money would be
+    // silently owed to the shop with no way to detect or replay it. Land it in
+    // the dead-letter queue so retry_wallet_credit_failures() can settle it.
+    console.error('⚠️ Wallet transaction failed — enqueueing for retry:', walletError);
+    const { error: dlqError } = await supabase
+      .from('wallet_credit_failures')
+      .upsert({
+        shop_id: pending.shop_id,
+        booking_id: booking.id,
+        amount: netAmount,
+        type: 'deposit',
+        reference: sessionId,
+        description: `Stripe payment for booking ${booking.id.substring(0, 8)}`,
+        error_message: walletError.message ?? String(walletError),
+      }, { onConflict: 'shop_id,reference', ignoreDuplicates: true });
+    if (dlqError) {
+      console.error('❌ Failed to enqueue wallet credit failure (manual reconciliation needed):', dlqError);
+    }
   }
 
   // Shop dashboard notification (business-level event log)
