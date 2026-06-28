@@ -13,7 +13,17 @@ import 'package:nano_embryo/presentation/features/chat/presentation/widgets/chat
 
 class ConversationsScreen extends ConsumerStatefulWidget {
   final String currentUserId;
-  const ConversationsScreen({super.key, required this.currentUserId});
+
+  /// When set, the screen is in "pick" mode: tapping a conversation invokes
+  /// this callback (e.g. to forward a link into it) instead of opening the
+  /// chat. Used by the Send-to-chat action in the More menu.
+  final void Function(Conversation conversation)? onConversationSelected;
+
+  const ConversationsScreen({
+    super.key,
+    required this.currentUserId,
+    this.onConversationSelected,
+  });
 
   @override
   ConsumerState<ConversationsScreen> createState() =>
@@ -236,6 +246,12 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen>
         onTap: () {
           // Unfocus before navigation
           _searchFocusNode.unfocus();
+          // Pick mode: hand the chosen conversation back to the caller instead
+          // of opening it.
+          if (widget.onConversationSelected != null) {
+            widget.onConversationSelected!(conversation);
+            return;
+          }
           Navigator.push(
             context,
             MaterialPageRoute(

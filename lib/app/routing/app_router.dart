@@ -45,6 +45,7 @@ import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/presentation/features/chat/domain/entities/conversation.dart';
 import 'package:nano_embryo/presentation/features/chat/presentation/screens/chat_channel_loader.dart';
 import 'package:nano_embryo/presentation/features/chat/presentation/screens/chat_screen.dart';
+import 'package:nano_embryo/presentation/features/chat/presentation/screens/send_to_chat_screen.dart';
 import 'package:nano_embryo/presentation/features/search/presentation/screens/search_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/screens/appointment_assign_workers_screen.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/screens/drafts_screen.dart';
@@ -179,6 +180,7 @@ class RouteNames {
   static const String featureSurvey = '/featureSurvey';
   static const String feedback = '/feedback';
   static const String feedbackHistory = '/feedback/history';
+  static const String sendToChat = '/sendToChat';
   static const String adminVerificationQueue = '/adminVerificationQueue';
 
   // static const String bookingDetailScreen = '/bookingDetailScreen';
@@ -1030,27 +1032,20 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
       GoRoute(
         path: RouteNames.productDetail,
         name: 'productDetail',
-        //  builder:
-        //         (context, state) {
-        //           final params = state.extra as Map<String, String>;
-        //           return OrderDetailScreen(
-        //             orderId: params['orderId'] ?? '',
-        //             shopId: params['shopId'] ?? '',
-        //           );
-        //         },
+       
         builder: (context, state) {
           final extra = state.extra;
-          if (extra is Map<String, String?>) {
+          // Accept any Map shape — callers pass both Map<String, String?> and
+          // Map<String, dynamic>, and `is Map<String, String?>` is false for
+          // the latter. Read keys defensively and coerce to String.
+          if (extra is Map) {
             return ProductDetailScreen(
-              productId: extra['productId'] ?? '',
-              // coverImageUrl: extra['coverImageUrl'] ?? '',
+              productId: extra['productId']?.toString() ?? '',
+              coverImageUrl: extra['coverImageUrl']?.toString() ?? '',
             );
           }
           // Legacy callers that still pass a bare String.
-          return ProductDetailScreen(
-            productId: extra as String? ?? '',
-            // coverImageUrl: '',
-          );
+          return ProductDetailScreen(productId: extra is String ? extra : '');
         },
       ),
       GoRoute(
@@ -1094,10 +1089,11 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         path: RouteNames.shopOrderDetail,
         name: 'shopOrderDetail',
         builder: (context, state) {
-          final params = state.extra as Map<String, String>;
+          final params =
+              (state.extra as Map?)?.cast<String, dynamic>() ?? const {};
           return OrderDetailScreen(
-            orderId: params['orderId'] ?? '',
-            shopId: params['shopId'] ?? '',
+            orderId: params['orderId']?.toString() ?? '',
+            shopId: params['shopId']?.toString() ?? '',
           );
         },
       ),
@@ -1114,7 +1110,7 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
               startTime: startTime,
               endTime: endTime,
               bookingId: params['bookingId'] as String? ?? '',
-              status:  params['status'] as String? ?? '',
+              status: params['status'] as String? ?? '',
               totalAmountMinor: params['totalAmountMinor'] as int? ?? 0,
               preLoadedBookingDetail:
                   params['preLoadedBookingDetail'] as BookingModel?,
@@ -1171,6 +1167,17 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         path: RouteNames.feedbackHistory,
         name: 'feedbackHistory',
         builder: (context, state) => const FeedbackHistoryScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.sendToChat,
+        name: 'sendToChat',
+        builder: (context, state) {
+          final params = state.extra as Map<String, String>?;
+          return SendToChatScreen(
+            currentUserId: params?['currentUserId'] ?? '',
+            message: params?['message'] ?? '',
+          );
+        },
       ),
       GoRoute(
         path: RouteNames.adminVerificationQueue,

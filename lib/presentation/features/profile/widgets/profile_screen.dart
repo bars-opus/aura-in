@@ -16,6 +16,7 @@ import 'package:nano_embryo/presentation/features/profile/models/profile.dart';
 import 'package:nano_embryo/presentation/features/profile/models/profile_search_result.dart';
 import 'package:nano_embryo/presentation/features/admin/providers/admin_provider.dart';
 import 'package:nano_embryo/presentation/features/profile/widgets/tab_bar_delegate.dart';
+import 'package:nano_embryo/presentation/features/profile/providers/user_activity_counts_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final String currentUserId;
@@ -95,7 +96,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               ),
-              const SizedBox(width: 12),
+              const Gap(Spacing.sm),
               Text(loc.profileScreenStartingConversation),
             ],
           ),
@@ -230,6 +231,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     final productsState = ref.watch(
       accountProductsProvider(widget.profileUserId),
     );
+    // Real activity counts (public, via SECURITY DEFINER RPC). Falls back to
+    // zero while loading / on error so the header never blocks or shows stale
+    // placeholder numbers. Supersedes the bookingCount/shopingCount params,
+    // which were hardcoded placeholders.
+    final activityCounts =
+        ref.watch(userActivityCountsProvider(widget.profileUserId)).valueOrNull;
+    final realBookingCount = activityCounts?.bookingCount ?? 0;
+    final realOrderCount = activityCounts?.orderCount ?? 0;
     final showBuysTab =
         productsState.isInitialLoading || productsState.items.isNotEmpty;
     final tabs = buildProfileTabs(
@@ -271,9 +280,27 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
+                            Text(
+                              '@$username',
+                              style: textTheme.bodyLarge?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Gap(Spacing.sm),
+                            if (isAuthor) const NotificationBellIcon(),
+                            if (isAuthor)
+                              AppIconButton(
+                                icon: Icons.menu,
+                                onPressed:
+                                    () => context.push(
+                                      '/settings',
+                                      extra: widget.currentUserId,
+                                    ),
+                              ),
                             if (!isAuthor)
                               AppIconButton(
-                                icon: Icons.expand_more,
+                                icon: Icons.more_vert_outlined,
                                 onPressed: () {
                                   BottomSheetUtils.showDocumentationBottomSheet(
                                     padding: Spacing.md,
@@ -291,25 +318,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                                   );
                                 },
                               ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '@$username',
-                              style: textTheme.bodyLarge?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(width: 15),
-                            if (isAuthor) const NotificationBellIcon(),
-                            if (isAuthor)
-                              AppIconButton(
-                                icon: Icons.menu,
-                                onPressed:
-                                    () => context.push(
-                                      '/settings',
-                                      extra: widget.currentUserId,
-                                    ),
-                              ),
                           ],
                         ),
                       ],
@@ -321,9 +329,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                       bio: bio,
                       isCurrentUser: isAuthor,
                       avatarUrl: avatarUrl,
-                      bookingCount: bookingCount,
+                      bookingCount: realBookingCount,
                       isLoading: isLoading,
-                      shopingCount: shopingCount,
+                      shopingCount: realOrderCount,
                       onMessagePressed:
                           widget.currentUserId.isEmpty
                               ? () {
@@ -458,11 +466,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       return _buildBody(
         username: profile.username ?? '',
         displayName: profile.displayName ?? profile.username ?? '',
-        bio:
-            profile.bio ??
-            (isAuthor
-                ? loc.profileScreenEnterBioPlaceholder
-                : loc.profileScreenNoBioYet),
+        bio: profile.bio ?? '',
         avatarUrl: profile.avatarUrl ?? '',
         isAuthor: isAuthor,
         bookingCount: 1232,

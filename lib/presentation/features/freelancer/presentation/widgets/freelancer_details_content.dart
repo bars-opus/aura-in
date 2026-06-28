@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/link/entity_share_links.dart';
 import 'package:nano_embryo/core/moderation/config/moderation_config.dart';
 import 'package:nano_embryo/core/moderation/data/moderation_models.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 import 'package:nano_embryo/core/moderation/presentation/providers/moderation_provider.dart';
 import 'package:nano_embryo/core/moderation/presentation/widgets/moderation_unavailable_widget.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
@@ -101,12 +103,18 @@ class FreelancerDetailsContent extends ConsumerWidget {
                   ),
                   actions: [
                     AppIconButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        // A freelancer is backed by a shops row whose id equals
+                        // the worker id (freelancerDetails.id), so its booking
+                        // slug drives the same /book/<slug> web page as a shop.
+                        final shop = await ref.read(
+                          shopByIdProvider(freelancerDetails.id).future,
+                        );
+                        if (!context.mounted) return;
                         BottomSheetUtils.showDocumentationBottomSheet(
                           padding: Spacing.md,
                           maxHeight: 570.h,
                           context: context,
-                        
                           widget: MoreScreen(
                             moderationTarget: ModerationTarget(
                               targetType: ModerationTargetType.freelancer,
@@ -114,7 +122,9 @@ class FreelancerDetailsContent extends ConsumerWidget {
                               targetOwnerId: freelancerDetails.userId,
                               displayName: freelancerDetails.name,
                             ),
-                            //  shop.country??'',
+                            shareUrl: EntityShareLinks.shopBooking(
+                              shop?.bookingSlug,
+                            ),
                           ),
                         );
                       },

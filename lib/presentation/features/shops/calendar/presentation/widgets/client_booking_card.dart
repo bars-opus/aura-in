@@ -60,50 +60,58 @@ class ClientBookingCard extends ConsumerWidget {
         }
         _navigateToDetail(context);
       },
-      child: InfoRowWidget(
-        title: serviceName,
-        subtitle: locationText == null ? shopName : '$shopName\n$locationText',
-        imageUrl: shopLogoUrl,
-        icon: shopLogoUrl == null ? Icons.person : null,
-        showDivider: false,
-        trailing: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              amountText,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+      child: Column(
+        children: [
+          InfoRowWidget(
+            title: serviceName,
+            subtitle:
+                locationText == null ? shopName : '$shopName\n$locationText',
+            imageUrl: shopLogoUrl,
+            icon: shopLogoUrl == null ? Icons.person : null,
+            showDivider: false,
+            trailing: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  amountText,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+
+                if (_showCountdown) ...[
+                  Gap(Spacing.sm.h),
+                  CountdownStreamWidget(targetDate: endTime),
+                ],
+              ],
             ),
-            StatusWidget(status: status),
-            if (_showCountdown) ...[
-              Gap(Spacing.sm.h),
-              CountdownStreamWidget(targetDate: endTime),
-            ],
-          ],
-        ),
-        showTrailingArrow: false,
-        bottomWidget: Padding(
-          padding: EdgeInsets.only(top: Spacing.sm.h),
-          child: Column(
+            showTrailingArrow: false,
+          ),
+          Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AppDivider(),
               Gap(Spacing.sm),
-              Text(
-                timeText,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    timeText,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  StatusWidget(status: status),
+                ],
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
@@ -139,7 +147,7 @@ class ClientBookingCard extends ConsumerWidget {
       alwaysUse24HourFormat: false,
     );
 
-    return '$startLabel - $endLabel\n$dayLabel,';
+    return '$startLabel - $endLabel $dayLabel,';
   }
 
   String? _compactLocation(String address) {

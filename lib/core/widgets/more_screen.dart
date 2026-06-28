@@ -94,17 +94,23 @@ class MoreScreen extends ConsumerWidget {
 
   final ModerationTarget? moderationTarget;
 
-  const MoreScreen({super.key, this.moderationTarget});
+  /// Public web URL for the entity, used by Share / Copy / Send. When null,
+  /// those actions fall back to the app's home URL (e.g. profiles and
+  /// freelancers have no dedicated web page). Callers that have a real
+  /// destination (a shop with a booking/products slug) should pass it.
+  final String? shareUrl;
+
+  const MoreScreen({super.key, this.moderationTarget, this.shareUrl});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
 
     // Retrieve structured settings data for the current context
     // This method should handle localization, feature flags, and user permissions
     final sections = ProfileMoreData.getSettingsSections(
       context,
       moderationTarget: moderationTarget,
+      shareUrl: shareUrl,
     );
 
     return Scaffold(
@@ -127,76 +133,7 @@ class MoreScreen extends ConsumerWidget {
       // Body uses CustomScrollView for efficient rendering of multiple sections
       body: CustomScrollView(
         slivers: [
-          // SliverList(
-          //   delegate: SliverChildListDelegate([
-          //     AppButton(
-          //       elevation: 0,
-          //       label: 'Edit shop',
-          //       onPressed: () {
-          //         Navigator.push(
-          //           context,
-          //           MaterialPageRoute(
-          //             builder: (context) => EditShopScreen(shopId: shopId),
-          //           ),
-          //         );
-          //       },
-
-          //       size: ButtonSize.small,
-          //       width: double.infinity,
-          //       padding: Spacing.horizontalMd,
-          //       height: 35.h,
-          //     ),
-          //     AppButton(
-          //       elevation: 0,
-          //       label: 'Bookings',
-          //       onPressed: () {
-          //         Navigator.push(
-          //           context,
-          //           MaterialPageRoute(
-          //             builder:
-          //                 (context) => ShopScheduleHub(
-          //                   shopId: shopId,
-          //                   accountType: accountType,
-          //                 ),
-          //           ),
-          //         );
-          //       },
-
-          //       size: ButtonSize.small,
-          //       width: double.infinity,
-          //       padding: Spacing.horizontalMd,
-          //       height: 35.h,
-          //     ),
-
-          //     AppButton(
-          //       elevation: 0,
-          //       label: 'Dashboard',
-          //       onPressed: () {
-          //         Navigator.push(
-          //           context,
-          //           MaterialPageRoute(
-          //             builder:
-          //                 (context) => OwnerDashboardScreen(
-          //                   shopId: shopId,
-          //                   isFreelancer: isFreelancer,
-          //                   accountType: accountType,
-          //                   // subaccountId: '',
-          //                   shopOwnerId: shopOwnerId,
-          //                   shopName: shopName,
-          //                   shopCurrencyCode: shopCurrencyCode,
-          //                   shopCountry: shopCountry,
-          //                 ),
-          //           ),
-          //         );
-          //       },
-
-          //       size: ButtonSize.small,
-          //       width: double.infinity,
-          //       padding: Spacing.horizontalMd,
-          //       height: 35.h,
-          //     ),
-          //   ]),
-          // ),
+         
           // Dynamically generate sliver lists for each settings section
           // Using spread operator (...) to flatten the list of SliverList widgets
           ...sections.map((section) {

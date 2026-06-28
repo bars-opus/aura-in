@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/link/entity_share_links.dart';
 import 'package:nano_embryo/core/moderation/config/moderation_config.dart';
 import 'package:nano_embryo/core/moderation/data/moderation_models.dart';
 import 'package:nano_embryo/core/moderation/presentation/providers/moderation_provider.dart';
@@ -102,7 +103,10 @@ class ShopDetailsContent extends ConsumerWidget {
                               targetOwnerId: shop.userId,
                               displayName: shop.shopName,
                             ),
-                            //  shop.country??'',
+                            // Real destination: the shop's public booking page.
+                            shareUrl: EntityShareLinks.shopBooking(
+                              shop.bookingSlug,
+                            ),
                           ),
                         );
                       },

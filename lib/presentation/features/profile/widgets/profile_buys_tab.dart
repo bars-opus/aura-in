@@ -11,7 +11,7 @@ import 'package:nano_embryo/presentation/features/products/presentation/screens/
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/product_card.dart';
 import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 
-class ProfileBuysTab extends ConsumerWidget {
+class ProfileBuysTab extends ConsumerStatefulWidget {
   final String profileUserId;
   final bool isCurrentUser;
 
@@ -22,16 +22,26 @@ class ProfileBuysTab extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileBuysTab> createState() => _ProfileBuysTabState();
+}
+
+class _ProfileBuysTabState extends ConsumerState<ProfileBuysTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
     final selectedShop = ref.watch(currentShopProvider);
-    final selectedShopId = isCurrentUser ? selectedShop?.id : null;
+    final selectedShopId = widget.isCurrentUser ? selectedShop?.id : null;
     final state =
         selectedShopId == null
-            ? ref.watch(accountProductsProvider(profileUserId))
+            ? ref.watch(accountProductsProvider(widget.profileUserId))
             : ref.watch(shopProductsPagedProvider(selectedShopId));
     final PagedListNotifier<ProductModel> notifier =
         selectedShopId == null
-            ? ref.read(accountProductsProvider(profileUserId).notifier)
+            ? ref.read(accountProductsProvider(widget.profileUserId).notifier)
             : ref.read(shopProductsPagedProvider(selectedShopId).notifier);
 
     if (state.isInitialLoading) {
@@ -54,9 +64,9 @@ class ProfileBuysTab extends ConsumerWidget {
       return Center(
         child: EmptyStateWidget(
           icon: Icons.shopping_bag_outlined,
-          title: isCurrentUser ? 'No products yet' : 'Nothing for sale',
+          title: widget.isCurrentUser ? 'No products yet' : 'Nothing for sale',
           subtitle:
-              isCurrentUser
+              widget.isCurrentUser
                   ? 'Products you list for sale will appear here.'
                   : 'This account isn\'t selling any products yet.',
         ),
@@ -81,9 +91,9 @@ class ProfileBuysTab extends ConsumerWidget {
         itemCount:
             state.items.length +
             (state.hasMore ? 1 : 0) +
-            (isCurrentUser ? 1 : 0),
+            (widget.isCurrentUser ? 1 : 0),
         itemBuilder: (context, index) {
-          if (isCurrentUser && index == 0) {
+          if (widget.isCurrentUser && index == 0) {
             return _SellerManageOrdersCard(
               onTap:
                   managementShopId.isEmpty
@@ -95,7 +105,7 @@ class ProfileBuysTab extends ConsumerWidget {
             );
           }
 
-          final productIndex = isCurrentUser ? index - 1 : index;
+          final productIndex = widget.isCurrentUser ? index - 1 : index;
           if (productIndex >= state.items.length) {
             return Padding(
               padding: EdgeInsets.symmetric(vertical: 24.h),
@@ -106,7 +116,7 @@ class ProfileBuysTab extends ConsumerWidget {
           return ProductCard(
             product: product,
             onTap: () {
-              if (isCurrentUser) {
+              if (widget.isCurrentUser) {
                 // Owner: edit. Use the product's OWN shopId so multi-shop
                 // accounts edit the right shop's product.
                 context.pushNamed(
@@ -150,7 +160,7 @@ class _SellerManageOrdersCard extends StatelessWidget {
         icon: Icons.receipt_long_outlined,
         avatarRadius: 25.h,
         onTap: onTap,
-        showAvatar: false,
+        showAvatar: true,
         showTrailingArrow: true,
         showDivider: false,
       ),

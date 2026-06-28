@@ -170,7 +170,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.onBackground,
+                  color: Theme.of(context).colorScheme.onSurface,
                   width: .1,
                 ),
               ),
@@ -405,7 +405,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         break;
 
       case SearchCategory.products:
-        context.pushNamed('productDetail', extra: <String, String?>{'productId': result.id, 'coverImageUrl': ''});
+        context.pushNamed(
+          'productDetail',
+          extra: <String, String?>{
+            'productId': result.id,
+            'coverImageUrl': result.imageUrl ?? '',
+          },
+        );
         break;
       case SearchCategory.all:
         break;

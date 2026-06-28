@@ -109,6 +109,18 @@ class ProductInfoSection extends ConsumerWidget {
               totalOrdersCount: product.totalOrdersCount,
             ),
           ),
+          Gap(Spacing.md.h),
+          SemanticContainerWidget(
+            title: 'Payment on delivery only',
+            content:
+                'Marketplace product payments are not processed in-app. Buyers pay when the product is delivered or handed over.',
+            icon: Icons.account_balance_wallet_outlined,
+            backgroundColor: colorScheme.warning.withValues(alpha: 0.08),
+            borderColor: colorScheme.warning,
+            iconColor: colorScheme.warning,
+            textTheme: theme.textTheme,
+          ),
+          Gap(Spacing.xxl * 2),
         ],
       ),
     );
@@ -159,20 +171,40 @@ class _SellerHeader extends ConsumerWidget {
             longitude: shop.longitude,
             averageRating: shop.averageRating,
             numberClientsWorked: totalOrdersCount,
-            overview: shop.overview,
+            overview: '',
             id: shop.id,
             isShop: true,
           ),
         ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton.icon(
-            onPressed:
-                () =>
-                    BusinessChatLauncher.openForProduct(context, ref, product),
-            icon: const Icon(Icons.message_outlined),
-            label: const Text('Message seller'),
-          ),
+        AppDivider(),
+        SplitActionRow(
+          actions: [
+            SplitActionRowItem(
+              label: 'Message',
+              icon: Icons.message_outlined,
+              onTap:
+                  () => BusinessChatLauncher.openForProduct(
+                    context,
+                    ref,
+                    product,
+                  ),
+            ),
+            SplitActionRowItem(
+              label: 'Call',
+              icon: Icons.phone_outlined,
+              onTap: () async {
+                final phone = shop.phone?.trim() ?? '';
+                if (phone.isEmpty) {
+                  context.showInfoSnackbar('No phone number available');
+                  return;
+                }
+                await UrlLauncherUtils.launchPhone(
+                  context: context,
+                  phoneNumber: phone,
+                );
+              },
+            ),
+          ],
         ),
       ],
     );

@@ -98,17 +98,18 @@ class _CategoryResultsScreenState extends ConsumerState<CategoryResultsScreen> {
             ),
             children: [
               TextSpan(
-                text: '${loc.searchResultsTitle(widget.category.displayName)}\n',
+                text:
+                    '${loc.searchResultsTitle(widget.category.displayName)}\n',
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface.withOpacity(0.8),
+                  color: colorScheme.onSurface.withValues(alpha: 0.8),
                 ),
               ),
               TextSpan(
                 text: loc.searchResultsSearchingFor(widget.query),
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface.withOpacity(0.5),
+                  color: colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
               ),
             ],
@@ -160,7 +161,9 @@ class _CategoryResultsScreenState extends ConsumerState<CategoryResultsScreen> {
     return Center(
       child: EmptyStateWidget(
         icon: Icons.search_off,
-        title: loc.searchScreenNoResultsCategory(widget.category.displayName.toLowerCase()),
+        title: loc.searchScreenNoResultsCategory(
+          widget.category.displayName.toLowerCase(),
+        ),
         subtitle: loc.searchResultsTryDifferent,
       ),
     );
@@ -169,9 +172,7 @@ class _CategoryResultsScreenState extends ConsumerState<CategoryResultsScreen> {
   Widget _buildLoadingIndicator() {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: Spacing.md.h),
-      child: Center(
-        child: CircularLoadingIndicator()
-      ),
+      child: Center(child: CircularLoadingIndicator()),
     );
   }
 
@@ -198,7 +199,13 @@ class _CategoryResultsScreenState extends ConsumerState<CategoryResultsScreen> {
       case SearchCategory.freelancers:
         break;
       case SearchCategory.products:
-        context.pushNamed('productDetail', extra: <String, String?>{'productId': result.id, 'coverImageUrl': ''});
+        context.pushNamed(
+          'productDetail',
+          extra: <String, String?>{
+            'productId': result.id,
+            'coverImageUrl': result.imageUrl ?? '',
+          },
+        );
         break;
       case SearchCategory.all:
         break;

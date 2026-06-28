@@ -19,12 +19,12 @@ class ShopDetailsLoadingSchimmer extends StatelessWidget {
             Stack(
               children: [
                 SizedBox(
-                  height: 450.h,
+                  height: 460.h,
                   width: double.infinity,
                   child: ShopImagePageview(shopImageUrls: [coverImageUrl]),
                 ),
                 Positioned(
-                  top: 50.h,
+                  top: 60.h,
                   left: 10.h,
                   child: AppIconButton(
                     onPressed: () => Navigator.pop(context),

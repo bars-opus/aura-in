@@ -20,6 +20,11 @@ class ShopDetailsDTO extends Equatable {
   final int? totalReviews;
   final String userId;
 
+  /// True when this row is a freelancer rather than a brick-and-mortar shop
+  /// (mirrors `shops.is_freelancer`). Drives whether to open
+  /// FreelancerDetailsScreen vs ShopDetailsScreen.
+  final bool isFreelancer;
+
   // Detailed info
   final String? overview;
   final String? terms;
@@ -77,6 +82,7 @@ class ShopDetailsDTO extends Equatable {
     this.shopLogoUrl,
     required this.verified,
     this.shopType,
+    this.isFreelancer = false,
     this.luxuryLevel,
     this.averageRating,
     this.numberClientsWorked,
@@ -204,6 +210,7 @@ class ShopDetailsDTO extends Equatable {
       shopLogoUrl: json['shop_logo_url'] as String?,
       verified: json['verified'] as bool? ?? false,
       shopType: json['shop_type'] as String?,
+      isFreelancer: json['is_freelancer'] as bool? ?? false,
       luxuryLevel: json['luxury_level'] as String?,
       averageRating: (json['average_rating'] as num?)?.toDouble(),
       totalReviews: json['total_reviews'] as int?,

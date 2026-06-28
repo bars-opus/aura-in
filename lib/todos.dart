@@ -4,10 +4,12 @@
 
 
 // Give me a deatils transcript or note on this video so i can fully understand what was being said without missing any revelant detail.
-
-
-
 // insert into app_admins (user_id) values ('<your-auth-user-id>');
+
+
+
+
+
 
 
 

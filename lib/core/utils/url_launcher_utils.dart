@@ -114,6 +114,35 @@ class UrlLauncherUtils {
     );
   }
 
+  /// Open the maps app searching for a free-text address (no coordinates).
+  /// Use this when you only have a street address string — e.g. a delivery
+  /// address — instead of [launchMaps], which needs lat/lng. The Google Maps
+  /// universal search URL resolves the query and opens the device's maps app
+  /// (or browser as fallback).
+  static Future<void> launchMapsQuery({
+    required BuildContext context,
+    required String address,
+    bool showSnackbar = true,
+  }) async {
+    final trimmed = address.trim();
+    if (trimmed.isEmpty) {
+      _showError(context, 'No address to open', showSnackbar);
+      return;
+    }
+
+    final url = Uri.https('www.google.com', '/maps/search/', {
+      'api': '1',
+      'query': trimmed,
+    }).toString();
+
+    await launchUrlWithFeedback(
+      context: context,
+      url: url,
+      errorMessage: 'Cannot open maps app',
+      showSnackbar: showSnackbar,
+    );
+  }
+
   static Future<void> launchAppStore({
     required BuildContext context,
     String? appId,

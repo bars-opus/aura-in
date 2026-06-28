@@ -9,19 +9,12 @@
 //   * booking  — https://<domain>/book/<slug>  (link-booking)
 //   * products — https://<domain>/m/<slug>     (link-products, shop_products)
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gap/gap.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
 import 'package:nano_embryo/core/utils/haptic_feedback_utils.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
-import 'package:nano_embryo/core/widgets/card_inkwell.dart';
-import 'package:nano_embryo/core/widgets/info_row_widget.dart';
 import 'package:nano_embryo/presentation/features/auth/utility/auth_exports.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:nano_embryo/core/link/config/aurain_link_config.dart';
+import 'package:nano_embryo/core/link/widgets/link_qr_view.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/usecases/publish_shop_usecase.dart'
     show slugifyShopName;
 
@@ -157,6 +150,9 @@ class ShareableLinkSection extends ConsumerWidget {
           ),
 
           const Gap(Spacing.lg),
+          Center(child: LinkQrView(url: url, label: entityName)),
+
+          const Gap(Spacing.xl),
           Text(
             url,
             style: textTheme.bodyMedium?.copyWith(
@@ -165,49 +161,42 @@ class ShareableLinkSection extends ConsumerWidget {
             ),
           ),
           const Gap(Spacing.lg),
-          Row(
-            children: [
-              Expanded(
-                child: AppButton(
-                  height: 35.h,
-                  label: 'Copy',
-                  iconData: Icons.copy,
-                  onPressed: () async {
-                    await HapticFeedbackUtils.triggerSelectionFeedback();
+          AppDivider(),
+          SplitActionRow(
+            actions: [
+              SplitActionRowItem(
+                label: 'Copy link',
+                icon: Icons.copy,
+                onTap: () async {
+                  await HapticFeedbackUtils.triggerSelectionFeedback();
 
-                    await Clipboard.setData(ClipboardData(text: url));
-                    if (context.mounted) {
-                      context.showSuccessSnackbar('Link copied');
-                    }
-                  },
-                  padding: Spacing.horizontalMd,
-                  variant: ButtonVariant.outline,
-                  size: ButtonSize.small,
-                  width: double.infinity,
-                ),
+                  await Clipboard.setData(ClipboardData(text: url));
+                  if (context.mounted) {
+                    context.showSuccessSnackbar('Link copied');
+                  }
+                },
               ),
-              const Gap(Spacing.sm),
-              Expanded(
-                child: AppButton(
-                  height: 35.h,
-                  label: 'Share',
-                  elevation: 0,
-                  iconData: Icons.share,
-                  onPressed:
-                      () => Share.share(
-                        kind.shareText(entityName, url),
-                        subject: kind.shareSubject(entityName),
-                      ),
-                  padding: Spacing.horizontalMd,
-                  size: ButtonSize.small,
-                  width: double.infinity,
-                ),
+              SplitActionRowItem(
+                label: 'Share link',
+                icon: Icons.share,
+                onTap:
+                    () => Share.share(
+                      kind.shareText(entityName, url),
+                      subject: kind.shareSubject(entityName),
+                    ),
               ),
             ],
           ),
+          AppDivider(),
+          const Gap(Spacing.lg),
+
+          // Scannable QR for flyers / business cards — customers scan to open
+          // the page on the web without installing the app.
           const Gap(Spacing.md),
+
           AppTextButton(
-            text: 'Edit slug',
+            icon: Icons.edit,
+            text: 'Edit link',
             fontSize: FontSizeTokens.sm,
             onPressed: () => _showEditSlugDialog(context),
           ),
@@ -243,7 +232,7 @@ class ShareableLinkSection extends ConsumerWidget {
             ),
             actions: [
               SizedBox(
-                width: 100.w,
+                width: 120.w,
                 child: AppTextButton(
                   text: 'Cancel',
                   onPressed: () => Navigator.pop(ctx),
@@ -254,7 +243,6 @@ class ShareableLinkSection extends ConsumerWidget {
                 height: 35.h,
                 elevation: 0,
                 label: 'Save',
-                iconData: Icons.share,
                 onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
                 padding: Spacing.horizontalMd,
                 size: ButtonSize.small,

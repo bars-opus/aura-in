@@ -17,6 +17,7 @@ export 'package:nano_embryo/core/utils/constants.dart';
 export 'package:nano_embryo/app/app_info/app_info_widget.dart';
 export 'package:nano_embryo/app/app_info/app_info_screen.dart';
 export 'package:nano_embryo/core/widgets/info_row_widget.dart';
+export 'package:nano_embryo/core/widgets/split_action_row.dart';
 export 'package:nano_embryo/app/documentations/legal_documentation/widgets/all_legal_documentations_screen.dart';
 export 'package:nano_embryo/core/widgets/buttons/app_text_button.dart';
 export 'package:nano_embryo/core/widgets/circular_documentation_container.dart';

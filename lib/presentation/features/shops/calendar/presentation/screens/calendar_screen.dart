@@ -38,11 +38,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
   /// Checklist v3.1 P0-U 1.4 / 1.5.
   Widget? _authorizationGuard() {
     final currentUser = ref.watch(currentUserProvider);
-    if (currentUser == null) {
-      return const _CalendarUnauthorized();
-    }
 
     if (widget.isShopOwner) {
+      // Shop calendar: only the owner may view it. A guest or non-owner is
+      // hard-blocked (no empty-calendar courtesy view for shop schedules).
+      if (currentUser == null) return const _CalendarUnauthorized();
       final userShopsAsync = ref.watch(userShopsProvider);
       return userShopsAsync.when(
         loading: () => const SizedBox.shrink(),
@@ -54,9 +54,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
       );
     }
 
-    return widget.currentUserId == currentUser.id
-        ? null
-        : const _CalendarUnauthorized();
+    // Client calendar. The owner sees their real calendar; anyone else
+    // (including guests) falls through to the private empty-calendar view in
+    // build() — NOT a hard block — so the tab still reads as a calendar.
+    return null;
   }
 
   @override
@@ -68,6 +69,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
     final blocked = _authorizationGuard();
     if (blocked != null) {
       return Scaffold(body: blocked);
+    }
+
+    // A client viewing someone else's profile may NOT see their appointments —
+    // appointment timing is private PII (checklist 1.11). Rather than fetch and
+    // hide, we never request the data: render an empty month grid plus a
+    // privacy notice, with no booking list.
+    if (!widget.isShopOwner && !widget.isCurrentUser) {
+      return _buildPrivateCalendar(theme, colorScheme);
     }
 
     final state = ref.watch(
@@ -303,6 +312,48 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen>
     final sorted = List<dynamic>.from(bookings);
     sorted.sort((a, b) => b.startTime.compareTo(a.startTime));
     return sorted;
+  }
+
+  /// Private view shown when a non-owner (or guest) opens a client's
+  /// Appointments tab. Renders a privacy notice above the SAME CalendarMonthView
+  /// the owner sees, so the grid is pixel-identical to the working calendar.
+  ///
+  /// Privacy: booking_simple bypasses RLS, so passing the viewed user's id
+  /// would leak their appointments. We pass an EMPTY currentUserId instead —
+  /// the query filters on user_id = '' and returns zero rows — and keep the
+  /// day-tap inert so no appointment sheet can open. Identical look, no data.
+  Widget _buildPrivateCalendar(ThemeData theme, ColorScheme colorScheme) {
+    final now = DateTime.now();
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Gap(Spacing.sm),
+            Padding(
+              padding: EdgeInsets.all(Spacing.md.w),
+              child: SemanticContainerWidget(
+                content:
+                    'Only the account owner can view their own appointments.',
+                icon: Icons.lock_outline,
+                title: 'Appointments are private',
+                backgroundColor: colorScheme.primary.withValues(alpha: 0.08),
+                borderColor: colorScheme.primary,
+                iconColor: colorScheme.primary,
+                textTheme: theme.textTheme,
+              ),
+            ),
+            CalendarMonthView(
+              currentUserId: '', // empty → query returns no rows, no leak
+              isShopOwner: false,
+              focusedMonth: now,
+              isCurrentUser: false,
+              onDaySelected: (_) {}, // inert — no appointment sheet for others
+              onMonthChanged: (_) {},
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showDayAppointmentsSheet(

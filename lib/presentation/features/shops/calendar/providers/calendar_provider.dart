@@ -134,11 +134,16 @@ class CalendarController extends _$CalendarController {
     final now = DateTime.now();
     final monthRange = MonthRange(month: now);
 
-    final bookings = await _repository.getClientBookingsForRange(
-      userId: _userIdOrShopId, // This is the user ID
-      startDate: monthRange.start,
-      endDate: monthRange.end,
-    );
+    // Empty user id (e.g. the private empty-calendar view for a non-owner)
+    // returns no bookings. Without this guard the UUID-typed user_id filter
+    // would throw "invalid input syntax for type uuid".
+    final bookings = _userIdOrShopId.isEmpty
+        ? []
+        : await _repository.getClientBookingsForRange(
+            userId: _userIdOrShopId, // This is the user ID
+            startDate: monthRange.start,
+            endDate: monthRange.end,
+          );
 
     return CalendarState(
       viewType: CalendarViewType.client,
@@ -202,11 +207,14 @@ class CalendarController extends _$CalendarController {
       List<dynamic> bookings;
 
       if (state.viewType == CalendarViewType.client) {
-        bookings = await _repository.getClientBookingsForRange(
-          userId: _userIdOrShopId,
-          startDate: monthRange.start,
-          endDate: monthRange.end,
-        );
+        // Empty user id (private empty-calendar view) → no fetch, no rows.
+        bookings = _userIdOrShopId.isEmpty
+            ? []
+            : await _repository.getClientBookingsForRange(
+                userId: _userIdOrShopId,
+                startDate: monthRange.start,
+                endDate: monthRange.end,
+              );
       } else {
         // Shop owner: use the shop ID directly
         final shopId = _userIdOrShopId;

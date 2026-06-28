@@ -4,6 +4,7 @@ class AppTextButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
   final Color? textColor;
+  final IconData? icon;
   final FontWeight fontWeight;
   final double? fontSize;
   final EdgeInsetsGeometry? padding;
@@ -14,6 +15,7 @@ class AppTextButton extends StatelessWidget {
     super.key,
     this.text = 'Done',
     this.onPressed,
+    this.icon,
     this.textColor,
     this.fontWeight = FontWeight.bold,
     this.padding,
@@ -37,7 +39,12 @@ class AppTextButton extends StatelessWidget {
 
     return Align(
       alignment: alignment,
-      child: TextButton(
+      child: TextButton.icon(
+        icon: Icon(
+          icon,
+          color: textColor ?? colorScheme.primary,
+          size: fontSize,
+        ),
         onPressed:
             onPressed ??
             () {
@@ -48,7 +55,7 @@ class AppTextButton extends StatelessWidget {
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
-        child: Text(text, style: effectiveStyle),
+        label: Text(text, style: effectiveStyle),
       ),
     );
   }

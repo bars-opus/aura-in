@@ -4,12 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nano_embryo/core/utils/date_formatter.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/payment/presentation/widgets/info_row.dart';
+import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
+import 'package:nano_embryo/presentation/features/chat/presentation/services/business_chat_launcher.dart';
 import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/order_model.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/currency.dart';
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_logger.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
-import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_details_section.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
   final String orderId;
@@ -195,24 +196,59 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     );
   }
 
+  /// Open the buyer's profile. Only called when the buyer ordered with an
+  /// account (order.userId present); guest/web buyers have no profile.
+  void _openBuyerProfile(OrderModel order) {
+    final buyerId = order.userId;
+    if (buyerId == null || buyerId.isEmpty) return;
+    final currentUserId =
+        ref.read(supabaseClientProvider).auth.currentUser?.id ?? '';
+    context.pushNamed(
+      'profileScreen',
+      extra: <String, dynamic>{
+        'currentUserId': currentUserId,
+        'profileUserId': buyerId,
+      },
+    );
+  }
+
   Widget _buildInfoSection(OrderModel order, ThemeData theme) {
     final colorScheme = theme.colorScheme;
     final statusColor = order.status.getColor(theme.colorScheme);
+    // The buyer only has a viewable profile if they ordered with an account.
+    // Guest (web, no account) buyers have no profile to open.
+    final hasBuyerAccount = (order.userId ?? '').isNotEmpty;
     return CardInkWell(
       margin: const EdgeInsets.all(0),
-      onTap: () {},
+      onTap: hasBuyerAccount ? () => _openBuyerProfile(order) : null,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Gap(Spacing.sm),
-          ProfileHeader(
-            mode: ProfileHeaderMode.compact,
-            avatarUrl: order.customerAvatarUrl,
-            displayName: order.customerName ?? '',
-            userId: '',
-            bio: '',
-            onProfileNavigatePressed: () {},
+          Row(
+            children: [
+              Expanded(
+                child: ProfileHeader(
+                  mode: ProfileHeaderMode.compact,
+                  avatarUrl: order.customerAvatarUrl,
+                  displayName: order.customerName ?? '',
+                  userId: order.userId ?? '',
+                  bio: '',
+                  // Disable the header's built-in profile nav for guest buyers;
+                  // otherwise it would push /profileScreen with an empty userId.
+                  enableOnProfileNavigatePressed: hasBuyerAccount,
+                  onProfileNavigatePressed:
+                      hasBuyerAccount ? () => _openBuyerProfile(order) : null,
+                ),
+              ),
+              if (hasBuyerAccount)
+                Icon(
+                  Icons.arrow_forward_ios_outlined,
+                  size: IconSizes.md.h,
+                  color: colorScheme.onSurface.withValues(alpha: 0.3),
+                ),
+            ],
           ),
           Gap(Spacing.md),
           if (order.customerPhone.isNotEmpty) ...[
@@ -223,33 +259,43 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             AppDivider(),
             InfoRow(label: 'Customer email', value: order.customerEmail ?? ''),
           ],
-          if (order.orderDate != null) ...[
-            AppDivider(),
-            InfoRow(
-              label: 'Order date',
-              value: MyDateFormat.toDate(order.orderDate),
-            ),
-          ],
+          // Lifecycle dates in order: placed → confirmed → dispatched →
+          // delivered, with cancelled as the terminal branch. Each row shows
+          // only when its timestamp exists.
+          AppDivider(),
+          InfoRow(
+            label: 'Order date',
+            value: MyDateFormat.toDate(order.orderDate),
+          ),
           if (order.confirmedAt != null) ...[
             AppDivider(),
             InfoRow(
-              label: 'Confirm date',
-              value:
-                  order.confirmedAt == null
-                      ? ''
-                      : MyDateFormat.toDate(order.confirmedAt!),
+              label: 'Confirmed date',
+              value: MyDateFormat.toDate(order.confirmedAt!),
+            ),
+          ],
+          if (order.dispatchedAt != null) ...[
+            AppDivider(),
+            InfoRow(
+              label: 'Dispatched date',
+              value: MyDateFormat.toDate(order.dispatchedAt!),
             ),
           ],
           if (order.deliveredAt != null) ...[
             AppDivider(),
             InfoRow(
-              label: 'Confirm date',
-              value:
-                  order.dispatchedAt == null
-                      ? ''
-                      : MyDateFormat.toDate(order.dispatchedAt!),
+              label: 'Delivered date',
+              value: MyDateFormat.toDate(order.deliveredAt!),
             ),
           ],
+          if (order.cancelledAt != null) ...[
+            AppDivider(),
+            InfoRow(
+              label: 'Cancelled date',
+              value: MyDateFormat.toDate(order.cancelledAt!),
+            ),
+          ],
+
           AppDivider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -274,19 +320,21 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             ],
           ),
 
-          if (order.deliveredAt != null) ...[
-            AppDivider(),
-            InfoRow(
-              label: 'Delivery date',
-              value:
-                  order.deliveredAt == null
-                      ? ''
-                      : MyDateFormat.toDate(order.deliveredAt!),
-            ),
-          ],
-          MiniContainerIndicator(
-            color: statusColor,
-            text: order.status.displayName,
+          AppDivider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              MiniContainerIndicator(
+                color: statusColor,
+                text: order.status.displayName,
+              ),
+              if (order.status.name == 'Delivered')
+                Icon(
+                  Icons.check_circle_sharp,
+                  size: IconSizes.md.h,
+                  color: colorScheme.success,
+                ),
+            ],
           ),
         ],
       ),
@@ -313,23 +361,42 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         imageUrl: item.productImage,
         titleFontSize: FontSizeTokens.lg,
         avatarRadius: 70.h,
+        onTap:
+            item.productId.isEmpty
+                ? null
+                : () => context.pushNamed(
+                  'productDetail',
+                  extra: <String, String?>{
+                    'productId': item.productId,
+                    'coverImageUrl': item.productImage ?? '',
+                  },
+                ),
         subTitleMaxLines: 2,
         disableTrailing: false,
         showAvatar: false,
         showDivider: false,
         showTrailingArrow: false,
-        trailing: Text(
-          Currency.formatWithCurrency(
-            item.subtotal,
-            currencySymbol: currencySymbol,
-            currencyCode: currencyCode,
-          ),
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: colorScheme.primary,
-          ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
+        trailing: Row(
+          children: [
+            Text(
+              Currency.formatWithCurrency(
+                item.subtotal,
+                currencySymbol: currencySymbol,
+                currencyCode: currencyCode,
+              ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.primary,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Icon(
+              Icons.chevron_right,
+              size: IconSizes.md.h,
+              color: colorScheme.onBackground.withOpacity(0.3),
+            ),
+          ],
         ),
       ),
     );
@@ -348,8 +415,14 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             title: order.deliveryAddress,
             icon: Icons.house,
             avatarRadius: 25.h,
-            onTap: () {},
-            disableTrailing: true,
+            onTap:
+                order.deliveryAddress.trim().isEmpty
+                    ? null
+                    : () => UrlLauncherUtils.launchMapsQuery(
+                      context: context,
+                      address: order.deliveryAddress,
+                    ),
+            disableTrailing: false,
             showDivider: order.customerNotes == null,
             showAvatar: false,
             showTrailingArrow: false,
@@ -357,6 +430,8 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
 
           if (order.customerNotes != null &&
               order.customerNotes!.isNotEmpty) ...[
+            Gap(Spacing.md),
+            AppDivider(),
             Gap(Spacing.md),
             Text(
               'Customer Notes:',
@@ -374,6 +449,8 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             ),
           ],
           if (order.shopNotes != null && order.shopNotes!.isNotEmpty) ...[
+            Gap(Spacing.md),
+            AppDivider(),
             Gap(Spacing.md),
             Text(
               'Shop Notes:',
@@ -489,11 +566,40 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     return Row(children: buttons);
   }
 
+  /// Contact the buyer. Phone is preferred and always wins — a marketplace
+  /// order is time-sensitive, so even a buyer with an app account gets called
+  /// directly. Only when there is no phone do we fall back to the in-app
+  /// messenger, which requires the buyer to have an account (order.userId).
+  /// Guests with no phone and no account can't be reached here — the button
+  /// is hidden in that case.
   Widget _buildContactButtons(OrderModel order) {
+    final hasPhone = order.customerPhone.trim().isNotEmpty;
+    final hasAccount = (order.userId ?? '').isNotEmpty;
+
+    if (!hasPhone && !hasAccount) {
+      return const SizedBox.shrink();
+    }
+
     return AppButton(
       elevation: 0,
-      label: 'Call customer',
-      onPressed: () {},
+      label: hasPhone ? 'Call customer' : 'Message customer',
+      onPressed: () {
+        if (hasPhone) {
+          UrlLauncherUtils.launchPhone(
+            context: context,
+            phoneNumber: order.customerPhone.trim(),
+          );
+        } else {
+          // No phone — message the buyer in-app. BusinessChatLauncher routes
+          // the shop owner to the buyer's Sendbird channel.
+          BusinessChatLauncher.openForOrder(
+            context,
+            ref,
+            order,
+            isShopOwner: true,
+          );
+        }
+      },
       size: ButtonSize.small,
       width: double.infinity,
       padding: Spacing.horizontalMd,
@@ -501,7 +607,3 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     );
   }
 }
-
-
-// Calendar shows guest bookings — quick fix, just need to check the calendar provider query
-// Wallet balance reflecting payments — verify the add_wallet_transaction RPC is actually being called on payment success

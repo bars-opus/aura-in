@@ -11,6 +11,9 @@ import 'package:nano_embryo/presentation/features/products/data/utils/marketplac
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/product_providers.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/widgets/qty_stepper.dart';
+import 'package:nano_embryo/core/link/entity_share_links.dart';
+import 'package:nano_embryo/core/moderation/data/moderation_models.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 import 'package:nano_embryo/presentation/features/profile/widgets/tab_bar_delegate.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_image_pageview.dart';
 
@@ -112,8 +115,40 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
     context.showInfoSnackbar(msg);
   }
 
+  /// Opens the More actions sheet (Report / Block / Share). There is no
+  /// product-level moderation type, so Report/Block target the SHOP that sells
+  /// the product. The shop owner id (targetOwnerId) isn't on ProductModel, so
+  /// we resolve it from the cached shop record on tap.
+  Future<void> _openMore(ProductModel product) async {
+    final shop = await ref.read(shopByIdProvider(product.shopId).future);
+    if (!mounted) return;
+    final ownerId = shop?.userId ?? '';
+    // Block/Report act on the shop owner. Without a resolved owner id we'd let
+    // the user "block nobody" — fail clearly instead of opening a broken sheet.
+    if (ownerId.isEmpty) {
+      _toast('Could not load shop details. Please try again.');
+      return;
+    }
+    BottomSheetUtils.showDocumentationBottomSheet(
+      padding: Spacing.md,
+      maxHeight: 570.h,
+      context: context,
+      widget: MoreScreen(
+        moderationTarget: ModerationTarget(
+          targetType: ModerationTargetType.shop,
+          targetId: product.shopId,
+          targetOwnerId: ownerId,
+          displayName: product.shopName ?? shop?.shopName ?? 'Shop',
+        ),
+        // Real destination: the shop's public products page.
+        shareUrl: EntityShareLinks.shopProducts(shop?.productsSlug),
+      ),
+    );
+  }
+
   String _buttonLabel(ProductModel product) {
     if (_isAddingToCart) return MarketplaceStrings.addingToCart;
+    if (_isOwnProduct) return 'Your product';
     if (!product.isActive) return MarketplaceStrings.unavailable;
     if (product.stockQuantity == 0) return MarketplaceStrings.outOfStock;
     return '${MarketplaceStrings.addToCart} '
@@ -161,6 +196,13 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                       Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
                 ),
               ),
+              actions: [
+                AppIconButton(
+                  onPressed: () => _openMore(product),
+                  backgroundColor: colorScheme.surface.withValues(alpha: .6),
+                  icon: Icons.more_vert,
+                ),
+              ],
               flexibleSpace: FlexibleSpaceBar(
                 background: ShopImagePageview(
                   isPreview: false,
@@ -189,10 +231,21 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
     );
   }
 
+  /// A seller can't buy their own product — it would create a self-order and
+  /// distort their own stock/wallet. True when the current user owns the shop
+  /// that sells this product. Defaults to false while the shops list loads.
+  bool get _isOwnProduct {
+    final shops = ref.watch(userShopsProvider).valueOrNull;
+    if (shops == null) return false;
+    return shops.any((s) => s.id == _product.shopId);
+  }
+
   Widget _buildAddToCartBar(BuildContext context, ProductModel product) {
     final colorScheme = Theme.of(context).colorScheme;
     final outOfStock = product.stockQuantity == 0;
-    final disabled = _isAddingToCart || !product.isActive || outOfStock;
+    final isOwnProduct = _isOwnProduct;
+    final disabled =
+        _isAddingToCart || !product.isActive || outOfStock || isOwnProduct;
 
     return Container(
       padding: EdgeInsets.all(Spacing.md.h),
@@ -223,10 +276,12 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                 button: true,
                 label: _buttonLabel(product),
                 enabled: !disabled,
+
                 child: AppButton(
                   elevation: 0,
                   padding: Spacing.allSm,
                   label: _buttonLabel(product),
+                  textColor: _isOwnProduct ? colorScheme.success : null,
                   onPressed: disabled ? null : _addToCart,
                   size: ButtonSize.small,
                   width: double.infinity,

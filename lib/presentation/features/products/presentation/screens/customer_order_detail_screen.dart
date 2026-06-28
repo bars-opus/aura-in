@@ -1,12 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
+import 'package:nano_embryo/core/utils/date_formatter.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
-import 'package:nano_embryo/core/widgets/buttons/app_button.dart';
-import 'package:nano_embryo/core/widgets/card_inkwell.dart';
-import 'package:nano_embryo/core/widgets/feedback/circular_loading_indicator.dart';
-import 'package:nano_embryo/core/widgets/info_row_widget.dart';
+import 'package:nano_embryo/payment/presentation/widgets/info_row.dart';
+import 'package:nano_embryo/presentation/features/auth/providers/auth_provider.dart';
 import 'package:nano_embryo/presentation/features/chat/presentation/services/business_chat_launcher.dart';
 import 'package:nano_embryo/presentation/features/products/data/exceptions/marketplace_exceptions.dart';
 import 'package:nano_embryo/presentation/features/products/data/models/cart_item_model.dart';
@@ -17,6 +13,7 @@ import 'package:nano_embryo/presentation/features/products/data/utils/marketplac
 import 'package:nano_embryo/presentation/features/products/data/utils/marketplace_strings.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/cart_provider.dart';
 import 'package:nano_embryo/presentation/features/products/presentation/providers/order_providers.dart';
+import 'package:nano_embryo/presentation/features/shops/query/providers/shop_context_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/providers/product_review_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/widgets/product_review_bottom_sheet.dart';
 
@@ -33,6 +30,7 @@ class CustomerOrderDetailScreen extends ConsumerStatefulWidget {
 class _CustomerOrderDetailScreenState
     extends ConsumerState<CustomerOrderDetailScreen> {
   bool _isReordering = false;
+  bool _isContacting = false;
 
   Future<void> _reorder(OrderModel order) async {
     if (_isReordering) return;
@@ -300,6 +298,9 @@ class _CustomerOrderDetailScreenState
                 // Delivery info
                 SliverToBoxAdapter(child: _buildAddressSection(order, theme)),
 
+                // Lifecycle dates
+                SliverToBoxAdapter(child: _buildDatesSection(order, theme)),
+
                 SliverToBoxAdapter(child: Gap(Spacing.xl)),
 
                 // Reorder button (if delivered)
@@ -390,6 +391,7 @@ class _CustomerOrderDetailScreenState
 
   Widget _buildStatusTimeline(OrderModel order, ThemeData theme) {
     final colorScheme = theme.colorScheme;
+    final isCancelled = order.status == OrderStatus.cancelled;
     final steps = [
       {'status': 'Pending', 'completed': true, 'icon': Icons.receipt_outlined},
       {
@@ -443,81 +445,250 @@ class _CustomerOrderDetailScreenState
             ],
           ),
           SizedBox(height: 24.h),
-          Row(
-            children:
-                steps.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final step = entry.value;
-                  final isLast = index == steps.length - 1;
+          // A cancelled order never progresses through the delivery steps, so
+          // a greyed-out happy-path stepper would misrepresent it. Show an
+          // explicit cancelled state instead.
+          if (isCancelled)
+            _buildCancelledState(order, theme)
+          else
+            Row(
+              children:
+                  steps.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final step = entry.value;
+                    final isLast = index == steps.length - 1;
 
-                  return Expanded(
-                    child: Row(
-                      children: [
-                        Column(
-                          children: [
-                            Container(
-                              width: 40.w,
-                              height: 40.w,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
+                    return Expanded(
+                      child: Row(
+                        children: [
+                          Column(
+                            children: [
+                              Container(
+                                width: 40.w,
+                                height: 40.w,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color:
+                                      step['completed'] as bool
+                                          ? theme.colorScheme.primary
+                                          : Colors.grey.shade300,
+                                ),
+                                child: Icon(
+                                  step['icon'] as IconData,
+                                  color:
+                                      step['completed'] as bool
+                                          ? colorScheme.background
+                                          : colorScheme.onPrimary,
+                                  size: 20.w,
+                                ),
+                              ),
+                              SizedBox(height: 8.h),
+                              Text(
+                                step['status'] as String,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color:
+                                      step['completed'] as bool
+                                          ? theme.colorScheme.primary
+                                          : Colors.grey.shade600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                          if (!isLast)
+                            Expanded(
+                              child: Container(
+                                height: 2.h,
                                 color:
                                     step['completed'] as bool
                                         ? theme.colorScheme.primary
                                         : Colors.grey.shade300,
                               ),
-                              child: Icon(
-                                step['icon'] as IconData,
-                                color:
-                                    step['completed'] as bool
-                                        ? colorScheme.background
-                                        : colorScheme.onPrimary,
-                                size: 20.w,
-                              ),
                             ),
-                            SizedBox(height: 8.h),
-                            Text(
-                              step['status'] as String,
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color:
-                                    step['completed'] as bool
-                                        ? theme.colorScheme.primary
-                                        : Colors.grey.shade600,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                        if (!isLast)
-                          Expanded(
-                            child: Container(
-                              height: 2.h,
-                              color:
-                                  step['completed'] as bool
-                                      ? theme.colorScheme.primary
-                                      : Colors.grey.shade300,
-                            ),
-                          ),
-                      ],
+                        ],
+                      ),
+                    );
+                  }).toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Terminal cancelled state for the timeline. Communicates the order won't
+  /// progress, with the cancellation date when available.
+  Widget _buildCancelledState(OrderModel order, ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    final cancelColor = OrderStatus.cancelled.getColor(colorScheme);
+    return Container(
+      padding: EdgeInsets.all(Spacing.md.h),
+      decoration: BoxDecoration(
+        color: cancelColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40.w,
+            height: 40.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: cancelColor.withValues(alpha: 0.15),
+            ),
+            child: Icon(Icons.cancel_outlined, color: cancelColor, size: 22.w),
+          ),
+          SizedBox(width: Spacing.md.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Order cancelled',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: cancelColor,
+                  ),
+                ),
+                if (order.cancelledAt != null) ...[
+                  SizedBox(height: 2.h),
+                  Text(
+                    MyDateFormat.toDate(order.cancelledAt!),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
-                  );
-                }).toList(),
+                  ),
+                ],
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildShopInfo(OrderModel order, ThemeData theme) {
+  /// Lifecycle dates: placed → confirmed → dispatched → delivered, with
+  /// cancelled as a terminal branch. Each row appears only when its timestamp
+  /// exists. Mirrors the seller's OrderDetailScreen for parity.
+  Widget _buildDatesSection(OrderModel order, ThemeData theme) {
     return CardInkWell(
       margin: const EdgeInsets.all(0),
-      child: ProfileHeader(
-        mode: ProfileHeaderMode.compact,
-        avatarUrl: order.shopLogo,
-        displayName: order.shopName ?? '',
-        userId: order.shopId,
-        bio: '',
-        onProfileNavigatePressed: () {},
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Gap(Spacing.sm),
+          InfoRow(
+            label: 'Order date',
+            value: MyDateFormat.toDate(order.orderDate),
+          ),
+          if (order.confirmedAt != null) ...[
+            AppDivider(),
+            InfoRow(
+              label: 'Confirmed date',
+              value: MyDateFormat.toDate(order.confirmedAt!),
+            ),
+          ],
+          if (order.dispatchedAt != null) ...[
+            AppDivider(),
+            InfoRow(
+              label: 'Dispatched date',
+              value: MyDateFormat.toDate(order.dispatchedAt!),
+            ),
+          ],
+          if (order.deliveredAt != null) ...[
+            AppDivider(),
+            InfoRow(
+              label: 'Delivered date',
+              value: MyDateFormat.toDate(order.deliveredAt!),
+            ),
+          ],
+          if (order.cancelledAt != null) ...[
+            AppDivider(),
+            InfoRow(
+              label: 'Cancelled date',
+              value: MyDateFormat.toDate(order.cancelledAt!),
+            ),
+          ],
+          Gap(Spacing.sm),
+        ],
       ),
+    );
+  }
+
+  Widget _buildShopInfo(OrderModel order, ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    return CardInkWell(
+      margin: const EdgeInsets.all(0),
+      onTap: () => _openSeller(order),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: Spacing.sm.h),
+        child: Row(
+          children: [
+            Expanded(
+              child: ProfileHeader(
+                mode: ProfileHeaderMode.compact,
+                avatarUrl: order.shopLogo,
+                displayName: order.shopName ?? '',
+                userId: order.shopId,
+                bio: '',
+                // The header would otherwise auto-navigate using userId — but
+                // userId here is a shopId, not a profile. Route via _openSeller.
+                onProfileNavigatePressed: () => _openSeller(order),
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios_outlined,
+              size: IconSizes.md.h,
+              color: colorScheme.onSurface.withValues(alpha: 0.3),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Open the seller. The seller row tells us which surface fits:
+  /// freelancer → FreelancerDetailsScreen, a real shop → ShopDetailsScreen,
+  /// and a pure product seller (no bookable services) → the owner's profile.
+  Future<void> _openSeller(OrderModel order) async {
+    final shop = await ref.read(shopByIdProvider(order.shopId).future);
+    if (!mounted || shop == null) return;
+
+    if (shop.isFreelancer) {
+      context.pushNamed(
+        'freelancerDetailsScreen',
+        extra: <String, String?>{
+          'freelancerId': order.shopId,
+          'freelancurrency': shop.currency ?? '',
+          'coverImageUrl': order.previewProductImage ?? '',
+        },
+      );
+      return;
+    }
+
+    // A pure product seller has shop_type 'product_seller' and no bookable
+    // services — there's no shop storefront to show, so go to the owner's
+    // profile instead.
+    final isProductOnly =
+        shop.shopType == 'product_seller' && shop.services.isEmpty;
+    if (isProductOnly) {
+      final currentUserId =
+          ref.read(supabaseClientProvider).auth.currentUser?.id ?? '';
+      context.pushNamed(
+        'profileScreen',
+        extra: <String, dynamic>{
+          'currentUserId': currentUserId,
+          'profileUserId': shop.userId,
+        },
+      );
+      return;
+    }
+
+    context.pushNamed(
+      'shopDetailsScreen',
+      extra: <String, String?>{
+        'shopId': order.shopId,
+        'coverImageUrl': order.previewProductImage ?? '',
+      },
     );
   }
 
@@ -542,23 +713,40 @@ class _CustomerOrderDetailScreenState
         imageUrl: item.productImage,
         titleFontSize: FontSizeTokens.lg,
         avatarRadius: 70.h,
+        onTap: item.productId.isEmpty
+            ? null
+            : () => context.pushNamed(
+                  'productDetail',
+                  extra: <String, String?>{
+                    'productId': item.productId,
+                    'coverImageUrl': item.productImage ?? '',
+                  },
+                ),
         subTitleMaxLines: 2,
         disableTrailing: false,
         showAvatar: false,
         showDivider: false,
         showTrailingArrow: false,
-        trailing: Text(
-          Currency.formatWithCurrency(
-            item.subtotal,
-            currencySymbol: currencySymbol,
-            currencyCode: currencyCode,
-          ),
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: colorScheme.primary,
-          ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
+        trailing: Row(
+          children: [
+            Text(
+              Currency.formatWithCurrency(
+                item.subtotal,
+                currencySymbol: currencySymbol,
+                currencyCode: currencyCode,
+              ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.primary,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),Icon(
+              Icons.chevron_right,
+              size: IconSizes.md.h,
+              color: colorScheme.onBackground.withOpacity(0.3),
+            ),
+          ],
         ),
       ),
     );
@@ -577,8 +765,13 @@ class _CustomerOrderDetailScreenState
             title: order.deliveryAddress,
             icon: Icons.house,
             avatarRadius: 25.h,
-            onTap: () {},
-            disableTrailing: true,
+            onTap: order.deliveryAddress.trim().isEmpty
+                ? null
+                : () => UrlLauncherUtils.launchMapsQuery(
+                      context: context,
+                      address: order.deliveryAddress,
+                    ),
+            disableTrailing: false,
             showDivider: order.customerNotes == null,
             showAvatar: false,
             showTrailingArrow: false,
@@ -609,16 +802,42 @@ class _CustomerOrderDetailScreenState
     );
   }
 
+  /// Contact the shop about this order. A purchase is time-sensitive, so the
+  /// shop's phone always wins when present — even though the buyer has an
+  /// account and could chat in-app. With no shop phone, fall back to the
+  /// in-app messenger (BusinessChatLauncher routes the buyer to the shop owner).
   Widget _buildContactButtons(OrderModel order) {
     return AppButton(
       elevation: 0,
-      label: 'Call customer',
-      onPressed: () {},
+      label: _isContacting ? 'Please wait...' : 'Contact shop',
+      onPressed: _isContacting ? null : () => _contactShop(order),
       size: ButtonSize.small,
       width: double.infinity,
       padding: Spacing.horizontalMd,
       height: 40.h,
     );
+  }
+
+  Future<void> _contactShop(OrderModel order) async {
+    setState(() => _isContacting = true);
+    try {
+      final shop = await ref.read(shopByIdProvider(order.shopId).future);
+      final phone = shop?.phone?.trim() ?? '';
+      if (!mounted) return;
+      if (phone.isNotEmpty) {
+        await UrlLauncherUtils.launchPhone(context: context, phoneNumber: phone);
+      } else {
+        // No phone on file — message the shop owner in-app instead.
+        await BusinessChatLauncher.openForOrder(
+          context,
+          ref,
+          order,
+          isShopOwner: false,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isContacting = false);
+    }
   }
 
   void _showCancelDialog(String orderId) {
