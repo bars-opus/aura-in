@@ -308,6 +308,55 @@ serve(async (req) => {
           : rawBody.deliveryChannel === 'push' ? 'push'
           : undefined,
       };
+
+      // ── [FIN] amount sanity guard ───────────────────────────────────────
+      // Defense in depth against a client sending amounts in the wrong unit
+      // (the resolve-link minor/major bug charged 100× before it was fixed).
+      //
+      // We can't require total == sum(service prices): the per-service payload
+      // carries the UNIT price (no quantity field), so a quantity-2 booking
+      // legitimately has total = 2× the service sum. Instead we bound the ratio
+      // — a unit error is ~100× off, which no legitimate quantity reaches. The
+      // total must be at least the unit-price sum (you can't pay less than one
+      // of each) and no more than a generous multiple of it.
+      const servicesSumMinor = body.services.reduce(
+        (sum, s) => sum + s.priceAtBookingMinor,
+        0,
+      );
+      // Absolute per-booking ceiling — no legitimate single booking reaches
+      // GH₵100,000. Catches gross magnitude errors (e.g. a 100× unit slip on a
+      // high-priced service) even when internal fields are mutually consistent.
+      const MAX_BOOKING_MINOR = 10_000_000; // GH₵100,000 in pesewas
+      if (body.totalAmountMinor > MAX_BOOKING_MINOR) {
+        throw new Error(
+          `amount exceeds per-booking ceiling: ${body.totalAmountMinor} > ${MAX_BOOKING_MINOR}`,
+        );
+      }
+
+      const MAX_QTY_MULTIPLE = 50; // generous; a real booking won't exceed this
+      if (servicesSumMinor > 0) {
+        if (body.totalAmountMinor < servicesSumMinor) {
+          throw new Error(
+            `amount too low: total ${body.totalAmountMinor} below unit-price sum ${servicesSumMinor}`,
+          );
+        }
+        if (body.totalAmountMinor > servicesSumMinor * MAX_QTY_MULTIPLE) {
+          throw new Error(
+            `amount implausible: total ${body.totalAmountMinor} exceeds ${MAX_QTY_MULTIPLE}× service sum ${servicesSumMinor} (likely a currency-unit error)`,
+          );
+        }
+      }
+      // Deposit and platform fee can never exceed what's being charged.
+      if (body.depositAmountMinor > body.totalAmountMinor) {
+        throw new Error(
+          `deposit ${body.depositAmountMinor} exceeds total ${body.totalAmountMinor}`,
+        );
+      }
+      if (body.platformFeeMinor > body.totalAmountMinor) {
+        throw new Error(
+          `platform fee ${body.platformFeeMinor} exceeds total ${body.totalAmountMinor}`,
+        );
+      }
     } catch (sanErr) {
       return new Response(
         JSON.stringify({
