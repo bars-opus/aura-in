@@ -21,6 +21,7 @@ import type {
   Service,
 } from "@/lib/types";
 import { ServicePicker } from "./ServicePicker";
+import { AddonPicker } from "./AddonPicker";
 import { WorkerPicker } from "./WorkerPicker";
 import { SlotPicker } from "./SlotPicker";
 import { GuestForm } from "./GuestForm";
@@ -43,6 +44,9 @@ export function BookingFlow({
 }) {
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(
     null,
+  );
+  const [selectedAddonIds, setSelectedAddonIds] = useState<Set<string>>(
+    () => new Set(),
   );
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
   const [slots, setSlots] = useState<SlotEntry[]>([]);
@@ -108,6 +112,31 @@ export function BookingFlow({
     };
   }, [selectedServiceId, selectedWorkerId, data.target.id]);
 
+  // The add-ons the visitor ticked, scoped to the current service. Reset
+  // whenever the service changes (handled in onSelect below).
+  const selectedAddons = useMemo(
+    () =>
+      (selectedService?.addons ?? []).filter((a) =>
+        selectedAddonIds.has(a.id),
+      ),
+    [selectedService, selectedAddonIds],
+  );
+  const addonsTotal = useMemo(
+    () => selectedAddons.reduce((sum, a) => sum + a.price, 0),
+    [selectedAddons],
+  );
+  const addonsDurationMinutes = useMemo(
+    () =>
+      selectedAddons.reduce((sum, a) => sum + (a.durationMinutes ?? 0), 0),
+    [selectedAddons],
+  );
+
+  // Effective service price includes selected add-ons. Deposit, platform fee,
+  // and the charged total all derive from this so add-ons are billed.
+  const effectivePrice = selectedService
+    ? selectedService.price + addonsTotal
+    : 0;
+
   const canSubmit =
     !!selectedService &&
     !!selectedSlot &&
@@ -115,12 +144,8 @@ export function BookingFlow({
     !!phone &&
     (!needsAddress || !!address) &&
     !submitting;
-  const deposit = selectedService
-    ? selectedService.price * data.depositFraction
-    : 0;
-  const platformFee = selectedService
-    ? selectedService.price * data.platformFeeFraction
-    : 0;
+  const deposit = effectivePrice * data.depositFraction;
+  const platformFee = effectivePrice * data.platformFeeFraction;
   const currency = data.target.currency;
 
   async function handleSubmit() {
@@ -170,14 +195,27 @@ export function BookingFlow({
             data.workers.find(
               (w) => w.id === (selectedWorkerId ?? selectedSlot.workerId),
             )?.name ?? "",
-          priceAtBooking: selectedService.price,
-          durationMinutes: selectedService.durationMinutes,
+          // Fold add-on price + duration into the per-service values, matching
+          // the app's contract (booking_confirmation_screen.dart).
+          priceAtBooking: effectivePrice,
+          durationMinutes:
+            selectedService.durationMinutes + addonsDurationMinutes,
+          ...(selectedAddons.length > 0
+            ? {
+                addons: selectedAddons.map((a) => ({
+                  id: a.id,
+                  name: a.name,
+                  price: a.price,
+                  durationMinutes: a.durationMinutes,
+                })),
+              }
+            : {}),
         },
       ],
       startTime,
       endTime,
       actualEndTime,
-      totalAmount: selectedService.price,
+      totalAmount: effectivePrice,
       depositAmount: deposit,
       platformFee,
       paymentMethod: "paystack", // server overrides based on currency
@@ -209,8 +247,30 @@ export function BookingFlow({
         currency={currency}
         selectedId={selectedServiceId}
         lastBookedServiceName={lastService}
-        onSelect={setSelectedServiceId}
+        onSelect={(id) => {
+          setSelectedServiceId(id);
+          // Add-ons belong to a specific service — clear them on change.
+          setSelectedAddonIds(new Set());
+        }}
       />
+      {selectedService && selectedService.addons.length > 0 && (
+        <AddonPicker
+          addons={selectedService.addons}
+          currency={currency}
+          selectedIds={selectedAddonIds}
+          onToggle={(id) =>
+            setSelectedAddonIds((prev) => {
+              const next = new Set(prev);
+              if (next.has(id)) {
+                next.delete(id);
+              } else {
+                next.add(id);
+              }
+              return next;
+            })
+          }
+        />
+      )}
       {data.targetType === "shop" && (
         <WorkerPicker
           workers={data.workers}

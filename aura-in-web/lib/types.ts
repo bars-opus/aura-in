@@ -45,6 +45,16 @@ export interface Shop {
  * the data-model note in resolve-link/index.ts). `durationMinutes` is
  * parsed from the Postgres INTERVAL column on the server side.
  */
+/** An optional extra a client can add to a service (service_addons row). */
+export interface Addon {
+  id: string;
+  name: string;
+  /** Major units (already converted from minor by resolve-link). */
+  price: number;
+  /** Extra minutes this add-on adds to the appointment; null = none. */
+  durationMinutes: number | null;
+}
+
 export interface Service {
   id: string;
   name: string;
@@ -52,6 +62,10 @@ export interface Service {
   durationMinutes: number;
   price: number;
   slotType: string | null;
+  /** Group-booking capacity for this service (appointment_slots.max_clients). */
+  maxClients: number;
+  /** Optional add-ons available for this service. */
+  addons: Addon[];
 }
 
 /**
@@ -159,10 +173,17 @@ export interface CreateBookingRequest {
   services: Array<{
     slotId: string;
     workerId: string | null;
+    // priceAtBooking and durationMinutes already include any selected add-ons.
     priceAtBooking: number;
     durationMinutes: number;
     serviceName: string;
     workerName: string | null;
+    addons?: Array<{
+      id: string;
+      name: string;
+      price: number;
+      durationMinutes: number | null;
+    }>;
   }>;
   startTime: string; // ISO
   endTime: string; // ISO (slot end)

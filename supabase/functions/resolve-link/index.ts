@@ -120,10 +120,12 @@ export async function handler(req: Request): Promise<Response> {
   // 2. Parallel fetch: services (appointment_slots), workers (with
   //    freelancer_details join), and shop_locations. Click-tracking is
   //    kicked off separately and never awaited.
-  const [servicesRes, workersRes, locationsRes] = await Promise.all([
+  const [servicesRes, workersRes, locationsRes, addonsRes] = await Promise.all([
     supabase
       .from("appointment_slots")
-      .select("id, service_name, description, duration, price, slot_type")
+      .select(
+        "id, service_name, description, duration, price, slot_type, max_clients",
+      )
       .eq("shop_id", shop.id)
       // Phase 11 archive filter: public link must not list archived
       // services. Matches the SQL cascade in
@@ -151,6 +153,15 @@ export async function handler(req: Request): Promise<Response> {
       .from("shop_locations")
       .select("address, city, country, latitude, longitude, is_primary")
       .eq("shop_id", shop.id),
+    // Active add-ons for this shop's slots. service_addons has no shop_id, so
+    // we filter through the slot's shop via an inner join on appointment_slots.
+    supabase
+      .from("service_addons")
+      .select(
+        "id, slot_id, name, price, duration_minutes, appointment_slots!inner(shop_id)",
+      )
+      .eq("appointment_slots.shop_id", shop.id)
+      .eq("is_active", true),
   ]);
 
   if (servicesRes.error) {
@@ -161,6 +172,9 @@ export async function handler(req: Request): Promise<Response> {
   }
   if (locationsRes.error) {
     console.error("resolve-link: locations fetch error", locationsRes.error);
+  }
+  if (addonsRes.error) {
+    console.error("resolve-link: addons fetch error", addonsRes.error);
   }
 
   const servicesRaw = servicesRes.data ?? [];
@@ -235,6 +249,24 @@ export async function handler(req: Request): Promise<Response> {
   // cedis by 100). So we convert minor → major exactly once, here at the
   // boundary. Without this the page showed 2500.00 and, worse, create-booking
   // charged 100× (2500 * 100 kobo = GH₵2500 instead of GH₵25).
+  // Group add-ons by slot. Prices are stored in minor units (like the slot
+  // price) — convert to major here so the web treats every money value the
+  // same way (see the price note above).
+  const addonsBySlot = new Map<string, any[]>();
+  for (const a of (addonsRes.data ?? [])) {
+    const list = addonsBySlot.get(a.slot_id) ?? [];
+    const addonPriceMinor =
+      typeof a.price === "number" ? a.price : Number(a.price ?? 0);
+    list.push({
+      id: a.id,
+      name: a.name,
+      price: addonPriceMinor / 100,
+      durationMinutes:
+        typeof a.duration_minutes === "number" ? a.duration_minutes : null,
+    });
+    addonsBySlot.set(a.slot_id, list);
+  }
+
   const services = servicesRaw.map((s: any) => {
     const priceMinor = typeof s.price === "number" ? s.price : Number(s.price ?? 0);
     return {
@@ -244,6 +276,8 @@ export async function handler(req: Request): Promise<Response> {
       durationMinutes: parseDurationMinutes(s.duration),
       price: priceMinor / 100,
       slotType: s.slot_type,
+      maxClients: typeof s.max_clients === "number" ? s.max_clients : 1,
+      addons: addonsBySlot.get(s.id) ?? [],
     };
   });
 

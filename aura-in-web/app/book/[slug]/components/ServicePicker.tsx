@@ -37,13 +37,13 @@ export function ServicePicker({
               key={svc.id}
               type="button"
               onClick={() => onSelect(svc.id)}
-              className={`w-full text-left bg-white rounded-lg p-3 flex justify-between items-center border ${
+              className={`w-full text-left bg-white rounded-lg p-3 flex justify-between items-start border ${
                 selected
                   ? "border-emerald-500 ring-1 ring-emerald-500"
                   : "border-slate-200"
               }`}
             >
-              <div>
+              <div className="min-w-0 pr-3">
                 <div className="font-medium text-slate-900 flex items-center gap-2">
                   {svc.name}
                   {isLast && (
@@ -52,12 +52,20 @@ export function ServicePicker({
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-slate-500 mt-0.5">
-                  {formatDuration(svc.durationMinutes)}
+                {svc.description && (
+                  <div className="text-xs text-slate-500 mt-1 line-clamp-3">
+                    {svc.description}
+                  </div>
+                )}
+                <div className="text-xs text-slate-500 mt-1 flex items-center gap-3">
+                  <span>{formatDuration(svc.durationMinutes)}</span>
+                  {svc.maxClients > 1 && (
+                    <span>Up to {svc.maxClients} clients</span>
+                  )}
                 </div>
               </div>
               <div
-                className={`font-semibold ${
+                className={`font-semibold shrink-0 ${
                   selected ? "text-emerald-600" : "text-slate-700"
                 }`}
               >
