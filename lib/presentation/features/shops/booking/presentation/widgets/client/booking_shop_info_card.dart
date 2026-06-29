@@ -60,6 +60,18 @@ class _BookingShopInfoCardState extends ConsumerState<BookingShopInfoCard> {
             userId: widget.shopId,
             bio: widget.shopType,
             avatarUrl: widget.shopLogoUrl,
+            // The header's default tap navigates to /profileScreen using userId
+            // — but here userId is a SHOP id, not a profile id, so that path
+            // failed with "unable to load profile". Route to the shop details
+            // screen instead.
+            enableOnProfileNavigatePressed: false,
+            onProfileNavigatePressed: () => context.pushNamed(
+              'shopDetailsScreen',
+              extra: <String, String?>{
+                'shopId': widget.shopId,
+                'coverImageUrl': widget.shopLogoUrl ?? '',
+              },
+            ),
           ),
 
           ShopDetailsSection(

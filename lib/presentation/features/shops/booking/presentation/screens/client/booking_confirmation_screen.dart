@@ -11,6 +11,7 @@ import 'package:nano_embryo/payment/config/payment_config.dart';
 import 'package:nano_embryo/payment/presentation/controllers/payment_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/client_promo_code_field.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/providers/service_addons_provider.dart';
+import 'package:nano_embryo/presentation/features/shops/calendar/providers/calendar_provider.dart';
 
 class BookingConfirmationScreen extends ConsumerStatefulWidget {
   final String shopType;
@@ -443,6 +444,11 @@ class _BookingConfirmationScreenState
       );
 
       if (result != null && mounted) {
+        // The client calendar caches its month data and isn't otherwise told a
+        // new booking exists, so the just-made (confirmed) booking wouldn't
+        // appear until app restart. Invalidate all calendar instances so it
+        // refetches on next view.
+        ref.invalidate(calendarControllerProvider);
         await _showBookingSuccess(result);
       } else {
         _showError('Payment failed. Please try again.');

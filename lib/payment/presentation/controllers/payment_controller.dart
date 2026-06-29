@@ -380,9 +380,14 @@ class PaymentController
       if (attempt > 0) await Future.delayed(_config.dbConfirmInterval);
 
       try {
+        // Embed booking_services so the success/detail screen can render the
+        // services. Without this, BookingModel.bookingServices is null and
+        // ClientServiceCard shows empty (the row exists, the children didn't
+        // come along). FK booking_services.booking_id → bookings lets PostgREST
+        // resolve the embed.
         final result = await _supabase
             .from('bookings')
-            .select('*')
+            .select('*, booking_services(*)')
             .eq('payment_intent_id', paymentIntentId)
             .maybeSingle();
 

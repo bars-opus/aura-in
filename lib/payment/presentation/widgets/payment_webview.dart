@@ -35,7 +35,6 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
   bool _isLoading = true;
   bool _isComplete = false;
   bool _isVerifying = false;
-  bool _showConfirmingSheet = false;
 
   // Fast DB poll — checks bookings table at [PaymentConfig.dbPollInterval].
   Timer? _dbPollTimer;
@@ -77,7 +76,6 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
                 if (_isComplete) return;
                 setState(() {
                   _isLoading = false;
-                  if (widget.provider == 'paystack') _showConfirmingSheet = true;
                 });
                 _startDbPolling();
               },
@@ -253,92 +251,16 @@ class _PaymentWebViewState extends ConsumerState<PaymentWebView>
           },
         ),
       ),
+      // Stack keeps the loading spinner layered over the WebView. The old
+      // _ConfirmingSheet overlay was removed — DB polling + realtime already
+      // drive completion without a blocking sheet.
       body: Stack(
         children: [
           WebViewWidget(controller: _controller),
           if (_isLoading) const Center(child: CircularLoadingIndicator()),
-          if (widget.provider == 'paystack')
-            AnimatedSlide(
-              offset: _showConfirmingSheet && !_isComplete
-                  ? Offset.zero
-                  : const Offset(0, 1),
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
-              child: const Align(
-                alignment: Alignment.bottomCenter,
-                child: _ConfirmingSheet(),
-              ),
-            ),
         ],
       ),
     );
   }
 }
 
-class _ConfirmingSheet extends StatelessWidget {
-  const _ConfirmingSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 16,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      padding: EdgeInsets.fromLTRB(
-        20,
-        14,
-        20,
-        28 + MediaQuery.of(context).padding.bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 36,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.outlineVariant,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              const SizedBox(
-                width: 36,
-                height: 36,
-                child: CircularProgressIndicator(strokeWidth: 2.5),
-              ),
-              const SizedBox(width: 14),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Confirming your payment…',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'This usually takes a few seconds',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
