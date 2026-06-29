@@ -10,7 +10,7 @@
 #
 # Requirements:
 #   - .env.json at the repo root (Supabase/Mapbox/Sendbird keys — already present)
-#   - Vercel CLI logged in (npx vercel login), linked to the nano-embryo project
+#   - Vercel CLI logged in (npx vercel login), linked to the aura-in-app project
 #
 set -euo pipefail
 
@@ -45,7 +45,7 @@ cp vercel.json build/web/vercel.json
 echo "▶ Deploying build/web to Vercel (nano-embryo)…"
 # Deploy the prebuilt static directory. A fresh .vercel link avoids picking up
 # the aura-in-web project's settings if this dir was used for another deploy.
-( cd build/web && rm -rf .vercel && npx vercel $PROD_FLAG --yes --name nano-embryo )
+( cd build/web && rm -rf .vercel && npx vercel $PROD_FLAG --yes --name aura-in-app )
 
 echo "✅ Flutter web deploy complete."
 echo "   (Public once Deployment Protection is off and app.aurain.barsopus.com is attached.)"
