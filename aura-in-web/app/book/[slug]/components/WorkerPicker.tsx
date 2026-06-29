@@ -7,6 +7,7 @@
 "use client";
 
 import type { Worker } from "@/lib/types";
+import { SectionCard } from "./SectionCard";
 
 export function WorkerPicker({
   workers,
@@ -19,21 +20,20 @@ export function WorkerPicker({
 }) {
   if (workers.length === 0) return null;
 
+  const chip = (active: boolean) =>
+    `flex-shrink-0 px-3 py-2 rounded-lg border text-sm transition-all duration-200 active:scale-[0.97] ${
+      active
+        ? "border-brand-500 bg-brand-50/60 ring-1 ring-brand-500 text-slate-900 font-medium"
+        : "border-slate-200/80 bg-slate-50 text-slate-600 hover:bg-slate-100/70"
+    }`;
+
   return (
-    <section className="px-4 pt-3">
-      <h2 className="text-xs uppercase tracking-wide text-slate-500 mb-2 font-medium">
-        2. Worker{" "}
-        <span className="lowercase text-slate-400">(optional)</span>
-      </h2>
-      <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1">
+    <SectionCard step={2} title="Worker" hint="optional">
+      <div className="flex gap-2 overflow-x-auto -mx-1 px-1 pb-1">
         <button
           type="button"
           onClick={() => onSelect(null)}
-          className={`flex-shrink-0 px-3 py-2 rounded-lg border bg-white ${
-            selectedId === null
-              ? "border-brand-500 ring-1 ring-brand-500 text-slate-900 font-medium"
-              : "border-slate-200 text-slate-600"
-          }`}
+          className={chip(selectedId === null)}
         >
           Any available
         </button>
@@ -42,16 +42,12 @@ export function WorkerPicker({
             key={w.id}
             type="button"
             onClick={() => onSelect(w.id)}
-            className={`flex-shrink-0 px-3 py-2 rounded-lg border bg-white ${
-              selectedId === w.id
-                ? "border-brand-500 ring-1 ring-brand-500 text-slate-900 font-medium"
-                : "border-slate-200 text-slate-600"
-            }`}
+            className={chip(selectedId === w.id)}
           >
             {w.name}
           </button>
         ))}
       </div>
-    </section>
+    </SectionCard>
   );
 }

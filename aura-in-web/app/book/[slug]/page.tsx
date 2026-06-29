@@ -37,8 +37,8 @@ export default async function BookingPage({ params }: Props) {
   if (!data) notFound();
 
   return (
-    <main className="min-h-screen bg-slate-50 pb-32">
-      <div className="max-w-md mx-auto">
+    <main className="min-h-screen bg-slate-50 pb-40">
+      <div className="max-w-md mx-auto pb-2">
         {data.targetType === "shop"
           ? <ShopHero target={data.target} />
           : <FreelancerHero target={data.target} />}

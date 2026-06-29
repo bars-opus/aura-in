@@ -8,6 +8,7 @@
 
 import type { Addon } from "@/lib/types";
 import { formatMoneyMinor } from "@/lib/format";
+import { SectionCard } from "./SectionCard";
 
 export function AddonPicker({
   serviceName,
@@ -23,11 +24,10 @@ export function AddonPicker({
   onToggle: (id: string) => void;
 }) {
   return (
-    <section className="px-4 pt-4">
-      <h2 className="text-xs uppercase tracking-wide text-slate-500 mb-2 font-medium">
-        {serviceName ? `${serviceName} add-ons` : "Add-ons"}{" "}
-        <span className="normal-case text-slate-400">(optional)</span>
-      </h2>
+    <SectionCard
+      title={serviceName ? `${serviceName} add-ons` : "Add-ons"}
+      hint="optional"
+    >
       <div className="space-y-2">
         {addons.map((addon) => {
           const checked = selectedIds.has(addon.id);
@@ -36,10 +36,10 @@ export function AddonPicker({
               key={addon.id}
               type="button"
               onClick={() => onToggle(addon.id)}
-              className={`w-full text-left bg-white rounded-lg p-3 flex justify-between items-center border ${
+              className={`w-full text-left rounded-xl p-3 flex justify-between items-center border transition-all duration-200 active:scale-[0.99] ${
                 checked
-                  ? "border-brand-500 ring-1 ring-brand-500"
-                  : "border-slate-200"
+                  ? "border-brand-500 bg-brand-50/60 ring-1 ring-brand-500"
+                  : "border-slate-200/80 bg-slate-50 hover:bg-slate-100/70"
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
@@ -79,6 +79,6 @@ export function AddonPicker({
           );
         })}
       </div>
-    </section>
+    </SectionCard>
   );
 }

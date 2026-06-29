@@ -9,6 +9,7 @@
 import { useMemo, useState } from "react";
 import type { CombinedSlot } from "@/lib/combine-slots";
 import { formatTimeSlot, formatDateHeader } from "@/lib/format";
+import { SectionCard } from "./SectionCard";
 
 export function SlotPicker({
   slots,
@@ -59,37 +60,28 @@ export function SlotPicker({
 
   if (loading) {
     return (
-      <section className="px-4 pt-3">
-        <h2 className="text-xs uppercase tracking-wide text-slate-500 mb-2 font-medium">
-          3. When
-        </h2>
-        <div className="text-center text-sm text-slate-400 py-6">
+      <SectionCard step={3} title="When">
+        <div className="flex items-center justify-center gap-2 py-6 text-sm text-slate-400">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-200 border-t-brand-500" />
           Loading slots…
         </div>
-      </section>
+      </SectionCard>
     );
   }
 
   if (byDate.length === 0) {
     return (
-      <section className="px-4 pt-3">
-        <h2 className="text-xs uppercase tracking-wide text-slate-500 mb-2 font-medium">
-          3. When
-        </h2>
+      <SectionCard step={3} title="When">
         <div className="text-center text-sm text-slate-400 py-6">
           No available slots in the next 7 days.
         </div>
-      </section>
+      </SectionCard>
     );
   }
 
   return (
-    <section className="px-4 pt-3">
-      <h2 className="text-xs uppercase tracking-wide text-slate-500 mb-2 font-medium">
-        3. When
-      </h2>
-
-      <div className="flex gap-1 overflow-x-auto -mx-4 px-4 pb-2 mb-2">
+    <SectionCard step={3} title="When">
+      <div className="flex gap-1 overflow-x-auto -mx-1 px-1 pb-2 mb-2">
         {byDate.map(([date]) => {
           const dh = formatDateHeader(date);
           // formatDateHeader returns "Mon, 26 May" — first token is the
@@ -102,10 +94,10 @@ export function SlotPicker({
               key={date}
               type="button"
               onClick={() => setSelectedDate(date)}
-              className={`flex-shrink-0 min-w-[3rem] px-2 py-1.5 rounded text-center border ${
+              className={`flex-shrink-0 min-w-[3rem] px-2 py-1.5 rounded-lg text-center border transition-all duration-200 active:scale-[0.97] ${
                 selected
-                  ? "bg-brand-500 text-white border-brand-500"
-                  : "bg-white text-slate-700 border-slate-200"
+                  ? "bg-brand-500 text-white border-brand-500 shadow-sm"
+                  : "bg-slate-50 text-slate-700 border-slate-200/80 hover:bg-slate-100/70"
               }`}
             >
               <div className="text-[10px] opacity-70">{weekday}</div>
@@ -115,7 +107,7 @@ export function SlotPicker({
         })}
       </div>
 
-      <div className="grid grid-cols-3 gap-1">
+      <div className="grid grid-cols-3 gap-2">
         {slotsForDate.map((slot) => {
           const selected = selectedSlot?.startTime === slot.startTime;
           return (
@@ -123,10 +115,10 @@ export function SlotPicker({
               key={slot.startTime}
               type="button"
               onClick={() => onSelect(slot)}
-              className={`py-2 text-center rounded text-sm border ${
+              className={`py-2 text-center rounded-lg text-sm border transition-all duration-200 active:scale-[0.97] ${
                 selected
-                  ? "bg-brand-50 border-brand-500 text-brand-700 font-semibold"
-                  : "bg-white border-slate-200 text-slate-700"
+                  ? "bg-brand-500 border-brand-500 text-white font-semibold shadow-sm"
+                  : "bg-slate-50 border-slate-200/80 text-slate-700 hover:bg-slate-100/70"
               }`}
             >
               {formatTimeSlot(slot.startTime)}
@@ -139,6 +131,6 @@ export function SlotPicker({
           </div>
         )}
       </div>
-    </section>
+    </SectionCard>
   );
 }

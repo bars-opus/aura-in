@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Shop } from "@/lib/types";
+import { SectionCard } from "./SectionCard";
 
 interface PickedAddress {
   text: string;
@@ -98,10 +99,7 @@ export function AddressPicker({
   }, []);
 
   return (
-    <section className="px-4 pt-3">
-      <h2 className="text-xs uppercase tracking-wide text-slate-500 mb-2 font-medium">
-        Where should they come?
-      </h2>
+    <SectionCard title="Where should they come?">
       <div
         ref={containerRef}
         className="[&_.mapboxgl-ctrl-geocoder]:!w-full [&_.mapboxgl-ctrl-geocoder]:!max-w-none [&_.mapboxgl-ctrl-geocoder]:!shadow-none [&_.mapboxgl-ctrl-geocoder]:!border [&_.mapboxgl-ctrl-geocoder]:!border-slate-200 [&_.mapboxgl-ctrl-geocoder]:!rounded-lg [&_.mapboxgl-ctrl-geocoder_input]:!h-11"
@@ -111,7 +109,7 @@ export function AddressPicker({
         href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
       />
       {error && <p className="text-xs text-red-600 mt-2">{error}</p>}
-    </section>
+    </SectionCard>
   );
 }
 

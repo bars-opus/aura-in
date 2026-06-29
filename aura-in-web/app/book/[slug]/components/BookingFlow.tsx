@@ -21,6 +21,7 @@ import type {
   Service,
 } from "@/lib/types";
 import { ServicePicker } from "./ServicePicker";
+import { SectionCard } from "./SectionCard";
 import { AddonPicker } from "./AddonPicker";
 import { WorkerPicker } from "./WorkerPicker";
 import { SlotPicker } from "./SlotPicker";
@@ -303,13 +304,20 @@ export function BookingFlow({
 
   return (
     <>
-      <ServicePicker
-        services={data.services}
-        currency={currency}
-        selectedIds={selectedServiceIds}
-        lastBookedServiceName={lastService}
-        onToggle={toggleService}
-      />
+      <SectionCard
+        index={0}
+        step={1}
+        title="Services"
+        hint="select one or more"
+      >
+        <ServicePicker
+          services={data.services}
+          currency={currency}
+          selectedIds={selectedServiceIds}
+          lastBookedServiceName={lastService}
+          onToggle={toggleService}
+        />
+      </SectionCard>
       {/* Per-service add-ons, shown for each selected service that has any. */}
       {selectedServices.map((svc) =>
         svc.addons.length > 0 ? (
@@ -356,20 +364,29 @@ export function BookingFlow({
       />
 
       {error && (
-        <div className="mx-4 mt-3 bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded">
+        <div className="animate-pop mx-4 mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 max-w-md mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 mx-auto max-w-md border-t border-slate-200/70 bg-white/85 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
+        {hasServices && (
+          <div className="mb-2 text-center text-xs text-slate-500">
+            {selectedServices.length} service
+            {selectedServices.length === 1 ? "" : "s"} ·{" "}
+            {formatMoneyMinor(servicesTotalMinor, currency)} total · remaining{" "}
+            {formatMoneyMinor(servicesTotalMinor - depositMinor, currency)} after
+            service
+          </div>
+        )}
         <button
           type="button"
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className={`w-full py-3.5 text-white font-semibold ${
+          className={`w-full rounded-full py-3.5 font-semibold text-white transition-all duration-200 ${
             canSubmit
-              ? "bg-brand-600 active:bg-brand-700"
-              : "bg-slate-300"
+              ? "bg-brand-500 shadow-sm hover:bg-brand-600 active:scale-[0.99]"
+              : "cursor-not-allowed bg-slate-300"
           }`}
         >
           {submitting
@@ -378,15 +395,6 @@ export function BookingFlow({
               ? `Pay ${formatMoneyMinor(depositMinor, currency)} deposit · Continue`
               : "Pick a service"}
         </button>
-        {hasServices && (
-          <div className="bg-slate-50 text-center text-xs text-slate-500 py-2">
-            {selectedServices.length} service
-            {selectedServices.length === 1 ? "" : "s"} ·{" "}
-            {formatMoneyMinor(servicesTotalMinor, currency)} total · remaining{" "}
-            {formatMoneyMinor(servicesTotalMinor - depositMinor, currency)} after
-            service
-          </div>
-        )}
       </div>
     </>
   );

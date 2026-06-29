@@ -23,25 +23,20 @@ export function ServicePicker({
   onToggle: (id: string) => void;
 }) {
   return (
-    <section className="px-4 pt-4">
-      <h2 className="text-xs uppercase tracking-wide text-slate-500 mb-2 font-medium">
-        1. Services{" "}
-        <span className="normal-case text-slate-400">(select one or more)</span>
-      </h2>
-      <div className="space-y-2">
-        {services.map((svc) => {
-          const selected = selectedIds.includes(svc.id);
-          const isLast =
-            lastBookedServiceName && svc.name === lastBookedServiceName;
-          return (
+    <div className="space-y-2">
+      {services.map((svc) => {
+        const selected = selectedIds.includes(svc.id);
+        const isLast =
+          lastBookedServiceName && svc.name === lastBookedServiceName;
+        return (
             <button
               key={svc.id}
               type="button"
               onClick={() => onToggle(svc.id)}
-              className={`w-full text-left bg-white rounded-lg p-3 flex justify-between items-start border ${
+              className={`w-full text-left rounded-xl p-3 flex justify-between items-start border transition-all duration-200 active:scale-[0.99] ${
                 selected
-                  ? "border-brand-500 ring-1 ring-brand-500"
-                  : "border-slate-200"
+                  ? "border-brand-500 bg-brand-50/60 ring-1 ring-brand-500"
+                  : "border-slate-200/80 bg-slate-50 hover:bg-slate-100/70"
               }`}
             >
               <div className="min-w-0 pr-3 flex items-start gap-3">
@@ -91,7 +86,6 @@ export function ServicePicker({
             </button>
           );
         })}
-      </div>
-    </section>
+    </div>
   );
 }
