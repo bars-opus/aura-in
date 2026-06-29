@@ -7,7 +7,7 @@
 "use client";
 
 import type { Addon } from "@/lib/types";
-import { formatMoney } from "@/lib/format";
+import { formatMoneyMinor } from "@/lib/format";
 
 export function AddonPicker({
   serviceName,
@@ -73,7 +73,7 @@ export function AddonPicker({
                   checked ? "text-emerald-600" : "text-slate-700"
                 }`}
               >
-                +{formatMoney(addon.price, currency)}
+                +{formatMoneyMinor(addon.priceMinor, currency)}
               </div>
             </button>
           );

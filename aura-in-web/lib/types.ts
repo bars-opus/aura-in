@@ -49,8 +49,8 @@ export interface Shop {
 export interface Addon {
   id: string;
   name: string;
-  /** Major units (already converted from minor by resolve-link). */
-  price: number;
+  /** Minor units (int kobo/pesewas). Convert to major only at display. */
+  priceMinor: number;
   /** Extra minutes this add-on adds to the appointment; null = none. */
   durationMinutes: number | null;
 }
@@ -60,7 +60,8 @@ export interface Service {
   name: string;
   description: string | null;
   durationMinutes: number;
-  price: number;
+  /** Minor units (int kobo/pesewas). Convert to major only at display. */
+  priceMinor: number;
   slotType: string | null;
   /** Group-booking capacity for this service (appointment_slots.max_clients). */
   maxClients: number;
@@ -179,24 +180,26 @@ export interface CreateBookingRequest {
   services: Array<{
     slotId: string;
     workerId: string | null;
-    // priceAtBooking and durationMinutes already include any selected add-ons.
-    priceAtBooking: number;
+    // Canonical int-kobo price (incl. add-ons). create-booking prefers *Minor.
+    priceAtBookingMinor: number;
     durationMinutes: number;
     serviceName: string;
     workerName: string | null;
     addons?: Array<{
       id: string;
       name: string;
-      price: number;
+      priceMinor: number;
       durationMinutes: number | null;
     }>;
   }>;
   startTime: string; // ISO
   endTime: string; // ISO (slot end)
   actualEndTime: string; // ISO (after any service overrun)
-  totalAmount: number;
-  depositAmount: number;
-  platformFee: number;
+  // Canonical int-kobo amounts. create-booking reads these directly without
+  // re-multiplying, so no float round-trip (checklist 2.19).
+  totalAmountMinor: number;
+  depositAmountMinor: number;
+  platformFeeMinor: number;
   paymentMethod: "stripe" | "paystack";
   paymentProvider: "stripe" | "paystack";
   idempotencyKey: string;

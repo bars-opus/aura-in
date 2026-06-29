@@ -249,9 +249,11 @@ export async function handler(req: Request): Promise<Response> {
   // cedis by 100). So we convert minor → major exactly once, here at the
   // boundary. Without this the page showed 2500.00 and, worse, create-booking
   // charged 100× (2500 * 100 kobo = GH₵2500 instead of GH₵25).
-  // Group add-ons by slot. Prices are stored in minor units (like the slot
-  // price) — convert to major here so the web treats every money value the
-  // same way (see the price note above).
+  // Prices stay in MINOR units (int kobo/pesewas) end-to-end — the web booking
+  // flow computes in integers and converts to major only at display
+  // (formatMoneyMinor). Checklist 2.19: never compute money as float. The
+  // field is named priceMinor so no consumer can mistake it for a major value
+  // (that mistake previously charged 100×).
   const addonsBySlot = new Map<string, any[]>();
   for (const a of (addonsRes.data ?? [])) {
     const list = addonsBySlot.get(a.slot_id) ?? [];
@@ -260,7 +262,7 @@ export async function handler(req: Request): Promise<Response> {
     list.push({
       id: a.id,
       name: a.name,
-      price: addonPriceMinor / 100,
+      priceMinor: Math.round(addonPriceMinor),
       durationMinutes:
         typeof a.duration_minutes === "number" ? a.duration_minutes : null,
     });
@@ -274,7 +276,7 @@ export async function handler(req: Request): Promise<Response> {
       name: s.service_name,
       description: s.description,
       durationMinutes: parseDurationMinutes(s.duration),
-      price: priceMinor / 100,
+      priceMinor: Math.round(priceMinor),
       slotType: s.slot_type,
       maxClients: typeof s.max_clients === "number" ? s.max_clients : 1,
       addons: addonsBySlot.get(s.id) ?? [],

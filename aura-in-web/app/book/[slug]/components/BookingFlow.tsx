@@ -27,7 +27,7 @@ import { SlotPicker } from "./SlotPicker";
 import { GuestForm } from "./GuestForm";
 import { AddressPicker } from "./AddressPicker";
 import { createBooking, getSlots } from "@/lib/api";
-import { formatMoney } from "@/lib/format";
+import { formatMoneyMinor } from "@/lib/format";
 import { generateCombinedSlots, type CombinedSlot } from "@/lib/combine-slots";
 
 interface PickedAddress {
@@ -103,15 +103,17 @@ export function BookingFlow({
   // A stable signature so the slot effect re-runs when add-on minutes change.
   const extraMinutesSig = extraMinutesByService.join(",");
 
-  // Grand total across all services incl. their add-ons.
-  const servicesTotal = useMemo(
+  // Grand total across all services incl. their add-ons — INT KOBO. All money
+  // math stays in integer minor units; we divide by 100 only at display
+  // (formatMoneyMinor). Checklist 2.19.
+  const servicesTotalMinor = useMemo(
     () =>
       selectedServices.reduce((sum, svc) => {
         const addonSum = addonsForService(svc).reduce(
-          (s, a) => s + a.price,
+          (s, a) => s + a.priceMinor,
           0,
         );
-        return sum + svc.price + addonSum;
+        return sum + svc.priceMinor + addonSum;
       }, 0),
     [selectedServices, selectedAddonsByService],
   );
@@ -174,8 +176,12 @@ export function BookingFlow({
     !!phone &&
     (!needsAddress || !!address) &&
     !submitting;
-  const deposit = servicesTotal * data.depositFraction;
-  const platformFee = servicesTotal * data.platformFeeFraction;
+  // Fractions applied to int kobo — round back to whole kobo immediately so no
+  // fractional-kobo value ever propagates (checklist 2.19).
+  const depositMinor = Math.round(servicesTotalMinor * data.depositFraction);
+  const platformFeeMinor = Math.round(
+    servicesTotalMinor * data.platformFeeFraction,
+  );
   const currency = data.target.currency;
 
   async function handleSubmit() {
@@ -210,7 +216,7 @@ export function BookingFlow({
     // holds.
     const servicesPayload = selectedServices.map((svc) => {
       const svcAddons = addonsForService(svc);
-      const addonPrice = svcAddons.reduce((s, a) => s + a.price, 0);
+      const addonPriceMinor = svcAddons.reduce((s, a) => s + a.priceMinor, 0);
       const addonMinutes = svcAddons.reduce(
         (s, a) => s + (a.durationMinutes ?? 0),
         0,
@@ -220,14 +226,16 @@ export function BookingFlow({
         workerId,
         serviceName: svc.name,
         workerName,
-        priceAtBooking: svc.price + addonPrice,
+        // Send the canonical int-kobo field; create-booking prefers *Minor and
+        // never re-multiplies it, so no float round-trip (checklist 2.19/2.20).
+        priceAtBookingMinor: svc.priceMinor + addonPriceMinor,
         durationMinutes: svc.durationMinutes + addonMinutes,
         ...(svcAddons.length > 0
           ? {
               addons: svcAddons.map((a) => ({
                 id: a.id,
                 name: a.name,
-                price: a.price,
+                priceMinor: a.priceMinor,
                 durationMinutes: a.durationMinutes,
               })),
             }
@@ -243,9 +251,9 @@ export function BookingFlow({
       startTime,
       endTime,
       actualEndTime,
-      totalAmount: servicesTotal,
-      depositAmount: deposit,
-      platformFee,
+      totalAmountMinor: servicesTotalMinor,
+      depositAmountMinor: depositMinor,
+      platformFeeMinor,
       paymentMethod: "paystack", // server overrides based on currency
       paymentProvider: "paystack",
       idempotencyKey,
@@ -367,15 +375,16 @@ export function BookingFlow({
           {submitting
             ? "Starting payment…"
             : hasServices
-              ? `Pay ${formatMoney(deposit, currency)} deposit · Continue`
+              ? `Pay ${formatMoneyMinor(depositMinor, currency)} deposit · Continue`
               : "Pick a service"}
         </button>
         {hasServices && (
           <div className="bg-slate-50 text-center text-xs text-slate-500 py-2">
             {selectedServices.length} service
             {selectedServices.length === 1 ? "" : "s"} ·{" "}
-            {formatMoney(servicesTotal, currency)} total · remaining{" "}
-            {formatMoney(servicesTotal - deposit, currency)} after service
+            {formatMoneyMinor(servicesTotalMinor, currency)} total · remaining{" "}
+            {formatMoneyMinor(servicesTotalMinor - depositMinor, currency)} after
+            service
           </div>
         )}
       </div>

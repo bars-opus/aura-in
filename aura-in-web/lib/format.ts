@@ -33,6 +33,18 @@ export function formatMoney(amount: number, currency: string | null): string {
 }
 
 /**
+ * Format an integer minor-unit amount (kobo / pesewas / cents) for display.
+ * The ONLY place minor units are converted to major — keeps money math in
+ * integers everywhere else (checklist 2.19).
+ */
+export function formatMoneyMinor(
+  amountMinor: number,
+  currency: string | null,
+): string {
+  return formatMoney(amountMinor / 100, currency);
+}
+
+/**
  * Human duration: "30 min", "1h", "1h 30min". Avoids "0h 45min" style
  * weirdness for short slots.
  */

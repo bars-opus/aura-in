@@ -7,7 +7,7 @@
 "use client";
 
 import type { Service } from "@/lib/types";
-import { formatDuration, formatMoney } from "@/lib/format";
+import { formatDuration, formatMoneyMinor } from "@/lib/format";
 
 export function ServicePicker({
   services,
@@ -86,7 +86,7 @@ export function ServicePicker({
                   selected ? "text-emerald-600" : "text-slate-700"
                 }`}
               >
-                {formatMoney(svc.price, currency)}
+                {formatMoneyMinor(svc.priceMinor, currency)}
               </div>
             </button>
           );
