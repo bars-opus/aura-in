@@ -36,6 +36,8 @@ export interface Shop {
   latitude: number | null;
   longitude: number | null;
   currency: string | null;
+  averageRating: number | null;
+  totalReviews: number | null;
 }
 
 /**

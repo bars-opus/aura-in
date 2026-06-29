@@ -58,8 +58,8 @@ export default async function BookingPage({ params }: Props) {
     <main className="min-h-screen bg-slate-50 pb-40">
       <div className="max-w-md mx-auto pb-2">
         {data.targetType === "shop"
-          ? <ShopHero target={data.target} />
-          : <FreelancerHero target={data.target} />}
+          ? <ShopHero target={data.target} slug={slug} />
+          : <FreelancerHero target={data.target} slug={slug} />}
 
         <BookingFlow data={data} slug={slug} />
       </div>

@@ -1,27 +1,76 @@
 // aura-in-web/app/book/[slug]/components/FreelancerHero.tsx
 import type { Shop } from "@/lib/types";
 
-export function FreelancerHero({ target }: { target: Shop }) {
-  // Note: Plan A returns the same Shop shape for both shop and freelancer
-  // targets — the visual treatment is the only difference (rounded avatar
-  // vs squared logo, "Comes to you" subline).
+// Tapping the header opens the full Flutter web app at /l/<slug>, which resolves
+// to the freelancer's (a shop with is_freelancer) detail screen.
+const APP_BASE_URL =
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://app.aurain.barsopus.com";
+
+export function FreelancerHero({
+  target,
+  slug,
+}: {
+  target: Shop;
+  slug: string;
+}) {
+  // Plan A returns the same Shop shape for shop and freelancer targets; the
+  // only difference here is the "Comes to you" subline.
+  const rating = target.averageRating;
+  const hasRating = typeof rating === "number" && rating > 0;
+
   return (
-    <header className="bg-white border-b border-slate-200 px-4 py-4 flex items-center gap-3">
-      {target.logoUrl
-        ? <img
-            src={target.logoUrl}
-            alt=""
-            className="w-12 h-12 rounded-full object-cover bg-slate-200"
-          />
-        : <div className="w-12 h-12 rounded-full bg-slate-800 text-white flex items-center justify-center font-semibold">
-            {target.name.slice(0, 2).toUpperCase()}
-          </div>}
-      <div className="flex-1 min-w-0">
-        <h1 className="font-semibold text-slate-900 truncate">{target.name}</h1>
-        <p className="text-xs text-slate-500 truncate">
+    <a
+      href={`${APP_BASE_URL}/l/${slug}`}
+      className="flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-4 transition-colors active:bg-slate-50"
+    >
+      {target.logoUrl ? (
+        <img
+          src={target.logoUrl}
+          alt=""
+          className="h-12 w-12 shrink-0 rounded-full object-cover bg-slate-200"
+        />
+      ) : (
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-800 font-semibold text-white">
+          {target.name.slice(0, 2).toUpperCase()}
+        </div>
+      )}
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <h1 className="truncate font-semibold text-slate-900">
+            {target.name}
+          </h1>
+          {hasRating && (
+            <span className="flex shrink-0 items-center gap-0.5 text-xs font-medium text-slate-600">
+              <svg
+                viewBox="0 0 20 20"
+                className="h-3.5 w-3.5 fill-amber-400"
+                aria-hidden
+              >
+                <path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 15l-5.2 2.6 1-5.8L1.5 7.7l5.9-.9z" />
+              </svg>
+              {rating!.toFixed(1)}
+              {target.totalReviews ? (
+                <span className="text-slate-400">({target.totalReviews})</span>
+              ) : null}
+            </span>
+          )}
+        </div>
+        <p className="truncate text-xs text-slate-500">
           {target.type ?? "Freelancer"} · Comes to you
         </p>
       </div>
-    </header>
+
+      <svg
+        viewBox="0 0 24 24"
+        className="h-5 w-5 shrink-0 text-slate-300"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        aria-hidden
+      >
+        <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </a>
   );
 }

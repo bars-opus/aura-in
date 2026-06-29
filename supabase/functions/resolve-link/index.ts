@@ -104,7 +104,9 @@ export async function handler(req: Request): Promise<Response> {
       luxury_level,
       verified,
       address,
-      currency
+      currency,
+      average_rating,
+      total_reviews
     `)
     .eq("booking_slug", slug)
     .maybeSingle();
@@ -238,6 +240,8 @@ export async function handler(req: Request): Promise<Response> {
     latitude,
     longitude,
     currency: (shop as any).currency ?? null,
+    averageRating: (shop as any).average_rating ?? null,
+    totalReviews: (shop as any).total_reviews ?? null,
   };
 
   // 7. Normalize services payload.
