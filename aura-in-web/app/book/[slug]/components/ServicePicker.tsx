@@ -33,10 +33,10 @@ export function ServicePicker({
               key={svc.id}
               type="button"
               onClick={() => onToggle(svc.id)}
-              className={`w-full text-left rounded-xl p-3 flex justify-between items-start border transition-all duration-200 active:scale-[0.99] ${
+              className={`w-full text-left rounded-xl p-3 flex justify-between items-start [border-width:0.5px] transition-all duration-200 active:scale-[0.99] ${
                 selected
-                  ? "border-brand-500 bg-brand-50/60 ring-1 ring-brand-500"
-                  : "border-slate-200/80 bg-slate-50 hover:bg-slate-100/70"
+                  ? "border-brand-500 bg-brand-50/60 ring-[0.5px] ring-brand-500"
+                  : "border-slate-200/70 bg-slate-50 hover:bg-slate-100/70"
               }`}
             >
               <div className="min-w-0 pr-3 flex items-start gap-3">

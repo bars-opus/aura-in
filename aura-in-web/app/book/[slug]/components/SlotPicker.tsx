@@ -58,6 +58,25 @@ export function SlotPicker({
   const slotsForDate =
     byDate.find(([d]) => d === effectiveDate)?.[1] ?? [];
 
+  // Group the day's slots into Morning / Afternoon / Evening, matching the app
+  // (< 12:00 morning, 12:00–16:59 afternoon, 17:00+ evening). Empty periods are
+  // hidden so a shop that only works afternoons doesn't show empty headers.
+  const PERIODS = [
+    { key: "Morning", label: "Morning" },
+    { key: "Afternoon", label: "Afternoon" },
+    { key: "Evening", label: "Evening" },
+  ] as const;
+  const periodOf = (iso: string) => {
+    const h = new Date(iso).getHours();
+    if (h < 12) return "Morning";
+    if (h < 17) return "Afternoon";
+    return "Evening";
+  };
+  const slotsByPeriod = PERIODS.map((p) => ({
+    ...p,
+    slots: slotsForDate.filter((s) => periodOf(s.startTime) === p.key),
+  })).filter((g) => g.slots.length > 0);
+
   if (loading) {
     return (
       <SectionCard step={3} title="When">
@@ -94,10 +113,10 @@ export function SlotPicker({
               key={date}
               type="button"
               onClick={() => setSelectedDate(date)}
-              className={`flex-shrink-0 min-w-[3rem] px-2 py-1.5 rounded-lg text-center border transition-all duration-200 active:scale-[0.97] ${
+              className={`flex-shrink-0 min-w-[3rem] px-2 py-1.5 rounded-lg text-center [border-width:0.5px] transition-all duration-200 active:scale-[0.97] ${
                 selected
                   ? "bg-brand-500 text-white border-brand-500 shadow-sm"
-                  : "bg-slate-50 text-slate-700 border-slate-200/80 hover:bg-slate-100/70"
+                  : "bg-slate-50 text-slate-700 border-slate-200/70 hover:bg-slate-100/70"
               }`}
             >
               <div className="text-[10px] opacity-70">{weekday}</div>
@@ -107,30 +126,41 @@ export function SlotPicker({
         })}
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        {slotsForDate.map((slot) => {
-          const selected = selectedSlot?.startTime === slot.startTime;
-          return (
-            <button
-              key={slot.startTime}
-              type="button"
-              onClick={() => onSelect(slot)}
-              className={`py-2 text-center rounded-lg text-sm border transition-all duration-200 active:scale-[0.97] ${
-                selected
-                  ? "bg-brand-500 border-brand-500 text-white font-semibold shadow-sm"
-                  : "bg-slate-50 border-slate-200/80 text-slate-700 hover:bg-slate-100/70"
-              }`}
-            >
-              {formatTimeSlot(slot.startTime)}
-            </button>
-          );
-        })}
-        {slotsForDate.length === 0 && (
-          <div className="col-span-3 text-center text-sm text-slate-400 py-6">
-            No slots on this date.
-          </div>
-        )}
-      </div>
+      {slotsForDate.length === 0 ? (
+        <div className="text-center text-sm text-slate-400 py-6">
+          No slots on this date.
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {slotsByPeriod.map((group) => (
+            <div key={group.key}>
+              <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                {group.label}
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {group.slots.map((slot) => {
+                  const selected =
+                    selectedSlot?.startTime === slot.startTime;
+                  return (
+                    <button
+                      key={slot.startTime}
+                      type="button"
+                      onClick={() => onSelect(slot)}
+                      className={`py-2 text-center rounded-lg text-sm [border-width:0.5px] transition-all duration-200 active:scale-[0.97] ${
+                        selected
+                          ? "bg-brand-500 border-brand-500 text-white font-semibold shadow-sm"
+                          : "bg-slate-50 border-slate-200/70 text-slate-700 hover:bg-slate-100/70"
+                      }`}
+                    >
+                      {formatTimeSlot(slot.startTime)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </SectionCard>
   );
 }

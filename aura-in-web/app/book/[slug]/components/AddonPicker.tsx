@@ -36,10 +36,10 @@ export function AddonPicker({
               key={addon.id}
               type="button"
               onClick={() => onToggle(addon.id)}
-              className={`w-full text-left rounded-xl p-3 flex justify-between items-center border transition-all duration-200 active:scale-[0.99] ${
+              className={`w-full text-left rounded-xl p-3 flex justify-between items-center [border-width:0.5px] transition-all duration-200 active:scale-[0.99] ${
                 checked
-                  ? "border-brand-500 bg-brand-50/60 ring-1 ring-brand-500"
-                  : "border-slate-200/80 bg-slate-50 hover:bg-slate-100/70"
+                  ? "border-brand-500 bg-brand-50/60 ring-[0.5px] ring-brand-500"
+                  : "border-slate-200/70 bg-slate-50 hover:bg-slate-100/70"
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">

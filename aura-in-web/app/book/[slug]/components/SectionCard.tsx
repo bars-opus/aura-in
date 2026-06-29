@@ -32,7 +32,7 @@ export function SectionCard({
       {title && (
         <div className="mb-3 flex items-center gap-2">
           {step != null && (
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-500 text-[11px] font-semibold text-white">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-[11px] font-semibold text-white">
               {step}
             </span>
           )}

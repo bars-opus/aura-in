@@ -21,10 +21,10 @@ export function WorkerPicker({
   if (workers.length === 0) return null;
 
   const chip = (active: boolean) =>
-    `flex-shrink-0 px-3 py-2 rounded-lg border text-sm transition-all duration-200 active:scale-[0.97] ${
+    `flex-shrink-0 px-3 py-2 rounded-lg [border-width:0.5px] text-sm transition-all duration-200 active:scale-[0.97] ${
       active
-        ? "border-brand-500 bg-brand-50/60 ring-1 ring-brand-500 text-slate-900 font-medium"
-        : "border-slate-200/80 bg-slate-50 text-slate-600 hover:bg-slate-100/70"
+        ? "border-brand-500 bg-brand-50/60 ring-[0.5px] ring-brand-500 text-slate-900 font-medium"
+        : "border-slate-200/70 bg-slate-50 text-slate-600 hover:bg-slate-100/70"
     }`;
 
   return (
