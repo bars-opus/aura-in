@@ -78,6 +78,14 @@ class PaymentController
   final WebViewLauncher _webViewLauncher;
   _PaymentIntent? _lastIntent;
 
+  /// Per-intent attempt nonce folded into the Paystack reference. Paystack
+  /// rejects a reference it has seen before ("Duplicate Transaction Reference"),
+  /// so a user-initiated retry after an abandoned/failed payment must send a
+  /// FRESH reference. We rotate this nonce on every payment failure, but keep
+  /// it stable within a single attempt so a transient network retry of the
+  /// same submit does not create two bookings. Seeded once from wall-clock.
+  int _attemptNonce = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
   PaymentController(
     this._supabase,
     this._config, {
@@ -164,8 +172,12 @@ class PaymentController
           ])))
           .toString()
           .substring(0, 16);
+      // _attemptNonce makes the reference unique per user-retry. It stays fixed
+      // within one attempt (a network retry reuses it → server dedups on the
+      // existing booking) and rotates only after a failure (see catch/failure
+      // paths), so Paystack accepts the fresh reference on the next try.
       final idempotencyKey =
-          '${shopId}_${userId}_${startTime.millisecondsSinceEpoch}_$cartFingerprint';
+          '${shopId}_${userId}_${startTime.millisecondsSinceEpoch}_${cartFingerprint}_$_attemptNonce';
 
       // Phase 17: send the new int-kobo wire format under `*Minor` keys.
       // The edge function dual-format-detects and prefers these keys over
@@ -290,6 +302,11 @@ class PaymentController
         return verifiedBooking;
       }
 
+      // Rotate so a user-initiated retry sends a fresh Paystack reference. The
+      // EXCEPTION is the timeout-after-success case (webViewSuccess): the
+      // payment may have gone through, so keep the reference stable to let the
+      // existing-booking dedup resolve it rather than charging again.
+      if (!webViewSuccess) _rotateAttemptNonce();
       await _fireFailure(
         reference: reference,
         message: webViewSuccess
@@ -310,6 +327,9 @@ class PaymentController
           'error': e.toString(),
         },
       );
+      // The init itself failed (e.g. Paystack duplicate-reference) — rotate so
+      // the next attempt sends a new reference.
+      _rotateAttemptNonce();
       await _fireFailure(
         message: 'Could not initialize payment.',
         category: PaymentErrorCategory.unknown,
@@ -318,6 +338,14 @@ class PaymentController
       state = AsyncValue.error(e, st);
       return null;
     }
+  }
+
+  /// Advance the per-intent attempt nonce so the next payment attempt produces
+  /// a fresh Paystack reference. Called only on failure paths — a successful
+  /// payment never rotates, and a transient network retry within the same
+  /// attempt reuses the nonce (so the server dedups on the existing booking).
+  void _rotateAttemptNonce() {
+    _attemptNonce += 1;
   }
 
   /// Re-invokes the last [processPayment] call with the same args.
