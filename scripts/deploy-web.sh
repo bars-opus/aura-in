@@ -42,7 +42,7 @@ flutter build web --release \
 # build output so Vercel applies it to this static deployment.
 cp vercel.json build/web/vercel.json
 
-echo "▶ Deploying build/web to Vercel (nano-embryo)…"
+echo "▶ Deploying build/web to Vercel (aura-in-app)…"
 # Deploy the prebuilt static directory. A fresh .vercel link avoids picking up
 # the aura-in-web project's settings if this dir was used for another deploy.
 ( cd build/web && rm -rf .vercel && npx vercel $PROD_FLAG --yes --name aura-in-app )
