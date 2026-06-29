@@ -56,7 +56,11 @@ function getSupabase(): SupabaseClient {
 // v1 booking-economics defaults. Move to system_config once we have a
 // per-shop override story.
 const DEPOSIT_FRACTION = 0.3;
-const PLATFORM_FEE_FRACTION = 0.029;
+const PLATFORM_FEE_FRACTION = 0.029; // legacy — kept for back-compat
+// Flat platform fee in int minor units (kobo) = GHS 2.00. Mirrors the app's
+// kFlatPlatformFeeMinor. Added on top of the deposit so the shop receives the
+// full deposit; the remaining 70% billed after service carries no fee.
+const PLATFORM_FEE_MINOR = 200;
 
 export async function handler(req: Request): Promise<Response> {
   const cors = buildCorsHeaders(req, "GET, OPTIONS");
@@ -328,6 +332,7 @@ export async function handler(req: Request): Promise<Response> {
       availableSlots,
       depositFraction: DEPOSIT_FRACTION,
       platformFeeFraction: PLATFORM_FEE_FRACTION,
+      platformFeeMinor: PLATFORM_FEE_MINOR,
     },
     200,
     { "Cache-Control": "public, max-age=30, s-maxage=30" },

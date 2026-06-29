@@ -431,7 +431,10 @@ class _BookingConfirmationScreenState
         // exact integer; no float rounding dust.
         totalAmountMinor: effectiveTotalMinor,
         depositAmountMinor: applyBps(effectiveTotalMinor, config.depositBps),
-        platformFeeMinor: applyBps(effectiveTotalMinor, config.platformFeeBps),
+        // Flat GH₵2 platform fee (200 minor) — added on top of the deposit at
+        // the payment provider so the shop receives the full deposit. Not a
+        // percentage; matches _kPlatformFeeMinor.
+        platformFeeMinor: kFlatPlatformFeeMinor,
         paymentProvider: paymentProvider,
         context: context,
         promotionId: _appliedPromo?.promotionId,

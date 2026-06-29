@@ -31,9 +31,16 @@ final notificationServiceProvider = Provider<NotificationService>((ref) {
 /// exact int kobo arithmetic.
 const int _kDepositBps = 3000;
 
-/// Phase 17: platform fee in int minor units (kobo for GHS). Pinned to
-/// 200 kobo = GHS 2.00. Future per-shop config moves to the shop model.
-const int _kPlatformFeeMinor = 200;
+/// Platform fee in int minor units (kobo for GHS). Pinned to 200 kobo =
+/// GHS 2.00 — a FLAT fee per booking, not a percentage. Added on top of the
+/// deposit at the payment provider so the shop receives the full deposit; the
+/// remaining 70% billed after service carries no fee. Single source of truth —
+/// reused by the confirmation screen. Future per-shop config moves to the shop
+/// model.
+const int kFlatPlatformFeeMinor = 200;
+
+/// Backwards-compatible private alias (existing references in this file).
+const int _kPlatformFeeMinor = kFlatPlatformFeeMinor;
 
 class BookingCreationState {
   final bool isSubmitting;

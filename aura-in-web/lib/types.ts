@@ -150,7 +150,10 @@ export interface ResolveLinkResponse {
   travelRadiusKm: number | null;
   availableSlots: SlotEntry[]; // empty in v1
   depositFraction: number;
+  /** @deprecated percentage fee — superseded by the flat platformFeeMinor. */
   platformFeeFraction: number;
+  /** Flat platform fee in int minor units (kobo), added on top of the deposit. */
+  platformFeeMinor: number;
 }
 
 /**

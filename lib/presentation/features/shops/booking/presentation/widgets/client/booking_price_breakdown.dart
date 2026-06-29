@@ -56,23 +56,31 @@ class BookingPriceBreakdown extends StatelessWidget {
         AppDivider(),
         _buildPriceRow(
           context,
-          'Deposit Paid (30%)',
+          'Deposit (30%)',
           _fmt(depositAmount),
-          valueColor: Colors.green,
         ),
         AppDivider(),
         _buildPriceRow(
           context,
           'Platform Fee',
           _fmt(platformFee),
+        ),
+        AppDivider(),
+        // The amount charged now = deposit + platform fee (the fee is on top so
+        // the shop receives the full deposit). The remaining 70% is billed
+        // after the service with no fee.
+        _buildPriceRow(
+          context,
+          'Pay Now',
+          _fmt(depositAmount + platformFee),
+          isBold: true,
           valueColor: Colors.green,
         ),
         AppDivider(),
         _buildPriceRow(
           context,
-          'Remaining to Pay',
+          'Remaining (after service)',
           _fmt(remainingAmount),
-          isBold: true,
           valueColor: colorScheme.primary,
         ),
 

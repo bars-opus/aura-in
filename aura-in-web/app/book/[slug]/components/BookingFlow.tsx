@@ -177,12 +177,12 @@ export function BookingFlow({
     !!phone &&
     (!needsAddress || !!address) &&
     !submitting;
-  // Fractions applied to int kobo — round back to whole kobo immediately so no
-  // fractional-kobo value ever propagates (checklist 2.19).
+  // Deposit fraction applied to int kobo — round back to whole kobo immediately
+  // so no fractional-kobo value propagates (checklist 2.19). The platform fee is
+  // a FLAT amount (GHS 2.00 / 200 kobo) added on top of the deposit, so the shop
+  // receives the full deposit; the remaining 70% billed after service has no fee.
   const depositMinor = Math.round(servicesTotalMinor * data.depositFraction);
-  const platformFeeMinor = Math.round(
-    servicesTotalMinor * data.platformFeeFraction,
-  );
+  const platformFeeMinor = data.platformFeeMinor;
   const currency = data.target.currency;
 
   async function handleSubmit() {
@@ -372,9 +372,8 @@ export function BookingFlow({
       <div className="fixed bottom-0 left-0 right-0 mx-auto max-w-md border-t border-slate-200/70 bg-white/85 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
         {hasServices && (
           <div className="mb-2 text-center text-xs text-slate-500">
-            {selectedServices.length} service
-            {selectedServices.length === 1 ? "" : "s"} ·{" "}
-            {formatMoneyMinor(servicesTotalMinor, currency)} total · remaining{" "}
+            {formatMoneyMinor(depositMinor, currency)} deposit +{" "}
+            {formatMoneyMinor(platformFeeMinor, currency)} fee · remaining{" "}
             {formatMoneyMinor(servicesTotalMinor - depositMinor, currency)} after
             service
           </div>
@@ -392,7 +391,7 @@ export function BookingFlow({
           {submitting
             ? "Starting payment…"
             : hasServices
-              ? `Pay ${formatMoneyMinor(depositMinor, currency)} deposit · Continue`
+              ? `Pay ${formatMoneyMinor(depositMinor + platformFeeMinor, currency)} now · Continue`
               : "Pick a service"}
         </button>
       </div>

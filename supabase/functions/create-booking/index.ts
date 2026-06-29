@@ -518,10 +518,17 @@ if (provider === 'stripe' && !Deno.env.get('STRIPE_SECRET_KEY')) {
 
     let checkoutResult;
     try {
+      // The customer pays the deposit PLUS the platform fee on top, so the shop
+      // receives the full deposit. Paystack's transaction_charge
+      // (platformFeeAmountMinor) is the platform's cut deducted from the split —
+      // it comes out of this combined amount, leaving the shop with exactly the
+      // deposit. The remaining 70% billed after service carries no fee.
+      const depositChargeMinor =
+        body.depositAmountMinor + body.platformFeeMinor;
       checkoutResult = await getProvider(provider as PaymentProviderName).initCheckout({
         // Phase 17: amountMinor is canonical int kobo. Provider adapters
         // pass it verbatim — no `* 100` conversion inside.
-        amountMinor: body.depositAmountMinor,
+        amountMinor: depositChargeMinor,
         platformFeeAmountMinor: body.platformFeeMinor,
         currency: shopCurrency,
         reference: provider === "paystack"
