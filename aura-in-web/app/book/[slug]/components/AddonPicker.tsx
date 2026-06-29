@@ -10,11 +10,13 @@ import type { Addon } from "@/lib/types";
 import { formatMoney } from "@/lib/format";
 
 export function AddonPicker({
+  serviceName,
   addons,
   currency,
   selectedIds,
   onToggle,
 }: {
+  serviceName?: string;
   addons: Addon[];
   currency: string | null;
   selectedIds: Set<string>;
@@ -23,7 +25,8 @@ export function AddonPicker({
   return (
     <section className="px-4 pt-4">
       <h2 className="text-xs uppercase tracking-wide text-slate-500 mb-2 font-medium">
-        Add-ons <span className="normal-case text-slate-400">(optional)</span>
+        {serviceName ? `${serviceName} add-ons` : "Add-ons"}{" "}
+        <span className="normal-case text-slate-400">(optional)</span>
       </h2>
       <div className="space-y-2">
         {addons.map((addon) => {

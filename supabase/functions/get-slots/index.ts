@@ -113,6 +113,7 @@ export async function handler(req: Request): Promise<Response> {
   today.setHours(0, 0, 0, 0);
 
   const allSlots: Array<{
+    slotId: string | null;
     startTime: string;
     endTime: string;
     workerId: string | null;
@@ -152,6 +153,13 @@ export async function handler(req: Request): Promise<Response> {
       const end = row.end_time;
       if (!start || !end) continue;
 
+      // slot_id is the service (appointment_slots id). Needed so the web can
+      // group per-service slots by start time and build combined multi-service
+      // appointment windows (see generateCombinedSlots).
+      const slotId = row.slot_id ?? null;
+      const startIso = typeof start === "string" ? start : new Date(start).toISOString();
+      const endIso = typeof end === "string" ? end : new Date(end).toISOString();
+
       const workersJsonb = row.available_workers;
       const workerList: any[] = Array.isArray(workersJsonb) ? workersJsonb : [];
 
@@ -160,8 +168,9 @@ export async function handler(req: Request): Promise<Response> {
         // select_preferred_worker = false). Surface a single entry with
         // workerId = null so the SlotPicker still shows it.
         allSlots.push({
-          startTime: typeof start === "string" ? start : new Date(start).toISOString(),
-          endTime: typeof end === "string" ? end : new Date(end).toISOString(),
+          slotId,
+          startTime: startIso,
+          endTime: endIso,
           workerId: null,
         });
       } else {
@@ -170,8 +179,9 @@ export async function handler(req: Request): Promise<Response> {
         // selection without re-querying.
         for (const w of workerList) {
           allSlots.push({
-            startTime: typeof start === "string" ? start : new Date(start).toISOString(),
-            endTime: typeof end === "string" ? end : new Date(end).toISOString(),
+            slotId,
+            startTime: startIso,
+            endTime: endIso,
             workerId: w?.id ?? null,
           });
         }

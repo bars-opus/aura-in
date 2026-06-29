@@ -28,6 +28,7 @@ import { GuestForm } from "./GuestForm";
 import { AddressPicker } from "./AddressPicker";
 import { createBooking, getSlots } from "@/lib/api";
 import { formatMoney } from "@/lib/format";
+import { generateCombinedSlots, type CombinedSlot } from "@/lib/combine-slots";
 
 interface PickedAddress {
   text: string;
@@ -42,16 +43,17 @@ export function BookingFlow({
   data: ResolveLinkResponse;
   slug: string;
 }) {
-  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(
-    null,
-  );
-  const [selectedAddonIds, setSelectedAddonIds] = useState<Set<string>>(
-    () => new Set(),
-  );
+  // Multiple services can be booked in one appointment. Order matters — the
+  // services run back-to-back from the chosen start time in selection order.
+  const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
+  // Add-ons are per-service: serviceId → set of addon ids.
+  const [selectedAddonsByService, setSelectedAddonsByService] = useState<
+    Record<string, Set<string>>
+  >({});
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
   const [slots, setSlots] = useState<SlotEntry[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState<SlotEntry | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<CombinedSlot | null>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [lastService, setLastService] = useState<string | undefined>();
@@ -69,39 +71,57 @@ export function BookingFlow({
 
   const needsAddress = data.targetType === "freelancer" && data.canTravel;
 
-  const selectedService: Service | null = useMemo(
-    () => data.services.find((s) => s.id === selectedServiceId) ?? null,
-    [data.services, selectedServiceId],
+  // Selected services in selection order.
+  const selectedServices: Service[] = useMemo(
+    () =>
+      selectedServiceIds
+        .map((id) => data.services.find((s) => s.id === id))
+        .filter((s): s is Service => !!s),
+    [data.services, selectedServiceIds],
   );
 
-  // The add-ons the visitor ticked, scoped to the current service. Reset
-  // whenever the service changes (handled in onSelect below).
-  const selectedAddons = useMemo(
+  // The chosen add-ons for a given service.
+  const addonsForService = (svc: Service) => {
+    const ids = selectedAddonsByService[svc.id];
+    if (!ids || ids.size === 0) return [];
+    return svc.addons.filter((a) => ids.has(a.id));
+  };
+
+  // Per-service add-on minutes, parallel to selectedServices — drives slot
+  // generation (each slot must fit the service + its add-ons).
+  const extraMinutesByService = useMemo(
     () =>
-      (selectedService?.addons ?? []).filter((a) =>
-        selectedAddonIds.has(a.id),
+      selectedServices.map((svc) =>
+        addonsForService(svc).reduce(
+          (sum, a) => sum + (a.durationMinutes ?? 0),
+          0,
+        ),
       ),
-    [selectedService, selectedAddonIds],
+    // selectedAddonsByService drives addonsForService; include it explicitly.
+    [selectedServices, selectedAddonsByService],
   );
-  const addonsTotal = useMemo(
-    () => selectedAddons.reduce((sum, a) => sum + a.price, 0),
-    [selectedAddons],
-  );
-  const addonsDurationMinutes = useMemo(
+  // A stable signature so the slot effect re-runs when add-on minutes change.
+  const extraMinutesSig = extraMinutesByService.join(",");
+
+  // Grand total across all services incl. their add-ons.
+  const servicesTotal = useMemo(
     () =>
-      selectedAddons.reduce((sum, a) => sum + (a.durationMinutes ?? 0), 0),
-    [selectedAddons],
+      selectedServices.reduce((sum, svc) => {
+        const addonSum = addonsForService(svc).reduce(
+          (s, a) => s + a.price,
+          0,
+        );
+        return sum + svc.price + addonSum;
+      }, 0),
+    [selectedServices, selectedAddonsByService],
   );
 
-  // Lazy slot fetch. Triggers on:
-  //   - service change (slots are service-specific in the RPC)
-  //   - worker change (server can narrow via p_selected_worker_ids)
-  //   - add-on duration change (the slot must be long enough for the add-ons)
-  //   - shop id change (only ever once in practice — included for soundness)
-  // Cancellation flag protects against an old request landing after a
-  // newer one fires (e.g. user taps service A then quickly switches to B).
+  // Lazy slot fetch over ALL selected services at once. The RPC returns
+  // per-service windows (tagged by slotId); generateCombinedSlots then merges
+  // them into single appointment windows that fit every service back-to-back.
+  // Triggers on service set, worker, add-on minutes, or shop change.
   useEffect(() => {
-    if (!selectedServiceId) {
+    if (selectedServiceIds.length === 0) {
       setSlots([]);
       setSelectedSlot(null);
       return;
@@ -111,12 +131,11 @@ export function BookingFlow({
     let cancelled = false;
     getSlots({
       shopId: data.target.id,
-      serviceIds: [selectedServiceId],
-      quantities: [1],
+      serviceIds: selectedServiceIds,
+      quantities: selectedServiceIds.map(() => 1),
       workerIds: selectedWorkerId ? [selectedWorkerId] : null,
       days: 7,
-      // Per-service add-on minutes so generated slots fit service + add-ons.
-      extraMinutes: [addonsDurationMinutes],
+      extraMinutes: extraMinutesByService,
     })
       .then((res) => {
         if (cancelled) return;
@@ -132,49 +151,46 @@ export function BookingFlow({
     return () => {
       cancelled = true;
     };
+    // extraMinutesSig is a primitive signature of extraMinutesByService.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    selectedServiceId,
+    selectedServiceIds.join(","),
     selectedWorkerId,
     data.target.id,
-    addonsDurationMinutes,
+    extraMinutesSig,
   ]);
 
-  // Effective service price includes selected add-ons. Deposit, platform fee,
-  // and the charged total all derive from this so add-ons are billed.
-  const effectivePrice = selectedService
-    ? selectedService.price + addonsTotal
-    : 0;
+  // Combined appointment windows (one per start time where all services fit).
+  const combinedSlots: CombinedSlot[] = useMemo(
+    () => generateCombinedSlots(slots, selectedServiceIds),
+    [slots, selectedServiceIds],
+  );
 
+  const hasServices = selectedServices.length > 0;
   const canSubmit =
-    !!selectedService &&
+    hasServices &&
     !!selectedSlot &&
     !!name &&
     !!phone &&
     (!needsAddress || !!address) &&
     !submitting;
-  const deposit = effectivePrice * data.depositFraction;
-  const platformFee = effectivePrice * data.platformFeeFraction;
+  const deposit = servicesTotal * data.depositFraction;
+  const platformFee = servicesTotal * data.platformFeeFraction;
   const currency = data.target.currency;
 
   async function handleSubmit() {
-    if (!canSubmit || !selectedService || !selectedSlot) return;
+    if (!canSubmit || !hasServices || !selectedSlot) return;
     setSubmitting(true);
     setError(null);
 
     const origin = typeof window !== "undefined" ? window.location.origin : "";
 
     const startTime = selectedSlot.startTime;
-    // Prefer the RPC-reported endTime (already accounts for the slot
-    // duration); fall back to a computed end if for some reason it's
-    // missing. actual_end_time isn't surfaced through get-slots so we
-    // approximate with endTime — create-booking's conflict checker
-    // re-derives it on the server side.
-    const computedEnd = new Date(
-      new Date(startTime).getTime() +
-        selectedService.durationMinutes * 60_000,
-    ).toISOString();
-    const endTime = selectedSlot.endTime || computedEnd;
-    const actualEndTime = selectedSlot.endTime || computedEnd;
+    // selectedSlot is a combined window: end = start + sum of all service
+    // durations (incl. add-ons). create-booking re-derives actual_end_time
+    // server-side; we pass the combined end for both.
+    const endTime = selectedSlot.endTime;
+    const actualEndTime = selectedSlot.endTime;
 
     // Idempotency key scoped to (shop, phone, start_time, attempt) so a
     // double-tap on the CTA can't create two bookings, but a user-initiated
@@ -184,46 +200,50 @@ export function BookingFlow({
       startTime,
     ).getTime()}_${submitAttempt}`;
 
+    const workerId = selectedWorkerId ?? selectedSlot.workerId;
+    const workerName =
+      data.workers.find((w) => w.id === workerId)?.name ?? "";
+
+    // One entry per selected service. Each carries its own (service + add-on)
+    // price and duration, matching the app's payload contract. totalAmount is
+    // the sum, so the create-booking amount guard (total == sum of services)
+    // holds.
+    const servicesPayload = selectedServices.map((svc) => {
+      const svcAddons = addonsForService(svc);
+      const addonPrice = svcAddons.reduce((s, a) => s + a.price, 0);
+      const addonMinutes = svcAddons.reduce(
+        (s, a) => s + (a.durationMinutes ?? 0),
+        0,
+      );
+      return {
+        slotId: svc.id,
+        workerId,
+        serviceName: svc.name,
+        workerName,
+        priceAtBooking: svc.price + addonPrice,
+        durationMinutes: svc.durationMinutes + addonMinutes,
+        ...(svcAddons.length > 0
+          ? {
+              addons: svcAddons.map((a) => ({
+                id: a.id,
+                name: a.name,
+                price: a.price,
+                durationMinutes: a.durationMinutes,
+              })),
+            }
+          : {}),
+      };
+    });
+
     const res = await createBooking({
       shopId: data.target.id,
       guestName: name,
       guestPhone: phone,
-      services: [
-        {
-          slotId: selectedService.id,
-          // Prefer the visitor's explicit worker pick. When they leave it on
-          // "Any available", fall back to the worker the picked slot is
-          // actually bound to (get-slots emits one entry per (slot, worker)
-          // pair). Without this fallback, booking_services trips the
-          // "Worker does not belong to this shop" check via stale NULL +
-          // trigger interaction.
-          workerId: selectedWorkerId ?? selectedSlot.workerId,
-          serviceName: selectedService.name,
-          workerName:
-            data.workers.find(
-              (w) => w.id === (selectedWorkerId ?? selectedSlot.workerId),
-            )?.name ?? "",
-          // Fold add-on price + duration into the per-service values, matching
-          // the app's contract (booking_confirmation_screen.dart).
-          priceAtBooking: effectivePrice,
-          durationMinutes:
-            selectedService.durationMinutes + addonsDurationMinutes,
-          ...(selectedAddons.length > 0
-            ? {
-                addons: selectedAddons.map((a) => ({
-                  id: a.id,
-                  name: a.name,
-                  price: a.price,
-                  durationMinutes: a.durationMinutes,
-                })),
-              }
-            : {}),
-        },
-      ],
+      services: servicesPayload,
       startTime,
       endTime,
       actualEndTime,
-      totalAmount: effectivePrice,
+      totalAmount: servicesTotal,
       depositAmount: deposit,
       platformFee,
       paymentMethod: "paystack", // server overrides based on currency
@@ -248,36 +268,52 @@ export function BookingFlow({
     window.location.href = res.authorizationUrl;
   }
 
+  const toggleService = (id: string) => {
+    setSelectedServiceIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+    // Drop any add-ons for a service being removed.
+    setSelectedAddonsByService((prev) => {
+      if (!selectedServiceIds.includes(id)) return prev;
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  };
+
+  const toggleAddon = (serviceId: string, addonId: string) => {
+    setSelectedAddonsByService((prev) => {
+      const current = new Set(prev[serviceId] ?? []);
+      if (current.has(addonId)) {
+        current.delete(addonId);
+      } else {
+        current.add(addonId);
+      }
+      return { ...prev, [serviceId]: current };
+    });
+  };
+
   return (
     <>
       <ServicePicker
         services={data.services}
         currency={currency}
-        selectedId={selectedServiceId}
+        selectedIds={selectedServiceIds}
         lastBookedServiceName={lastService}
-        onSelect={(id) => {
-          setSelectedServiceId(id);
-          // Add-ons belong to a specific service — clear them on change.
-          setSelectedAddonIds(new Set());
-        }}
+        onToggle={toggleService}
       />
-      {selectedService && selectedService.addons.length > 0 && (
-        <AddonPicker
-          addons={selectedService.addons}
-          currency={currency}
-          selectedIds={selectedAddonIds}
-          onToggle={(id) =>
-            setSelectedAddonIds((prev) => {
-              const next = new Set(prev);
-              if (next.has(id)) {
-                next.delete(id);
-              } else {
-                next.add(id);
-              }
-              return next;
-            })
-          }
-        />
+      {/* Per-service add-ons, shown for each selected service that has any. */}
+      {selectedServices.map((svc) =>
+        svc.addons.length > 0 ? (
+          <AddonPicker
+            key={svc.id}
+            serviceName={svc.name}
+            addons={svc.addons}
+            currency={currency}
+            selectedIds={selectedAddonsByService[svc.id] ?? new Set()}
+            onToggle={(addonId) => toggleAddon(svc.id, addonId)}
+          />
+        ) : null,
       )}
       {data.targetType === "shop" && (
         <WorkerPicker
@@ -287,7 +323,7 @@ export function BookingFlow({
         />
       )}
       <SlotPicker
-        slots={slots}
+        slots={combinedSlots}
         workerId={selectedWorkerId}
         selectedSlot={selectedSlot}
         onSelect={setSelectedSlot}
@@ -330,14 +366,16 @@ export function BookingFlow({
         >
           {submitting
             ? "Starting payment…"
-            : selectedService
+            : hasServices
               ? `Pay ${formatMoney(deposit, currency)} deposit · Continue`
               : "Pick a service"}
         </button>
-        {selectedService && (
+        {hasServices && (
           <div className="bg-slate-50 text-center text-xs text-slate-500 py-2">
-            Remaining {formatMoney(selectedService.price - deposit, currency)}{" "}
-            paid after service
+            {selectedServices.length} service
+            {selectedServices.length === 1 ? "" : "s"} ·{" "}
+            {formatMoney(servicesTotal, currency)} total · remaining{" "}
+            {formatMoney(servicesTotal - deposit, currency)} after service
           </div>
         )}
       </div>

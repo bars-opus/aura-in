@@ -7,7 +7,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { SlotEntry } from "@/lib/types";
+import type { CombinedSlot } from "@/lib/combine-slots";
 import { formatTimeSlot, formatDateHeader } from "@/lib/format";
 
 export function SlotPicker({
@@ -17,10 +17,10 @@ export function SlotPicker({
   onSelect,
   loading,
 }: {
-  slots: SlotEntry[];
+  slots: CombinedSlot[];
   workerId: string | null;
-  selectedSlot: SlotEntry | null;
-  onSelect: (slot: SlotEntry) => void;
+  selectedSlot: CombinedSlot | null;
+  onSelect: (slot: CombinedSlot) => void;
   loading: boolean;
 }) {
   // When the visitor has selected a specific worker, drop slots assigned
@@ -33,7 +33,7 @@ export function SlotPicker({
   // Group by local-date (toDateString gives "Mon May 27 2026" — stable
   // across same-day slots, sortable by inserting in chronological order).
   const byDate = useMemo(() => {
-    const groups: Record<string, SlotEntry[]> = {};
+    const groups: Record<string, CombinedSlot[]> = {};
     for (const s of filtered) {
       const date = new Date(s.startTime).toDateString();
       (groups[date] ??= []).push(s);

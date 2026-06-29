@@ -95,6 +95,9 @@ export interface Worker {
  * after the visitor picks services. See resolve-link/index.ts §5.
  */
 export interface SlotEntry {
+  /** The service (appointment_slots id) this slot belongs to. Null for legacy
+   *  single-service responses; required for combined multi-service slots. */
+  slotId?: string | null;
   startTime: string; // ISO timestamp
   endTime: string;
   workerId: string | null;
