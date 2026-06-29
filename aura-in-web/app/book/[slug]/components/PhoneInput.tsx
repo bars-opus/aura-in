@@ -106,7 +106,7 @@ export function PhoneInput({
           const next = COUNTRIES.find((c) => c.iso2 === e.target.value);
           if (next) setCountry(next);
         }}
-        className="bg-white border border-slate-200 rounded-lg px-2 py-2.5 text-sm min-w-[110px]"
+        className="bg-white text-slate-900 border border-slate-200 rounded-lg px-2 py-2.5 text-sm min-w-[110px]"
         aria-label="Country code"
       >
         {COUNTRIES.map((c) => (
@@ -122,7 +122,7 @@ export function PhoneInput({
         placeholder={placeholder}
         value={local}
         onChange={(e) => setLocal(e.target.value)}
-        className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm"
+        className="flex-1 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-lg px-3 py-2.5 text-sm"
       />
     </div>
   );

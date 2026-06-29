@@ -70,7 +70,7 @@ export function GuestForm({
         placeholder="Full name"
         value={name}
         onChange={(e) => onChange({ name: e.target.value, phone })}
-        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm mb-2"
+        className="w-full bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-lg px-3 py-2.5 text-sm mb-2"
       />
       <PhoneInput
         value={phone}

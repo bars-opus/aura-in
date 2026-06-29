@@ -62,6 +62,7 @@ export async function handler(req: Request): Promise<Response> {
     quantities?: number[];
     workerIds?: string[] | null;
     days?: number;
+    extraMinutes?: number[];
   };
   try {
     body = await req.json();
@@ -131,12 +132,16 @@ export async function handler(req: Request): Promise<Response> {
         body.workerIds && body.workerIds.length > 0 ? body.workerIds : null,
       p_default_buffer_minutes: 0,
       // Always send p_extra_minutes so the call unambiguously resolves to the
-      // 7-arg overload. Two overloads (6-arg and 7-arg) coexist in the DB, and
-      // omitting this made Postgres reject the call as "function not unique"
-      // (the null worker_ids couldn't disambiguate) — which silently returned
-      // zero slots on the web. One entry per service; addon minutes default 0
-      // here (the booking payload already folds addon duration into durationMinutes).
-      p_extra_minutes: (body.serviceIds ?? []).map(() => 0),
+      // 7-arg overload (a 6-arg and 7-arg version coexist; omitting this made
+      // Postgres reject the call as "function not unique" → zero slots). The
+      // values are the per-service add-on minutes so each generated slot is
+      // long enough to fit the service plus its selected add-ons — matching the
+      // app's slot generation. Defaults to 0 per service when none selected.
+      p_extra_minutes:
+        Array.isArray(body.extraMinutes) &&
+        body.extraMinutes.length === (body.serviceIds ?? []).length
+          ? body.extraMinutes
+          : (body.serviceIds ?? []).map(() => 0),
     });
     if (error) {
       console.error(`get-slots: ${dateStr} RPC failed:`, error);

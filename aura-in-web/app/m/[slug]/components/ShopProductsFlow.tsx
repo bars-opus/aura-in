@@ -310,7 +310,7 @@ function CheckoutSheet({
             placeholder="Full name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm mb-2"
+            className="w-full bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-lg px-3 py-2.5 text-sm mb-2"
           />
           <PhoneInput
             value={phone}
@@ -323,7 +323,7 @@ function CheckoutSheet({
             placeholder="Delivery address (street, area, landmark)"
             rows={2}
             maxLength={500}
-            className="mt-2 w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm resize-y"
+            className="mt-2 w-full bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-lg px-3 py-2.5 text-sm resize-y"
           />
           <textarea
             value={notes}
@@ -331,7 +331,7 @@ function CheckoutSheet({
             placeholder="Notes for the shop (optional)"
             rows={2}
             maxLength={1000}
-            className="mt-2 w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm resize-y"
+            className="mt-2 w-full bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-lg px-3 py-2.5 text-sm resize-y"
           />
         </section>
 

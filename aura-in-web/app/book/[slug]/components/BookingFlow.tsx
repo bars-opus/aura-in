@@ -74,44 +74,6 @@ export function BookingFlow({
     [data.services, selectedServiceId],
   );
 
-  // Lazy slot fetch. Triggers on:
-  //   - service change (slots are service-specific in the RPC)
-  //   - worker change (server can narrow via p_selected_worker_ids)
-  //   - shop id change (only ever once in practice — included for soundness)
-  // Cancellation flag protects against an old request landing after a
-  // newer one fires (e.g. user taps service A then quickly switches to B).
-  useEffect(() => {
-    if (!selectedServiceId) {
-      setSlots([]);
-      setSelectedSlot(null);
-      return;
-    }
-    setSlotsLoading(true);
-    setSelectedSlot(null);
-    let cancelled = false;
-    getSlots({
-      shopId: data.target.id,
-      serviceIds: [selectedServiceId],
-      quantities: [1],
-      workerIds: selectedWorkerId ? [selectedWorkerId] : null,
-      days: 7,
-    })
-      .then((res) => {
-        if (cancelled) return;
-        setSlots(res.slots);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setSlots([]);
-      })
-      .finally(() => {
-        if (!cancelled) setSlotsLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedServiceId, selectedWorkerId, data.target.id]);
-
   // The add-ons the visitor ticked, scoped to the current service. Reset
   // whenever the service changes (handled in onSelect below).
   const selectedAddons = useMemo(
@@ -130,6 +92,52 @@ export function BookingFlow({
       selectedAddons.reduce((sum, a) => sum + (a.durationMinutes ?? 0), 0),
     [selectedAddons],
   );
+
+  // Lazy slot fetch. Triggers on:
+  //   - service change (slots are service-specific in the RPC)
+  //   - worker change (server can narrow via p_selected_worker_ids)
+  //   - add-on duration change (the slot must be long enough for the add-ons)
+  //   - shop id change (only ever once in practice — included for soundness)
+  // Cancellation flag protects against an old request landing after a
+  // newer one fires (e.g. user taps service A then quickly switches to B).
+  useEffect(() => {
+    if (!selectedServiceId) {
+      setSlots([]);
+      setSelectedSlot(null);
+      return;
+    }
+    setSlotsLoading(true);
+    setSelectedSlot(null);
+    let cancelled = false;
+    getSlots({
+      shopId: data.target.id,
+      serviceIds: [selectedServiceId],
+      quantities: [1],
+      workerIds: selectedWorkerId ? [selectedWorkerId] : null,
+      days: 7,
+      // Per-service add-on minutes so generated slots fit service + add-ons.
+      extraMinutes: [addonsDurationMinutes],
+    })
+      .then((res) => {
+        if (cancelled) return;
+        setSlots(res.slots);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setSlots([]);
+      })
+      .finally(() => {
+        if (!cancelled) setSlotsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    selectedServiceId,
+    selectedWorkerId,
+    data.target.id,
+    addonsDurationMinutes,
+  ]);
 
   // Effective service price includes selected add-ons. Deposit, platform fee,
   // and the charged total all derive from this so add-ons are billed.

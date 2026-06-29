@@ -112,6 +112,9 @@ export interface GetSlotsRequest {
   quantities: number[];
   workerIds?: string[] | null;
   days?: number;
+  /** Per-service add-on minutes, parallel to serviceIds. Extends each slot's
+   *  length so the appointment window fits the service + its add-ons. */
+  extraMinutes?: number[];
 }
 
 /**

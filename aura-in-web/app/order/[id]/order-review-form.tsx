@@ -77,7 +77,7 @@ export function OrderReviewForm({
         placeholder="Tell other shoppers what went well or what could be better."
         rows={3}
         maxLength={1000}
-        className="mt-3 w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm resize-y"
+        className="mt-3 w-full bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-lg px-3 py-2.5 text-sm resize-y"
       />
 
       {error && (
