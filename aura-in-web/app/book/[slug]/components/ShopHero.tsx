@@ -14,7 +14,7 @@ export function ShopHero({ target, slug }: { target: Shop; slug: string }) {
   return (
     <a
       href={`${APP_BASE_URL}/l/${slug}`}
-      className="flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-4 transition-colors active:bg-slate-50"
+      className="mx-4 mt-3 flex items-center gap-3 rounded-2xl border border-slate-200/70 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_4px_16px_rgba(15,23,42,0.04)] transition-colors active:bg-slate-50"
     >
       {target.logoUrl ? (
         <img
