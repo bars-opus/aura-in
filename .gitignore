@@ -60,3 +60,4 @@ graphify-out/
 **/.graphify*
 supabase/.temp/
 .superpowers/
+.next/

@@ -674,12 +674,12 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
         path: RouteNames.shopDetailsScreen,
         name: 'shopDetailsScreen',
         builder: (context, state) {
-          // Cast to Map with nullable values first
-          final params = state.extra as Map<String, String?>;
+          final params =
+              (state.extra as Map?)?.cast<String, dynamic>() ?? const {};
 
           return ShopDetailsScreen(
-            shopId: params['shopId'] ?? '', // Provide default for null
-            coverImageUrl: params['coverImageUrl'] ?? '',
+            shopId: params['shopId']?.toString() ?? '',
+            coverImageUrl: params['coverImageUrl']?.toString() ?? '',
           );
         },
       ),
@@ -1032,7 +1032,7 @@ GoRouter createAppRouter(RoutingNotifier routingNotifier) {
       GoRoute(
         path: RouteNames.productDetail,
         name: 'productDetail',
-       
+
         builder: (context, state) {
           final extra = state.extra;
           // Accept any Map shape — callers pass both Map<String, String?> and

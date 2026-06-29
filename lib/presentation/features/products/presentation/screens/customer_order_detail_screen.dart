@@ -687,7 +687,7 @@ class _CustomerOrderDetailScreenState
       'shopDetailsScreen',
       extra: <String, String?>{
         'shopId': order.shopId,
-        'coverImageUrl': order.previewProductImage ?? '',
+        'coverImageUrl': order.shopLogo ?? '',
       },
     );
   }
@@ -713,9 +713,10 @@ class _CustomerOrderDetailScreenState
         imageUrl: item.productImage,
         titleFontSize: FontSizeTokens.lg,
         avatarRadius: 70.h,
-        onTap: item.productId.isEmpty
-            ? null
-            : () => context.pushNamed(
+        onTap:
+            item.productId.isEmpty
+                ? null
+                : () => context.pushNamed(
                   'productDetail',
                   extra: <String, String?>{
                     'productId': item.productId,
@@ -741,7 +742,8 @@ class _CustomerOrderDetailScreenState
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-            ),Icon(
+            ),
+            Icon(
               Icons.chevron_right,
               size: IconSizes.md.h,
               color: colorScheme.onBackground.withOpacity(0.3),
@@ -765,9 +767,10 @@ class _CustomerOrderDetailScreenState
             title: order.deliveryAddress,
             icon: Icons.house,
             avatarRadius: 25.h,
-            onTap: order.deliveryAddress.trim().isEmpty
-                ? null
-                : () => UrlLauncherUtils.launchMapsQuery(
+            onTap:
+                order.deliveryAddress.trim().isEmpty
+                    ? null
+                    : () => UrlLauncherUtils.launchMapsQuery(
                       context: context,
                       address: order.deliveryAddress,
                     ),
@@ -825,7 +828,10 @@ class _CustomerOrderDetailScreenState
       final phone = shop?.phone?.trim() ?? '';
       if (!mounted) return;
       if (phone.isNotEmpty) {
-        await UrlLauncherUtils.launchPhone(context: context, phoneNumber: phone);
+        await UrlLauncherUtils.launchPhone(
+          context: context,
+          phoneNumber: phone,
+        );
       } else {
         // No phone on file — message the shop owner in-app instead.
         await BusinessChatLauncher.openForOrder(
