@@ -19,9 +19,21 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const data = await resolveProductsLink(slug);
   if (!data) return { title: "Shop not found" };
+  const title = `${data.shop.name} — order online`;
+  const description = `Browse and order from ${data.shop.name}. Pay on delivery.`;
+  // Social/WhatsApp preview: the shop's logo, else the Aura-In mark.
+  const image = data.shop.logo_url ?? "/og-default.png";
   return {
-    title: `${data.shop.name} — order online`,
-    description: `Browse and order from ${data.shop.name}. Pay on delivery.`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      siteName: "Aura-In",
+      images: [{ url: image }],
+    },
+    twitter: { card: "summary", title, description, images: [image] },
   };
 }
 
