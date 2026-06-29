@@ -104,7 +104,7 @@ export function SlotPicker({
               onClick={() => setSelectedDate(date)}
               className={`flex-shrink-0 min-w-[3rem] px-2 py-1.5 rounded text-center border ${
                 selected
-                  ? "bg-slate-900 text-white border-slate-900"
+                  ? "bg-brand-500 text-white border-brand-500"
                   : "bg-white text-slate-700 border-slate-200"
               }`}
             >
@@ -125,7 +125,7 @@ export function SlotPicker({
               onClick={() => onSelect(slot)}
               className={`py-2 text-center rounded text-sm border ${
                 selected
-                  ? "bg-emerald-50 border-emerald-500 text-emerald-700 font-semibold"
+                  ? "bg-brand-50 border-brand-500 text-brand-700 font-semibold"
                   : "bg-white border-slate-200 text-slate-700"
               }`}
             >

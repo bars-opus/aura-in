@@ -107,7 +107,7 @@ export function ShopProductsFlow({ data }: { data: ShopProductsResponse }) {
             <button
               type="button"
               onClick={() => setShowCheckout(true)}
-              className="bg-slate-900 text-white text-sm font-medium rounded-lg px-5 py-2.5"
+              className="bg-brand-500 text-white text-sm font-medium rounded-lg px-5 py-2.5"
             >
               Continue
             </button>
@@ -346,7 +346,7 @@ function CheckoutSheet({
             type="button"
             disabled={!canSubmit}
             onClick={submit}
-            className="w-full bg-slate-900 text-white text-sm font-medium rounded-lg py-3 disabled:bg-slate-300 disabled:cursor-not-allowed"
+            className="w-full bg-brand-500 text-white text-sm font-medium rounded-lg py-3 disabled:bg-slate-300 disabled:cursor-not-allowed"
           >
             {submitting ? "Placing order…" : `Place order · ${formatMoney(total, currency)}`}
           </button>

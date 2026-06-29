@@ -36,7 +36,7 @@ export default function ErrorPage({
         <button
           type="button"
           onClick={reset}
-          className="bg-emerald-600 text-white font-medium px-4 py-2 rounded-lg"
+          className="bg-brand-600 text-white font-medium px-4 py-2 rounded-lg"
         >
           Try again
         </button>

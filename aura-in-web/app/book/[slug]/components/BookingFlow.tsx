@@ -368,7 +368,7 @@ export function BookingFlow({
           disabled={!canSubmit}
           className={`w-full py-3.5 text-white font-semibold ${
             canSubmit
-              ? "bg-emerald-600 active:bg-emerald-700"
+              ? "bg-brand-600 active:bg-brand-700"
               : "bg-slate-300"
           }`}
         >

@@ -92,7 +92,7 @@ export function ReviewForm({
         type="button"
         disabled={rating === 0 || submitting}
         onClick={onSubmit}
-        className="mt-4 w-full bg-slate-900 text-white text-sm font-medium rounded-lg py-3 disabled:bg-slate-300 disabled:cursor-not-allowed"
+        className="mt-4 w-full bg-brand-500 text-white text-sm font-medium rounded-lg py-3 disabled:bg-slate-300 disabled:cursor-not-allowed"
       >
         {submitting ? "Submitting…" : "Submit review"}
       </button>

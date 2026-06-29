@@ -15,6 +15,20 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Brand palette — mirrors the app primary (#0066cc, "Apple Store blue") so
+     the web and app look consistent. Shades around 500/600 match the app's
+     primary / primaryDark; the 50–200 tints back the subtle selection states. */
+  --color-brand-50: #e6f0fa;
+  --color-brand-100: #cce0f5;
+  --color-brand-200: #99c2eb;
+  --color-brand-300: #66a3e0;
+  --color-brand-400: #338fd9; /* app primaryLight */
+  --color-brand-500: #0066cc; /* app primary */
+  --color-brand-600: #005bb8;
+  --color-brand-700: #004fa3; /* app primaryDark */
+  --color-brand-800: #003d80;
+  --color-brand-900: #002e60;
 }
 
 body {

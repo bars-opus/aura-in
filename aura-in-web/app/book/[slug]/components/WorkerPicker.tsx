@@ -31,7 +31,7 @@ export function WorkerPicker({
           onClick={() => onSelect(null)}
           className={`flex-shrink-0 px-3 py-2 rounded-lg border bg-white ${
             selectedId === null
-              ? "border-emerald-500 ring-1 ring-emerald-500 text-slate-900 font-medium"
+              ? "border-brand-500 ring-1 ring-brand-500 text-slate-900 font-medium"
               : "border-slate-200 text-slate-600"
           }`}
         >
@@ -44,7 +44,7 @@ export function WorkerPicker({
             onClick={() => onSelect(w.id)}
             className={`flex-shrink-0 px-3 py-2 rounded-lg border bg-white ${
               selectedId === w.id
-                ? "border-emerald-500 ring-1 ring-emerald-500 text-slate-900 font-medium"
+                ? "border-brand-500 ring-1 ring-brand-500 text-slate-900 font-medium"
                 : "border-slate-200 text-slate-600"
             }`}
           >

@@ -102,7 +102,7 @@ export default async function OrderDetailPage({ params }: Props) {
                       className={
                         "mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 " +
                         (done
-                          ? "bg-emerald-500 border-emerald-500"
+                          ? "bg-brand-500 border-brand-500"
                           : active
                           ? "bg-amber-400 border-amber-400 animate-pulse"
                           : "bg-white border-slate-300")
@@ -203,10 +203,10 @@ export default async function OrderDetailPage({ params }: Props) {
                   href={`https://wa.me/${data.shop.whatsapp.replace(/[^\d]/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5 text-sm text-emerald-900 hover:bg-emerald-100"
+                  className="flex items-center justify-between bg-brand-50 border border-brand-200 rounded-lg px-3 py-2.5 text-sm text-brand-900 hover:bg-brand-100"
                 >
                   <span className="flex items-center gap-2"><span aria-hidden>💬</span>WhatsApp</span>
-                  <span className="text-emerald-700 tabular-nums">{data.shop.whatsapp}</span>
+                  <span className="text-brand-700 tabular-nums">{data.shop.whatsapp}</span>
                 </a>
               )}
             </div>

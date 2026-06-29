@@ -67,8 +67,8 @@ export default async function BookingDetailPage({ params }: Props) {
                 <p className="text-xs text-slate-500 truncate">{data.shop.type}</p>
               )}
             </div>
-            <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-xs font-medium px-2 py-1 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span className="inline-flex items-center gap-1 bg-brand-50 text-brand-700 text-xs font-medium px-2 py-1 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-500" />
               Confirmed
             </span>
           </div>
@@ -157,13 +157,13 @@ export default async function BookingDetailPage({ params }: Props) {
                   href={`https://wa.me/${data.shop.whatsapp.replace(/[^\d]/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5 text-sm text-emerald-900 hover:bg-emerald-100"
+                  className="flex items-center justify-between bg-brand-50 border border-brand-200 rounded-lg px-3 py-2.5 text-sm text-brand-900 hover:bg-brand-100"
                 >
                   <span className="flex items-center gap-2">
                     <span aria-hidden>💬</span>
                     WhatsApp
                   </span>
-                  <span className="text-emerald-700 tabular-nums">
+                  <span className="text-brand-700 tabular-nums">
                     {data.shop.whatsapp}
                   </span>
                 </a>
@@ -271,7 +271,7 @@ export default async function BookingDetailPage({ params }: Props) {
         <section className="max-w-md mx-auto px-4 pt-3">
           <Link
             href={`/r/${data.id}`}
-            className="block bg-slate-900 text-white text-sm font-medium rounded-xl py-3 text-center"
+            className="block bg-brand-500 text-white text-sm font-medium rounded-xl py-3 text-center"
           >
             ★ Rate your visit
           </Link>

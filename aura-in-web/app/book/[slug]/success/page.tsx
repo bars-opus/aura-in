@@ -40,8 +40,8 @@ export default async function SuccessPage({ params, searchParams }: Props) {
     return (
       <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 max-w-md w-full p-6 text-center">
-          <div className="w-14 h-14 mx-auto rounded-full bg-emerald-100 flex items-center justify-center mb-4">
-            <span className="text-emerald-600 text-3xl">✓</span>
+          <div className="w-14 h-14 mx-auto rounded-full bg-brand-100 flex items-center justify-center mb-4">
+            <span className="text-brand-600 text-3xl">✓</span>
           </div>
           <h1 className="text-xl font-semibold text-slate-900 mb-2">Booking confirmed</h1>
           <p className="text-sm text-slate-500 mb-6">

@@ -18,7 +18,7 @@ export default function NotFound() {
         </p>
         <Link
           href="/"
-          className="text-emerald-600 text-sm font-medium underline"
+          className="text-brand-600 text-sm font-medium underline"
         >
           Go to Aura-In home
         </Link>

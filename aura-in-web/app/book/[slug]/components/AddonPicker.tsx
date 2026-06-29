@@ -38,7 +38,7 @@ export function AddonPicker({
               onClick={() => onToggle(addon.id)}
               className={`w-full text-left bg-white rounded-lg p-3 flex justify-between items-center border ${
                 checked
-                  ? "border-emerald-500 ring-1 ring-emerald-500"
+                  ? "border-brand-500 ring-1 ring-brand-500"
                   : "border-slate-200"
               }`}
             >
@@ -46,7 +46,7 @@ export function AddonPicker({
                 <span
                   className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
                     checked
-                      ? "bg-emerald-500 border-emerald-500 text-white"
+                      ? "bg-brand-500 border-brand-500 text-white"
                       : "border-slate-300"
                   }`}
                   aria-hidden
@@ -70,7 +70,7 @@ export function AddonPicker({
               </div>
               <div
                 className={`font-semibold shrink-0 ${
-                  checked ? "text-emerald-600" : "text-slate-700"
+                  checked ? "text-brand-600" : "text-slate-700"
                 }`}
               >
                 +{formatMoneyMinor(addon.priceMinor, currency)}

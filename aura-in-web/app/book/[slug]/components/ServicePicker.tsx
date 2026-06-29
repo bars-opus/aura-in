@@ -40,7 +40,7 @@ export function ServicePicker({
               onClick={() => onToggle(svc.id)}
               className={`w-full text-left bg-white rounded-lg p-3 flex justify-between items-start border ${
                 selected
-                  ? "border-emerald-500 ring-1 ring-emerald-500"
+                  ? "border-brand-500 ring-1 ring-brand-500"
                   : "border-slate-200"
               }`}
             >
@@ -48,7 +48,7 @@ export function ServicePicker({
                 <span
                   className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
                     selected
-                      ? "bg-emerald-500 border-emerald-500 text-white"
+                      ? "bg-brand-500 border-brand-500 text-white"
                       : "border-slate-300"
                   }`}
                   aria-hidden
@@ -63,7 +63,7 @@ export function ServicePicker({
                 <div className="font-medium text-slate-900 flex items-center gap-2">
                   {svc.name}
                   {isLast && (
-                    <span className="text-[10px] uppercase tracking-wide bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] uppercase tracking-wide bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded">
                       Booked last time
                     </span>
                   )}
@@ -83,7 +83,7 @@ export function ServicePicker({
               </div>
               <div
                 className={`font-semibold shrink-0 ${
-                  selected ? "text-emerald-600" : "text-slate-700"
+                  selected ? "text-brand-600" : "text-slate-700"
                 }`}
               >
                 {formatMoneyMinor(svc.priceMinor, currency)}
