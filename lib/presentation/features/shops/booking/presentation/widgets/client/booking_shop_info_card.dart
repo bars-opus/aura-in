@@ -54,24 +54,37 @@ class _BookingShopInfoCardState extends ConsumerState<BookingShopInfoCard> {
       child: Column(
         children: [
           Gap(Spacing.lg),
-          ProfileHeader(
-            mode: ProfileHeaderMode.compact,
-            displayName: widget.shopName,
-            userId: widget.shopId,
-            bio: widget.shopType,
-            avatarUrl: widget.shopLogoUrl,
-            // The header's default tap navigates to /profileScreen using userId
-            // — but here userId is a SHOP id, not a profile id, so that path
-            // failed with "unable to load profile". Route to the shop details
-            // screen instead.
-            enableOnProfileNavigatePressed: false,
-            onProfileNavigatePressed: () => context.pushNamed(
-              'shopDetailsScreen',
-              extra: <String, String?>{
-                'shopId': widget.shopId,
-                'coverImageUrl': widget.shopLogoUrl ?? '',
-              },
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: ProfileHeader(
+                  mode: ProfileHeaderMode.compact,
+                  displayName: widget.shopName,
+                  userId: widget.shopId,
+                  bio: widget.shopType,
+                  avatarUrl: widget.shopLogoUrl,
+                  // Keep the header tappable (enable=true) but OVERRIDE its
+                  // destination: the default navigates to /profileScreen using
+                  // userId, which here is a SHOP id (no such profile → "unable
+                  // to load profile"). enable=false would make it non-tappable
+                  // and the callback would never fire — so route to shop details.
+                  enableOnProfileNavigatePressed: true,
+                  onProfileNavigatePressed:
+                      () => context.pushNamed(
+                        'shopDetailsScreen',
+                        extra: <String, String?>{
+                          'shopId': widget.shopId,
+                          'coverImageUrl': widget.shopLogoUrl ?? '',
+                        },
+                      ),
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_outlined,
+                size: IconSizes.sm.h,
+                color: colorScheme.onSurface.withValues(alpha: 0.3),
+              ),
+            ],
           ),
 
           ShopDetailsSection(
