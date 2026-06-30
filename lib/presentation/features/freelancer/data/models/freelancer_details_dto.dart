@@ -39,6 +39,10 @@ class FreelancerDetailsDTO extends Equatable {
   final bool isBackgroundChecked;
   final DateTime? verifiedAt;
 
+  // Billing currency — pulled from the freelancer's shops row.
+  // Defaults to 'GHS' (Ghana cedis) when the shops row is absent.
+  final String currency;
+
   // Timestamps
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -75,6 +79,7 @@ class FreelancerDetailsDTO extends Equatable {
     this.createdAt,
     this.updatedAt,
     this.terms,
+    this.currency = 'GHS',
   });
 
   /// Create from JSON (joining workers + freelancer_details)
@@ -141,6 +146,13 @@ class FreelancerDetailsDTO extends Equatable {
           json['updated_at'] != null
               ? DateTime.parse(json['updated_at'])
               : null,
+      // Pulled from a nested 'shop' map injected by the repository after
+      // fetching the freelancer's shops row. Falls back to 'GHS'.
+      currency:
+          ((json['shop'] as Map<String, dynamic>?)?['currency'] ??
+                  (json['shop'] as Map<String, dynamic>?)?['currency_code'] ??
+                  'GHS')
+              as String,
     );
   }
 
@@ -191,5 +203,6 @@ class FreelancerDetailsDTO extends Equatable {
     createdAt,
     updatedAt,
     terms,
+    currency,
   ];
 }

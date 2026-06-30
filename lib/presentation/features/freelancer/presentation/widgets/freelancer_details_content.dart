@@ -74,7 +74,7 @@ class FreelancerDetailsContent extends ConsumerWidget {
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
                 SliverAppBar(
-                  expandedHeight: 400.h,
+                  expandedHeight: 300.h,
                   leading: Center(
                     child: AppIconButton(
                       onPressed: () => Navigator.pop(context),
@@ -217,7 +217,7 @@ class FreelancerDetailsContent extends ConsumerWidget {
                         freelancerDetails.freelancerType?.displayName ??
                         'Freelancer',
                     shopName: freelancerDetails.name,
-                    shopCurrency: 'USD', // Or get from user's location currency
+                    shopCurrency: freelancerDetails.currency,
                     shopLogoUrl: freelancerDetails.profileImageUrl ?? '',
                     latitude: freelancerDetails.baseLatitude ?? 0,
                     longitude: freelancerDetails.baseLongitude ?? 0,

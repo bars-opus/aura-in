@@ -740,31 +740,41 @@ class SupabaseFreelancerRepository {
   /// Get freelancer by ID
   Future<FreelancerDetailsDTO?> getFreelancerById(String workerId) async {
     try {
-      // First, just fetch from workers table
-      final workerResponse =
-          await _client
-              .from('workers')
-              .select('*')
-              .eq('id', workerId)
-              .eq('is_freelancer', true)
-              .maybeSingle();
+      // Fetch workers + freelancer_details + the shops row in parallel.
+      // The freelancer's shops row shares the same id as the worker id
+      // (every freelancer gets a shops row created alongside them so that
+      // appointment_slots, booking_simple, etc. all join via shop_id).
+      final results = await Future.wait<Map<String, dynamic>?>([
+        _client
+            .from('workers')
+            .select('*')
+            .eq('id', workerId)
+            .eq('is_freelancer', true)
+            .maybeSingle(),
+        _client
+            .from('freelancer_details')
+            .select('*')
+            .eq('worker_id', workerId)
+            .maybeSingle(),
+        _client
+            .from('shops')
+            .select('currency, currency_code')
+            .eq('id', workerId)
+            .maybeSingle(),
+      ]);
 
-      if (workerResponse == null) {
-        return null;
-      }
+      final workerResponse = results[0];
+      if (workerResponse == null) return null;
 
-      // Then fetch freelancer_details separately
-      final detailsResponse =
-          await _client
-              .from('freelancer_details')
-              .select('*')
-              .eq('worker_id', workerId)
-              .maybeSingle();
+      final detailsResponse = results[1];
+      final shopResponse = results[2];
 
-      // Combine the responses
       final combinedResponse = {
         ...workerResponse,
         'freelancer_details': detailsResponse,
+        // Inject the shops row so fromJson can read currency without a
+        // separate fetch at every call site.
+        if (shopResponse != null) 'shop': shopResponse,
       };
 
       return FreelancerDetailsDTO.fromJson(combinedResponse);
