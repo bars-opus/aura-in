@@ -1,5 +1,4 @@
 // lib/features/booking/presentation/screens/booking_flow_screen.dart
-import 'package:nano_embryo/presentation/features/shops/booking/presentation/controllers/booking_creation_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/providers/is_freelancer_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/client/booking_address_step.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
@@ -42,7 +41,6 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
   int _currentTabIndex = 0;
   bool _shouldForceTabChange = false;
   Key _tabsKey = UniqueKey();
-  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -177,14 +175,9 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
         (hasWorkersStep
             ? (hasAddressStep ? 4 : 3)
             : (hasAddressStep ? 3 : 2))) {
-      if (widget.isFreelancer) {
-        _processBooking();
-      } else {
-        // Signal BookingConfirmationScreen to open the payment dialog.
-        // _processBooking() calls the old payment-free flow and must not be
-        // used for regular shops, which require Paystack/Stripe payment.
-        ref.read(bookingPaymentTriggerProvider.notifier).update((v) => v + 1);
-      }
+      // Both shops and freelancers go through the same Paystack payment flow.
+      // _processBooking() is the old payment-free path — do not call it here.
+      ref.read(bookingPaymentTriggerProvider.notifier).update((v) => v + 1);
     }
   }
 
@@ -218,66 +211,6 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
       _currentTabIndex = widget.isFreelancer ? (widget.canTravel ? 3 : 2) : 3;
       _tabsKey = UniqueKey();
     });
-  }
-
-  Future<void> _processBooking() async {
-    if (_isProcessing) return;
-
-    setState(() => _isProcessing = true);
-
-    try {
-      final userId = ref.read(currentUserProvider)?.id;
-      final clientName = await ref.read(currentUserDisplayNameProvider.future);
-
-      if (userId == null) {
-        if (mounted) {
-          context.showErrorSnackbar('Please log in to continue');
-          context.push('/login');
-        }
-        return;
-      }
-
-      final bookingController = ref.read(
-        bookingCreationControllerProvider.notifier,
-      );
-
-      final booking =
-          widget.isFreelancer
-              ? await bookingController.createFreelancerBooking(
-                userId: userId,
-                freelancerId: widget.shopId,
-                freelancerName: widget.shopName,
-                freelancerLat: widget.latitude,
-                freelancerLng: widget.longitude,
-                travelRadiusKm: widget.travelRadiusKm ?? 10,
-                clientName: clientName,
-              )
-              : await bookingController.createBooking(
-                userId: userId,
-                shopId: widget.shopId,
-                latitude: widget.latitude,
-                longitude: widget.longitude,
-                shopAddress: widget.shopAddress,
-                clientName: clientName,
-                shopName: widget.shopName,
-              );
-
-      if (!mounted) return;
-      if (booking != null) {
-        Navigator.pushReplacementNamed(
-          context,
-          '/booking/confirmation',
-          arguments: {'bookingId': booking.id},
-        );
-      } else {
-        // The controller populated `state.error` with a user-safe
-        // message; surface that instead of a stringified exception.
-        final err = ref.read(bookingCreationControllerProvider).error;
-        context.showErrorSnackbar(err ?? 'Booking failed. Please try again.');
-      }
-    } finally {
-      if (mounted) setState(() => _isProcessing = false);
-    }
   }
 
   @override
@@ -391,10 +324,8 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
       showCloseIcon: true,
       useNestedScrollMode: true,
       appBartext: buttonText,
-      appBarOnPressed: _isProcessing ? null : _handleContinue,
+      appBarOnPressed: _handleContinue,
       onTabChangeRequest: (fromIndex, toIndex) {
-        if (_isProcessing) return false;
-
         if (_shouldForceTabChange && toIndex == _currentTabIndex) {
           _shouldForceTabChange = false;
           return true;
@@ -421,9 +352,12 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
           // (e.g. tapping Confirm directly from Time).
           final hasAddressStep = widget.isFreelancer && widget.canTravel;
           if (hasAddressStep && !_canProceedToAddress()) {
-            final addressTabIndex = 2; // freelancer: Services(0) Time(1) Address(2) Confirm(3)
+            final addressTabIndex =
+                2; // freelancer: Services(0) Time(1) Address(2) Confirm(3)
             if (toIndex > addressTabIndex) {
-              context.showErrorSnackbar('Please select a valid service address');
+              context.showErrorSnackbar(
+                'Please select a valid service address',
+              );
               return false;
             }
           }
