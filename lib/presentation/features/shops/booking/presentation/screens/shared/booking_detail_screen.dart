@@ -248,7 +248,9 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
                       if (!widget.isShopOwner)
                         BookingShopInfoCard(
                           shopType: widget.shopType,
-                          shopId: '',
+                          // Was hardcoded '' — the shop ProfileHeader tap then
+                          // had no shop to open. Use the booking's shop id.
+                          shopId: booking.shopId,
                           shopName: widget.shopName,
                           shopLogoUrl: widget.shopLogoUrl,
                           shopAddress:
