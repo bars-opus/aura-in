@@ -1,7 +1,7 @@
 // lib/features/booking/presentation/screens/booking_flow_screen.dart
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/controllers/booking_creation_controller.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/providers/is_freelancer_provider.dart';
-import 'package:nano_embryo/presentation/features/shops/booking/presentation/screens/client/service_address_screen.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/client/booking_address_step.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 
 /// Main booking flow screen that manages the multi-step booking process.
@@ -168,8 +168,8 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
         _goToConfirmStep();
       }
     } else if (_currentTabIndex == (hasWorkersStep ? 3 : 2) && hasAddressStep) {
-      if (!_canProceedToConfirm()) {
-        context.showErrorSnackbar('Please select a time slot');
+      if (!_canProceedToAddress()) {
+        context.showErrorSnackbar('Please select a valid service address');
         return;
       }
       _goToConfirmStep();
@@ -348,8 +348,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
       tabs.add(
         AppTabItem(
           label: 'Address',
-          content: ServiceAddressScreen(
-            freelancerId: widget.shopId,
+          content: BookingAddressStep(
             freelancerName: widget.shopName,
             freelancerLat: widget.latitude,
             freelancerLng: widget.longitude,

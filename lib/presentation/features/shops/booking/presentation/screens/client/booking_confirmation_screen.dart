@@ -6,6 +6,7 @@ import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/data/models/applied_promo.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/controllers/booking_creation_controller.dart';
+import 'package:nano_embryo/presentation/features/shops/booking/presentation/providers/is_freelancer_provider.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/payment/config/payment_config.dart';
 import 'package:nano_embryo/payment/presentation/controllers/payment_controller.dart';
@@ -88,18 +89,27 @@ class _BookingConfirmationScreenState
     );
 
     // Check if anything is missing - UPDATED LOGIC
+    final isFreelancer = ref.watch(isFreelancerProvider);
+    final selectedAddress = ref.watch(selectedAddressProvider);
+    // For travelling freelancers the address is mandatory before confirmation.
+    final addressSatisfied = !isFreelancer || selectedAddress != null;
+
     bool isValid = false;
 
     if (isCombinedView) {
-      // Combined view: need at least one slot
-      isValid = selectedServices.isNotEmpty && selectedTimeSlots.isNotEmpty;
+      // Combined view: need at least one slot + address (if freelancer).
+      isValid =
+          selectedServices.isNotEmpty &&
+          selectedTimeSlots.isNotEmpty &&
+          addressSatisfied;
     } else {
-      // Regular view: need a slot for EVERY service
+      // Regular view: need a slot for EVERY service + address (if freelancer).
       isValid =
           selectedServices.isNotEmpty &&
           selectedServices.every(
             (service) => selectedTimeSlots.containsKey(service.id),
-          );
+          ) &&
+          addressSatisfied;
     }
 
     return Scaffold(
@@ -123,7 +133,8 @@ class _BookingConfirmationScreenState
                 theme,
                 colorScheme,
                 isCombinedView,
-              ), // ← Updated
+                addressSatisfied,
+              ),
     );
   }
 
@@ -282,17 +293,21 @@ class _BookingConfirmationScreenState
     ThemeData theme,
     ColorScheme colorScheme,
     bool isCombinedView,
+    bool addressSatisfied,
   ) {
-    String message =
-        isCombinedView
+    final title =
+        !addressSatisfied ? 'Address Required' : 'Missing Time Selections';
+    final message =
+        !addressSatisfied
+            ? 'Please go back and select a valid service address'
+            : isCombinedView
             ? 'Please select a time slot'
             : 'Please select a time slot for each service';
     return Center(
       child: ErrorStateWidget(
         showDetails: true,
         compact: true,
-        title: 'Missing Time Selections',
-
+        title: title,
         subtitle: message,
         errorDetails: '',
         type: ErrorStateType.genericError,
