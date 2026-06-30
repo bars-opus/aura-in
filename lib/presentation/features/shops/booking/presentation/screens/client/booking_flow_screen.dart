@@ -415,6 +415,18 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
             context.showErrorSnackbar('Please select a time slot');
             return false;
           }
+          // Block tapping past the address tab when address is missing.
+          // The address tab index is 2 for freelancers (no workers step).
+          // Block when: jumping FROM the address tab OR jumping over it
+          // (e.g. tapping Confirm directly from Time).
+          final hasAddressStep = widget.isFreelancer && widget.canTravel;
+          if (hasAddressStep && !_canProceedToAddress()) {
+            final addressTabIndex = 2; // freelancer: Services(0) Time(1) Address(2) Confirm(3)
+            if (toIndex > addressTabIndex) {
+              context.showErrorSnackbar('Please select a valid service address');
+              return false;
+            }
+          }
         }
         return true;
       },
