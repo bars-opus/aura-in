@@ -144,6 +144,7 @@ class SemanticContainerWidget extends StatelessWidget {
   final TextTheme textTheme;
 
   final Widget? child;
+  final double? borderRadius;
 
   /// Creates a semantic content container with coordinated visual styling.
   ///
@@ -154,6 +155,7 @@ class SemanticContainerWidget extends StatelessWidget {
     super.key,
     required this.content,
     this.icon,
+    this.borderRadius,
     this.trailingIcon,
     required this.title,
     required this.backgroundColor,
@@ -172,7 +174,9 @@ class SemanticContainerWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         // Medium border radius for balanced rounding
-        borderRadius: BorderRadius.circular(BorderRadiusTokens.lg.r),
+        borderRadius: BorderRadius.circular(
+          borderRadius ?? BorderRadiusTokens.lg.r,
+        ),
         // Thin border with semantic color for definition
         border: Border.all(
           color: borderColor,

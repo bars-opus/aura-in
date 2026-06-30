@@ -314,10 +314,14 @@ class MarkerSourceManager {
     if (pinFeatures.isNotEmpty) {
       final first = pinFeatures.first;
       if (first != null) {
-        final props = first.queriedFeature.feature['properties']
-            as Map<Object?, Object?>?;
-        final pinId = props?['pinId'] as String?;
-        if (pinId != null) _onPinTap(pinId);
+        final feature = first.queriedFeature.feature;
+        final properties = feature['properties'];
+        final propertyPinId = properties is Map ? properties['pinId'] : null;
+        final pinId = (propertyPinId ?? feature['id'])?.toString();
+
+        if (pinId != null && _currentPins.any((pin) => pin.id == pinId)) {
+          _onPinTap(pinId);
+        }
       }
     }
   }

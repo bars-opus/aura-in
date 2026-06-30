@@ -26,7 +26,6 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context)!;
     final user = ref.watch(currentUserProvider);
-    final colorScheme = Theme.of(context).colorScheme;
 
     final unreadCount = ref.watch(unreadCountProvider).valueOrNull ?? 0;
 
@@ -71,7 +70,7 @@ class HomeScreen extends ConsumerWidget {
           label: loc.homeMapTabLabel,
           icon: Icons.map_outlined,
           activeIcon: Icons.map,
-          
+
           screen: MapEngineScreen(),
         ),
 

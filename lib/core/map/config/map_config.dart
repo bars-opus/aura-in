@@ -7,7 +7,7 @@
 //
 // See MAP_ENGINE.md for the full integration guide.
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nano_embryo/core/map/config/feature/map_config.dart';
@@ -17,10 +17,8 @@ import 'package:nano_embryo/core/map/config/feature/map_filter_schema.dart';
 import 'package:nano_embryo/core/map/config/feature/marker_style.dart';
 import 'package:nano_embryo/core/map/domain/entities/lat_lng.dart';
 import 'package:nano_embryo/core/providers/location_provider.dart';
-import 'package:nano_embryo/core/utils/bottom_sheet_utils.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/marker_code_generator.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/repositories/supabase_shop_map_datasource.dart';
-import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_info_bottom_sheet_loader.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_map_card.dart';
 
 /// Build the NanoEmbryo [MapConfig]. Wire into the root `ProviderScope`:
@@ -58,11 +56,9 @@ MapConfig buildNanoEmbryoMapConfig() {
       ),
     ),
     onPinTap: (pin, context) {
-      BottomSheetUtils.showDocumentationBottomSheet(
-        context: context,
-        widget: ShopInfoBottomSheetLoader(shopId: pin.id),
-        maxHeight: 550.h,
-        padding: 0,
+      context.push(
+        '/shopDetailsScreen',
+        extra: {'shopId': pin.id, 'coverImageUrl': ''},
       );
     },
     buildCarouselCard: (pin, isSelected, context) => ShopMapCard(

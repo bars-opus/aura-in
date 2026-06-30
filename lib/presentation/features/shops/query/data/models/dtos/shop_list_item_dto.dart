@@ -12,6 +12,7 @@ class ShopListItemDTO extends Equatable {
   final String? shopType;
   final bool isOpen;
   final String? openStatus;
+  final String? overview;
 
   const ShopListItemDTO({
     required this.id,
@@ -25,6 +26,7 @@ class ShopListItemDTO extends Equatable {
     this.shopType,
     required this.isOpen,
     this.openStatus,
+    this.overview,
   });
 
   factory ShopListItemDTO.fromJson(Map<String, dynamic> json) {
@@ -32,7 +34,9 @@ class ShopListItemDTO extends Equatable {
     return ShopListItemDTO(
       id: json['id'] as String,
       shopName: json['shop_name'] as String,
-      coverImageUrl: json['cover_image_url'] as String?,
+      coverImageUrl:
+          json['shop_logo_url'] as String? ??
+          json['cover_image_url'] as String?,
       averageRating: (json['average_rating'] as num?)?.toDouble(),
       numberClientsWorked: json['number_clients_worked'] as int?,
       luxuryLevel: json['luxury_level'] as String?,
@@ -41,6 +45,7 @@ class ShopListItemDTO extends Equatable {
       shopType: json['shop_type'] as String?,
       isOpen: json['is_open'] as bool? ?? false,
       openStatus: json['open_status'] as String?,
+      overview: json['overview'] as String?,
     );
   }
 
@@ -68,6 +73,7 @@ class ShopListItemDTO extends Equatable {
       shopType: shop.shopType,
       isOpen: false,
       openStatus: null,
+      overview: shop.overview,
     );
   }
 
@@ -84,5 +90,6 @@ class ShopListItemDTO extends Equatable {
     shopType,
     isOpen,
     openStatus,
+    overview,
   ];
 }

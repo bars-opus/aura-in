@@ -1241,7 +1241,7 @@ class SupabaseShopRepository implements ShopRepository {
       userMessage: "Couldn't load shop details. Please try again.",
       () async {
         final response = await _client
-            .from('shops_with_cover')
+            .from('shops')
             .select('''
             id,
             shop_name,
@@ -1250,7 +1250,8 @@ class SupabaseShopRepository implements ShopRepository {
             luxury_level,
             verified,
             shop_type,
-            cover_image_url
+            shop_logo_url,
+            overview
           ''')
             .eq('id', shopId)
             .single();

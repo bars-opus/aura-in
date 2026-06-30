@@ -2566,13 +2566,13 @@ abstract class AppLocalizations {
   /// No description provided for @shopNoLocationSetTitle.
   ///
   /// In en, this message translates to:
-  /// **'Set your location to discover'**
+  /// **'Set your location to explore'**
   String get shopNoLocationSetTitle;
 
   /// No description provided for @shopNoLocationSetContent.
   ///
   /// In en, this message translates to:
-  /// **'Set your location to discover premium and top rated shops near you.'**
+  /// **'Set your location to discover premium and top-rated creatives, shops, and products in the beauty and grooming industry.'**
   String get shopNoLocationSetContent;
 
   /// No description provided for @providerTypeShops.

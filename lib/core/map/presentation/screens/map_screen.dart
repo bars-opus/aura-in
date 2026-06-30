@@ -41,12 +41,14 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
   bool _isMapReady = false;
   bool _showMap = false;
   Timer? _mapInitTimeout;
+  Timer? _cameraSyncDebounce;
   MarkerSourceManager? _markerManager;
   bool _isFetchingGps = false;
   bool _isFetchingAppLocation = false;
 
   int _retryCount = 0;
   static const int _maxRetries = 4;
+  bool _cameraGesturePending = false;
 
   bool Function(Object, StackTrace)? _prevOnError;
   FlutterExceptionHandler? _prevFlutterOnError;
@@ -142,6 +144,13 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
     final config = ref.watch(mapConfigProvider);
     final mapState = ref.watch(mapControllerProvider);
     final controller = ref.read(mapControllerProvider.notifier);
+    final mediaQuery = MediaQuery.of(context);
+    final navigationBarHeight =
+        mediaQuery.size.width >= Breakpoints.tablet ? 72.h : 64.h;
+    // The Home navigation has transparent top padding. Overlap its visible
+    // surface slightly so the filter and navigation read as one docked unit.
+    final bottomDockOffset =
+        mediaQuery.padding.bottom + navigationBarHeight - Spacing.xs.h;
 
     ref.listen<Map<String, dynamic>>(mapFiltersProvider, (previous, next) {
       if (previous != next) {
@@ -195,9 +204,8 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
       );
     });
 
-    // Opens the modal from the screen's own context (Flutter state-update
-    // cycle), not from inside the Mapbox tap callback. On real iOS device
-    // the Mapbox callback context cannot reliably open Flutter modals.
+    // Opens the configured pin destination from the screen's Flutter context,
+    // rather than navigating directly inside Mapbox's native tap callback.
     ref.listen<String?>(
       mapControllerProvider.select((s) => s.pendingModalForPinId),
       (prev, next) {
@@ -233,13 +241,34 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
               // programmatic zoom, momentum, smaller pans the scroll listener
               // may miss on real iOS device).
               onCameraChangeListener: (CameraChangedEventData data) {
-                _onCameraChanged(controller);
+                _scheduleCameraSync(controller);
               },
               cameraOptions: CameraOptions(
                 center: Point(coordinates: Position(20.0, 5.0)),
                 zoom: 3.0,
               ),
               styleUri: mapStyleUri,
+            ),
+
+          if (!_isMapReady)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: Center(
+                  child: Semantics(
+                    liveRegion: true,
+                    label: config.copy.loadingLabel,
+                    child: Card(
+                      child: Padding(
+                        padding: EdgeInsets.all(Spacing.md.w),
+                        child: const SizedBox.square(
+                          dimension: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2.5),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
 
           Positioned(
@@ -249,30 +278,34 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
             child: const Center(child: SearchThisAreaPill()),
           ),
 
-          MapFabColumn(
-            fetchMode: mapState.fetchMode,
-            isFetchingGps: _isFetchingGps,
-            isFetchingAppLocation: _isFetchingAppLocation,
-            showAppLocationFab: config.appLocationProvider != null,
-            onGpsPressed: () => _useDeviceLocation(controller),
-            onAppLocationPressed: () => _useAppLocation(controller),
+          Positioned(
+            top: MediaQuery.of(context).padding.top + Spacing.lg.h,
+            right: Spacing.lg.w,
+            child: MapFabColumn(
+              fetchMode: mapState.fetchMode,
+              isFetchingGps: _isFetchingGps,
+              isFetchingAppLocation: _isFetchingAppLocation,
+              showAppLocationFab: config.appLocationProvider != null,
+              onGpsPressed: () => _useDeviceLocation(controller),
+              onAppLocationPressed: () => _useAppLocation(controller),
+              deviceLocationLabel: config.copy.deviceLocationLabel,
+              appLocationLabel: config.copy.appLocationLabel,
+            ),
           ),
-
           Positioned(
             left: 0,
             right: 0,
-            bottom: 0,
-            child: const MapPinCarousel(),
-          ),
-
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom:
-                MediaQuery.of(context).padding.bottom +
-                Spacing.lg.h +
-                Spacing.xxl.h,
-            child: const MapFilterBar(),
+            bottom: bottomDockOffset,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const MapPinCarousel(),
+                Padding(
+                  padding: EdgeInsets.only(bottom: Spacing.sm.h),
+                  child: const MapFilterBar(),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -286,7 +319,10 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
     _retryCount = 0;
     _mapboxMap = mapboxMap;
     _mapboxMap?.onMapScrollListener = (MapContentGestureContext ctx) {
-      _onCameraChanged(controller);
+      _scheduleCameraSync(controller, userGesture: true);
+    };
+    _mapboxMap?.onMapZoomListener = (MapContentGestureContext ctx) {
+      _scheduleCameraSync(controller, userGesture: true);
     };
     // Style may already be loaded (e.g. simulator); the widget-level
     // onStyleLoadedListener handles the normal path, but if somehow
@@ -318,21 +354,30 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
       context: context,
       resolveStyle: config.resolveMarkerStyle,
       onPinTap: (pinId) {
-        // Use requestModalForPin instead of selectPin + onPinTap. It both
-        // selects the pin (driving carousel scroll) AND signals the screen
-        // to open the modal in its own context, bypassing the Mapbox tap
-        // callback context that on iOS cannot reliably open modals.
+        // Defer navigation to the Flutter screen context. Navigating directly
+        // inside Mapbox's native callback is unreliable on physical iOS devices.
         ref.read(mapControllerProvider.notifier).requestModalForPin(pinId);
       },
     );
     await _markerManager?.initialize();
   }
 
-  void _onCameraChanged(MapController controller) async {
+  void _scheduleCameraSync(
+    MapController controller, {
+    bool userGesture = false,
+  }) {
+    _cameraGesturePending = _cameraGesturePending || userGesture;
+    _cameraSyncDebounce?.cancel();
+    _cameraSyncDebounce = Timer(const Duration(milliseconds: 120), () {
+      _syncCameraState(controller);
+    });
+  }
+
+  Future<void> _syncCameraState(MapController controller) async {
     if (!_isMapReady || _mapboxMap == null) return;
 
     final cameraState = await _mapboxMap?.getCameraState();
-    if (cameraState == null) return;
+    if (!mounted || cameraState == null) return;
 
     final coordinates = cameraState.center.coordinates;
     final zoom = cameraState.zoom;
@@ -345,7 +390,13 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
       west: coordinates.lng - span,
     );
 
-    controller.updateViewport(bounds, ref.read(mapFiltersProvider));
+    final wasUserGesture = _cameraGesturePending;
+    _cameraGesturePending = false;
+    if (wasUserGesture) {
+      await controller.updateViewport(bounds, ref.read(mapFiltersProvider));
+    } else {
+      controller.syncViewport(bounds, zoom: zoom);
+    }
   }
 
   // ── Location helpers ──────────────────────────────────────────────────
@@ -390,7 +441,9 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
     if (!mounted) return;
 
     if (mode == MapFetchMode.browse) {
-      _onCameraChanged(controller);
+      await _syncCameraState(controller);
+      if (!mounted) return;
+      await controller.refreshForCurrentViewport(ref.read(mapFiltersProvider));
       return;
     }
 
@@ -446,7 +499,7 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
     try {
       final camera = await _mapboxMap!.cameraForCoordinateBounds(
         bounds,
-        MbxEdgeInsets(top: 100, left: 60, bottom: 180, right: 60),
+        MbxEdgeInsets(top: 100, left: 60, bottom: 320, right: 60),
         null,
         null,
         14.0,
@@ -518,11 +571,6 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
   // ── FAB actions ────────────────────────────────────────────────────────
 
   Future<void> _useDeviceLocation(MapController controller) async {
-    if (ref.read(mapControllerProvider).fetchMode == MapFetchMode.deviceGps) {
-      _onCameraChanged(controller);
-      return;
-    }
-
     setState(() => _isFetchingGps = true);
     try {
       final position = await _getDeviceLocation();
@@ -549,11 +597,6 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
   Future<void> _useAppLocation(MapController controller) async {
     final config = ref.read(mapConfigProvider);
     if (config.appLocationProvider == null) return;
-
-    if (ref.read(mapControllerProvider).fetchMode == MapFetchMode.appLocation) {
-      _onCameraChanged(controller);
-      return;
-    }
 
     final appLocation = ref.read(config.appLocationProvider!);
     if (appLocation == null) {
@@ -614,6 +657,7 @@ class _MapEngineScreenState extends ConsumerState<MapEngineScreen>
     WidgetsBinding.instance.platformDispatcher.onError = _prevOnError;
     FlutterError.onError = _prevFlutterOnError;
     _mapInitTimeout?.cancel();
+    _cameraSyncDebounce?.cancel();
     _markerManager?.dispose();
     _mapboxMap?.onMapScrollListener = null;
     _mapboxMap?.onMapZoomListener = null;

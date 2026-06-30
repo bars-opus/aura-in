@@ -18,6 +18,7 @@ class ShopHeaderWidget extends ConsumerWidget {
   final double? latitude;
   final double? longitude;
   final bool isShop;
+  final bool isMini;
 
   // final ShopDetailsDTO shop;
 
@@ -34,6 +35,7 @@ class ShopHeaderWidget extends ConsumerWidget {
     required this.latitude,
     required this.longitude,
     required this.isShop,
+    this.isMini = false,
     super.key,
   });
 
@@ -52,6 +54,7 @@ class ShopHeaderWidget extends ConsumerWidget {
         Row(
           children: [
             ProfileAvatar(
+              enableHero: false,
               avatarUrl: logoUrl ?? "",
               currentUserId: id,
               size: 40.r,
@@ -65,11 +68,19 @@ class ShopHeaderWidget extends ConsumerWidget {
                 children: [
                   Text(
                     name,
-                    style: textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onBackground,
-                    ),
+                    style:
+                        isMini
+                            ? textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onBackground,
+                            )
+                            : textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onBackground,
+                            ),
+                    maxLines: isMini ? 1 : null,
                   ),
+                  Gap(Spacing.xs.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -100,6 +111,11 @@ class ShopHeaderWidget extends ConsumerWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      Icon(
+                        Icons.arrow_forward_ios_outlined,
+                        size: IconSizes.sm.h,
+                        color: colorScheme.onSurface.withValues(alpha: 0.3),
+                      ),
                     ],
                   ),
                 ],
@@ -107,6 +123,20 @@ class ShopHeaderWidget extends ConsumerWidget {
             ),
           ],
         ),
+        Gap(Spacing.sm.h),
+        if (isMini) AppDivider(),
+        Gap(Spacing.sm.h),
+        if (overview != null && overview!.isNotEmpty) ...[
+          Text(
+            overview ?? '',
+            style: textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurface,
+              height: 1.5,
+            ),
+            maxLines: isMini ? 2 : 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
         Gap(Spacing.md.h),
         ShopCardSubDetails(
           isProduct: true,
@@ -119,25 +149,6 @@ class ShopHeaderWidget extends ConsumerWidget {
           distance: DistanceFormatter.format(distanceToShop ?? 0),
         ),
         Gap(Spacing.md.h),
-        if (overview != null && overview!.isNotEmpty) ...[
-          GestureDetector(
-            onTap: () {
-              BottomSheetUtils.showDocumentationBottomSheet(
-                context: context,
-                widget: ReadAll(body: overview ?? ''),
-              );
-            },
-            child: Text(
-              overview ?? '',
-              style: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface,
-                height: 1.5,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
       ],
     );
   }

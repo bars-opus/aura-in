@@ -11,6 +11,11 @@ class MapCopy extends Equatable {
   final String locationPermissionOpenSettingsLabel;
   final String appLocationMissingSnackbar;
   final String searchThisAreaLabel;
+  final String filtersLabel;
+  final String deviceLocationLabel;
+  final String appLocationLabel;
+  final String mapLoadErrorLabel;
+  final String loadingLabel;
 
   const MapCopy({
     this.emptyStateSubtitle = 'No results in this area.',
@@ -18,22 +23,32 @@ class MapCopy extends Equatable {
     this.locationPermissionTitle = 'Location Permission Required',
     this.locationPermissionBody =
         'Please enable location permission to see results near you. '
-        'You can change this in your device settings.',
+            'You can change this in your device settings.',
     this.locationPermissionCancelLabel = 'Cancel',
     this.locationPermissionOpenSettingsLabel = 'Open Settings',
     this.appLocationMissingSnackbar = 'Set your location first.',
     this.searchThisAreaLabel = 'Search this area',
+    this.filtersLabel = 'Filters',
+    this.deviceLocationLabel = 'Use my current location',
+    this.appLocationLabel = 'Use my saved location',
+    this.mapLoadErrorLabel = "We couldn't load shops in this area.",
+    this.loadingLabel = 'Finding shops nearby...',
   });
 
   @override
   List<Object?> get props => [
-        emptyStateSubtitle,
-        errorRetryLabel,
-        locationPermissionTitle,
-        locationPermissionBody,
-        locationPermissionCancelLabel,
-        locationPermissionOpenSettingsLabel,
-        appLocationMissingSnackbar,
-        searchThisAreaLabel,
-      ];
+    emptyStateSubtitle,
+    errorRetryLabel,
+    locationPermissionTitle,
+    locationPermissionBody,
+    locationPermissionCancelLabel,
+    locationPermissionOpenSettingsLabel,
+    appLocationMissingSnackbar,
+    searchThisAreaLabel,
+    filtersLabel,
+    deviceLocationLabel,
+    appLocationLabel,
+    mapLoadErrorLabel,
+    loadingLabel,
+  ];
 }

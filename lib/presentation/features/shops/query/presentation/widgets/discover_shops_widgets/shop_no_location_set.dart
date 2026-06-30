@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
 class ShopNoLocationSet extends StatelessWidget {
@@ -15,7 +14,7 @@ class ShopNoLocationSet extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         BottomSheetUtils.showDocumentationBottomSheet(
-          maxHeight: 250.h,
+          maxHeight: 300.h,
           context: context,
           widget: LocationPickerBottomSheet(),
         );
@@ -23,8 +22,10 @@ class ShopNoLocationSet extends StatelessWidget {
       child: SemanticContainerWidget(
         content: loc.shopNoLocationSetContent,
         icon: Icons.location_on,
+        trailingIcon: Icons.add,
         title: loc.shopNoLocationSetTitle,
-        backgroundColor: colorScheme.success.withOpacity(0.1),
+
+        backgroundColor: colorScheme.success.withValues(alpha: 0.1),
         borderColor: colorScheme.success,
         iconColor: colorScheme.success,
         textTheme: textTheme,

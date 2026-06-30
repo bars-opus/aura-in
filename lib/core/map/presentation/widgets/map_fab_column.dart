@@ -18,6 +18,8 @@ class MapFabColumn extends StatelessWidget {
   final bool showAppLocationFab;
   final VoidCallback onGpsPressed;
   final VoidCallback onAppLocationPressed;
+  final String deviceLocationLabel;
+  final String appLocationLabel;
 
   const MapFabColumn({
     super.key,
@@ -27,24 +29,28 @@ class MapFabColumn extends StatelessWidget {
     required this.showAppLocationFab,
     required this.onGpsPressed,
     required this.onAppLocationPressed,
+    required this.deviceLocationLabel,
+    required this.appLocationLabel,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Stack(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Positioned(
-          bottom: 200.h + Spacing.xxl.h + Spacing.xxl.h,
-          right: Spacing.md.w,
-          child: AnimatedScaleFade(
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeOutBack,
+        AnimatedScaleFade(
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutBack,
+          child: Semantics(
+            button: true,
+            label: deviceLocationLabel,
             child: FloatingActionButton.small(
               heroTag: 'fab_gps',
-              backgroundColor: colorScheme.background,
-              onPressed: onGpsPressed,
+              tooltip: deviceLocationLabel,
+              backgroundColor: colorScheme.surface,
+              onPressed: isFetchingGps ? null : onGpsPressed,
               child:
                   isFetchingGps
                       ? const CircularLoadingIndicator()
@@ -60,17 +66,19 @@ class MapFabColumn extends StatelessWidget {
             ),
           ),
         ),
-        if (showAppLocationFab)
-          Positioned(
-            bottom: 200.h + Spacing.lg.h + Spacing.md.h,
-            right: Spacing.md.w,
-            child: AnimatedScaleFade(
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeOutBack,
+        if (showAppLocationFab) ...[
+          SizedBox(height: Spacing.sm.h),
+          AnimatedScaleFade(
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOutBack,
+            child: Semantics(
+              button: true,
+              label: appLocationLabel,
               child: FloatingActionButton.small(
                 heroTag: 'fab_app_location',
-                backgroundColor: colorScheme.background,
-                onPressed: onAppLocationPressed,
+                tooltip: appLocationLabel,
+                backgroundColor: colorScheme.surface,
+                onPressed: isFetchingAppLocation ? null : onAppLocationPressed,
                 child:
                     isFetchingAppLocation
                         ? const CircularLoadingIndicator()
@@ -86,6 +94,7 @@ class MapFabColumn extends StatelessWidget {
               ),
             ),
           ),
+        ],
       ],
     );
   }

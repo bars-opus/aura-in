@@ -22,9 +22,7 @@ void main() {
     tearDown(() => controller.dispose());
 
     test('updateViewport sets viewportIsDirty and does NOT fetch', () async {
-      fake.queueViewport(const [
-        MapPin(id: 'a', latitude: 0, longitude: 0),
-      ]);
+      fake.queueViewport(const [MapPin(id: 'a', latitude: 0, longitude: 0)]);
 
       const bounds = MapBounds(north: 1, south: 0, east: 1, west: 0);
       await controller.updateViewport(bounds, const {'k': 'v1'});
@@ -39,27 +37,51 @@ void main() {
       expect(controller.state.fetchMode, MapFetchMode.browse);
     });
 
-    test('refreshForCurrentViewport fetches and clears dirty + selection', () async {
-      // Arrange: set up a dirty viewport with an existing selection.
-      fake.queueViewport(const [
-        MapPin(id: 'shop-x', latitude: 0, longitude: 0),
-      ]);
-      const bounds = MapBounds(north: 1, south: 0, east: 1, west: 0);
-      await controller.updateViewport(bounds, const {});
-      controller.selectPin('previously-selected');
-      expect(controller.state.viewportIsDirty, isTrue);
-      expect(controller.state.selectedPinId, 'previously-selected');
+    test('syncViewport preserves location mode and clean viewport', () async {
+      fake.queueNearby(const [MapPin(id: 'nearby', latitude: 5, longitude: 5)]);
+      await controller.fetchNearby(
+        latitude: 5,
+        longitude: 5,
+        radiusKm: 5,
+        filters: const {},
+        mode: MapFetchMode.deviceGps,
+      );
 
-      // Act
-      await controller.refreshForCurrentViewport(const {'shop_type': 'salon'});
+      const bounds = MapBounds(north: 6, south: 4, east: 6, west: 4);
+      controller.syncViewport(bounds, zoom: 12);
 
-      // Assert: fetch fired with the filters; state cleaned up.
-      expect(fake.viewportCalls, 1);
-      expect(fake.lastViewportFilters, equals({'shop_type': 'salon'}));
-      expect(controller.state.pins.single.id, 'shop-x');
+      expect(controller.state.currentBounds, bounds);
+      expect(controller.state.currentZoom, 12);
       expect(controller.state.viewportIsDirty, isFalse);
-      expect(controller.state.selectedPinId, isNull);
+      expect(controller.state.fetchMode, MapFetchMode.deviceGps);
     });
+
+    test(
+      'refreshForCurrentViewport fetches and clears dirty + selection',
+      () async {
+        // Arrange: set up a dirty viewport with an existing selection.
+        fake.queueViewport(const [
+          MapPin(id: 'shop-x', latitude: 0, longitude: 0),
+        ]);
+        const bounds = MapBounds(north: 1, south: 0, east: 1, west: 0);
+        await controller.updateViewport(bounds, const {});
+        controller.selectPin('previously-selected');
+        expect(controller.state.viewportIsDirty, isTrue);
+        expect(controller.state.selectedPinId, 'previously-selected');
+
+        // Act
+        await controller.refreshForCurrentViewport(const {
+          'shop_type': 'salon',
+        });
+
+        // Assert: fetch fired with the filters; state cleaned up.
+        expect(fake.viewportCalls, 1);
+        expect(fake.lastViewportFilters, equals({'shop_type': 'salon'}));
+        expect(controller.state.pins.single.id, 'shop-x');
+        expect(controller.state.viewportIsDirty, isFalse);
+        expect(controller.state.selectedPinId, isNull);
+      },
+    );
 
     test('refreshForCurrentViewport keeps dirty true on fetch error', () async {
       fake.queueError(Exception('network down'));
@@ -73,11 +95,14 @@ void main() {
       expect(controller.state.viewportIsDirty, isTrue);
     });
 
-    test('refreshForCurrentViewport no-ops when currentBounds is null', () async {
-      // Fresh controller, no updateViewport yet → currentBounds is null.
-      await controller.refreshForCurrentViewport(const {});
-      expect(fake.viewportCalls, 0);
-    });
+    test(
+      'refreshForCurrentViewport no-ops when currentBounds is null',
+      () async {
+        // Fresh controller, no updateViewport yet → currentBounds is null.
+        await controller.refreshForCurrentViewport(const {});
+        expect(fake.viewportCalls, 0);
+      },
+    );
 
     test('selectPin updates selectedPinId', () {
       controller.selectPin('shop-1');
@@ -99,23 +124,27 @@ void main() {
       expect(identical(controller.state, stateBefore), isTrue);
     });
 
-    test('requestModalForPin sets both selectedPinId and pendingModalForPinId', () {
-      controller.requestModalForPin('shop-1');
-      expect(controller.state.selectedPinId, 'shop-1');
-      expect(controller.state.pendingModalForPinId, 'shop-1');
-    });
+    test(
+      'requestModalForPin sets both selectedPinId and pendingModalForPinId',
+      () {
+        controller.requestModalForPin('shop-1');
+        expect(controller.state.selectedPinId, 'shop-1');
+        expect(controller.state.pendingModalForPinId, 'shop-1');
+      },
+    );
 
-    test('clearPendingModal clears the modal flag without touching selection', () {
-      controller.requestModalForPin('shop-1');
-      controller.clearPendingModal();
-      expect(controller.state.pendingModalForPinId, isNull);
-      expect(controller.state.selectedPinId, 'shop-1'); // selection preserved
-    });
+    test(
+      'clearPendingModal clears the modal flag without touching selection',
+      () {
+        controller.requestModalForPin('shop-1');
+        controller.clearPendingModal();
+        expect(controller.state.pendingModalForPinId, isNull);
+        expect(controller.state.selectedPinId, 'shop-1'); // selection preserved
+      },
+    );
 
     test('fetchNearby switches mode and records anchor location', () async {
-      fake.queueNearby(const [
-        MapPin(id: 'b', latitude: 5, longitude: 5),
-      ]);
+      fake.queueNearby(const [MapPin(id: 'b', latitude: 5, longitude: 5)]);
 
       await controller.fetchNearby(
         latitude: 5.0,

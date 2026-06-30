@@ -113,8 +113,6 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
                       ),
                     ],
                   ),
-                  if (!hasLocation) Gap(Spacing.sm.h),
-                  if (!hasLocation) ShopNoLocationSet(),
                   Gap(Spacing.sm.h),
                 ],
               ),
@@ -144,6 +142,13 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
                       ),
                     ),
                   ),
+                  if (!hasLocation) ...[
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: Spacing.md.w),
+                      child: const ShopNoLocationSet(),
+                    ),
+                    Gap(Spacing.md.h),
+                  ],
 
                   const ServiceCategoryTabs(),
                   const ProviderTypeTabs(),
@@ -166,20 +171,19 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
                   // LuxuryLevelChips. marketplaceProductsPagedProvider watches
                   // marketplaceFilterProvider and auto-reloads on category change.
                   if (selectedType == ProviderType.buy)
-
-                  
                     FilterChipRow(
                       selectedCategory:
                           ref.watch(marketplaceFilterProvider).category,
-                      onCategorySelected: (category) => ref
-                          .read(marketplaceFilterProvider.notifier)
-                          .setCategory(category),
+                      onCategorySelected:
+                          (category) => ref
+                              .read(marketplaceFilterProvider.notifier)
+                              .setCategory(category),
                       onFilterPressed: () => _showMarketplaceFilterSheet(ref),
                     ),
                   // Radius slider: shows for shops and freelancers (both have
                   // proximity-based queries). Buy/marketplace tab has no data
                   // fetch yet so hide it there.
-                  if (selectedType != ProviderType.buy) ...[
+                  if (selectedType != ProviderType.buy && hasLocation) ...[
                     Gap(Spacing.sm.h),
                     const SearchRadiusSlider(),
                   ],
@@ -193,17 +197,20 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
           if (selectedType == ProviderType.shops) ...[
             const SliverToBoxAdapter(child: PremiumShopsHorizontal()),
             const SliverToBoxAdapter(child: TopRatedShopsHorizontal()),
-            const SliverToBoxAdapter(child: NearYouShopsHorizontal()),
+            if (hasLocation)
+              const SliverToBoxAdapter(child: NearYouShopsHorizontal()),
             SliverGap(Spacing.md.h),
           ] else if (selectedType == ProviderType.freelancers) ...[
             const SliverToBoxAdapter(child: FreelancerTagChips()),
             SliverGap(Spacing.sm.h),
             const SliverToBoxAdapter(child: TopRatedFreelancersHorizontal()),
-            const SliverToBoxAdapter(child: NearYouFreelancersHorizontal()),
+            if (hasLocation)
+              const SliverToBoxAdapter(child: NearYouFreelancersHorizontal()),
             SliverGap(Spacing.md.h),
           ] else if (selectedType == ProviderType.buy) ...[
             const SliverToBoxAdapter(child: TopRatedProductsHorizontal()),
-            const SliverToBoxAdapter(child: NearYouProductsHorizontal()),
+            if (hasLocation)
+              const SliverToBoxAdapter(child: NearYouProductsHorizontal()),
             SliverGap(Spacing.md.h),
           ],
 
@@ -217,7 +224,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
                     ? loc.discoverAllFreelancers
                     : loc.discoverMarketplaceTitle,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: colorScheme.onBackground,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -253,15 +260,16 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
-      builder: (context) => FilterBottomSheet(
-        onApply: (minPrice, maxPrice, sortBy, showVerifiedOnly) {
-          final notifier = ref.read(marketplaceFilterProvider.notifier);
-          notifier.setPriceRange(minPrice, maxPrice);
-          notifier.setSortBy(sortBy);
-          notifier.setShowVerifiedOnly(showVerifiedOnly);
-          Navigator.pop(context);
-        },
-      ),
+      builder:
+          (context) => FilterBottomSheet(
+            onApply: (minPrice, maxPrice, sortBy, showVerifiedOnly) {
+              final notifier = ref.read(marketplaceFilterProvider.notifier);
+              notifier.setPriceRange(minPrice, maxPrice);
+              notifier.setSortBy(sortBy);
+              notifier.setShowVerifiedOnly(showVerifiedOnly);
+              Navigator.pop(context);
+            },
+          ),
     );
   }
 }

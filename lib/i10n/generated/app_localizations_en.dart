@@ -1342,10 +1342,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nearYouFreelancersHorizontalEmptySubtitle => 'Freelancers would be shown here once they become available';
 
   @override
-  String get shopNoLocationSetTitle => 'Set your location to discover';
+  String get shopNoLocationSetTitle => 'Set your location to explore';
 
   @override
-  String get shopNoLocationSetContent => 'Set your location to discover premium and top rated shops near you.';
+  String get shopNoLocationSetContent => 'Set your location to discover premium and top-rated creatives, shops, and products in the beauty and grooming industry.';
 
   @override
   String get providerTypeShops => 'Shops';

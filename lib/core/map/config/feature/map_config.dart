@@ -34,7 +34,7 @@ class MapConfig {
   /// Receives [isSelected] so the card can highlight when its marker
   /// is the active selection.
   final Widget Function(MapPin pin, bool isSelected, BuildContext context)
-      buildCarouselCard;
+  buildCarouselCard;
 
   /// Tier-3 fallback coordinates. Required.
   final MapFallback fallback;

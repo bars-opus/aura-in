@@ -74,13 +74,15 @@ class MapState {
       currentBounds: currentBounds ?? this.currentBounds,
       currentZoom: currentZoom ?? this.currentZoom,
       fetchMode: fetchMode ?? this.fetchMode,
-      selectedPinId: identical(selectedPinId, _kAbsent)
-          ? this.selectedPinId
-          : selectedPinId as String?,
+      selectedPinId:
+          identical(selectedPinId, _kAbsent)
+              ? this.selectedPinId
+              : selectedPinId as String?,
       viewportIsDirty: viewportIsDirty ?? this.viewportIsDirty,
-      pendingModalForPinId: identical(pendingModalForPinId, _kAbsent)
-          ? this.pendingModalForPinId
-          : pendingModalForPinId as String?,
+      pendingModalForPinId:
+          identical(pendingModalForPinId, _kAbsent)
+              ? this.pendingModalForPinId
+              : pendingModalForPinId as String?,
     );
   }
 }
@@ -101,12 +103,12 @@ class MapController extends StateNotifier<MapState> {
     required MapDataSource dataSource,
     required int viewportLimit,
     required int nearbyLimit,
-  })  : _dataSource = dataSource,
-        _viewportLimit = viewportLimit,
-        _nearbyLimit = nearbyLimit,
-        // Start loading so the UI shows a spinner instead of empty state
-        // while the initial location + fetch are in flight.
-        super(const MapState(isLoading: true));
+  }) : _dataSource = dataSource,
+       _viewportLimit = viewportLimit,
+       _nearbyLimit = nearbyLimit,
+       // Start loading so the UI shows a spinner instead of empty state
+       // while the initial location + fetch are in flight.
+       super(const MapState(isLoading: true));
 
   Future<void> _fetchInBounds(
     MapBounds bounds,
@@ -200,6 +202,15 @@ class MapController extends StateNotifier<MapState> {
     );
   }
 
+  /// Records camera bounds after an app-driven movement without treating the
+  /// movement as a new user search. Carousel, GPS, and saved-location camera
+  /// animations use this path so they preserve the active fetch mode and do
+  /// not incorrectly reveal the "Search this area" action.
+  void syncViewport(MapBounds bounds, {required double zoom}) {
+    if (!bounds.isValid()) return;
+    state = state.copyWith(currentBounds: bounds, currentZoom: zoom);
+  }
+
   /// Re-fetch with new filters, preserving the current fetch mode.
   ///
   /// Browse mode: re-fetches the visible viewport.
@@ -227,10 +238,7 @@ class MapController extends StateNotifier<MapState> {
     await _fetchInBounds(state.currentBounds!, filters);
     if (!mounted) return;
     if (state.error == null) {
-      state = state.copyWith(
-        viewportIsDirty: false,
-        selectedPinId: null,
-      );
+      state = state.copyWith(viewportIsDirty: false, selectedPinId: null);
     }
   }
 
@@ -247,10 +255,7 @@ class MapController extends StateNotifier<MapState> {
   /// modal in its own context — this decouples modal-open from the Mapbox
   /// tap callback, which on iOS device cannot reliably open modals.
   void requestModalForPin(String pinId) {
-    state = state.copyWith(
-      selectedPinId: pinId,
-      pendingModalForPinId: pinId,
-    );
+    state = state.copyWith(selectedPinId: pinId, pendingModalForPinId: pinId);
   }
 
   /// Clears the pending-modal flag. Called by the screen after opening
@@ -266,11 +271,11 @@ class MapController extends StateNotifier<MapState> {
   /// Called when map init fails so the UI doesn't spin forever.
   void resetToIdle() =>
       state = state.copyWith(isLoading: false, isFetching: false);
-
 }
 
-final mapControllerProvider =
-    StateNotifierProvider<MapController, MapState>((ref) {
+final mapControllerProvider = StateNotifierProvider<MapController, MapState>((
+  ref,
+) {
   final config = ref.watch(mapConfigProvider);
   return MapController(
     dataSource: config.dataSource,
