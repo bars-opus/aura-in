@@ -94,8 +94,9 @@ class _AppointmentActionsState extends ConsumerState<AppointmentActions> {
                                   context: context,
 
                                   widget: ConfirmationDialog(
-                                    type: ConfirmationType.info,
+                                    type: ConfirmationType.success,
                                     icon: Icons.check_circle,
+
                                     title: 'Mark as Completed',
                                     confirmText: 'Complete',
                                     message:

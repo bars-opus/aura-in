@@ -105,7 +105,7 @@ class ConfirmationDialog extends StatelessWidget {
         case ConfirmationType.info:
           return colorScheme.primary;
         case ConfirmationType.success:
-          return colorScheme.primary;
+          return colorScheme.success;
       }
     }
 

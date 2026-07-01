@@ -57,26 +57,26 @@ class SupabaseFreelancerRepository {
         // bucket: bucket,
       );
 
+      // Upload profile image once so both workers and shops rows share the
+      // same URL without a second upload round-trip.
+      final profileImageUrl =
+          draft.profileImagePath != null
+              ? await _uploadProfileImage(workerId, File(draft.profileImagePath!))
+              : null;
+
       // 3. Insert into workers table (all freelancer fields are here)
       await _client.from('workers').insert({
         'id': workerId,
         'user_id': userId,
         'shop_id': null,
-        'name': draft.name, 'terms': draft.terms,
+        'name': draft.name,
+        'terms': draft.terms,
         'bio': draft.bio,
-        'profile_image_url':
-            draft.profileImagePath != null
-                ? await _uploadProfileImage(
-                  workerId,
-                  File(draft.profileImagePath!),
-                  // bucket,
-                )
-                : null,
+        'profile_image_url': profileImageUrl,
         'specialties': draft.specialties,
         'is_active': true,
         'is_freelancer': true,
         'created_at': DateTime.now().toIso8601String(),
-        // Freelancer-specific columns (already in workers table)
         'tools': draft.toolIds,
         'subaccount_id': draft.subaccountId,
         'transfer_recipient_id': draft.transferRecipientId,
@@ -85,6 +85,25 @@ class SupabaseFreelancerRepository {
         'freelancer_rating': 0,
         'freelancer_total_reviews': 0,
         'freelancer_total_revenue': 0,
+      });
+
+      // Insert a shops row so the booking + payment pipeline (create-booking
+      // edge function, booking_simple view, payment_settings lookup, etc.)
+      // can find the freelancer by shops.id == workerId. Without this row
+      // create-booking returns "Shop not found" and the WebView never opens.
+      await _client.from('shops').insert({
+        'id': workerId,
+        'user_id': userId,
+        'shop_name': draft.name ?? 'Freelancer',
+        'shop_type': draft.freelancerType ?? 'freelancer',
+        'currency': 'GHS',
+        'currency_symbol': '₵',
+        'verified': false,
+        'average_rating': 0,
+        'number_clients_worked': 0,
+        if (profileImageUrl != null) 'shop_logo_url': profileImageUrl,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
       });
 
       // After inserting into workers table, add:
@@ -758,7 +777,7 @@ class SupabaseFreelancerRepository {
             .maybeSingle(),
         _client
             .from('shops')
-            .select('currency, currency_code')
+            .select('currency, currency_code, shop_logo_url')
             .eq('id', workerId)
             .maybeSingle(),
       ]);

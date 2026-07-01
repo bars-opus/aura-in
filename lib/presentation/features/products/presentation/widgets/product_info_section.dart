@@ -168,6 +168,7 @@ class _SellerHeader extends ConsumerWidget {
             verified: shop.verified,
             shopType: shop.shopType ?? '',
             latitude: shop.latitude,
+            showNavigationIcon: true, 
             longitude: shop.longitude,
             averageRating: shop.averageRating,
             numberClientsWorked: totalOrdersCount,

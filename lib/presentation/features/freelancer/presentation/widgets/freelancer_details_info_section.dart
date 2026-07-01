@@ -1,27 +1,23 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/link/entity_share_links.dart';
+import 'package:nano_embryo/core/link/widgets/link_qr_view.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/utils/location/route_preview_widget.dart';
+import 'package:nano_embryo/presentation/features/chat/presentation/services/business_chat_launcher.dart';
 import 'package:nano_embryo/presentation/features/freelancer/creation/presentation/screens/freelancer_creation_dashboard.dart';
 import 'package:nano_embryo/presentation/features/freelancer/data/models/freelancer_details_dto.dart';
 import 'package:nano_embryo/presentation/features/freelancer/presentation/providers/freelancer_details_provider.dart';
 import 'package:nano_embryo/presentation/features/freelancer/presentation/widgets/tool_display_widget.dart';
-import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/display_shop_documents.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/display_shop_social_links.dart';
-import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/document_tile.dart';
-import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/social_link_tile.dart';
-import 'package:nano_embryo/presentation/features/shops/dashboard/data/models/workers/worker_profile.dart';
-import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/shop_details_dto.dart';
-import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/worker_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/contact_bottom_sheet.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/opening_hours_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_details_section.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_header_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/widgets/horizontal_reviews_preview.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/widgets/shop_rating_widget.dart';
-import 'package:path/path.dart';
+import 'package:share_plus/share_plus.dart';
 
 class FreelancerDetailsInfoSection extends ConsumerWidget {
   final FreelancerDetailsDTO freelancer;
@@ -166,7 +162,13 @@ class FreelancerDetailsInfoSection extends ConsumerWidget {
                     center: false,
                     iconData: Icons.send,
                     label: "Send a message",
-                    onPressed: () {},
+                    onPressed:
+                        () => BusinessChatLauncher.openForShop(
+                          context,
+                          ref,
+                          shopId: freelancer.id,
+                          shopName: freelancer.name,
+                        ),
                     padding: Spacing.horizontalMd,
                     variant: ButtonVariant.outline,
                     size: ButtonSize.small,
@@ -194,20 +196,20 @@ class FreelancerDetailsInfoSection extends ConsumerWidget {
                     width: double.infinity,
                     elevation: 0,
                   ),
-                ],
-              ),
-            ),
-
-            CardInkWell(
-              onTap: () {},
-              child: Column(
-                children: [
+                  Gap(Spacing.sm),
                   AppButton(
                     height: 35.h,
                     center: false,
                     iconData: Icons.share,
                     label: "Share link",
-                    onPressed: () {},
+                    onPressed: () {
+                      final url = EntityShareLinks.homeUrl;
+                      final bio = freelancer.bio?.trim() ?? '';
+                      final body = StringBuffer(freelancer.name);
+                      if (bio.isNotEmpty) body.write('\n$bio');
+                      body.write('\n\n$url');
+                      Share.share(body.toString());
+                    },
                     padding: Spacing.horizontalMd,
                     variant: ButtonVariant.outline,
                     size: ButtonSize.small,
@@ -220,7 +222,16 @@ class FreelancerDetailsInfoSection extends ConsumerWidget {
                     iconData: Icons.qr_code,
                     height: 35.h,
                     label: "QR code",
-                    onPressed: () {},
+                    onPressed: () {
+                      final url = EntityShareLinks.homeUrl;
+                      BottomSheetUtils.showDocumentationBottomSheet(
+                        context: context,
+                        widget: Padding(
+                          padding: EdgeInsets.all(Spacing.lg.w),
+                          child: LinkQrView(url: url, label: freelancer.name),
+                        ),
+                      );
+                    },
                     padding: Spacing.horizontalMd,
                     variant: ButtonVariant.outline,
                     size: ButtonSize.small,

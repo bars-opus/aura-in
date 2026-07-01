@@ -69,7 +69,7 @@ class ShopDetailsContent extends ConsumerWidget {
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
                 SliverAppBar(
-                  expandedHeight: 400.h,
+                  expandedHeight: 300.h,
                   leading: Center(
                     child: AppIconButton(
                       onPressed: () => Navigator.pop(context),

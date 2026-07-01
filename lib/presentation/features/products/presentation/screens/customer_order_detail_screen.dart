@@ -637,7 +637,7 @@ class _CustomerOrderDetailScreenState
             ),
             Icon(
               Icons.arrow_forward_ios_outlined,
-              size: IconSizes.md.h,
+              size: IconSizes.sm.h,
               color: colorScheme.onSurface.withValues(alpha: 0.3),
             ),
           ],

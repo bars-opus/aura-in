@@ -1,8 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
-import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_details_section.dart'
-    show ShopDetailsSection;
 import 'package:nano_embryo/presentation/features/shops/query/providers/review_providers.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/widgets/star_rating_widget.dart';
 
@@ -21,7 +17,7 @@ class DetailedShopRatingWidget extends ConsumerWidget {
     return reviewsAsync.when(
       data: (reviews) {
         if (reviews.isEmpty) {
-          return _buildEmptyState();
+          return const SizedBox.shrink();
         }
 
         final averageRating = _calculateAverageRating(reviews);
@@ -33,108 +29,113 @@ class DetailedShopRatingWidget extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Gap(Spacing.md),
-              Text(
-                "Rating",
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface.withOpacity(0.8),
+              if (averageRating != 0) ...[
+                Gap(Spacing.md.h),
+                AppDivider(),
+                Gap(Spacing.sm.h),
+                Gap(Spacing.md),
+                Text(
+                  "Rating",
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface.withValues(alpha: 0.8),
+                  ),
                 ),
-              ),
 
-              Gap(Spacing.xl),
-              // Header with average rating
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Left side: Average rating
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          averageRating.toStringAsFixed(1),
-                          style: Theme.of(
-                            context,
-                          ).textTheme.displayMedium?.copyWith(
-                            color: colorScheme.onBackground,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 40.sp,
-                          ),
-                        ),
-                        Gap(Spacing.xs.h),
-                        StarRatingWidget(
-                          rating: averageRating.round(),
-                          interactive: false,
-                          size: 10.sp,
-                        ),
-                        Gap(Spacing.xs.h),
-                        Text(
-                          '$totalReviews ${totalReviews == 1 ? 'review' : 'reviews'}',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(
+                Gap(Spacing.xl),
+                // Header with average rating
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Left side: Average rating
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            averageRating.toStringAsFixed(1),
+                            style: Theme.of(
                               context,
-                            ).colorScheme.onSurface.withOpacity(0.6),
+                            ).textTheme.displayMedium?.copyWith(
+                              color: colorScheme.onSurface,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 40.sp,
+                            ),
                           ),
-                        ),
-                      ],
+                          Gap(Spacing.xs.h),
+                          StarRatingWidget(
+                            rating: averageRating.round(),
+                            interactive: false,
+                            size: 10.sp,
+                          ),
+                          Gap(Spacing.xs.h),
+                          Text(
+                            '$totalReviews ${totalReviews == 1 ? 'review' : 'reviews'}',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.6),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
 
-                  // Right side: Rating breakdown bars
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      children: [
-                        _buildRatingBar(
-                          context,
-                          5,
-                          ratingCounts[5] ?? 0,
-                          totalReviews,
-                        ),
-                        Gap(Spacing.xs.h),
-                        _buildRatingBar(
-                          context,
-                          4,
-                          ratingCounts[4] ?? 0,
-                          totalReviews,
-                        ),
-                        Gap(Spacing.xs.h),
-                        _buildRatingBar(
-                          context,
-                          3,
-                          ratingCounts[3] ?? 0,
-                          totalReviews,
-                        ),
-                        Gap(Spacing.xs.h),
-                        _buildRatingBar(
-                          context,
-                          2,
-                          ratingCounts[2] ?? 0,
-                          totalReviews,
-                        ),
-                        Gap(Spacing.xs.h),
-                        _buildRatingBar(
-                          context,
-                          1,
-                          ratingCounts[1] ?? 0,
-                          totalReviews,
-                        ),
-                      ],
+                    // Right side: Rating breakdown bars
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        children: [
+                          _buildRatingBar(
+                            context,
+                            5,
+                            ratingCounts[5] ?? 0,
+                            totalReviews,
+                          ),
+                          Gap(Spacing.xs.h),
+                          _buildRatingBar(
+                            context,
+                            4,
+                            ratingCounts[4] ?? 0,
+                            totalReviews,
+                          ),
+                          Gap(Spacing.xs.h),
+                          _buildRatingBar(
+                            context,
+                            3,
+                            ratingCounts[3] ?? 0,
+                            totalReviews,
+                          ),
+                          Gap(Spacing.xs.h),
+                          _buildRatingBar(
+                            context,
+                            2,
+                            ratingCounts[2] ?? 0,
+                            totalReviews,
+                          ),
+                          Gap(Spacing.xs.h),
+                          _buildRatingBar(
+                            context,
+                            1,
+                            ratingCounts[1] ?? 0,
+                            totalReviews,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              Gap(Spacing.xl),
+                  ],
+                ),
+                Gap(Spacing.xl),
+              ],
             ],
           ),
         );
       },
       loading: () => _buildLoadingState(),
-      error: (_, __) => _buildEmptyState(),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 
@@ -164,7 +165,7 @@ class DetailedShopRatingWidget extends ConsumerWidget {
             borderRadius: BorderRadius.circular(10.r),
             child: LinearProgressIndicator(
               value: percentage,
-              backgroundColor: colorScheme.onBackground.withOpacity(0.1),
+              backgroundColor: colorScheme.onSurface.withValues(alpha: 0.1),
               color: Colors.amber,
               minHeight: 6.h,
             ),
@@ -176,26 +177,12 @@ class DetailedShopRatingWidget extends ConsumerWidget {
           child: Text(
             count.toString(),
             style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurface.withOpacity(0.6),
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
             ),
             textAlign: TextAlign.end,
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return ShopDetailsSection(
-      title: 'Rating',
-      seeAllOnperssed: null,
-      widget: Center(
-        child: EmptyStateWidget(
-          title: '',
-          subtitle: 'No ratings yet',
-          icon: Icons.star_border_outlined,
-        ),
-      ),
     );
   }
 

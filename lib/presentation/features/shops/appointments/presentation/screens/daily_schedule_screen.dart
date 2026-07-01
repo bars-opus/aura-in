@@ -180,26 +180,21 @@ class _DailyScheduleScreenState extends ConsumerState<DailyScheduleScreen> {
         final booking = filteredAppointments[index];
         final isLast = index == filteredAppointments.length - 1;
 
-        return CardInkWell(
-          padding: const EdgeInsets.all(Spacing.sm),
-          margin: const EdgeInsets.all(0),
-          onTap: () {},
-          child: ClientBookingCard(
-            startTime: booking.startTime,
-            endTime: booking.endTime,
-            bookingId: booking.id,
-            totalAmountMinor: booking.totalAmountMinor,
-            shopCurrency: booking.shopCurrency,
-            shopType: '@${booking.userName}',
-            shopName: booking.clientName,
-            shopLogoUrl: booking.clientAvatarUrl,
-            shopAddress: '',
-            serviceName: booking.serviceName,
-            shouldPop: false,
-            status: booking.status,
-            isShopOwner: true,
-            showDivider: !isLast,
-          ),
+        return ClientBookingCard(
+          startTime: booking.startTime,
+          endTime: booking.endTime,
+          bookingId: booking.id,
+          totalAmountMinor: booking.totalAmountMinor,
+          shopCurrency: booking.shopCurrency,
+          shopType: '@${booking.userName}',
+          shopName: booking.clientName,
+          shopLogoUrl: booking.clientAvatarUrl,
+          shopAddress: '',
+          serviceName: booking.serviceName,
+          shouldPop: false,
+          status: booking.status,
+          isShopOwner: true,
+          showDivider: !isLast,
         );
       }, childCount: filteredAppointments.length),
     );

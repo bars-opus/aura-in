@@ -39,8 +39,7 @@ class BookingFlowScreen extends ConsumerStatefulWidget {
 class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
     with AutomaticKeepAliveClientMixin {
   int _currentTabIndex = 0;
-  bool _shouldForceTabChange = false;
-  Key _tabsKey = UniqueKey();
+  TabController? _tabController;
 
   @override
   void initState() {
@@ -182,35 +181,24 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
   }
 
   void _goToWorkersStep() {
-    setState(() {
-      _shouldForceTabChange = true;
-      _currentTabIndex = 1;
-      _tabsKey = UniqueKey();
-    });
+    _navigateToTab(1);
   }
 
   void _goToTimeStep() {
-    setState(() {
-      _shouldForceTabChange = true;
-      _currentTabIndex = widget.isFreelancer ? 1 : 2;
-      _tabsKey = UniqueKey();
-    });
+    _navigateToTab(widget.isFreelancer ? 1 : 2);
   }
 
   void _goToAddressStep() {
-    setState(() {
-      _shouldForceTabChange = true;
-      _currentTabIndex = widget.isFreelancer ? 2 : 3;
-      _tabsKey = UniqueKey();
-    });
+    _navigateToTab(widget.isFreelancer ? 2 : 3);
   }
 
   void _goToConfirmStep() {
-    setState(() {
-      _shouldForceTabChange = true;
-      _currentTabIndex = widget.isFreelancer ? (widget.canTravel ? 3 : 2) : 3;
-      _tabsKey = UniqueKey();
-    });
+    _navigateToTab(widget.isFreelancer ? (widget.canTravel ? 3 : 2) : 3);
+  }
+
+  void _navigateToTab(int index) {
+    setState(() => _currentTabIndex = index);
+    _tabController?.animateTo(index);
   }
 
   @override
@@ -320,17 +308,12 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen>
     final buttonText = isLastStep ? 'Book' : 'Continue';
 
     return TabsWithContent(
-      key: _tabsKey,
       showCloseIcon: true,
       useNestedScrollMode: true,
       appBartext: buttonText,
       appBarOnPressed: _handleContinue,
+      onControllerCreated: (controller) => _tabController = controller,
       onTabChangeRequest: (fromIndex, toIndex) {
-        if (_shouldForceTabChange && toIndex == _currentTabIndex) {
-          _shouldForceTabChange = false;
-          return true;
-        }
-
         // Validate navigation based on freelancer status
         if (toIndex > fromIndex) {
           if (fromIndex == 0 && !_canProceedToWorkers()) {

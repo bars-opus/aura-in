@@ -5,6 +5,7 @@ import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/utils/logging/app_logger.dart';
 import 'package:nano_embryo/presentation/features/shops/dashboard/presentation/screens/todays_view.dart';
 import 'package:nano_embryo/payment/presentation/widgets/payment_setup_banner.dart';
+import 'package:nano_embryo/presentation/home/widgets/verification_banner.dart';
 import 'package:nano_embryo/wallet/data/exceptions/wallet_exceptions.dart';
 import 'package:nano_embryo/wallet/presentation/providers/payment_setup_provider.dart';
 import 'package:nano_embryo/wallet/presentation/widgets/dead_letter_banner.dart';
@@ -104,6 +105,13 @@ class _WalletScreenState extends ConsumerState<WalletScreen>
           child: CustomScrollView(
             controller: _scroll,
             slivers: [
+              SliverToBoxAdapter(
+                child: VerificationBanner(
+                  entityType: 'shop',
+                  entityId: widget.shopId,
+                ),
+              ),
+
               // Payment Setup Banner - Shows/Hides in real-time
               SliverToBoxAdapter(
                 child: paymentSetupAsync.when(

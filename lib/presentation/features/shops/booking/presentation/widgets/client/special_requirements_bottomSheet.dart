@@ -67,7 +67,6 @@ class _SpecialRequirementsBottomSheetState
           keyboardType: TextInputType.multiline,
           textInputAction: TextInputAction.done,
           errorText: _error,
-          suffixIcon: _isSaving ? TextFieldLoadingIndicator() : null,
         ),
         Gap(Spacing.md.h),
         SemanticContainerWidget(
@@ -140,7 +139,11 @@ class _SpecialRequirementsBottomSheetState
         );
       }
     } catch (e, st) {
-      BookingLogger.error('special_requirements_save_failed', error: e, stack: st);
+      BookingLogger.error(
+        'special_requirements_save_failed',
+        error: e,
+        stack: st,
+      );
       if (mounted) {
         setState(() {
           _error = BookingErrorMessages.forUser(e);

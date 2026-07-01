@@ -60,6 +60,7 @@ class ShopMapCard extends ConsumerWidget {
               numberClientsWorked: shop.numberClientsWorked ?? 0,
               overview: shop.overview,
               isMini: true,
+              showNavigationIcon: true,
               id: shop.id,
               isShop: true,
             ),

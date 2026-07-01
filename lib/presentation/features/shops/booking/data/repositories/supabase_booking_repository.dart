@@ -496,6 +496,18 @@ class SupabaseBookingRepository implements BookingRepository {
         shopAddress = shopResponse['address'] as String?;
       }
 
+      // For freelancer bookings the shop has no physical location. Fall back to
+      // the service address the client entered (stored in bookings.address and
+      // exposed by booking_simple as service_address / service_lat / service_lng).
+      final serviceAddress = firstRow['service_address'] as String?;
+      if ((shopAddress == null || shopAddress.isEmpty) &&
+          serviceAddress != null &&
+          serviceAddress.isNotEmpty) {
+        shopAddress = serviceAddress;
+        latitude ??= (firstRow['service_latitude'] as num?)?.toDouble();
+        longitude ??= (firstRow['service_longitude'] as num?)?.toDouble();
+      }
+
       // 3. Fetch booking services
       final servicesResponse = await _client
           .from('booking_services')

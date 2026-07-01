@@ -1,8 +1,13 @@
 // lib/features/settings/data/settings_data.dart
+import 'dart:io';
 import 'package:nano_embryo/app/routing/app_router.dart' as routes;
+import 'package:nano_embryo/core/link/entity_share_links.dart';
+import 'package:nano_embryo/core/link/widgets/link_qr_view.dart';
 import 'package:nano_embryo/core/providers/routing_providers.dart';
 import 'package:nano_embryo/core/providers/shared_prefs_provider.dart';
 import 'package:nano_embryo/presentation/features/settings/utility/settings_exports.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SettingsDataSource {
   static List<SettingsSection> getSettingsSections(
@@ -13,7 +18,20 @@ class SettingsDataSource {
     final loc = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
+    // Profile share — no dedicated web page for user profiles, so we use
+    // the app home URL with the user's display name in the share text.
+    final displayName =
+        Supabase.instance.client.auth.currentUser?.userMetadata?['display_name']
+            as String? ??
+        '';
+    final profileShareUrl = EntityShareLinks.homeUrl;
+    final profileShareText = EntityShareLinks.shareText(
+      url: profileShareUrl,
+      displayName: displayName.isNotEmpty ? displayName : null,
+    );
+
     return [
+      // ── Section 1: Profile & Preferences ─────────────────────────────────
       SettingsSection(
         id: 'account',
         title: '',
@@ -24,7 +42,8 @@ class SettingsDataSource {
             subtitle: loc.profileItemSubtitle,
             icon: Icons.person,
             type: SettingsItemType.navigation,
-            routeName: '/profile',
+            routeName: RouteNames.editScreen,
+            onTap: () => context.push(RouteNames.editScreen),
             iconColor: theme.colorScheme.primary,
             order: 1,
           ),
@@ -37,16 +56,6 @@ class SettingsDataSource {
             routeName: '/editLocation',
             onTap: () => context.push('/editLocation'),
             iconColor: Colors.green,
-            order: 2,
-          ),
-          SettingsConfig(
-            id: 'save',
-            title: loc.saveItemTitle,
-            subtitle: loc.saveItemSubtitle,
-            icon: Icons.bookmark,
-            type: SettingsItemType.navigation,
-            routeName: '/save',
-            iconColor: Colors.blueGrey,
             order: 2,
           ),
           SettingsConfig(
@@ -69,24 +78,80 @@ class SettingsDataSource {
             iconColor: Colors.red,
             order: 4,
           ),
+        ],
+      ),
+
+      // ── Section 2: My Activity ────────────────────────────────────────────
+      SettingsSection(
+        id: 'activity',
+        title: 'My Activity',
+        items: [
+          SettingsConfig(
+            id: 'my_shops',
+            title: 'My Shops',
+            subtitle: 'Manage your shops and services',
+            icon: Icons.store_outlined,
+            type: SettingsItemType.navigation,
+            routeName: RouteNames.myShopsScreen,
+            onTap: () => context.push(RouteNames.myShopsScreen),
+            iconColor: Colors.teal,
+            order: 1,
+          ),
+          SettingsConfig(
+            id: 'customer_orders',
+            title: 'My Orders',
+            subtitle: 'Track your product orders',
+            icon: Icons.shopping_bag_outlined,
+            type: SettingsItemType.navigation,
+            routeName: RouteNames.customerOrders,
+            onTap: () => context.push(RouteNames.customerOrders),
+            iconColor: Colors.indigo,
+            order: 2,
+          ),
+        ],
+      ),
+
+      // ── Section 3: Share ──────────────────────────────────────────────────
+      SettingsSection(
+        id: 'share',
+        title: 'Share',
+        items: [
           SettingsConfig(
             id: 'qr_code',
             title: loc.qrCodeItemTitle,
             subtitle: loc.qrCodeItemSubtitle,
             icon: Icons.qr_code_2_rounded,
-            type: SettingsItemType.navigation,
+            type: SettingsItemType.action,
             iconColor: Colors.purple,
-            order: 5,
+            order: 1,
+            onTap: () {
+              BottomSheetUtils.showDocumentationBottomSheet(
+                context: context,
+                widget: Padding(
+                  padding: EdgeInsets.all(Spacing.lg),
+                  child: LinkQrView(
+                    url: profileShareUrl,
+                    label: displayName.isNotEmpty ? displayName : 'My profile',
+                  ),
+                ),
+              );
+            },
           ),
           SettingsConfig(
             id: 'share_profile',
             title: loc.shareProfileItemTitle,
             subtitle: loc.shareProfileItemSubtitle,
             icon: Icons.share,
-            url: 'https://yourapp.com/privacy',
-            type: SettingsItemType.link,
+            type: SettingsItemType.action,
             iconColor: Colors.blue,
-            order: 6,
+            order: 2,
+            onTap: () async {
+              if (Platform.isIOS) {
+                await Share.shareUri(Uri.parse(profileShareUrl));
+              } else {
+                await Share.share(profileShareText);
+              }
+            },
           ),
         ],
       ),

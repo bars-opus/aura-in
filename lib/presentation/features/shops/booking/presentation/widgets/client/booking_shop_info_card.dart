@@ -69,14 +69,31 @@ class _BookingShopInfoCardState extends ConsumerState<BookingShopInfoCard> {
                   // to load profile"). enable=false would make it non-tappable
                   // and the callback would never fire — so route to shop details.
                   enableOnProfileNavigatePressed: true,
-                  onProfileNavigatePressed:
-                      () => context.pushNamed(
+                  onProfileNavigatePressed: () {
+                    // Freelancer shop types route to the freelancer profile;
+                    // everything else goes to the regular shop details screen.
+                    final isFreelancerType = widget.shopType == 'freelancer' ||
+                        !['salon', 'barbershop', 'spa', 'nail', 'tattoo', 'beauty']
+                            .contains(widget.shopType.toLowerCase());
+                    if (isFreelancerType) {
+                      context.pushNamed(
+                        'freelancerDetailsScreen',
+                        extra: <String, String?>{
+                          'freelancerId': widget.shopId,
+                          'freelancurrency': '',
+                          'coverImageUrl': widget.shopLogoUrl ?? '',
+                        },
+                      );
+                    } else {
+                      context.pushNamed(
                         'shopDetailsScreen',
                         extra: <String, String?>{
                           'shopId': widget.shopId,
                           'coverImageUrl': widget.shopLogoUrl ?? '',
                         },
-                      ),
+                      );
+                    }
+                  },
                 ),
               ),
               Icon(

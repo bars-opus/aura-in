@@ -186,7 +186,7 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
             SliverAppBar(
-              expandedHeight: 400.h,
+              expandedHeight: 300.h,
               pinned: true,
               leading: Center(
                 child: AppIconButton(

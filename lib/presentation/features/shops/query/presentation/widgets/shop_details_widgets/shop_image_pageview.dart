@@ -15,7 +15,7 @@ class ShopImagePageview extends StatefulWidget {
     required this.shopImageUrls,
     this.autoScrollDuration = const Duration(seconds: 5),
     this.transitionDuration = const Duration(milliseconds: 500),
-    this.height = 400,
+    this.height = 300,
     this.isPreview = false,
   });
 

@@ -1,9 +1,12 @@
 // lib/features/settings/data/settings_data.dart
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:nano_embryo/core/link/entity_share_links.dart';
+import 'package:nano_embryo/core/link/widgets/link_qr_view.dart';
 import 'package:nano_embryo/core/moderation/data/moderation_models.dart';
+import 'package:nano_embryo/core/utils/haptic_feedback_utils.dart';
 import 'package:nano_embryo/presentation/features/settings/models/settings_config.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 
@@ -106,9 +109,18 @@ class ProfileMoreData {
               subtitle: '',
               icon: Icons.share,
               type: SettingsItemType.action,
-              onTap: () {
+              onTap: () async {
                 Navigator.of(context).maybePop();
-                Share.share(shareMessage);
+                // On iOS, shareUri renders a native link-preview card with the
+                // page's og:image + og:title + og:description. Only use it for
+                // real entity URLs (/book/<slug>), not the generic home fallback.
+                final isRealEntityUrl =
+                    shareUrl != null && shareUrl.trim().isNotEmpty;
+                if (Platform.isIOS && isRealEntityUrl) {
+                  await Share.shareUri(Uri.parse(effectiveShareUrl));
+                } else {
+                  await Share.share(shareMessage);
+                }
               },
               iconColor: theme.colorScheme.onSurface.withValues(alpha: .6),
               order: 2,
@@ -120,15 +132,44 @@ class ProfileMoreData {
               icon: Icons.copy,
               type: SettingsItemType.action,
               onTap: () async {
+                await HapticFeedbackUtils.triggerSelectionFeedback();
                 await Clipboard.setData(ClipboardData(text: effectiveShareUrl));
-                if (context.mounted) {
-                  Navigator.of(context).maybePop();
-                  context.showInfoSnackbar('Link copied');
-                }
+                if (!context.mounted) return;
+                Navigator.of(context).maybePop();
+                // Post-frame so the snackbar fires on the parent scaffold
+                // after the sheet has fully dismissed.
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  final rootCtx =
+                      Navigator.of(context, rootNavigator: true).context;
+                  if (rootCtx.mounted) rootCtx.showInfoSnackbar('Link copied');
+                });
               },
               iconColor: theme.colorScheme.onSurface.withValues(alpha: .6),
               order: 3,
             ),
+            if (shareUrl != null && shareUrl.trim().isNotEmpty)
+              SettingsConfig(
+                id: 'qr_code',
+                title: 'QR code',
+                subtitle: '',
+                icon: Icons.qr_code,
+                type: SettingsItemType.action,
+                onTap: () {
+                  Navigator.of(context).maybePop();
+                  BottomSheetUtils.showDocumentationBottomSheet(
+                    context: context,
+                    widget: Padding(
+                      padding: EdgeInsets.all(Spacing.lg),
+                      child: LinkQrView(
+                        url: effectiveShareUrl,
+                        label: moderationTarget?.displayName ?? '',
+                      ),
+                    ),
+                  );
+                },
+                iconColor: theme.colorScheme.onSurface.withValues(alpha: .6),
+                order: 4,
+              ),
           ],
         ),
 

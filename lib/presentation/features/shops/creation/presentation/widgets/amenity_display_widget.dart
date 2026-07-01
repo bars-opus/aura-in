@@ -1,21 +1,16 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nano_embryo/app/theme/design_tokens.dart';
+
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
-import 'package:nano_embryo/core/widgets/app_divider.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/data/amenity_repository.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/domain/models/amenity.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_details_section.dart';
 
 class AmenityDisplayWidget extends ConsumerWidget {
-  final List<String> selectedAmenityIds;
-  // final bool shouldBeCategorised;
+  static const int _previewLimit = 6;
 
-  const AmenityDisplayWidget({
-    super.key,
-    required this.selectedAmenityIds,
-    // this.shouldBeCategorised = true,
-  });
+  final List<String> selectedAmenityIds;
+
+  const AmenityDisplayWidget({super.key, required this.selectedAmenityIds});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,169 +18,225 @@ class AmenityDisplayWidget extends ConsumerWidget {
 
     return categoriesAsync.when(
       data: (categories) {
-        // Sort categories alphabetically by name
-        final sortedCategories = List<AmenityCategory>.from(categories)
-          ..sort((a, b) => a.name.compareTo(b.name));
+        final selectedIds = selectedAmenityIds.toSet();
+        final selectedCategories = _selectedCategories(categories, selectedIds);
+        final selectedAmenities =
+            selectedCategories.expand((category) => category.amenities).toList()
+              ..sort(_compareAmenities);
 
-        // Get all selected amenities and sort alphabetically by name
-        final allSelectedAmenities =
-            sortedCategories
-                .expand((c) => c.amenities)
-                .where((amenity) => selectedAmenityIds.contains(amenity.id))
-                .toList()
-              ..sort((a, b) => a.name.compareTo(b.name));
+        if (selectedAmenities.isEmpty) return const SizedBox.shrink();
 
-        if (allSelectedAmenities.isEmpty) {
-          return _buildEmptyState();
-        }
+        final previewAmenities = selectedAmenities.take(_previewLimit).toList();
 
         return ShopDetailsSection(
           title: 'Amenities',
+          showCard: false,
           seeAllOnperssed:
-              selectedAmenityIds.length > 5
-                  ? () {
-                    BottomSheetUtils.showDocumentationBottomSheet(
-                      context: context,
-                      widget: _categoryWidget(context, sortedCategories),
-                    );
-                  }
+              selectedAmenities.length > _previewLimit
+                  ? () => _showAllAmenities(context, selectedCategories)
                   : null,
-          widget: SizedBox(
-            height: allSelectedAmenities.length * 30,
-            child: ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: allSelectedAmenities.length,
-              separatorBuilder: (context, index) => AppDivider(),
-              itemBuilder: (context, index) {
-                final amenity = allSelectedAmenities[index];
-                return _buildAmenityTile(context, amenity);
-              },
+          widget: Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(Spacing.md.r),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadiusTokens.lgAll,
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.12),
+                width: BorderWidthTokens.hairline,
+              ),
+            ),
+            child: Column(
+              children: [
+                for (
+                  var index = 0;
+                  index < previewAmenities.length;
+                  index++
+                ) ...[
+                  _AmenityChip(amenity: previewAmenities[index]),
+                  if (index < previewAmenities.length - 1) Gap(Spacing.sm.h),
+                ],
+              ],
             ),
           ),
         );
       },
-      loading:
-          () => const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: CircularLoadingIndicator(),
-            ),
-          ),
+      loading: () => const _AmenityLoadingPreview(),
       error:
-          (error, stack) => Center(
-            child: ErrorStateWidget(
-              subtitle: 'Failed to load amenities',
-              onPrimaryAction: () {
-                ref.invalidate(amenitiesByCategoryProvider);
-              },
-            ),
+          (error, stack) => ErrorStateWidget(
+            subtitle: 'Failed to load amenities',
+            compact: true,
+            onPrimaryAction: () {
+              ref.invalidate(amenitiesByCategoryProvider);
+            },
           ),
     );
   }
 
-  Widget _categoryWidget(
-    BuildContext context,
+  List<AmenityCategory> _selectedCategories(
     List<AmenityCategory> categories,
+    Set<String> selectedIds,
   ) {
-    final categoriesWithSelectedAmenities =
+    final selectedCategories =
         categories
             .map(
               (category) => AmenityCategory(
                 name: category.name,
                 amenities:
                     category.amenities
-                        .where(
-                          (amenity) => selectedAmenityIds.contains(amenity.id),
-                        )
+                        .where((amenity) => selectedIds.contains(amenity.id))
                         .toList()
-                      ..sort(
-                        (a, b) => a.name.compareTo(b.name),
-                      ), // Sort amenities alphabetically within category
+                      ..sort(_compareAmenities),
               ),
             )
             .where((category) => category.amenities.isNotEmpty)
             .toList();
 
-    if (categoriesWithSelectedAmenities.isEmpty) {
-      return _buildEmptyState();
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: categoriesWithSelectedAmenities.length,
-      itemBuilder: (context, categoryIndex) {
-        final category = categoriesWithSelectedAmenities[categoryIndex];
-        return _buildCategorySection(context, category);
-      },
-    );
+    selectedCategories.sort((a, b) => a.name.compareTo(b.name));
+    return selectedCategories;
   }
 
-  Widget _buildCategorySection(BuildContext context, AmenityCategory category) {
-    final theme = Theme.of(context);
+  int _compareAmenities(Amenity a, Amenity b) {
+    final orderComparison = a.displayOrder.compareTo(b.displayOrder);
+    return orderComparison != 0 ? orderComparison : a.name.compareTo(b.name);
+  }
 
-    return CardInkWell(
-      onTap: () {},
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: Spacing.sm.h),
-            child: Text(
-              category.name,
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onBackground.withOpacity(.6),
+  void _showAllAmenities(
+    BuildContext context,
+    List<AmenityCategory> categories,
+  ) {
+    BottomSheetUtils.showDocumentationBottomSheet(
+      context: context,
+      widget: _AllAmenitiesSheet(categories: categories),
+    );
+  }
+}
+
+class _AmenityChip extends StatelessWidget {
+  final Amenity amenity;
+
+  const _AmenityChip({required this.amenity});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Semantics(
+      label: amenity.name,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+          horizontal: Spacing.md.w,
+          vertical: Spacing.sm.h,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          border: Border.all(width: .1, color: colorScheme.onBackground),
+          borderRadius: BorderRadiusTokens.mdAll,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              amenity.icon ?? Icons.check_circle_outline_rounded,
+              size: 18.r,
+              color: colorScheme.primary,
+            ),
+            Gap(Spacing.sm.w),
+            Flexible(
+              child: Text(
+                amenity.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
-          AppDivider(),
-          ...category.amenities.asMap().entries.map((entry) {
-            final index = entry.key;
-            final amenity = entry.value;
-            return Column(
-              children: [
-                _buildAmenityTile(context, amenity),
-                if (index < category.amenities.length - 1)
-                  Padding(
-                    padding: EdgeInsets.only(left: Spacing.xl.h + 10.w),
-                    child: AppDivider(),
-                  ),
-              ],
-            );
-          }).toList(),
-        ],
+          ],
+        ),
       ),
     );
   }
-
-  Widget _buildAmenityTile(BuildContext context, Amenity amenity) {
-  final theme = Theme.of(context);
-  
-  return Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      if (amenity.icon != null) ...[
-        Icon(amenity.icon, size: 16.sp, color: theme.colorScheme.primary),
-        SizedBox(width: 6.w),
-      ],
-      Text(
-        amenity.name,
-        style: theme.textTheme.bodySmall?.copyWith(
-          color: theme.colorScheme.onSurface,
-        ),
-      ),
-    ],
-  );
 }
-  Widget _buildEmptyState() {
-    return Center(
-      child: Center(
-        child: EmptyStateWidget(
-          title: '',
-          subtitle: 'No amenities available',
-          icon: Icons.hotel_outlined,
+
+class _AllAmenitiesSheet extends StatelessWidget {
+  final List<AmenityCategory> categories;
+
+  const _AllAmenitiesSheet({required this.categories});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final amenityCount = categories.fold<int>(
+      0,
+      (count, category) => count + category.amenities.length,
+    );
+
+    return ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        Text(
+          'Amenities',
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Gap(Spacing.xs.h),
+        Text(
+          '$amenityCount available at this shop',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        Gap(Spacing.xl.h),
+        for (final category in categories) ...[
+          Text(
+            category.name,
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Gap(Spacing.sm.h),
+          Column(
+            children: [
+              for (
+                var index = 0;
+                index < category.amenities.length;
+                index++
+              ) ...[
+                _AmenityChip(amenity: category.amenities[index]),
+                if (index < category.amenities.length - 1) Gap(Spacing.sm.h),
+              ],
+            ],
+          ),
+          Gap(Spacing.xl.h),
+        ],
+      ],
+    );
+  }
+}
+
+class _AmenityLoadingPreview extends StatelessWidget {
+  const _AmenityLoadingPreview();
+
+  @override
+  Widget build(BuildContext context) {
+    return ShopDetailsSection(
+      title: 'Amenities',
+      seeAllOnperssed: null,
+      showCard: false,
+      widget: Column(
+        children: List.generate(
+          4,
+          (index) => Padding(
+            padding: EdgeInsets.only(bottom: index == 3 ? 0 : Spacing.sm.h),
+            child: ShopSchimmerSkeleton(width: double.infinity, height: 44.h),
+          ),
         ),
       ),
     );

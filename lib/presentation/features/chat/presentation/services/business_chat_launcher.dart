@@ -42,6 +42,20 @@ class BusinessChatLauncher {
             : order.shopName ?? 'Shop',
   );
 
+  static Future<void> openForShop(
+    BuildContext context,
+    WidgetRef ref, {
+    required String shopId,
+    required String shopName,
+  }) => _open(
+    context,
+    ref,
+    shopId: shopId,
+    contextType: 'shop',
+    contextId: shopId,
+    channelName: shopName,
+  );
+
   static Future<void> openForBooking(
     BuildContext context,
     WidgetRef ref,

@@ -25,7 +25,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Booking link not found · Aura-In" };
   }
   const title = `Book at ${data.target.name} · Aura-In`;
-  const description = `Book your appointment at ${data.target.name}. Pay deposit, get WhatsApp confirmation.`;
+  const overview = data.target.overview?.trim() ?? "";
+  const description = overview.length > 0
+    ? overview
+    : `Book your appointment at ${data.target.name}. Pay deposit, get WhatsApp confirmation.`;
   // Preview image for WhatsApp / social: the shop's own logo when it has one,
   // otherwise the Aura-In mark. og:image must be an absolute URL.
   const image = data.target.logoUrl ?? "/og-default.png";

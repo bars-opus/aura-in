@@ -41,6 +41,9 @@ class _PaymentIntent {
     required this.paymentProvider,
     this.promotionId,
     this.promoAmountOffMinor,
+    this.clientAddress,
+    this.clientAddressLat,
+    this.clientAddressLng,
   });
 
   final String shopId;
@@ -69,6 +72,13 @@ class _PaymentIntent {
   /// Phase 17: int minor units (kobo). The discount amount round-tripped
   /// back to the webhook so it can pass the same value into redeem_promotion.
   final int? promoAmountOffMinor;
+
+  /// Freelancer home-service address entered by the client. Carried through
+  /// pending_payments.booking_data so the webhook can write it to
+  /// bookings.client_address.
+  final String? clientAddress;
+  final double? clientAddressLat;
+  final double? clientAddressLng;
 }
 
 class PaymentController
@@ -134,6 +144,11 @@ class PaymentController
     required BuildContext context,
     String? promotionId,
     int? promoAmountOffMinor,
+    // Freelancer home-service address — stored on bookings.client_address
+    // via pending_payments.booking_data → paystack-webhook.
+    String? clientAddress,
+    double? clientAddressLat,
+    double? clientAddressLng,
   }) async {
     _lastIntent = _PaymentIntent(
       shopId: shopId,
@@ -149,6 +164,9 @@ class PaymentController
       paymentProvider: paymentProvider,
       promotionId: promotionId,
       promoAmountOffMinor: promoAmountOffMinor,
+      clientAddress: clientAddress,
+      clientAddressLat: clientAddressLat,
+      clientAddressLng: clientAddressLng,
     );
     state = const AsyncValue.loading();
 
@@ -206,6 +224,10 @@ class PaymentController
         if (promotionId != null) 'promotionId': promotionId,
         // Phase 17: promo discount also flips to int kobo on the wire.
         if (promoAmountOffMinor != null) 'promoAmountOffMinor': promoAmountOffMinor,
+        // Freelancer home-service address — webhook writes to bookings.client_address.
+        if (clientAddress != null) 'clientAddress': clientAddress,
+        if (clientAddressLat != null) 'clientAddressLat': clientAddressLat,
+        if (clientAddressLng != null) 'clientAddressLng': clientAddressLng,
       };
 
       final response = await _supabase.functions.invoke(
@@ -375,6 +397,9 @@ class PaymentController
       context: context,
       promotionId: intent.promotionId,
       promoAmountOffMinor: intent.promoAmountOffMinor,
+      clientAddress: intent.clientAddress,
+      clientAddressLat: intent.clientAddressLat,
+      clientAddressLng: intent.clientAddressLng,
     );
   }
 

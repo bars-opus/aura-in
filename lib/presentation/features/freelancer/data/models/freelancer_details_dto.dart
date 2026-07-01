@@ -88,16 +88,21 @@ class FreelancerDetailsDTO extends Equatable {
     // Supabase nests the joined table under the 'freelancer_details' key.
     // Fall back to top-level for flattened queries (e.g. RPCs / views).
     final details = (json['freelancer_details'] as Map<String, dynamic>?) ?? {};
+    final shop = json['shop'] as Map<String, dynamic>?;
 
     return FreelancerDetailsDTO(
       id: json['id'] as String,
       userId: json['user_id'] as String? ?? '',
       shopId: json['shop_id'] as String?,
       name: json['name'] as String,
-      terms: json['terms'] as String?, // ✅ Fixed - allows null
+      terms: json['terms'] as String?,
       bio: json['bio'] as String?,
+      // workers.profile_image_url is the canonical source; fall back to
+      // shops.shop_logo_url so the avatar shows even when the worker row
+      // was created before the shops backfill migration kept them in sync.
       profileImageUrl:
-          (json['profile_image'] ?? json['profile_image_url']) as String?,
+          (json['profile_image'] ?? json['profile_image_url'] ?? shop?['shop_logo_url'])
+              as String?,
       specialties: List<String>.from(json['specialties'] ?? []),
       isActive: json['is_active'] ?? true,
       isFreelancer: json['is_freelancer'] ?? true,

@@ -1,6 +1,10 @@
 import 'dart:io';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nano_embryo/core/link/config/aurain_link_config.dart';
+import 'package:nano_embryo/core/link/widgets/link_qr_view.dart';
 import 'package:nano_embryo/core/utils/exports/export_screens.dart';
 import 'package:nano_embryo/core/utils/location/route_preview_widget.dart';
+import 'package:nano_embryo/presentation/features/chat/presentation/services/business_chat_launcher.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/amenity_display_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/award_display_card.dart';
 import 'package:nano_embryo/presentation/features/shops/creation/presentation/widgets/display_shop_social_links.dart';
@@ -11,8 +15,9 @@ import 'package:nano_embryo/presentation/features/shops/query/presentation/widge
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_header_widget.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/widgets/horizontal_reviews_preview.dart';
 import 'package:nano_embryo/presentation/features/shops/reviews/presentation/widgets/shop_rating_widget.dart';
+import 'package:share_plus/share_plus.dart';
 
-class ShopDetailsInfoSection extends StatelessWidget {
+class ShopDetailsInfoSection extends ConsumerWidget {
   final ShopDetailsDTO shop;
   final bool isPreview;
 
@@ -23,7 +28,7 @@ class ShopDetailsInfoSection extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Access theme for consistent styling
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -55,7 +60,8 @@ class ShopDetailsInfoSection extends StatelessWidget {
             Gap(Spacing.md.h),
             AppDivider(),
             Gap(Spacing.sm.h),
-            AmenityDisplayWidget(selectedAmenityIds: shop.amenityIds),
+            if (shop.amenityIds.isNotEmpty)
+              AmenityDisplayWidget(selectedAmenityIds: shop.amenityIds),
 
             if (shop.workers.isNotEmpty)
               ShopDetailsSection(
@@ -98,10 +104,6 @@ class ShopDetailsInfoSection extends StatelessWidget {
               ),
             ),
 
-            Gap(Spacing.md.h),
-            AppDivider(),
-            Gap(Spacing.sm.h),
-
             DetailedShopRatingWidget(
               onTap: () {
                 context.push(
@@ -115,10 +117,12 @@ class ShopDetailsInfoSection extends StatelessWidget {
             ),
 
             HorizontalReviewsPreview(shopId: shop.id, onViewAllPressed: () {}),
-            Gap(Spacing.md.h),
-            AppDivider(),
-            Gap(Spacing.md.h),
-            OpeningHoursWidget(openingHours: shop.openingHours),
+            if (shop.openingHours.isNotEmpty) ...[
+              Gap(Spacing.md.h),
+              AppDivider(),
+              Gap(Spacing.md.h),
+              OpeningHoursWidget(openingHours: shop.openingHours),
+            ],
 
             if (shop.terms != null && shop.terms!.isNotEmpty) ...[
               GestureDetector(
@@ -175,7 +179,12 @@ class ShopDetailsInfoSection extends StatelessWidget {
                     center: false,
                     iconData: Icons.send,
                     label: "Send a message",
-                    onPressed: () {},
+                    onPressed: () => BusinessChatLauncher.openForShop(
+                      context,
+                      ref,
+                      shopId: shop.id,
+                      shopName: shop.shopName,
+                    ),
                     padding: Spacing.horizontalMd,
                     variant: ButtonVariant.outline,
                     size: ButtonSize.small,
@@ -203,21 +212,36 @@ class ShopDetailsInfoSection extends StatelessWidget {
                     width: double.infinity,
                     elevation: 0,
                   ),
-                ],
-              ),
-            ),
-
-            CardInkWell(
-              // elevation: 0,
-              onTap: () {},
-              child: Column(
-                children: [
+                  Gap(Spacing.sm),
                   AppButton(
                     height: 35.h,
                     center: false,
                     iconData: Icons.share,
                     label: "Share link",
-                    onPressed: () {},
+                    onPressed: () async {
+                      final slug = shop.bookingSlug;
+                      if (slug == null || slug.isEmpty) {
+                        context.showErrorSnackbar('No shareable link yet');
+                        return;
+                      }
+                      final config = AuraInLinkConfig.getConfig();
+                      final url =
+                          'https://${config.baseDomain}/book/$slug';
+                      // On iOS, shareUri triggers a native link-preview card
+                      // using the page's og:image (shop logo), og:title (shop
+                      // name), and og:description (overview) — all of which
+                      // /book/[slug] now serves dynamically per shop.
+                      // On Android, fall back to plain text which shows inline.
+                      if (Platform.isIOS) {
+                        await Share.shareUri(Uri.parse(url));
+                        return;
+                      }
+                      final overview = shop.overview?.trim() ?? '';
+                      final body = StringBuffer(shop.shopName);
+                      if (overview.isNotEmpty) body.write('\n$overview');
+                      body.write('\n\n$url');
+                      Share.share(body.toString());
+                    },
                     padding: Spacing.horizontalMd,
                     variant: ButtonVariant.outline,
                     size: ButtonSize.small,
@@ -230,7 +254,26 @@ class ShopDetailsInfoSection extends StatelessWidget {
                     iconData: Icons.qr_code,
                     height: 35.h,
                     label: "Shop QR code",
-                    onPressed: () {},
+                    onPressed: () {
+                      final slug = shop.bookingSlug;
+                      if (slug == null || slug.isEmpty) {
+                        context.showErrorSnackbar('No shareable link yet');
+                        return;
+                      }
+                      final config = AuraInLinkConfig.getConfig();
+                      final url =
+                          'https://${config.baseDomain}/book/$slug';
+                      BottomSheetUtils.showDocumentationBottomSheet(
+                        context: context,
+                        widget: Padding(
+                          padding: EdgeInsets.all(Spacing.lg.w),
+                          child: LinkQrView(
+                            url: url,
+                            label: shop.shopName,
+                          ),
+                        ),
+                      );
+                    },
                     padding: Spacing.horizontalMd,
                     variant: ButtonVariant.outline,
                     size: ButtonSize.small,

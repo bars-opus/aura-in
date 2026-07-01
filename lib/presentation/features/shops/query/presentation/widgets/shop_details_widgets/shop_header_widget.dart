@@ -19,6 +19,7 @@ class ShopHeaderWidget extends ConsumerWidget {
   final double? longitude;
   final bool isShop;
   final bool isMini;
+  final bool showNavigationIcon;
 
   // final ShopDetailsDTO shop;
 
@@ -36,6 +37,8 @@ class ShopHeaderWidget extends ConsumerWidget {
     required this.longitude,
     required this.isShop,
     this.isMini = false,
+    this.showNavigationIcon = false,
+
     super.key,
   });
 
@@ -111,11 +114,12 @@ class ShopHeaderWidget extends ConsumerWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Icon(
-                        Icons.arrow_forward_ios_outlined,
-                        size: IconSizes.sm.h,
-                        color: colorScheme.onSurface.withValues(alpha: 0.3),
-                      ),
+                      if (showNavigationIcon)
+                        Icon(
+                          Icons.arrow_forward_ios_outlined,
+                          size: IconSizes.sm.h,
+                          color: colorScheme.onSurface.withValues(alpha: 0.3),
+                        ),
                     ],
                   ),
                 ],

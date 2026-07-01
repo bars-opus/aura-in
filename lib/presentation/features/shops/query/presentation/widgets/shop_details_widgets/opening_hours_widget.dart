@@ -1,41 +1,20 @@
-import 'dart:async';
-
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 import 'package:nano_embryo/presentation/features/shops/query/data/models/dtos/opening_hours_dto.dart';
 import 'package:nano_embryo/presentation/features/shops/query/presentation/widgets/shop_details_widgets/shop_details_section.dart';
 
-class OpeningHoursWidget extends StatefulWidget {
+class OpeningHoursWidget extends StatelessWidget {
   final List<OpeningHoursDTO> openingHours;
   const OpeningHoursWidget({super.key, required this.openingHours});
 
   @override
-  State<OpeningHoursWidget> createState() => _OpeningHoursWidgetState();
-}
-
-class _OpeningHoursWidgetState extends State<OpeningHoursWidget> {
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final now = DateTime.now();
     final currentDay = now.weekday;
     final currentTime = TimeOfDay.fromDateTime(now);
+    final orderedHours = _buildOrderedHours(openingHours);
 
     final dayIcons = {
       1: FontAwesomeIcons.m, // Monday
@@ -57,252 +36,214 @@ class _OpeningHoursWidgetState extends State<OpeningHoursWidget> {
       'Sunday',
     ];
 
+    final todayHours = orderedHours.firstWhere(
+      (hour) => hour.dayOfWeek == currentDay,
+      orElse:
+          () => OpeningHoursDTO(
+            id: '',
+            dayOfWeek: currentDay,
+            opensAt: '',
+            closesAt: '',
+            isClosed: true,
+          ),
+    );
+    final scheduleState = _resolveScheduleState(
+      hours: orderedHours,
+      currentDay: currentDay,
+      currentTime: currentTime,
+    );
+
     return ShopDetailsSection(
       title: 'Opening hours',
       seeAllOnperssed: null,
+      showCard: false,
       widget: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.openingHours.isNotEmpty) ...[
-            ...widget.openingHours.map((hour) {
-              final isToday = hour.dayOfWeek == currentDay;
-              final isOpen = !hour.isClosed;
-
-              final openTime = _parseTimeOfDay(hour.opensAt);
-              final closeTime = _parseTimeOfDay(hour.closesAt);
-
-              // // Calculate duration for this day
-              // final duration = _calculateDuration(openTime, closeTime);
-              // final durationText = _formatDuration(duration);
-
-              // Build subtitle with day name and duration
-              final subtitleText =
-                  isOpen
-                      ? dayNames[hour.dayOfWeek - 1]
-                      : dayNames[hour.dayOfWeek - 1];
-
-              // Determine if currently open
-              bool isCurrentlyOpen = false;
-              Duration? timeUntilClose;
-              Duration? timeUntilOpen;
-
-              if (isToday && isOpen) {
-                isCurrentlyOpen = _isCurrentlyOpen(
-                  currentTime,
-                  openTime,
-                  closeTime,
-                );
-                if (isCurrentlyOpen) {
-                  timeUntilClose = _getTimeUntil(currentTime, closeTime);
-                } else if (currentTime.isBefore(openTime)) {
-                  timeUntilOpen = _getTimeUntil(currentTime, openTime);
-                }
-              } else if (isToday && !isOpen) {
-                timeUntilOpen = _getTimeUntilNextOpen(
-                  widget.openingHours,
-                  currentDay,
-                  currentTime,
-                );
-              } else if (!isToday && isOpen && currentTime.isAfter(closeTime)) {
-                timeUntilOpen = _getTimeUntilNextOpen(
-                  widget.openingHours,
-                  currentDay,
-                  currentTime,
-                );
-              }
-
-              // Determine if there's anything to show in the bottom row
-              final hasDetailedChips =
-                  (isToday &&
-                      isOpen &&
-                      (isCurrentlyOpen && timeUntilClose != null)) ||
-                  (isToday &&
-                      isOpen &&
-                      (!isCurrentlyOpen && timeUntilOpen != null)) ||
-                  (isToday && !isOpen && timeUntilOpen != null);
-
-              final hasStatusChips =
-                  (isToday && isOpen && isCurrentlyOpen) ||
-                  (isToday && !isOpen) ||
-                  (!isToday &&
-                      timeUntilOpen != null &&
-                      timeUntilOpen.inDays <= 7);
-
-              final hasDivider =
-                  hour.dayOfWeek != widget.openingHours.last.dayOfWeek;
-
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
+          if (orderedHours.isNotEmpty) ...[
+            _ScheduleStatusCard(
+              title: scheduleState.title,
+              subtitle: scheduleState.subtitle,
+              accentColor: scheduleState.accentColor,
+              icon: scheduleState.icon,
+            ),
+            Gap(Spacing.sm.h),
+            CardInkWell(
+              child: Column(
                 children: [
-                  // InfoRowWidget with trailing chips
-                  InfoRowWidget(
-                    subtitle: subtitleText,
-                    title:
-                        isOpen
-                            ? '${_formatTime12Hour(hour.opensAt)} - ${_formatTime12Hour(hour.closesAt)}'
-                            : 'Closed',
-                    icon: dayIcons[hour.dayOfWeek] ?? FontAwesomeIcons.clock,
-                    iconSize: 20.h,
-                    onTap: () {},
-                    showAvatar: false,
-                    showTrailingArrow: false,
-                    showDivider: false,
-                    trailing: const SizedBox.shrink(),
-                  ),
+                  ...orderedHours.map((hour) {
+                    final isToday = hour.dayOfWeek == currentDay;
+                    final isOpen = !hour.isClosed;
 
-                  // Only show the Row if there's content to display
-                  if (hasDetailedChips || hasStatusChips)
-                    Padding(
-                      padding: EdgeInsets.only(left: Spacing.xl),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Detailed chips below the InfoRowWidget
-                          if (isToday && isOpen) ...[
-                            if (isCurrentlyOpen && timeUntilClose != null)
-                              _buildCountdownChip(
-                                duration: timeUntilClose,
-                                label: 'Closes in',
-                                color: Colors.red,
+                    final openTime = _parseTimeOfDay(hour.opensAt);
+                    final closeTime = _parseTimeOfDay(hour.closesAt);
+                    final isCurrentlyOpen =
+                        isToday && isOpen
+                            ? _isCurrentlyOpen(currentTime, openTime, closeTime)
+                            : false;
+                    final rowStatus = _buildRowStatus(
+                      hour: hour,
+                      currentDay: currentDay,
+                      currentTime: currentTime,
+                      isCurrentlyOpen: isCurrentlyOpen,
+                      todayHours: todayHours,
+                      allHours: orderedHours,
+                    );
+                    final hasDivider =
+                        hour.dayOfWeek != orderedHours.last.dayOfWeek;
+
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                            vertical: Spacing.xs.h + 2.h,
+                            horizontal: Spacing.sm.w,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                isToday
+                                    ? colorScheme.primaryContainer.withValues(
+                                      alpha: 0.38,
+                                    )
+                                    : colorScheme.surfaceContainerLowest
+                                        .withValues(alpha: 0.35),
+                            borderRadius: BorderRadiusTokens.mdAll,
+                            border:
+                                isToday
+                                    ? Border.all(
+                                      color: colorScheme.primary.withValues(
+                                        alpha: 0.14,
+                                      ),
+                                      width: BorderWidthTokens.hairline,
+                                    )
+                                    : null,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 34.w,
+                                height: 34.w,
+                                decoration: BoxDecoration(
+                                  color:
+                                      isToday
+                                          ? colorScheme.primary.withValues(
+                                            alpha: 0.14,
+                                          )
+                                          : colorScheme.surfaceContainerHigh
+                                              .withValues(alpha: 0.6),
+                                  borderRadius: BorderRadiusTokens.mdAll,
+                                ),
+                                child: Icon(
+                                  dayIcons[hour.dayOfWeek] ??
+                                      FontAwesomeIcons.clock,
+                                  size: 14.h,
+                                  color:
+                                      isToday
+                                          ? colorScheme.primary
+                                          : colorScheme.onSurfaceVariant
+                                              .withValues(alpha: 0.75),
+                                ),
                               ),
-                            if (!isCurrentlyOpen && timeUntilOpen != null)
-                              _buildCountdownChip(
-                                duration: timeUntilOpen,
-                                label: 'Opens in',
-                                color: Colors.orange,
+                              Gap(Spacing.sm.w - 2.w),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      dayNames[hour.dayOfWeek - 1],
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(
+                                            fontWeight:
+                                                isToday
+                                                    ? FontWeight.w700
+                                                    : FontWeight.w600,
+                                            color:
+                                                isToday
+                                                    ? colorScheme.onSurface
+                                                    : colorScheme
+                                                        .onSurfaceVariant
+                                                        .withValues(
+                                                          alpha: 0.82,
+                                                        ),
+                                          ),
+                                    ),
+                                    Gap(2.h),
+                                    Text(
+                                      isOpen
+                                          ? '${_formatTime12Hour(hour.opensAt)} - ${_formatTime12Hour(hour.closesAt)}'
+                                          : 'Closed',
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
+                                            color:
+                                                isToday
+                                                    ? colorScheme
+                                                        .onSurfaceVariant
+                                                    : colorScheme
+                                                        .onSurfaceVariant
+                                                        .withValues(
+                                                          alpha: 0.72,
+                                                        ),
+                                          ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                          ] else if (isToday &&
-                              !isOpen &&
-                              timeUntilOpen != null) ...[
-                            _buildCountdownChip(
-                              duration: timeUntilOpen,
-                              label: 'Opens in',
-                              color: Colors.orange,
-                            ),
-                          ],
-
-                          // Today's status chips
-                          if (isToday && isOpen && isCurrentlyOpen)
-                            _buildStatusChip(
-                              icon: Icons.check_circle,
-                              label: 'Open',
-                              color: Colors.green,
-                            ),
-                          if (isToday && !isOpen)
-                            _buildStatusChip(
-                              icon: Icons.close,
-                              label: 'Closed today',
-                              color: Colors.red,
-                            ),
-                          if (!isToday &&
-                              timeUntilOpen != null &&
-                              timeUntilOpen.inDays <= 7)
-                            _buildCountdownChip(
-                              duration: timeUntilOpen,
-                              label: _getShortDayName(hour.dayOfWeek),
-                              color: Colors.blue,
-                            ),
-                        ],
-                      ),
-                    ),
-
-                  // Optional divider between days
-                  if (hasDivider)
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: Spacing.sm.h),
-                      child: AppDivider(),
-                    ),
+                              Gap(Spacing.xs.w),
+                              ConstrainedBox(
+                                constraints: BoxConstraints(maxWidth: 130.w),
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: _OpeningHoursBadge(
+                                    label: rowStatus.label,
+                                    icon: rowStatus.icon,
+                                    color: rowStatus.color,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (hasDivider)
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 6.h),
+                            child: AppDivider(),
+                          ),
+                      ],
+                    );
+                  }),
                 ],
-              );
-            }),
+              ),
+            ),
           ],
         ],
       ),
     );
   }
 
-  Duration _calculateDuration(TimeOfDay open, TimeOfDay close) {
-    int openMinutes = open.hour * 60 + open.minute;
-    int closeMinutes = close.hour * 60 + close.minute;
-
-    if (closeMinutes < openMinutes) {
-      // Passes midnight (e.g., open 9 PM to 2 AM)
-      closeMinutes += 24 * 60;
-    }
-
-    return Duration(minutes: closeMinutes - openMinutes);
-  }
-
-  String _formatDuration(Duration duration) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes % 60;
-
-    if (hours > 0 && minutes > 0) {
-      return '${hours}h ${minutes}m';
-    } else if (hours > 0) {
-      return '${hours}h';
-    } else {
-      return '${minutes}m';
-    }
-  }
-
-  Widget _buildStatusChip({
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: Spacing.xs.w, vertical: 2.h),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(4.r),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12.sp, color: color),
-          SizedBox(width: 4.w),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10.sp,
-              color: color,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCountdownChip({
-    required Duration duration,
-    required String label,
-    required Color color,
-  }) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes % 60;
-    final seconds = duration.inSeconds % 60;
-
-    String timeString;
-    if (hours > 0) {
-      timeString = '${hours}h ${minutes}m';
-    } else if (minutes > 0) {
-      timeString = '${minutes}m ${seconds}s';
-    } else {
-      timeString = '${seconds}s';
-    }
-
-    return MiniContainerIndicator(
-      color: color,
-      fontSize: 10,
-      text: '$label $timeString',
-    );
+  List<OpeningHoursDTO> _buildOrderedHours(List<OpeningHoursDTO> hours) {
+    final byDay = {for (final hour in hours) hour.dayOfWeek: hour};
+    return List.generate(7, (index) {
+      final day = index + 1;
+      return byDay[day] ??
+          OpeningHoursDTO(
+            id: '',
+            dayOfWeek: day,
+            opensAt: '',
+            closesAt: '',
+            isClosed: true,
+          );
+    });
   }
 
   TimeOfDay _parseTimeOfDay(String timeStr) {
+    if (timeStr.isEmpty) {
+      return const TimeOfDay(hour: 0, minute: 0);
+    }
+
     // Check if time is in 24-hour format (contains no AM/PM and no space)
     if (!timeStr.contains('AM') && !timeStr.contains('PM')) {
       // 24-hour format like "09:00:00" or "09:00"
@@ -347,23 +288,150 @@ class _OpeningHoursWidgetState extends State<OpeningHoursWidget> {
     return nowMinutes >= openMinutes && nowMinutes <= closeMinutes;
   }
 
-  Duration _getTimeUntil(TimeOfDay from, TimeOfDay to) {
-    int fromMinutes = from.hour * 60 + from.minute;
-    int toMinutes = to.hour * 60 + to.minute;
+  _ScheduleState _resolveScheduleState({
+    required List<OpeningHoursDTO> hours,
+    required int currentDay,
+    required TimeOfDay currentTime,
+  }) {
+    final todayHours = hours.firstWhere(
+      (hour) => hour.dayOfWeek == currentDay,
+      orElse:
+          () => OpeningHoursDTO(
+            id: '',
+            dayOfWeek: currentDay,
+            opensAt: '',
+            closesAt: '',
+            isClosed: true,
+          ),
+    );
 
-    if (toMinutes < fromMinutes) {
-      toMinutes += 24 * 60;
+    if (!todayHours.isClosed) {
+      final openTime = _parseTimeOfDay(todayHours.opensAt);
+      final closeTime = _parseTimeOfDay(todayHours.closesAt);
+      final isCurrentlyOpen = _isCurrentlyOpen(
+        currentTime,
+        openTime,
+        closeTime,
+      );
+
+      if (isCurrentlyOpen) {
+        return _ScheduleState(
+          title: 'Open now',
+          subtitle: 'Closes at ${_formatTime12Hour(todayHours.closesAt)}',
+          accentColor: Colors.green,
+          icon: Icons.check_circle_rounded,
+        );
+      }
+
+      if (currentTime.isBefore(openTime)) {
+        return _ScheduleState(
+          title: 'Closed now',
+          subtitle: 'Opens today at ${_formatTime12Hour(todayHours.opensAt)}',
+          accentColor: Colors.orange,
+          icon: Icons.schedule_rounded,
+        );
+      }
     }
 
-    final diffMinutes = toMinutes - fromMinutes;
-    return Duration(minutes: diffMinutes);
+    final nextOpen = _findNextOpenSlot(
+      hours: hours,
+      currentDay: currentDay,
+      currentTime: currentTime,
+    );
+
+    if (nextOpen == null) {
+      return const _ScheduleState(
+        title: 'Currently unavailable',
+        subtitle: 'Opening hours are not available right now',
+        accentColor: Colors.red,
+        icon: Icons.lock_clock_rounded,
+      );
+    }
+
+    final dayLabel =
+        nextOpen.dayOffset == 0
+            ? 'today'
+            : nextOpen.dayOffset == 1
+            ? 'tomorrow'
+            : _getDayName(nextOpen.dayOfWeek);
+
+    return _ScheduleState(
+      title: 'Closed now',
+      subtitle: 'Opens $dayLabel at ${_formatTime12Hour(nextOpen.opensAt)}',
+      accentColor: Colors.red,
+      icon: Icons.do_not_disturb_on_rounded,
+    );
   }
 
-  Duration? _getTimeUntilNextOpen(
-    List<OpeningHoursDTO> hours,
-    int currentDay,
-    TimeOfDay currentTime,
-  ) {
+  _OpeningHoursRowState _buildRowStatus({
+    required OpeningHoursDTO hour,
+    required int currentDay,
+    required TimeOfDay currentTime,
+    required bool isCurrentlyOpen,
+    required OpeningHoursDTO todayHours,
+    required List<OpeningHoursDTO> allHours,
+  }) {
+    if (hour.isClosed) {
+      if (hour.dayOfWeek == currentDay) {
+        final nextOpen = _findNextOpenSlot(
+          hours: allHours,
+          currentDay: currentDay,
+          currentTime: currentTime,
+        );
+        final label =
+            nextOpen == null
+                ? 'Closed'
+                : nextOpen.dayOffset == 1
+                ? 'Opens tomorrow'
+                : nextOpen.dayOffset == 0
+                ? 'Opens later'
+                : 'Closed';
+
+        return _OpeningHoursRowState(
+          label: label,
+          icon: Icons.do_not_disturb_on_rounded,
+          color: Colors.red,
+        );
+      }
+
+      return _OpeningHoursRowState(
+        label: 'Closed',
+        icon: Icons.close_rounded,
+        color: Colors.grey,
+      );
+    }
+
+    if (hour.dayOfWeek == currentDay) {
+      if (isCurrentlyOpen) {
+        return _OpeningHoursRowState(
+          label: 'Open',
+          icon: Icons.check_circle_rounded,
+          color: Colors.green,
+        );
+      }
+
+      final openTime = _parseTimeOfDay(todayHours.opensAt);
+      if (currentTime.isBefore(openTime)) {
+        return _OpeningHoursRowState(
+          label: 'Opens today',
+          icon: Icons.schedule_rounded,
+          color: Colors.orange,
+        );
+      }
+    }
+
+    return _OpeningHoursRowState(
+      label: 'Scheduled',
+      icon: Icons.calendar_today_rounded,
+      color: Colors.blueGrey,
+    );
+  }
+
+  _NextOpenSlot? _findNextOpenSlot({
+    required List<OpeningHoursDTO> hours,
+    required int currentDay,
+    required TimeOfDay currentTime,
+  }) {
     for (int offset = 0; offset <= 7; offset++) {
       final checkDay = ((currentDay - 1 + offset) % 7) + 1;
       final dayHours = hours.firstWhere(
@@ -378,26 +446,205 @@ class _OpeningHoursWidgetState extends State<OpeningHoursWidget> {
             ),
       );
 
-      if (!dayHours.isClosed) {
-        final openTime = _parseTimeOfDay(dayHours.opensAt);
-        int totalMinutes = offset * 24 * 60;
+      if (dayHours.isClosed) continue;
 
-        if (offset == 0) {
-          totalMinutes += _getTimeUntil(currentTime, openTime).inMinutes;
-        } else {
-          totalMinutes += openTime.hour * 60 + openTime.minute;
-        }
+      final openTime = _parseTimeOfDay(dayHours.opensAt);
+      if (offset == 0 && !currentTime.isBefore(openTime)) continue;
 
-        if (totalMinutes > 0) {
-          return Duration(minutes: totalMinutes);
-        }
-      }
+      return _NextOpenSlot(
+        dayOfWeek: checkDay,
+        dayOffset: offset,
+        opensAt: dayHours.opensAt,
+      );
     }
+
     return null;
   }
 
-  String _getShortDayName(int dayOfWeek) {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  static String _getDayName(int dayOfWeek) {
+    const days = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
     return days[dayOfWeek - 1];
   }
+}
+
+class _ScheduleStatusCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final Color accentColor;
+  final IconData icon;
+
+  const _ScheduleStatusCard({
+    required this.title,
+    required this.subtitle,
+    required this.accentColor,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: Spacing.md.w,
+        vertical: Spacing.md.h,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            accentColor.withValues(alpha: 0.14),
+            accentColor.withValues(alpha: 0.04),
+          ],
+        ),
+        borderRadius: BorderRadiusTokens.lgAll,
+        border: Border.all(
+          color: accentColor.withValues(alpha: 0.22),
+          width: BorderWidthTokens.hairline,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withValues(alpha: 0.06),
+            blurRadius: 18.r,
+            offset: Offset(0, 6.h),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 46.w,
+            height: 46.w,
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.14),
+              borderRadius: BorderRadiusTokens.lgAll,
+            ),
+            child: Icon(icon, color: accentColor, size: 22.h),
+          ),
+          Gap(Spacing.sm.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Today',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: accentColor.withValues(alpha: 0.9),
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+                Gap(2.h),
+                Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                Gap(4.h),
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OpeningHoursBadge extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Color color;
+
+  const _OpeningHoursBadge({
+    required this.label,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: Spacing.sm.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(BorderRadiusTokens.full),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14.h, color: color),
+          Gap(Spacing.xs.w),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: color,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScheduleState {
+  final String title;
+  final String subtitle;
+  final Color accentColor;
+  final IconData icon;
+
+  const _ScheduleState({
+    required this.title,
+    required this.subtitle,
+    required this.accentColor,
+    required this.icon,
+  });
+}
+
+class _OpeningHoursRowState {
+  final String label;
+  final IconData icon;
+  final Color color;
+
+  const _OpeningHoursRowState({
+    required this.label,
+    required this.icon,
+    required this.color,
+  });
+}
+
+class _NextOpenSlot {
+  final int dayOfWeek;
+  final int dayOffset;
+  final String opensAt;
+
+  const _NextOpenSlot({
+    required this.dayOfWeek,
+    required this.dayOffset,
+    required this.opensAt,
+  });
 }

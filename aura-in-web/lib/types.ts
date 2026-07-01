@@ -29,6 +29,7 @@ export interface Shop {
   name: string;
   type: string | null;
   logoUrl: string | null;
+  overview: string | null;
   luxuryLevel: number | string | null;
   verified: boolean | null;
   address: string | null;

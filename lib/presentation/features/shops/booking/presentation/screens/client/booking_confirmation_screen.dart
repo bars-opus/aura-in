@@ -456,6 +456,11 @@ class _BookingConfirmationScreenState
         promotionId: _appliedPromo?.promotionId,
         // Phase 17: AppliedPromo carries int kobo directly (Wave 5.1).
         promoAmountOffMinor: _appliedPromo?.amountOffMinor,
+        // Freelancer home-service address — forwarded to the edge function
+        // so the webhook can write it to bookings.client_address.
+        clientAddress: ref.read(selectedAddressProvider)?.fullAddress,
+        clientAddressLat: ref.read(selectedAddressProvider)?.latitude,
+        clientAddressLng: ref.read(selectedAddressProvider)?.longitude,
       );
 
       if (result != null && mounted) {
@@ -567,8 +572,23 @@ class _BookingConfirmationScreenState
 
   void _showPaymentDialog() {
     final config = ref.read(paymentConfigProvider);
-    // Phase 17: bps → percent for display: 3000 bps = 30%.
     final depositPct = config.depositBps ~/ 100;
+
+    final services = ref.read(selectedServicesProvider);
+    final quantities = ref.read(serviceQuantityProvider);
+    final timeSlots = ref.read(selectedTimeSlotsProvider);
+    final addons = ref.read(selectedAddonsProvider);
+    final totalMinor =
+        (_appliedPromo?.newTotalMinor) ??
+        _calculateTotalPriceMinor(services, quantities, timeSlots, addons);
+
+    final depositMinor = applyBps(totalMinor, config.depositBps);
+    final chargeNowMinor = depositMinor + kFlatPlatformFeeMinor;
+    final remainingMinor = totalMinor - depositMinor;
+
+    final chargeNow = formatMoney(chargeNowMinor, widget.shopCurrency);
+    final remaining = formatMoney(remainingMinor, widget.shopCurrency);
+
     BottomSheetUtils.showDocumentationBottomSheet(
       context: context,
       maxHeight: 350.h,
@@ -579,7 +599,8 @@ class _BookingConfirmationScreenState
             'You are required to make a $depositPct% deposit to secure this appointment',
         confirmText: 'Continue',
         message:
-            'A $depositPct% deposit is required to confirm your booking. The remaining balance is paid after your appointment.',
+            'You will be charged $chargeNow now ($depositPct% deposit + platform fee). '
+            'The remaining $remaining is due after your appointment.',
         onConfirm: () {
           _confirmBooking();
         },

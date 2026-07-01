@@ -1,3 +1,4 @@
+import 'package:nano_embryo/core/utils/money.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/presentation/widgets/client/service_with_requirements.dart';
 import 'package:nano_embryo/presentation/features/shops/booking/utility/booking_shop_exports.dart';
 
@@ -52,24 +53,26 @@ class ClientServiceCard extends ConsumerWidget {
           // the boundary.
           BookingPriceBreakdown(
             isShopOwner: isShopOwner,
-            buttonText: 'Make 70% payment',
+            buttonText: 'Make final payment',
             totalAmount: booking.totalAmountMinor / 100,
-            depositAmount: (booking.totalAmountMinor * 0.3) / 100,
+            depositAmount: booking.depositAmountMinor / 100,
             platformFee:
-                booking.platformFeeMinor == null
-                    ? 2
-                    : booking.platformFeeMinor! / 100,
+                (booking.platformFeeMinor ?? 0) / 100,
             payOnPressed: () {
+              final remainingMinor =
+                  booking.totalAmountMinor - booking.depositAmountMinor;
+              final remaining = formatMoney(remainingMinor, shopCurrency);
+
               BottomSheetUtils.showDocumentationBottomSheet(
                 context: context,
                 maxHeight: 350.h,
                 widget: ConfirmationDialog(
                   noIcon: true,
                   type: ConfirmationType.info,
-                  title: 'Are you sure you want to make the final 70% payment?',
+                  title: 'Confirm final payment',
                   confirmText: 'Continue',
                   message:
-                      'We Continue to the bext page and see what is there all day al nught',
+                      'You will be charged $remaining. No platform fee is applied for the final payment.',
                   onConfirm: () {
                     // _confirmBooking();
                   },
